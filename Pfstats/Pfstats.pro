@@ -7,7 +7,7 @@
 QT       += core gui
 QT += network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = Pfstats
 TEMPLATE = app
@@ -15,10 +15,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    inputpfam.cpp
+    inputpfam.cpp \
+    filteralignment.cpp \
+    qcustomplot.cpp
 
 HEADERS  += mainwindow.h \
-    inputpfam.h
+    inputpfam.h \
+    filteralignment.h \
+    qcustomplot.h
 
 FORMS    += mainwindow.ui \
-    inputpfam.ui
+    inputpfam.ui \
+    filteralignment.ui

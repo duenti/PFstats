@@ -8,10 +8,10 @@ int main(int argc, char *argv[])
     MainWindow w;
     QDesktopWidget dw;
 
-    int x = dw.width();
-    int y = dw.height();
+    //int x = dw.width();
+    //int y = dw.height();
 
-    w.setFixedSize(x,y);
+    //w.setFixedSize(x,y);
     w.show();
 
     return a.exec();

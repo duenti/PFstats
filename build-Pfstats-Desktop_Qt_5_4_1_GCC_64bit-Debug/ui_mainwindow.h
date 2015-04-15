@@ -112,15 +112,15 @@ public:
     QHBoxLayout *horizontalLayout_11;
     QLabel *label_11;
     QSpacerItem *horizontalSpacer_5;
-    QLineEdit *txtMinCover;
+    QDoubleSpinBox *txtMinCover;
     QHBoxLayout *horizontalLayout_12;
     QLabel *label_12;
     QSpacerItem *horizontalSpacer_6;
-    QLineEdit *txtMinId;
+    QDoubleSpinBox *txtMinId;
     QHBoxLayout *horizontalLayout_13;
     QLabel *label_13;
     QSpacerItem *horizontalSpacer_7;
-    QLineEdit *txtMaxId;
+    QDoubleSpinBox *txtMaxId;
     QPushButton *cmdApplyFilter;
     QWidget *page_4;
     QLabel *label_14;
@@ -143,7 +143,8 @@ public:
     QComboBox *cmbRefSeq_2;
     QListWidget *lstRefSeqs;
     QLabel *label_20;
-    QWidget *layoutWidget5;
+    QWidget *widget;
+    QVBoxLayout *verticalLayout_7;
     QVBoxLayout *verticalLayout_5;
     QHBoxLayout *horizontalLayout_17;
     QLabel *label_18;
@@ -151,10 +152,13 @@ public:
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_19;
     QLineEdit *txtChain;
+    QHBoxLayout *horizontalLayout_24;
+    QLabel *label_28;
+    QDoubleSpinBox *txtMinConserv;
     QWidget *page_5;
     QLabel *label_21;
     QCustomPlot *graficMinss;
-    QWidget *layoutWidget6;
+    QWidget *layoutWidget5;
     QHBoxLayout *horizontalLayout_19;
     QLabel *label_22;
     QSpinBox *txtNoAlignments;
@@ -164,7 +168,7 @@ public:
     QLabel *label_23;
     QLabel *label_27;
     QPushButton *cmdCorrelation;
-    QWidget *widget;
+    QWidget *layoutWidget6;
     QVBoxLayout *verticalLayout_6;
     QHBoxLayout *horizontalLayout_20;
     QLabel *label_24;
@@ -175,10 +179,11 @@ public:
     QHBoxLayout *horizontalLayout_22;
     QLabel *label_26;
     QDoubleSpinBox *txtMinDeltaFreq;
-    QWidget *widget1;
+    QWidget *layoutWidget7;
     QHBoxLayout *horizontalLayout_23;
     QLineEdit *txtGraphPath;
     QPushButton *cmdGraphPath;
+    QWidget *page_7;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuMethod;
@@ -186,10 +191,10 @@ public:
     QMenu *menuShow;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
+    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup_3;
     QButtonGroup *buttonGroup_4;
-    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -299,7 +304,7 @@ public:
         cmdOpen->setGeometry(QRect(20, 40, 80, 23));
         groupBox_2 = new QGroupBox(page_2);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
-        groupBox_2->setGeometry(QRect(200, 110, 331, 301));
+        groupBox_2->setGeometry(QRect(190, 110, 401, 321));
         layoutWidget1 = new QWidget(groupBox_2);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
         layoutWidget1->setGeometry(QRect(20, 30, 368, 266));
@@ -526,8 +531,11 @@ public:
 
         horizontalLayout_11->addItem(horizontalSpacer_5);
 
-        txtMinCover = new QLineEdit(layoutWidget_2);
+        txtMinCover = new QDoubleSpinBox(layoutWidget_2);
         txtMinCover->setObjectName(QStringLiteral("txtMinCover"));
+        txtMinCover->setMinimum(0.01);
+        txtMinCover->setSingleStep(0.01);
+        txtMinCover->setValue(0.8);
 
         horizontalLayout_11->addWidget(txtMinCover);
 
@@ -546,9 +554,11 @@ public:
 
         horizontalLayout_12->addItem(horizontalSpacer_6);
 
-        txtMinId = new QLineEdit(layoutWidget_2);
+        txtMinId = new QDoubleSpinBox(layoutWidget_2);
         txtMinId->setObjectName(QStringLiteral("txtMinId"));
-        txtMinId->setMaximumSize(QSize(108, 16777215));
+        txtMinId->setMinimum(0.01);
+        txtMinId->setSingleStep(0.01);
+        txtMinId->setValue(0.15);
 
         horizontalLayout_12->addWidget(txtMinId);
 
@@ -567,9 +577,11 @@ public:
 
         horizontalLayout_13->addItem(horizontalSpacer_7);
 
-        txtMaxId = new QLineEdit(layoutWidget_2);
+        txtMaxId = new QDoubleSpinBox(layoutWidget_2);
         txtMaxId->setObjectName(QStringLiteral("txtMaxId"));
-        txtMaxId->setMaximumSize(QSize(108, 16777215));
+        txtMaxId->setMinimum(0.01);
+        txtMaxId->setSingleStep(0.01);
+        txtMaxId->setValue(0.8);
 
         horizontalLayout_13->addWidget(txtMaxId);
 
@@ -643,10 +655,10 @@ public:
         groupBox_4->setGeometry(QRect(50, 230, 511, 231));
         cmdConservation = new QPushButton(groupBox_4);
         cmdConservation->setObjectName(QStringLiteral("cmdConservation"));
-        cmdConservation->setGeometry(QRect(410, 190, 80, 23));
+        cmdConservation->setGeometry(QRect(410, 200, 80, 23));
         layoutWidget4 = new QWidget(groupBox_4);
         layoutWidget4->setObjectName(QStringLiteral("layoutWidget4"));
-        layoutWidget4->setGeometry(QRect(10, 40, 339, 29));
+        layoutWidget4->setGeometry(QRect(10, 30, 339, 29));
         horizontalLayout_16 = new QHBoxLayout(layoutWidget4);
         horizontalLayout_16->setSpacing(6);
         horizontalLayout_16->setContentsMargins(11, 11, 11, 11);
@@ -665,29 +677,33 @@ public:
 
         lstRefSeqs = new QListWidget(groupBox_4);
         lstRefSeqs->setObjectName(QStringLiteral("lstRefSeqs"));
-        lstRefSeqs->setGeometry(QRect(180, 80, 151, 141));
+        lstRefSeqs->setGeometry(QRect(150, 80, 151, 141));
         lstRefSeqs->setSelectionMode(QAbstractItemView::MultiSelection);
         label_20 = new QLabel(groupBox_4);
         label_20->setObjectName(QStringLiteral("label_20"));
         label_20->setGeometry(QRect(10, 90, 161, 91));
-        layoutWidget5 = new QWidget(groupBox_4);
-        layoutWidget5->setObjectName(QStringLiteral("layoutWidget5"));
-        layoutWidget5->setGeometry(QRect(370, 110, 121, 66));
-        verticalLayout_5 = new QVBoxLayout(layoutWidget5);
+        widget = new QWidget(groupBox_4);
+        widget->setObjectName(QStringLiteral("widget"));
+        widget->setGeometry(QRect(310, 71, 193, 92));
+        verticalLayout_7 = new QVBoxLayout(widget);
+        verticalLayout_7->setSpacing(6);
+        verticalLayout_7->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
+        verticalLayout_7->setContentsMargins(0, 0, 0, 0);
+        verticalLayout_5 = new QVBoxLayout();
         verticalLayout_5->setSpacing(6);
-        verticalLayout_5->setContentsMargins(11, 11, 11, 11);
         verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
-        verticalLayout_5->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_17 = new QHBoxLayout();
         horizontalLayout_17->setSpacing(6);
         horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
-        label_18 = new QLabel(layoutWidget5);
+        label_18 = new QLabel(widget);
         label_18->setObjectName(QStringLiteral("label_18"));
 
         horizontalLayout_17->addWidget(label_18);
 
-        txtOffset = new QLineEdit(layoutWidget5);
+        txtOffset = new QLineEdit(widget);
         txtOffset->setObjectName(QStringLiteral("txtOffset"));
+        txtOffset->setMaximumSize(QSize(50, 16777215));
 
         horizontalLayout_17->addWidget(txtOffset);
 
@@ -697,18 +713,42 @@ public:
         horizontalLayout_18 = new QHBoxLayout();
         horizontalLayout_18->setSpacing(6);
         horizontalLayout_18->setObjectName(QStringLiteral("horizontalLayout_18"));
-        label_19 = new QLabel(layoutWidget5);
+        label_19 = new QLabel(widget);
         label_19->setObjectName(QStringLiteral("label_19"));
 
         horizontalLayout_18->addWidget(label_19);
 
-        txtChain = new QLineEdit(layoutWidget5);
+        txtChain = new QLineEdit(widget);
         txtChain->setObjectName(QStringLiteral("txtChain"));
+        txtChain->setMaximumSize(QSize(50, 16777215));
 
         horizontalLayout_18->addWidget(txtChain);
 
 
         verticalLayout_5->addLayout(horizontalLayout_18);
+
+
+        verticalLayout_7->addLayout(verticalLayout_5);
+
+        horizontalLayout_24 = new QHBoxLayout();
+        horizontalLayout_24->setSpacing(6);
+        horizontalLayout_24->setObjectName(QStringLiteral("horizontalLayout_24"));
+        label_28 = new QLabel(widget);
+        label_28->setObjectName(QStringLiteral("label_28"));
+
+        horizontalLayout_24->addWidget(label_28);
+
+        txtMinConserv = new QDoubleSpinBox(widget);
+        txtMinConserv->setObjectName(QStringLiteral("txtMinConserv"));
+        txtMinConserv->setMaximumSize(QSize(50, 16777215));
+        txtMinConserv->setMaximum(1);
+        txtMinConserv->setSingleStep(0.01);
+        txtMinConserv->setValue(0.8);
+
+        horizontalLayout_24->addWidget(txtMinConserv);
+
+
+        verticalLayout_7->addLayout(horizontalLayout_24);
 
         stackedWidget->addWidget(page_4);
         page_5 = new QWidget();
@@ -720,20 +760,20 @@ public:
         graficMinss = new QCustomPlot(page_5);
         graficMinss->setObjectName(QStringLiteral("graficMinss"));
         graficMinss->setGeometry(QRect(40, 180, 541, 291));
-        layoutWidget6 = new QWidget(page_5);
-        layoutWidget6->setObjectName(QStringLiteral("layoutWidget6"));
-        layoutWidget6->setGeometry(QRect(50, 140, 390, 29));
-        horizontalLayout_19 = new QHBoxLayout(layoutWidget6);
+        layoutWidget5 = new QWidget(page_5);
+        layoutWidget5->setObjectName(QStringLiteral("layoutWidget5"));
+        layoutWidget5->setGeometry(QRect(50, 140, 390, 29));
+        horizontalLayout_19 = new QHBoxLayout(layoutWidget5);
         horizontalLayout_19->setSpacing(6);
         horizontalLayout_19->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_19->setObjectName(QStringLiteral("horizontalLayout_19"));
         horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
-        label_22 = new QLabel(layoutWidget6);
+        label_22 = new QLabel(layoutWidget5);
         label_22->setObjectName(QStringLiteral("label_22"));
 
         horizontalLayout_19->addWidget(label_22);
 
-        txtNoAlignments = new QSpinBox(layoutWidget6);
+        txtNoAlignments = new QSpinBox(layoutWidget5);
         txtNoAlignments->setObjectName(QStringLiteral("txtNoAlignments"));
         txtNoAlignments->setMinimumSize(QSize(60, 0));
         txtNoAlignments->setMaximum(10000);
@@ -745,7 +785,7 @@ public:
 
         horizontalLayout_19->addItem(horizontalSpacer_8);
 
-        cmdMinss = new QPushButton(layoutWidget6);
+        cmdMinss = new QPushButton(layoutWidget5);
         cmdMinss->setObjectName(QStringLiteral("cmdMinss"));
 
         horizontalLayout_19->addWidget(cmdMinss);
@@ -763,10 +803,10 @@ public:
         cmdCorrelation = new QPushButton(page_6);
         cmdCorrelation->setObjectName(QStringLiteral("cmdCorrelation"));
         cmdCorrelation->setGeometry(QRect(470, 370, 99, 27));
-        widget = new QWidget(page_6);
-        widget->setObjectName(QStringLiteral("widget"));
-        widget->setGeometry(QRect(50, 150, 193, 101));
-        verticalLayout_6 = new QVBoxLayout(widget);
+        layoutWidget6 = new QWidget(page_6);
+        layoutWidget6->setObjectName(QStringLiteral("layoutWidget6"));
+        layoutWidget6->setGeometry(QRect(50, 150, 193, 101));
+        verticalLayout_6 = new QVBoxLayout(layoutWidget6);
         verticalLayout_6->setSpacing(6);
         verticalLayout_6->setContentsMargins(11, 11, 11, 11);
         verticalLayout_6->setObjectName(QStringLiteral("verticalLayout_6"));
@@ -774,12 +814,12 @@ public:
         horizontalLayout_20 = new QHBoxLayout();
         horizontalLayout_20->setSpacing(6);
         horizontalLayout_20->setObjectName(QStringLiteral("horizontalLayout_20"));
-        label_24 = new QLabel(widget);
+        label_24 = new QLabel(layoutWidget6);
         label_24->setObjectName(QStringLiteral("label_24"));
 
         horizontalLayout_20->addWidget(label_24);
 
-        txtMinScore = new QSpinBox(widget);
+        txtMinScore = new QSpinBox(layoutWidget6);
         txtMinScore->setObjectName(QStringLiteral("txtMinScore"));
         txtMinScore->setMaximumSize(QSize(70, 16777215));
         txtMinScore->setValue(10);
@@ -792,12 +832,12 @@ public:
         horizontalLayout_21 = new QHBoxLayout();
         horizontalLayout_21->setSpacing(6);
         horizontalLayout_21->setObjectName(QStringLiteral("horizontalLayout_21"));
-        label_25 = new QLabel(widget);
+        label_25 = new QLabel(layoutWidget6);
         label_25->setObjectName(QStringLiteral("label_25"));
 
         horizontalLayout_21->addWidget(label_25);
 
-        txtMinssFraction = new QDoubleSpinBox(widget);
+        txtMinssFraction = new QDoubleSpinBox(layoutWidget6);
         txtMinssFraction->setObjectName(QStringLiteral("txtMinssFraction"));
         txtMinssFraction->setMaximumSize(QSize(70, 16777215));
         txtMinssFraction->setMinimum(0.01);
@@ -813,12 +853,12 @@ public:
         horizontalLayout_22 = new QHBoxLayout();
         horizontalLayout_22->setSpacing(6);
         horizontalLayout_22->setObjectName(QStringLiteral("horizontalLayout_22"));
-        label_26 = new QLabel(widget);
+        label_26 = new QLabel(layoutWidget6);
         label_26->setObjectName(QStringLiteral("label_26"));
 
         horizontalLayout_22->addWidget(label_26);
 
-        txtMinDeltaFreq = new QDoubleSpinBox(widget);
+        txtMinDeltaFreq = new QDoubleSpinBox(layoutWidget6);
         txtMinDeltaFreq->setObjectName(QStringLiteral("txtMinDeltaFreq"));
         txtMinDeltaFreq->setMinimum(0.01);
         txtMinDeltaFreq->setMaximum(1);
@@ -830,34 +870,37 @@ public:
 
         verticalLayout_6->addLayout(horizontalLayout_22);
 
-        widget1 = new QWidget(page_6);
-        widget1->setObjectName(QStringLiteral("widget1"));
-        widget1->setGeometry(QRect(50, 300, 443, 29));
-        horizontalLayout_23 = new QHBoxLayout(widget1);
+        layoutWidget7 = new QWidget(page_6);
+        layoutWidget7->setObjectName(QStringLiteral("layoutWidget7"));
+        layoutWidget7->setGeometry(QRect(50, 300, 443, 29));
+        horizontalLayout_23 = new QHBoxLayout(layoutWidget7);
         horizontalLayout_23->setSpacing(6);
         horizontalLayout_23->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
         horizontalLayout_23->setContentsMargins(0, 0, 0, 0);
-        txtGraphPath = new QLineEdit(widget1);
+        txtGraphPath = new QLineEdit(layoutWidget7);
         txtGraphPath->setObjectName(QStringLiteral("txtGraphPath"));
         txtGraphPath->setMinimumSize(QSize(350, 0));
         txtGraphPath->setReadOnly(true);
 
         horizontalLayout_23->addWidget(txtGraphPath);
 
-        cmdGraphPath = new QPushButton(widget1);
+        cmdGraphPath = new QPushButton(layoutWidget7);
         cmdGraphPath->setObjectName(QStringLiteral("cmdGraphPath"));
 
         horizontalLayout_23->addWidget(cmdGraphPath);
 
         stackedWidget->addWidget(page_6);
+        page_7 = new QWidget();
+        page_7->setObjectName(QStringLiteral("page_7"));
+        stackedWidget->addWidget(page_7);
 
         gridLayout->addWidget(stackedWidget, 0, 1, 1, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 937, 25));
+        menuBar->setGeometry(QRect(0, 0, 937, 20));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuMethod = new QMenu(menuBar);
@@ -891,7 +934,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(5);
+        stackedWidget->setCurrentIndex(3);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -957,7 +1000,10 @@ public:
         label_17->setText(QApplication::translate("MainWindow", "Main Reference Sequence:", 0));
         label_20->setText(QApplication::translate("MainWindow", "Secundary reference<br> sequences for calculate<br> conserved residues:", 0));
         label_18->setText(QApplication::translate("MainWindow", "Offset:", 0));
+        txtOffset->setText(QApplication::translate("MainWindow", "0", 0));
         label_19->setText(QApplication::translate("MainWindow", "Chain:", 0));
+        txtChain->setText(QApplication::translate("MainWindow", "A", 0));
+        label_28->setText(QApplication::translate("MainWindow", "Minumum Conservation:", 0));
         label_21->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Step 4 - Minss</span></p>\n"
 "<p>\n"
 "This module implements the procedure described in (Dima and Thirumalai 2006). It calculates the average conservation for the full alignment and then for multiple sub-alignments with decreasing sizes.\n"

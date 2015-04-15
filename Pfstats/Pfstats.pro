@@ -15,15 +15,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    inputpfam.cpp \
-    filteralignment.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    alignment.cpp
 
 HEADERS  += mainwindow.h \
-    inputpfam.h \
-    filteralignment.h \
-    qcustomplot.h
+    qcustomplot.h \
+    alignment.h
 
-FORMS    += mainwindow.ui \
-    inputpfam.ui \
-    filteralignment.ui
+FORMS    += mainwindow.ui

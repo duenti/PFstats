@@ -80,7 +80,7 @@
     <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>6</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QLabel" name="label">
@@ -194,10 +194,10 @@
        <widget class="QGroupBox" name="groupBox_2">
         <property name="geometry">
          <rect>
-          <x>200</x>
+          <x>190</x>
           <y>110</y>
-          <width>331</width>
-          <height>301</height>
+          <width>401</width>
+          <height>321</height>
          </rect>
         </property>
         <property name="title">
@@ -511,7 +511,17 @@
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="txtMinCover"/>
+            <widget class="QDoubleSpinBox" name="txtMinCover">
+             <property name="minimum">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.800000000000000</double>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -538,12 +548,15 @@
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="txtMinId">
-             <property name="maximumSize">
-              <size>
-               <width>108</width>
-               <height>16777215</height>
-              </size>
+            <widget class="QDoubleSpinBox" name="txtMinId">
+             <property name="minimum">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.150000000000000</double>
              </property>
             </widget>
            </item>
@@ -572,12 +585,15 @@
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="txtMaxId">
-             <property name="maximumSize">
-              <size>
-               <width>108</width>
-               <height>16777215</height>
-              </size>
+            <widget class="QDoubleSpinBox" name="txtMaxId">
+             <property name="minimum">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.800000000000000</double>
              </property>
             </widget>
            </item>
@@ -722,7 +738,7 @@
          <property name="geometry">
           <rect>
            <x>410</x>
-           <y>190</y>
+           <y>200</y>
            <width>80</width>
            <height>23</height>
           </rect>
@@ -735,7 +751,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>40</y>
+           <y>30</y>
            <width>339</width>
            <height>29</height>
           </rect>
@@ -763,7 +779,7 @@
         <widget class="QListWidget" name="lstRefSeqs">
          <property name="geometry">
           <rect>
-           <x>180</x>
+           <x>150</x>
            <y>80</y>
            <width>151</width>
            <height>141</height>
@@ -786,41 +802,95 @@
           <string>Secundary reference&lt;br&gt; sequences for calculate&lt;br&gt; conserved residues:</string>
          </property>
         </widget>
-        <widget class="QWidget" name="layoutWidget">
+        <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
-           <x>370</x>
-           <y>110</y>
-           <width>121</width>
-           <height>66</height>
+           <x>310</x>
+           <y>71</y>
+           <width>193</width>
+           <height>92</height>
           </rect>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_17">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <widget class="QLabel" name="label_18">
-              <property name="text">
-               <string>Offset:</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Offset:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="txtOffset">
+                <property name="maximumSize">
+                 <size>
+                  <width>50</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
-             <widget class="QLineEdit" name="txtOffset"/>
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <item>
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Chain:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="txtChain">
+                <property name="maximumSize">
+                 <size>
+                  <width>50</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>A</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_18">
+           <layout class="QHBoxLayout" name="horizontalLayout_24">
             <item>
-             <widget class="QLabel" name="label_19">
+             <widget class="QLabel" name="label_28">
               <property name="text">
-               <string>Chain:</string>
+               <string>Minumum Conservation:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="txtChain"/>
+             <widget class="QDoubleSpinBox" name="txtMinConserv">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.800000000000000</double>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -964,7 +1034,7 @@ This will calculate a set of correlation scores for the full alignment, using th
          <string>Calculate</string>
         </property>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>50</x>
@@ -1060,7 +1130,7 @@ This will calculate a set of correlation scores for the full alignment, using th
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>50</x>
@@ -1093,29 +1163,7 @@ This will calculate a set of correlation scores for the full alignment, using th
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="page_7">
-       <widget class="QLabel" name="label_28">
-        <property name="geometry">
-         <rect>
-          <x>50</x>
-          <y>-10</y>
-          <width>491</width>
-          <height>131</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Step 6 - Trivial Decomposition&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;
-This will run a trivial decomposition of the correlation network. Nodes that can be connected by a path of existing connections are grouped in the same set. Therefore, each set will contain residues (in specific positions) which tend to be present simultaneously in a sequence.
-&lt;/p&gt;
-
-&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </widget>
+      <widget class="QWidget" name="page_7"/>
      </widget>
     </item>
    </layout>
@@ -1126,7 +1174,7 @@ This will run a trivial decomposition of the correlation network. Nodes that can
      <x>0</x>
      <y>0</y>
      <width>937</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1236,9 +1284,9 @@ This will run a trivial decomposition of the correlation network. Nodes that can
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
-  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

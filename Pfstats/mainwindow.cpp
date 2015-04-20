@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Bloqueia botões do Wizard
     changeWizardCmds(false);
+    ui->graficMinss->setVisible(false);
 
     //Conecta Slots
     connect(ui->actionInput_Alignment,SIGNAL(triggered()),this,SLOT(inputAlignment_triggered()));
@@ -44,8 +45,11 @@ void MainWindow::resetObjects(){
     ui->txtPDBName->clear();
     ui->txtPDBfilepath->clear();
     ui->cmbRefSeq_2->setCurrentIndex(0);
-    ui->lstRefSeqs->clearSelection();
+    ui->cmbRefSeq_3->setCurrentIndex(0);
+    ui->lstRefSeqs->clear();
+    ui->lstRefSeqs_2->clear();
     ui->txtOffset->clear();
+    ui->txtOffset_2->clear();
     ui->txtChain->clear();
     ui->txtNoAlignments->setValue(100);
     ui->graficMinss->clearGraphs();
@@ -139,6 +143,14 @@ int MainWindow::GetOffsetFromSeqName(string seqname){
         c1++;
     }
     return(atoi(offsetstr.c_str())-1);
+}
+
+bool MainWindow::checkfile(const string &name){
+    if (FILE *file = fopen(name.c_str(), "r")) {
+        fclose(file);
+        return true;
+    }
+    return false;
 }
 
 void MainWindow::alignfilter(Alignment align, float occupancy, float minId, float maxId, int refseq){
@@ -288,19 +300,275 @@ void MainWindow::conservedresidues(Alignment align, vector<int> referencesequenc
     QMessageBox::information(this,"Conserved Residues", "Conserved residues exported to HTML table.");
 }
 
+vector<float> MainWindow::minss(Alignment align, string outputfilename, int repetitions){
+    vector<float> outputVec;
+    align.CalculateFrequencies();
+    outputVec = align.DTRandomElimination(outputfilename,repetitions,99,1,1);
+
+    QMessageBox::information(this,"Minss","Data file generated.");
+
+    return outputVec;
+}
+
+void MainWindow::pcalc(Alignment align, string outputgraphfilename, int minlogp, float minssfraction, float mindeltafreq){
+    align.CalculateFrequencies();
+    align.SympvalueCalculation(outputgraphfilename,minlogp,minssfraction,mindeltafreq);
+
+    QMessageBox::information(this,"PCalc","Communities graph generated.");
+}
+
+void MainWindow::trivcomm(string pcalcfilename, string communitiesfilename){
+    char aa1,aa2;
+    int pos1,pos2;
+    int score;
+    int maxsize;
+    int biggestcommunity;
+    int c1,c2;
+    int found1comm,found2comm,found1commpos,found2commpos; // Communities and positions where pos1-aa1 and pos2-aa2 were found
+    bool member1found=false;
+    bool member2found=false;
+    vector < vector <int> > posCommunities;
+    vector < vector <char> > aaCommunities;
+    FILE *pcalcfile;
+    FILE *communitiesfile;
+
+    pcalcfile=fopen(pcalcfilename.c_str(),"r+");
+    fscanf(pcalcfile,"%c%d %c%d %d\n",&aa1,&pos1,&aa2,&pos2,&score);
+
+    posCommunities.push_back(vector<int>());
+    aaCommunities.push_back(vector<char>());
+    posCommunities[0].push_back(pos1);
+    aaCommunities[0].push_back(aa1);
+
+    if(score > 0){
+        posCommunities[0].push_back(pos2);
+        aaCommunities[0].push_back(aa2);
+    }else{
+        posCommunities.push_back(vector<int>());
+           aaCommunities.push_back(vector<char>());
+           posCommunities[1].push_back(pos1);
+           aaCommunities[1].push_back(aa1);
+    }
+
+    while(!feof(pcalcfile)){
+        fscanf(pcalcfile,"%c%d %c%d %d\n",&aa1,&pos1,&aa2,&pos2,&score);
+
+        member1found=false;
+        member2found=false;
+
+        for(c1=0;c1<=posCommunities.size()-1;c1++){
+            for (c2=0;c2<=posCommunities[c1].size()-1;c2++){
+                if((pos1==posCommunities[c1][c2])&&(aa1==aaCommunities[c1][c2])){
+                    member1found=true;
+                    found1comm=c1;
+                    found1commpos=c2;
+                    break;
+                }
+            }
+            if(member1found) break;
+        }
+
+        for(c1=0;c1<=posCommunities.size()-1;c1++){
+            for (c2=0;c2<=posCommunities[c1].size()-1;c2++){
+                if((pos2==posCommunities[c1][c2])&&(aa2==aaCommunities[c1][c2])){
+                    member2found=true;
+                    found2comm=c1;
+                    found2commpos=c2;
+                    break;
+                }
+            }
+            if(member2found) break;
+        }
+
+        if((!member1found)&&(!member2found)){
+            if(score>0){
+                posCommunities.push_back(vector<int>());
+                aaCommunities.push_back(vector<char>());
+                posCommunities[posCommunities.size()-1].push_back(pos1);
+                aaCommunities[posCommunities.size()-1].push_back(aa1);
+                posCommunities[posCommunities.size()-1].push_back(pos2);
+                aaCommunities[posCommunities.size()-1].push_back(aa2);
+            }else{
+                posCommunities.push_back(vector<int>());
+                aaCommunities.push_back(vector<char>());
+                posCommunities[posCommunities.size()-1].push_back(pos1);
+                aaCommunities[posCommunities.size()-1].push_back(aa1);
+                posCommunities.push_back(vector<int>());
+                aaCommunities.push_back(vector<char>());
+                posCommunities[posCommunities.size()-1].push_back(pos2);
+                aaCommunities[posCommunities.size()-1].push_back(aa2);
+            }
+        }
+
+        if((member1found)&&(!member2found)){
+            if(score>0){
+                aaCommunities[found1comm].push_back(aa2);
+                posCommunities[found1comm].push_back(pos2);
+            }else{
+                posCommunities.push_back(vector<int>());
+                aaCommunities.push_back(vector<char>());
+                posCommunities[posCommunities.size()-1].push_back(pos2);
+                aaCommunities[posCommunities.size()-1].push_back(aa2);
+            }
+        }
+
+        if((member2found)&&(!member1found)){
+            if(score>0){
+                aaCommunities[found2comm].push_back(aa1);
+                posCommunities[found2comm].push_back(pos1);
+            }else{
+                posCommunities.push_back(vector<int>());
+                aaCommunities.push_back(vector<char>());
+                posCommunities[posCommunities.size()-1].push_back(pos1);
+                aaCommunities[posCommunities.size()-1].push_back(aa1);
+            }
+        }
+
+        if((member2found)&&(member1found)){
+            if (found2comm==found1comm)
+                if (score<0){
+                    //printf("\nTrivial solution not possible: %c%d and %c%d are on the same community, but have a negative score",aa1,pos1,aa2,pos2);
+                    QString str = "Trivial solution not possible: " + aa1 + QString::number(pos1) + " and " + aa2 + QString::number(pos2) + " are on the same community, but have a negative score";
+                    QMessageBox::warning(this,"Trivcomm",str);
+                    return;
+                }
+
+            if (found2comm!=found1comm){
+                if(score>0){
+                    for(c1=0;c1<=aaCommunities[found2comm].size()-1;c1++){
+                        aaCommunities[found1comm].push_back(aaCommunities[found2comm][c1]);
+                        posCommunities[found1comm].push_back(posCommunities[found2comm][c1]);
+                    }
+                    aaCommunities[found2comm].clear();
+                    posCommunities[found2comm].clear();
+                    aaCommunities.erase(aaCommunities.begin()+found2comm);
+                    posCommunities.erase(posCommunities.begin()+found2comm);
+                }
+            }
+        }
+    }
+    communitiesfile=fopen(communitiesfilename.c_str(),"w+");
+    fprintf(communitiesfile,"%d communities\n",aaCommunities.size());
+    c2=1;
+
+    while(aaCommunities.size()>0){
+        maxsize=0;
+
+        for(c1=0;c1<=aaCommunities.size()-1;c1++){
+            if (aaCommunities[c1].size()>maxsize){
+                maxsize=aaCommunities[c1].size();
+            }
+        }
+
+        for(c1=0;c1<=aaCommunities.size()-1;c1++){
+            if (aaCommunities[c1].size()==maxsize){
+                biggestcommunity=c1;
+                break;
+            }
+        }
+
+        fprintf(communitiesfile,"%d nodes in community %d\n",aaCommunities[biggestcommunity].size(),c2);
+
+        for(c1=0;c1<=aaCommunities[biggestcommunity].size()-1;c1++){
+            fprintf(communitiesfile,"%c%d\n",aaCommunities[biggestcommunity][c1],posCommunities[biggestcommunity][c1]);
+        }
+
+        aaCommunities[biggestcommunity].clear();
+        posCommunities[biggestcommunity].clear();
+        aaCommunities.erase(aaCommunities.begin()+biggestcommunity);
+        posCommunities.erase(posCommunities.begin()+biggestcommunity);
+        c2++;
+    }
+    fclose(communitiesfile);
+}
+
+void MainWindow::output(Alignment align, string communitiesfilename, int seqnumber, int offset){
+    align.CalculateFrequencies();
+    align.GetCommunitiesFromFile(communitiesfilename);
+    string path = align.getDir();
+
+    if(seqnumber>0) align.Cluster2SCM(communitiesfilename,path,true,seqnumber,offset,true,false);
+    else align.Cluster2SCM(communitiesfilename,path,false,seqnumber,offset,true,false);
+
+    align.DeltaCommunitiesCalculation();
+    align.DeltaCommunitiesOutput(path + "Deltas.html");
+
+    if (seqnumber>0)
+        align.ElementRanking(path, true, seqnumber,offset);
+    else
+        align.ElementRanking(path, false, seqnumber,offset);
+
+    align.pMatrix2HTML(path,false,1);
+
+    align.Cluster2PymolScript(communitiesfilename,path,seqnumber,offset);
+
+    QMessageBox::information(this,"Output","Output files are generated sucessfully.");
+}
+
+void MainWindow::adherence(Alignment align, string communitiesfilename, string outputfilename){
+    FILE *outputfile;
+    int c1,c2;
+
+    align.CalculateFrequencies();
+    align.GetCommunitiesFromFile(communitiesfilename);
+
+    outputfile=fopen(outputfilename.c_str(),"w+");
+    fprintf(outputfile,"PROTEIN_SEQUENCE");
+
+    for(c1=0; c1<align.Communities.size()-1;c1++)
+        if(align.Communities[c1].aa.size()>1) fprintf(outputfile,"\tComm%d",c1+1);
+    fprintf(outputfile,"\n");
+
+    for(c1=0;c1<=align.sequences.size()-1;c1++){
+        fprintf(outputfile,"%s",align.sequencenames[c1].c_str());
+
+        for(c2=0;c2<=align.Communities.size()-1;c2++)
+            if (align.Communities[c2].aa.size()>1) fprintf(outputfile,"\t%f",align.PSA(c1,c2));
+        fprintf(outputfile,"\n");
+    }
+}
+
+void MainWindow::comm2seqrenumbering(Alignment align, string communitiesfilename, vector<int> seqlist, string path){
+    char outputfilename[255];
+    int c1,c2,c3;
+    FILE *outputfile;
+
+    align.CalculateFrequencies();
+    align.GetCommunitiesFromFile(communitiesfilename);
+
+    for(c1=0; c1<align.Communities.size()-1; c1++){
+        sprintf (outputfilename,"%scomm%dnumbering.html",path.c_str(),c1+1);
+        outputfile=fopen(outputfilename,"w+");
+
+        fprintf(outputfile,"<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th><b>Sequence</b></th>");
+
+        for (c2=0;c2<=align.Communities[c1].pos.size()-1;c2++)
+            fprintf(outputfile,"<th><b>%c%d</b></th>",align.Communities[c1].aa[c2],align.Communities[c1].pos[c2]+1);
+        fprintf(outputfile,"</tr>\n");
+
+        for(c2=0;c2<=seqlist.size()-1;c2++){
+            fprintf(outputfile,"<tr><th><b>%s</b></th>",align.sequencenames[seqlist[c2]].c_str());
+
+            for (c3=0;c3<=align.Communities[c1].pos.size()-1;c3++){
+                if(align.sequences[seqlist[c2]][align.Communities[c1].pos[c3]]==align.Communities[c1].aa[c3])
+                    fprintf (outputfile,"<th><font color=#00FF00>%c%d</font></th>",align.Communities[c1].aa[c3],align.AlignNumbering2Sequence(seqlist[c2]+1,align.Communities[c1].pos[c3])+GetOffsetFromSeqName(align.sequencenames[seqlist[c2]]));
+                else{
+                    if (align.sequences[seqlist[c2]][align.Communities[c1].pos[c3]]=='-') fprintf (outputfile,"<th>-</th>");
+                    else fprintf (outputfile,"<th>%c%d</th>",align.sequences[seqlist[c2]][align.Communities[c1].pos[c3]],align.AlignNumbering2Sequence(seqlist[c2]+1,align.Communities[c1].pos[c3])+GetOffsetFromSeqName(align.sequencenames[seqlist[c2]]));
+                }
+            }
+            fprintf(outputfile,"</tr>\n");
+        }
+        fprintf(outputfile,"</center>\n</table>\n</body>\n</html>\n");
+        fclose (outputfile);
+    }
+}
+
 void MainWindow::addAlignment(string path){
     Alignment align;
     align.setFilepath(path);
     align.GetFromFile();
     alinhamentos.push_back(path);
-}
-
-bool MainWindow::checkfile(const string &name){
-    if (FILE *file = fopen(name.c_str(), "r")) {
-        fclose(file);
-        return true;
-    }
-    return false;
 }
 
 void MainWindow::changeWizardCmds(bool bl){
@@ -586,6 +854,7 @@ void MainWindow::on_cmdApplyFilter_clicked()
     }
 
     ui->cmbRefSeq_2->setCurrentIndex(ui->cmbRefSeq->currentIndex());
+    ui->cmbRefSeq_3->setCurrentIndex(ui->cmbRefSeq->currentIndex());
 
     ////////////////////ALIGNFILTER////////////////////
     string inputfilename;
@@ -757,55 +1026,139 @@ void MainWindow::on_cmdMinss_clicked()
 {
     ui->cmdMinss->setEnabled(false);
 
-    //Implementar minss e gerar o grafico
+    if(ui->listWidget->selectedItems().size() == 0){
+        QMessageBox::warning(this,"Error","You must select a alignment.");
+        ui->cmdMinss->setEnabled(true);
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    Alignment align;
+
+    for(int i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            align = alinhamentos[i];
+        }
+    }
+
+    vector<string> vecPath = split(align.getFilepath(),'.');
+    string path = "";
+
+    for(int i=0;i<vecPath.size()-1;i++){
+        path += vecPath[i];
+    }
+    path += "_MINSS.dat";
+
+    int repetitions = ui->txtNoAlignments->value();
+
+    vector<float> minssData;
+    minssData = this->minss(align,path,repetitions);
+
+    for(int i = 0; i < minssData.size(); i++)
+        printf("%f\n",minssData[i]);
     //http://www.qcustomplot.com/index.php/tutorials/settingup
 
     //Exemplo
-    QVector<double> x(101), y(101);
-    for (int i=0; i<101; ++i)
+    QVector<double> x(100), y(100);
+    for (int i=0; i<100; ++i)
     {
-      x[i] = i/50.0 - 1; // x goes from -1 to 1
-      y[i] = x[i]*x[i]; // let's plot a quadratic function
+      x[i] = i+1; // x goes from -1 to 1
+      y[99-i] = minssData[i]; // let's plot a quadratic function
     }
 
     ui->graficMinss->addGraph();
     ui->graficMinss->graph(0)->setData(x,y);
     ui->graficMinss->yAxis->setLabel("y");
     ui->graficMinss->xAxis->setLabel("x");
-    ui->graficMinss->yAxis->setRange(0,1);
-    ui->graficMinss->xAxis->setRange(-1,1);
+    ui->graficMinss->yAxis->setRange(0,y[0]+0.04);
+    ui->graficMinss->xAxis->setRange(1,100);
     ui->graficMinss->replot();
 
+
+    ui->graficMinss->setVisible(true);
     ui->cmdMinss->setEnabled(true);
 }
 
 void MainWindow::on_cmdGraphPath_clicked()
 {
+    ui->cmdGraphPath->setEnabled(false);
     //Abre arquivo
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home",tr("Graph Files (*.txt *.pfam *.csv)"));
-    QFile file(fileName);
+    QString fileName = QFileDialog::getSaveFileName(this,tr("Export File"),"/home",tr("Graph Files (*.txt *.cmm .csv)"));
 
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+    //Salva em arquivo
+    QFile f(fileName);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+        ui->cmdGraphPath->setEnabled(true);
         return;
     }
 
     //Add no line edit
     ui->txtGraphPath->setText(fileName);
+
+    ui->cmdGraphPath->setEnabled(true);
 }
 
 void MainWindow::on_cmdCorrelation_clicked()
 {
     ui->cmdCorrelation->setEnabled(false);
 
+    //Validação de dados
+    if(ui->listWidget->selectedItems().size() == 0){
+        QMessageBox::warning(this,"Error","You must select a alignment.");
+        ui->cmdCorrelation->setEnabled(true);
+        return;
+    }
+
+    if(ui->txtGraphPath->text() == ""){
+        QMessageBox::warning(this,"Error","You must select a output file.");
+        ui->cmdCorrelation->setEnabled(true);
+        return;
+    }
+
     //Chamar PCalc
+    string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
+    int minlogp = ui->txtMinScore->value();
+    float minssfraction = ui->txtMinssFraction->value();
+    float mindeltafreq = ui->txtMinDeltaFreq->value();
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    Alignment align;
+
+    for(int i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            align = alinhamentos[i];
+        }
+    }
+
+    this->pcalc(align,outputgraphfilename,minlogp,minssfraction,mindeltafreq);
 
     //Chamar Trivcomm
+    vector<string> vecPath = split(outputgraphfilename,'.');
+    string trivpath = "";
+
+    for(int i=0;i<vecPath.size()-1;i++){
+        trivpath += vecPath[i];
+    }
+    trivpath += "_COMM.txt";
+
+    this->trivcomm(outputgraphfilename,trivpath);
 
     //Chamar Output
+    this->output(align,trivpath,ui->cmbRefSeq_3->currentIndex(),ui->txtOffset_2->text().toInt());
 
     //Chamar Adherence
+    string adhout = align.getDir() + "ADH.txt";
+    this->adherence(align,trivpath,adhout);
 
     //Chamar comm2seqrenumbering
+    vector<int> refSeqs;
+
+    QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
+    for(int i = 0; i < indexList.size(); i++){
+        refSeqs.push_back(indexList.at(i).row());
+    }
+
+    this->comm2seqrenumbering(align,trivpath,refSeqs,align.getDir());
 
     ui->cmdCorrelation->setEnabled(true);
 }
@@ -833,11 +1186,16 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbRefSeq->addItem("");
     ui->cmbRefSeq_2->clear();
     ui->cmbRefSeq_2->addItem("");
+    ui->cmbRefSeq_3->clear();
+    ui->cmbRefSeq_3->addItem("");
     ui->lstRefSeqs->clear();
+    ui->lstRefSeqs_2->clear();
     for(int i = 0; i < sequences.size(); i++){
         ui->cmbRefSeq->addItem(QString::fromStdString(sequences.at(i)));
         ui->cmbRefSeq_2->addItem(QString::fromStdString(sequences.at(i)));
+        ui->cmbRefSeq_3->addItem(QString::fromStdString(sequences.at(i)));
         ui->lstRefSeqs->addItem(QString::fromStdString(sequences.at(i)));
+        ui->lstRefSeqs_2->addItem(QString::fromStdString(sequences.at(i)));
     }
     ui->cmbRefSeq_2->setCurrentIndex(1);
 }
@@ -845,6 +1203,8 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
 void MainWindow::on_cmbRefSeq_activated(int index)
 {
     string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+    ui->cmbRefSeq_2->setCurrentIndex(index);
+    ui->cmbRefSeq_3->setCurrentIndex(index);
 
     for(int i = 0; i < alinhamentos.size(); i++){
         printf("\nI = %d - SIZE = %d\n%s\n%s\n",i,alinhamentos.size(),path.c_str(),alinhamentos.at(i).getFilepath().c_str());
@@ -854,6 +1214,7 @@ void MainWindow::on_cmbRefSeq_activated(int index)
             int offset = alinhamentos.at(i).getRefSeqOffset();
             QString qoffset = QString::number(offset);
             ui->txtOffset->setText(qoffset);
+            ui->txtOffset_2->setText(qoffset);
             break;
         }
     }
@@ -862,6 +1223,8 @@ void MainWindow::on_cmbRefSeq_activated(int index)
 void MainWindow::on_cmbRefSeq_2_activated(int index)
 {
     string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+    ui->cmbRefSeq->setCurrentIndex(index);
+    ui->cmbRefSeq_3->setCurrentIndex(index);
 
     for(int i = 0; i < alinhamentos.size(); i++){
         if(path == alinhamentos.at(i).getFilepath()){
@@ -870,7 +1233,68 @@ void MainWindow::on_cmbRefSeq_2_activated(int index)
             int offset = alinhamentos.at(i).getRefSeqOffset();
             QString qoffset = QString::number(offset);
             ui->txtOffset->setText(qoffset);
+            ui->txtOffset_2->setText(qoffset);
             break;
         }
     }
+}
+
+
+
+void MainWindow::on_cmbRefSeq_3_activated(int index)
+{
+    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+    ui->cmbRefSeq->setCurrentIndex(index);
+    ui->cmbRefSeq_2->setCurrentIndex(index);
+
+    for(int i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            //QMessageBox::information(this,"a",alinhamentos.at(i).sequencenames[index-1].c_str());
+            alinhamentos.at(i).setRefSeqName(alinhamentos.at(i).sequencenames[index-1]);
+            int offset = alinhamentos.at(i).getRefSeqOffset();
+            QString qoffset = QString::number(offset);
+            ui->txtOffset->setText(qoffset);
+            ui->txtOffset_2->setText(qoffset);
+            break;
+        }
+    }
+}
+
+void MainWindow::on_lstRefSeqs_itemSelectionChanged()
+{
+    QMessageBox::information(this,"ds","1");
+    QModelIndexList indexes = ui->lstRefSeqs->selectionModel()->selectedIndexes();
+//QMessageBox::information(this,"ds","2");
+    std::vector<int> indexList;
+    foreach(QModelIndex index, indexes)
+    {
+        indexList.push_back(index.row());
+    }
+//QMessageBox::information(this,"ds","3");
+    ui->lstRefSeqs_2->clearSelection();
+//QMessageBox::information(this,"ds","4");
+    for(int i=0; i < indexList.size(); i++){
+        ui->lstRefSeqs_2->item(indexList[i])->setSelected(true);
+    }
+}
+
+
+
+void MainWindow::on_lstRefSeqs_2_itemSelectionChanged()
+{
+    /*
+    QModelIndexList indexes = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
+
+    std::vector<int> indexList;
+    foreach(QModelIndex index, indexes)
+    {
+        indexList.push_back(index.row());
+    }
+
+    ui->lstRefSeqs->clearSelection();
+
+    for(int i=0; i < indexList.size(); i++){
+        ui->lstRefSeqs->item(indexList[i])->setSelected(true);
+    }
+    */
 }

@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
+#include <QApplication>
 
 Alignment::Alignment()
 {
@@ -25,8 +26,32 @@ string Alignment::getFilepath(){
     return this->filepath;
 }
 
+string Alignment::getDir(){
+    string path = "";
+    vector<string> tmpVec = this->split(filepath,'/');
+
+    for(int i = 0; i < tmpVec.size()-1; i++){
+        path += tmpVec[i] + "/";
+    }
+
+    return path;
+}
+
 void Alignment::setFilepath(string path){
     this->filepath = path;
+}
+
+void Alignment::resetCommunities(){
+    if (Communities.size()>0){
+        for (int c1=0;c1<=Communities.size()-1;c1++){
+            Communities[c1].pos.clear();
+            Communities[c1].aa.clear();
+        }
+        Communities.clear();
+    }
+
+    tempcommunity.pos.clear();
+    tempcommunity.aa.clear();
 }
 
 bool Alignment::validposition(char c){
@@ -76,6 +101,31 @@ int Alignment::getresn(string line){
     line=line.substr(22,4);
     for(int c1=3;c1>=0;c1--) if(line[c1]==' ') line.erase(c1,1);
     return atoi(line.c_str());
+}
+
+int Alignment::GetOffsetFromSeqName(string seqname){
+    bool found=false;
+    string offsetstr;
+    int c1=0;
+
+    while (c1<seqname.length()){
+        if(seqname[c1]=='/'){
+            found=true;
+            c1++;
+            break;
+        }
+        c1++;
+    }
+
+    if (!found) return 0;
+
+    while (c1<seqname.length()){
+        if(seqname[c1]=='-') break;
+        else offsetstr+=seqname[c1];
+        c1++;
+    }
+
+    return(atoi(offsetstr.c_str())-1);
 }
 
 bool Alignment::isaa(char c){
@@ -136,6 +186,68 @@ long double Alignment::lnfact(int x){
 long double Alignment::stirling(int x){
     if(x<=8) return(lnfact(x));
     return ((((long double)x)+0.5)*logl((long double)x)-x+0.918938533205);
+}
+
+long Alignment::eto10(long double x){
+    return (x/((long double)2.30258509299));
+}
+
+long double Alignment::cbd_tietjen(int N, int n, float freq, bool right){
+    long double a=pow(1-freq,N);
+
+    if((!right)&&(n==0)) return a;
+    if((right)&&(n==0)) return 1;
+
+    long double sum=0;
+    if(!right) sum=a;
+
+    float u=freq/(1-freq);
+
+    for(int i=2;i<=N+1;i++){
+        a=a*u*((float)(N+2-i))/((float)(i-1));
+        if(((!right)&&(i<=n+1))||((right)&&(i-1>=n)))
+            sum+=a;
+    }
+
+    return sum;
+}
+
+int Alignment::cbd(int N, int n, float freq, bool right){
+    if(pow(1-freq,N)!=0) return ((int)ceil(log10(cbd_tietjen(N,n,freq,right))));
+    float minP;
+    float sum=0;
+    float *Ps = new float [(N-n)+1];
+    float *lPs = new float [n+1];
+
+    if ((!Ps)||(!lPs)){
+        QMessageBox::critical(NULL,"ERROR","Insuficient memory");
+        return 1;
+    }
+
+    minP=(float)eto10(lnbdf(N,n,freq));
+    if(right){
+        for (int i=n;i<=N;i++){
+            Ps[i-n]=(float)eto10(lnbdf(N,i,freq));
+            if(Ps[i-n]>minP) minP=Ps[i-n];
+        }
+
+        for (int i=n;i<=N;i++){
+            sum+=pow(10,Ps[i-n]-floor(minP));
+        }
+    }else{
+        for (int i=0;i<=n;i++){
+            lPs[i]=(float)eto10(lnbdf(N,i,freq));
+
+            if(lPs[i]>minP) minP=lPs[i];
+
+            for (int i=0;i<=n;i++)
+                sum+=pow(10,lPs[i]-floor(minP));
+        }
+    }
+    delete Ps;
+    delete lPs;
+
+    return(int(floor(logl(sum))+floor(minP)));
 }
 
 string Alignment::outputBfactor(string line, float Bf){
@@ -647,4 +759,596 @@ void Alignment::writedGtoPDB(string PDBfilename, string dgPDBfilename, int initr
 
     pdbfile.close();
     dgpdbfile.close();
+}
+
+void Alignment::dGDTCalculation(int numseqs){
+    int c1,c2,c3,c4, Ci;
+    if (dGDT.size()>0) dGDT.clear();
+    long double partialresult;
+
+    for (c1=0;c1<=subsetfrequencies.size()-1;c1++)
+        for(c2=0;c2<=subsetfrequencies[0].size()-1;c2++)
+            subsetfrequencies[c1][c2]=0;
+
+    for(c3=0;c3<=numseqs-1;c3++){
+        for(c4=0;c4<=sequences[0].size()-1;c4++){
+            subsetfrequencies[c4][freqmatrixposition(sequences[SortOrder[c3]][c4])]++;
+            subsetfrequencies[sequences[0].size()][freqmatrixposition(sequences[SortOrder[c3]][c4])]++;
+        }
+    }
+
+    for(c1=0;c1<=sequences[0].size()-1;c1++){
+        Ci=0;
+        partialresult=0;
+
+        for(c2=1; c2<=20; c2++){
+            if(subsetfrequencies[c1][c2]>0) Ci++;
+            if(subsetfrequencies[c1][c2]>0)
+                partialresult += pow(((long double)subsetfrequencies[c1][c2]/((long double)numseqs)) * log(((long double)subsetfrequencies[c1][c2]/((long double)numseqs))/(meanf[c2])),2);
+        }
+        if(Ci>0) dGDT.push_back(sqrt(partialresult/((float) Ci)));
+        else dGDT.push_back(0);
+    }
+}
+
+vector<float> Alignment::DTRandomElimination(string outputfilename, int repetitions, int max, int min, int step){
+    int c1,c3;
+    long double partialresult=0;
+    long double partialsum=0;
+    vector<int> SortOrder;
+    vector<int> populatedpos;
+    vector<float> outputVec;
+    int currentsize; // current size of sub-alignment
+    int i;
+
+    //progress.setValue(0);
+    //QMessageBox::information(NULL,"a",QString::number(min));
+
+    populatedpos.clear();
+    for (i=0;i<=sequences[0].size()-1;i++){
+        if(((float)frequencies[i][0])/((float)sequences.size())<=1) populatedpos.push_back(i);
+    }
+
+    QFile sucelimfile(outputfilename.c_str());
+    if (!sucelimfile.open(QIODevice::WriteOnly | QIODevice::Text))
+            return outputVec;
+    QTextStream out(&sucelimfile);
+
+    dGDTCalculation(sequences.size());
+
+    for(i=0;i<=populatedpos.size()-1;i++)
+        partialresult+=dGDT[populatedpos[i]];
+
+    out << "100\t" << float(partialresult/((long double)populatedpos.size())) << "\n";
+    outputVec.push_back(float(partialresult/((long double)populatedpos.size())));
+
+    for (c1=0;c1<=sequences.size()-1;c1++) SortOrder.push_back(c1);
+
+    QProgressDialog progress("Calculating...", "Abort", 0,100-min);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+    for(i=100-max;i<=100-min;i=i+step){
+        progress.setValue(i);
+         QApplication::processEvents();
+
+        if(progress.wasCanceled()) break;
+
+        partialsum=0;
+        currentsize=sequences.size()-((i*sequences.size())/(100));
+        if (currentsize<=0) break;
+
+        for(c1=1;c1<=repetitions;c1++){
+            random_shuffle(SortOrder.begin(),SortOrder.end());
+            dGDTCalculation(currentsize);
+
+            for (c3=0;c3<=populatedpos.size()-1;c3++)
+                partialsum+=dGDT[populatedpos[c3]];
+        }
+        //printf("%f - %d\n",(float)partialsum,populatedpos.size());
+        out << 100-i << "\t" << (float)(partialsum/((long double)(populatedpos.size()*repetitions))) << "\n";
+        outputVec.push_back((float)(partialsum/((long double)(populatedpos.size()*repetitions))));
+    }
+    sucelimfile.close();
+    return outputVec;
+
+}
+
+void Alignment::SubAlignmentIndices(char aa, int pos){
+    int c1;
+
+    if(subalignmentseqs.size()>0) subalignmentseqs.clear();
+
+    for (c1=0;c1<=sequences.size()-1;c1++)
+        if(sequences[c1][pos]==aa)
+            subalignmentseqs.push_back(c1);
+}
+
+int Alignment::SubAlignmentFrequency(char aa, int pos){
+    int c1;
+    int result = 0;
+
+    if(subalignmentseqs.size()==0) return -1;
+
+    for(c1=0;c1<=subalignmentseqs.size()-1;c1++)
+        if(sequences[subalignmentseqs[c1]][pos]==aa) result++;
+
+    return result;
+}
+
+int Alignment::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
+    int aa2pos2count=0;
+    int c2;
+
+    if(pos1==pos2) return 0;
+    SubAlignmentIndices(aa1,pos1);
+
+    if (subalignmentseqs.size()>0){
+        for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
+            if (sequences[subalignmentseqs[c2]][pos2]==aa2) aa2pos2count++;
+
+        if ((((float)aa2pos2count)/((float)subalignmentseqs.size()))!=((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size()))){
+            if(((float)aa2pos2count)/((float)subalignmentseqs.size())>((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size())))
+                return(-cbd(subalignmentseqs.size(),aa2pos2count,((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size())),true));
+            else
+                return(cbd(subalignmentseqs.size(),aa2pos2count,((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size())),false));
+        }
+        return 0;
+    }
+    return 0;
+}
+
+void Alignment::SympvalueCalculation(string outputgraph, int minlogp, float minssfraction, float mindeltafreq){
+    int c1,c2,pos1,pos2,aa1,aa2,aa2pos2count,aa1pos1count;
+    short int pvalue1,pvalue2;
+    bool mindeltafreqok;
+
+    QFile outputgraphfile(outputgraph.c_str());
+    if (!outputgraphfile.open(QIODevice::WriteOnly | QIODevice::Text))
+            return;
+    QTextStream out(&outputgraphfile);
+
+    QProgressDialog progress("Calculating...", "Abort", 0,sequences[0].size()-2);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for (pos1=0;pos1<=sequences[0].size()-2;pos1++){
+        progress.setValue(pos1);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) break;
+
+        for (aa1=1;aa1<=20;aa1++){
+            if(frequencies[pos1][aa1]>minssfraction*((float)sequences.size()))
+                for(pos2=pos1+1;pos2<=sequences[0].size()-1;pos2++){
+                    for(aa2=1;aa2<=20;aa2++){
+                        if(frequencies[pos2][aa2]>minssfraction*((float)sequences.size())){
+                            SubAlignmentIndices(num2aa(aa1),pos1);
+                            aa2pos2count=0;
+
+                            for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
+                                if (sequences[subalignmentseqs[c2]][pos2]==num2aa(aa2)) aa2pos2count++;
+
+                            if(((float)aa2pos2count)/((float)subalignmentseqs.size())>((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size()))){
+                                if(((float)aa2pos2count)/((float)subalignmentseqs.size())>(1.0-mindeltafreq)){
+                                    SubAlignmentIndices(num2aa(aa2),pos2);
+                                    aa1pos1count=0;
+
+                                    for(c2=0;c2<=subalignmentseqs.size()-1;c2++){
+                                        if (sequences[subalignmentseqs[c2]][pos1]==num2aa(aa1)) aa1pos1count++;
+                                    }
+
+                                    if(((float)aa1pos1count)/((float)subalignmentseqs.size())>(1.0-mindeltafreq))
+                                        mindeltafreqok=true;
+                                    else mindeltafreqok=false;
+                                }else mindeltafreqok=false;
+                            }else{
+                                if(((float)aa2pos2count)/((float)subalignmentseqs.size())<(mindeltafreq)){
+                                    SubAlignmentIndices(num2aa(aa2),pos2);
+                                    aa1pos1count=0;
+
+                                    for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
+                                        if (sequences[subalignmentseqs[c2]][pos1]==num2aa(aa1)) aa1pos1count++;
+
+                                    if(((float)aa1pos1count)/((float)subalignmentseqs.size())<(mindeltafreq))
+                                        mindeltafreqok=true;
+                                    else mindeltafreqok=false;
+                                }else mindeltafreqok=false;
+                            }
+                            if(mindeltafreqok){
+                                pvalue1=Singlepvalue(num2aa(aa1),pos1,num2aa(aa2),pos2);
+                                pvalue2=Singlepvalue(num2aa(aa2),pos2,num2aa(aa1),pos1);
+
+                                if((abs((pvalue1+pvalue2)/2)>=minlogp)&&(abs(pvalue2)>=minlogp)&&(abs(pvalue2)>=minlogp))
+                                    out << num2aa(aa1) << pos1+1 << " " << num2aa(aa2) << pos2+1 << " " << (pvalue1+pvalue2)/2 << "\n";
+                            }
+                        }
+                    }
+                }
+        }
+    }
+    outputgraphfile.close();
+}
+
+
+void Alignment::GetCommunitiesFromFile(string clusterfilename){
+    int c1,c2;
+    int nclusters;
+    int nelements;
+    char tempstring[500];
+    string filename;
+    vector<char> aalist;
+    vector<int> poslist;
+    FILE *clusterfile;
+    clusterfile=fopen(clusterfilename.c_str(),"r+");
+
+    resetCommunities();
+
+    fscanf(clusterfile,"%d",&nclusters);
+    fgets(tempstring, 255, clusterfile); // endline
+
+    for(c1=1;c1<=nclusters;c1++){
+        fscanf(clusterfile,"%d",&nelements);
+        fgets(tempstring, 255, clusterfile);
+
+        for(c2=1;c2<=nelements;c2++){
+            fgets(tempstring, 255, clusterfile);
+            tempcommunity.aa.push_back(tempstring[0]);
+            tempcommunity.pos.push_back(atoi(((string)tempstring).substr(1,((string)tempstring).size()).c_str())-1);
+        }
+
+        if(nelements > 0){
+            Communities.push_back(tempcommunity);
+        }
+
+        tempcommunity.aa.clear();
+        tempcommunity.pos.clear();
+    }
+
+    fclose(clusterfile);
+}
+
+void Alignment::DeltaCommunitiesCalculation(){
+    float Delta;
+    int c1,c2,c3,c4;
+
+    if(Deltas.size()>0){
+        for (c1=0;c1<=Deltas.size()-1;c1++)
+            Deltas[c1].clear();
+        Deltas.clear();
+    }
+
+    for(c1=0;c1<=Communities.size()-1;c1++){
+        Deltas.push_back( vector<float>(Communities.size()) );
+        for (c2=0;c2<=Communities.size()-1;c2++)
+            Deltas[c1].push_back(0);
+    }
+
+    if(Communities.size()>0){
+        for(c1=0;c1<=Communities.size()-1;c1++){
+            for(c2=0;c2<=Communities.size()-1;c2++){
+                Delta=0;
+                for(c3=0;c3<=Communities[c1].aa.size()-1;c3++){
+                    for(c4=0;c4<=Communities[c2].aa.size()-1;c4++){
+                        Delta+=(float)Singlepvalue(Communities[c1].aa[c3],Communities[c1].pos[c3],Communities[c2].aa[c4],Communities[c2].pos[c4]);
+                    }
+                }
+                Deltas[c1][c2]=((float)Delta)/((float)(Communities[c1].aa.size()*Communities[c2].aa.size()));
+            }
+        }
+    }
+}
+
+void Alignment::DeltaCommunitiesOutput(string deltaoutputfilename){
+    int c1,c2;
+
+    if(Deltas.size()>0){
+        FILE *deltafile;
+        deltafile=fopen(deltaoutputfilename.c_str(),"w+");
+
+        fprintf(deltafile,"<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th>Community</th>\n");
+
+        for(c1=0;c1<=Communities.size()-1;c1++)
+            fprintf(deltafile,"<th>%d</th>\n",c1+1);
+
+        fprintf(deltafile,"</tr>\n");
+
+        for(c1=0;c1<=Communities.size()-1;c1++){
+            fprintf(deltafile,"<tr>\n<td><b>%d</b></td>\n",c1+1);
+
+            for(c2=0;c2<=Communities.size()-1;c2++)
+                fprintf(deltafile,"<td>%f</td>\n",Deltas[c1][c2]);
+
+            fprintf(deltafile,"<tr>\n");
+        }
+        fprintf(deltafile,"</center>\n</table>\n</body>\n</html>\n");
+        fclose(deltafile);
+    }
+}
+
+void Alignment::ElementRanking(string path, bool renumber, int seqnumber, int offset){
+    int c1,c2,c3,c4;
+    int worseelement;
+    float worseelementdeviation;
+    vector <float> elementdeviation;
+    float sum;
+    char outputrankfilename[50];
+    FILE *outputrankfile;
+
+    for(c1=0;c1<=Communities.size()-1;c1++){
+        sprintf(outputrankfilename,"%srank%d.html",path.c_str(),c1+1);
+        tempcommunity.aa.clear();
+        tempcommunity.pos.clear();
+
+        if (Communities[c1].aa.size()>2){
+            outputrankfile=fopen(outputrankfilename,"w+");
+            fprintf(outputrankfile,"<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th><b>Element</b></th><th>Mean score</th>\n");
+
+            for(c2=0;c2<=Communities[c1].aa.size()-1;c2++){
+                tempcommunity.aa.push_back(Communities[c1].aa[c2]);
+                tempcommunity.pos.push_back(Communities[c1].pos[c2]);
+            }
+
+            while (tempcommunity.aa.size()>2){
+                elementdeviation.clear();
+
+                for (c2=0;c2<=tempcommunity.aa.size()-1;c2++){
+                    sum=0;
+
+                    for(c3=0;c3<=tempcommunity.aa.size()-1;c3++){
+                        if(c2!=c3) sum+=Singlepvalue(tempcommunity.aa[c3],tempcommunity.pos[c3],tempcommunity.aa[c2],tempcommunity.pos[c2])+Singlepvalue(tempcommunity.aa[c2],tempcommunity.pos[c2],tempcommunity.aa[c3],tempcommunity.pos[c3]);
+                    }
+
+                    elementdeviation.push_back(sum/(float)((tempcommunity.aa.size()-1)*2));
+                }
+                worseelement=0;
+                worseelementdeviation=elementdeviation[0];
+
+                for (c2=1;c2<=elementdeviation.size()-1;c2++){
+                    if (elementdeviation[c2]<worseelementdeviation){
+                        worseelement=c2;
+                        worseelementdeviation=elementdeviation[c2];
+                    }
+                }
+
+                if(!renumber) fprintf(outputrankfile,"<tr><td><b>%c%d</b></td><td>%f</td></tr>\n",tempcommunity.aa[worseelement],tempcommunity.pos[worseelement]+1,worseelementdeviation);
+                else fprintf(outputrankfile,"<tr><td><b>%c%d (%d)</b></td><td>%f</td></tr>\n",tempcommunity.aa[worseelement],AlignNumbering2Sequence(seqnumber,tempcommunity.pos[worseelement])+offset,tempcommunity.pos[worseelement]+1,worseelementdeviation);
+
+                tempcommunity.aa.erase(tempcommunity.aa.begin()+worseelement);
+                tempcommunity.pos.erase(tempcommunity.pos.begin()+worseelement);
+            }
+            worseelementdeviation=((float)(Singlepvalue(tempcommunity.aa[0],tempcommunity.pos[0],tempcommunity.aa[1],tempcommunity.pos[1])+Singlepvalue(tempcommunity.aa[1],tempcommunity.pos[1],tempcommunity.aa[0],tempcommunity.pos[0])))/2.0;
+
+            if(!renumber)
+                fprintf(outputrankfile,"<tr><td><b>%c%d ",tempcommunity.aa[0],tempcommunity.pos[0]+1);
+            else
+                fprintf(outputrankfile,"<tr><td><b>%c%d (%d) ",tempcommunity.aa[0],AlignNumbering2Sequence(seqnumber,tempcommunity.pos[0])+offset,tempcommunity.pos[0]+1);
+
+            if(!renumber)
+                fprintf(outputrankfile,"%c%d</b></td><td>%f</td></tr>\n",tempcommunity.aa[1],tempcommunity.pos[1]+1,worseelementdeviation);
+            else
+                fprintf(outputrankfile,"%c%d (%d)</b></td><td>%f</td></tr>\n",tempcommunity.aa[1],AlignNumbering2Sequence(seqnumber,tempcommunity.pos[1])+offset,tempcommunity.pos[1]+1,worseelementdeviation);
+
+            fprintf(outputrankfile,"</center>\n</table>\n</body>\n</html>\n");
+
+            fclose(outputrankfile);
+        }
+    }
+}
+
+void Alignment::SelfCorrelationMatrixCalculation(const std::vector<char> &aalist, const std::vector<int> &poslist){
+    int i, j;
+
+    if(selfcorrelationmatrix.size()!=0){
+        for (i=0;i<=selfcorrelationmatrix.size()-1;i++){
+            selfcorrelationmatrix[0].clear();
+        }
+        selfcorrelationmatrix.clear();
+    }
+
+    for (i=0;i<=aalist.size()-1;i++){
+        selfcorrelationmatrix.push_back( vector<float> (aalist.size())) ;
+        for (j=0;j<=aalist.size()-1;j++) selfcorrelationmatrix[i].push_back(0);
+    }
+
+    for (j=0;j<=aalist.size()-1;j++){
+        SubAlignmentIndices(aalist[j],poslist[j]);
+
+        for (i=0;i<=aalist.size()-1;i++){
+            if(i==j) selfcorrelationmatrix[i][j]=-1;
+            else selfcorrelationmatrix[i][j]=((float)SubAlignmentFrequency(aalist[i],poslist[i]))/((float)subalignmentseqs.size());
+        }
+    }
+}
+
+void Alignment::SCM2HTML(string scmfilename, const std::vector<char> &aalist, const std::vector<int> &poslist, bool renumber, int seqnumber, int offset){
+    int i,j;
+    FILE *scmfile;
+
+    scmfile=fopen(scmfilename.c_str(),"w+");
+
+    fprintf(scmfile,"<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th>POS</th>\n<th>ALL</th>\n");
+
+    for(j=0;j<=aalist.size()-1;j++){
+        if (!renumber) fprintf(scmfile,"<th>%c%d</th>\n",aalist[j],poslist[j]+1);
+        else if (AlignNumbering2Sequence(seqnumber,poslist[j])!=0) fprintf(scmfile,"<th>%c%d</th>\n",aalist[j],AlignNumbering2Sequence(seqnumber,poslist[j])+offset);
+        else fprintf(scmfile,"<th>%cX(%d)</th>\n",aalist[j],poslist[j]+1);
+    }
+
+    fprintf(scmfile,"</tr>\n");
+
+    for(i=0;i<=aalist.size()-1;i++){
+        if (!renumber) fprintf(scmfile,"<tr>\n<td><b>%c%d</b></td>\n<td>%-5.1f</td>\n",aalist[i],(poslist[i])+1,(float)100*frequencies[poslist[i]][freqmatrixposition(aalist[i])]/((float)sequences.size()));
+        else if (AlignNumbering2Sequence(seqnumber,poslist[i])!=0) fprintf(scmfile,"<tr>\n<td><b>%c%d</b></td>\n<td>%-5.1f</td>\n",aalist[i],AlignNumbering2Sequence(seqnumber,poslist[i])+offset,(float)100*frequencies[poslist[i]][freqmatrixposition(aalist[i])]/((float)sequences.size()));
+        else fprintf(scmfile,"<tr>\n<td><b>%cX(%d)</b></td>\n<td>%-5.1f</td>\n",aalist[i],(poslist[i])+1,(float)100*frequencies[poslist[i]][freqmatrixposition(aalist[i])]/((float)sequences.size()));
+
+        for (j=0;j<=aalist.size()-1;j++){
+            if(i==j) fprintf(scmfile,"<td>X</td>\n");
+            else{
+                if(fabs((float)100*frequencies[poslist[i]][freqmatrixposition(aalist[i])]/((float)sequences.size())-100*selfcorrelationmatrix[i][j])<15) fprintf(scmfile,"<td>%-5.1f</td>\n",100*selfcorrelationmatrix[i][j]);
+                else{
+                    if(fabs((float)100*frequencies[poslist[i]][freqmatrixposition(aalist[i])]/((float)sequences.size())>100*selfcorrelationmatrix[i][j])) fprintf(scmfile,"<td><font color=#FF0000>%-5.1f</font></td>\n",100*selfcorrelationmatrix[i][j]);
+                    else fprintf(scmfile,"<td><font color=#00FF00>%-5.1f</font></td>\n",100*selfcorrelationmatrix[i][j]);
+                }
+            }
+        }
+        fprintf(scmfile,"<tr>\n");
+    }
+    fprintf(scmfile,"</center>\n</table>\n</body>\n</html>\n");
+    fclose(scmfile);
+}
+
+void Alignment::Write_SCM(string scmfilename, const std::vector<char> &aalist, const std::vector<int> &poslist){
+    int i,j;
+
+    FILE *scmfile;
+    scmfile=fopen(scmfilename.c_str(),"w+");
+
+    fprintf(scmfile,"POS\tALL");
+
+    for(j=0;j<=aalist.size()-1;j++){
+        fprintf(scmfile,"\t%c%d",aalist[j],poslist[j]+1);
+    }
+    fprintf(scmfile,"\n");
+    for(i=0;i<=aalist.size()-1;i++){
+        fprintf(scmfile,"%c%d\t%-5.1f",aalist[i],(poslist[i])+1,(float)100*frequencies[poslist[i]][freqmatrixposition(aalist[i])]/((float)sequences.size()));
+
+        for (j=0;j<=aalist.size()-1;j++){
+            if(i==j) fprintf(scmfile,"\tX");
+            else fprintf(scmfile,"\t%-5.1f",100*selfcorrelationmatrix[i][j]);
+        }
+        fprintf(scmfile,"\n");
+    }
+    fclose(scmfile);
+}
+
+void Alignment::pMatrix2HTML(string path, bool renumber, int seqnumber){
+    char pmfilename[50];
+    int i,j,c1;
+    FILE *pmfile;
+
+    for(c1=0;c1<=Communities.size()-1;c1++){
+        if(Communities[c1].aa.size()>1){
+            sprintf(pmfilename,"%scommunity%dps.html",path.c_str(),c1+1);
+            pmfile=fopen(pmfilename,"w+");
+            fprintf(pmfile,"<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th>POS</th>\n");
+
+            for(j=0;j<=Communities[c1].aa.size()-1;j++){
+                if (!renumber) fprintf(pmfile,"<th>%c%d</th>\n",Communities[c1].aa[j],Communities[c1].pos[j]+1);
+                else if (AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j])!=0) fprintf(pmfile,"<th>%c%d</th>\n",Communities[c1].aa[j],AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j]));
+                else fprintf(pmfile,"<th>%cX(%d)</th>\n",Communities[c1].aa[j],Communities[c1].pos[j]+1);
+            }
+            fprintf(pmfile,"</tr>\n");
+
+            for(i=0;i<=Communities[c1].aa.size()-1;i++){
+                if (!renumber) fprintf(pmfile,"<tr>\n<td><b>%c%d</b></td>\n",Communities[c1].aa[i],(Communities[c1].pos[i])+1);
+                else if (AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j])!=0) fprintf(pmfile,"<tr>\n<td><b>%c%d</b></td>\n",Communities[c1].aa[i],AlignNumbering2Sequence(seqnumber,Communities[c1].pos[i]));
+                else fprintf(pmfile,"<tr>\n<td><b>%cX(%d)</b></td>\n",Communities[c1].aa[i],(Communities[c1].pos[i])+1);
+
+                for (j=0;j<=Communities[c1].aa.size()-1;j++){
+                    if(i==j) fprintf(pmfile,"<td>X</td>\n");
+                    else
+                        fprintf(pmfile,"<td>%d</td>\n",Singlepvalue(Communities[c1].aa[i],Communities[c1].pos[i],Communities[c1].aa[j],Communities[c1].pos[j]));
+                }
+                fprintf(pmfile,"<tr>\n");
+            }
+            fprintf(pmfile,"</center>\n</table>\n</body>\n</html>\n");
+            fclose(pmfile);
+        }
+    }
+}
+
+float Alignment::PSA(int seqnumber, int communitynumber){
+    int i,j;
+    float sum=0;
+
+    if(Communities[communitynumber].aa.size()>1)
+        for (i=0;i<=Communities[communitynumber].aa.size()-1;i++){
+            for(j=0;j<=Communities[communitynumber].aa.size()-1;j++){
+                if(((Communities[communitynumber].aa[i]==sequences[seqnumber][Communities[communitynumber].pos[i]])&&(Communities[communitynumber].aa[j]==sequences[seqnumber][Communities[communitynumber].pos[j]]))&&(Communities[communitynumber].pos[i]!=Communities[communitynumber].pos[j]))
+                    sum+=Singlepvalue(Communities[communitynumber].aa[i],Communities[communitynumber].pos[i],Communities[communitynumber].aa[j],Communities[communitynumber].pos[j]);
+            }
+        }
+    return(sum/(float)(Communities[communitynumber].aa.size()*(Communities[communitynumber].aa.size()-1)));
+}
+
+void Alignment::Cluster2SCM(string clusterfilename, string path, bool renumber, int seqnumber, int offset, bool html, bool text){
+    int c1,c2;
+    int nclusters;
+    int nelements;
+    char tempstring[500];
+    char filename[50];
+    vector<char> aalist;
+    vector<int> poslist;
+    FILE *clusterfile;
+
+    clusterfile=fopen(clusterfilename.c_str(),"r+");
+    fscanf(clusterfile,"%d",&nclusters);
+    fgets(tempstring, 255, clusterfile); // endline
+
+    for(c1=1;c1<=nclusters;c1++){
+        aalist.clear();
+        poslist.clear();
+        fscanf(clusterfile,"%d",&nelements);
+        fgets(tempstring, 255, clusterfile);
+
+        for(c2=1;c2<=nelements;c2++){
+            fgets(tempstring, 255, clusterfile);
+            aalist.push_back(tempstring[0]);
+            poslist.push_back(atoi(((string)tempstring).substr(1,((string)tempstring).size()).c_str())-1);
+        }
+
+        if(nelements>1){
+            sprintf(filename,"%scommunity%d.html",path.c_str(),c1);
+            SelfCorrelationMatrixCalculation(aalist, poslist);
+            if (html) SCM2HTML((string)filename,aalist,poslist,renumber,seqnumber,offset);
+
+            if (text){
+                sprintf(filename,"%s_community%d.txt",path.c_str(),c1);
+                Write_SCM((string)filename,aalist,poslist);
+            }
+        }
+    }
+    fclose(clusterfile);
+}
+
+void Alignment::Cluster2PymolScript(string clusterfilename, string path, int seqnumber, int offset){
+    int c1,c2;
+    int nclusters;
+    int nelements;
+    char tempstring[500];
+    char filename[50];
+    vector<char> aalist;
+    vector<int> poslist;
+    FILE *clusterfile;
+    FILE *pymolscriptfile;
+
+    clusterfile=fopen(clusterfilename.c_str(),"r+");
+
+    fscanf(clusterfile,"%d",&nclusters);
+    fgets(tempstring, 255, clusterfile); // endline
+    sprintf(filename,"%ssets.py",path.c_str());
+
+    pymolscriptfile=fopen(filename,"w+");
+
+    for(c1=1;c1<=nclusters;c1++){
+        aalist.clear();
+        poslist.clear();
+
+        fscanf(clusterfile,"%d",&nelements);
+        fgets(tempstring, 255, clusterfile);
+        fprintf(pymolscriptfile,"create set%d,(",c1);
+
+        for(c2=1;c2<=nelements;c2++){
+            fgets(tempstring, 255, clusterfile);
+
+            aalist.push_back(tempstring[0]);
+            poslist.push_back(atoi(((string)tempstring).substr(1,((string)tempstring).size()).c_str())-1);
+        }
+
+        for(c2=1;c2<=nelements-1;c2++)
+            fprintf(pymolscriptfile,"(resi %d)or",AlignNumbering2Sequence(seqnumber,poslist[c2-1])+offset);
+        fprintf(pymolscriptfile,"(resi %d))\n\n",AlignNumbering2Sequence(seqnumber,poslist[poslist.size()-1])+offset);
+    }
+    fclose(clusterfile);
+    fclose(pymolscriptfile);
 }

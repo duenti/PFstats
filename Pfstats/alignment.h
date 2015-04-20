@@ -28,12 +28,16 @@ private:
     bool validposition(char c);
     int freqmatrixposition(char c);
     int getresn(string line);
+    int GetOffsetFromSeqName (string seqname);
     bool isaa(char c);
     bool isaax(char c);
     char num2aa(int n);
     long double lnbdf (int N, int nx, float px);
     long double lnfact(int x);
     long double stirling(int x);
+    long eto10(long double x);
+    long double cbd_tietjen(int N, int n, float freq, bool right);
+    int cbd(int N, int n, float freq, bool right);
     string outputBfactor(string line, float Bf);
 
 
@@ -43,6 +47,7 @@ public:
     ~Alignment();
     vector<string> split(string text, char sep);
     string getFilepath();
+    string getDir();
     void setFilepath(string path);
     string getRefSeqName();
     void setRefSeqName(string ref);
@@ -94,32 +99,32 @@ public:
     void IdentityStatistics(string familyid);
     void dGCalculation();//[OK]
     void dGWrite();//[OK]
-    void dGDTCalculation(int numseqs);
+    void dGDTCalculation(int numseqs); //[OK]
     void FreqWrite(); //[OK]
     void CalculateReferenceVector(int seqnumber); // Seqnumber starts with 1 [OK]
-    int AlignNumbering2Sequence(int seqnumber, int position); // Seqnumber starts with 1
+    int AlignNumbering2Sequence(int seqnumber, int position); // Seqnumber starts with 1 [OK]
     void NormalizedG(); //[OK]
     int seqcode2seqint (string refseqcode); //[OK]
     void writedGtoPDB(string PDBfilename, string dgPDBfilename,int initres,char chain,int seqnumber);//[OK]
-    void SubAlignmentIndices(char aa,int pos);
-    int SubAlignmentFrequency(char aa,int pos);
-    int Singlepvalue(char aa1,int pos1, char aa2, int pos2);
-    void SympvalueCalculation (string outputgraph, int minlogp, float minssfraction, bool writefullgraph, float mindeltafreq);
+    void SubAlignmentIndices(char aa,int pos); //[OK]
+    int SubAlignmentFrequency(char aa,int pos); //[OK]
+    int Singlepvalue(char aa1,int pos1, char aa2, int pos2); //[OK]
+    void SympvalueCalculation (string outputgraph, int minlogp, float minssfraction, float mindeltafreq);//[10%]
     void pvalueCalculation(string outputgraph, int minlogp, float minssfraction, bool writefullgraph, float mindeltafreq, bool signedgraph);
-    void GetCommunitiesFromFile(string clusterfilename);
-    void DeltaCommunitiesCalculation(void);
-    void DeltaCommunitiesOutput(string deltaoutputfilename);
-    void ElementRanking(string familyID, bool renumber, int seqnumber,int offset);
-    void SelfCorrelationMatrixCalculation(const std::vector <char> &aalist, const std::vector <int> &poslist);
-    void SCM2HTML(string scmfilename,const std::vector <char> &aalist, const std::vector <int> &poslist, bool renumber, int seqnumber, int offset);
-    void Write_SCM(string scmfilename,const std::vector <char> &aalist, const std::vector <int> &poslist);
-    void pMatrix2HTML(string familyID, bool renumber, int seqnumber);
-    float PSA(int seqnumber, int communitynumber);
+    void GetCommunitiesFromFile(string clusterfilename); //[OK]
+    void DeltaCommunitiesCalculation(void); //[OK]
+    void DeltaCommunitiesOutput(string deltaoutputfilename); //[OK]
+    void ElementRanking(string path, bool renumber, int seqnumber,int offset); //[OK]
+    void SelfCorrelationMatrixCalculation(const std::vector <char> &aalist, const std::vector <int> &poslist); //[OK]
+    void SCM2HTML(string scmfilename,const std::vector <char> &aalist, const std::vector <int> &poslist, bool renumber, int seqnumber, int offset); //[OK]
+    void Write_SCM(string scmfilename,const std::vector <char> &aalist, const std::vector <int> &poslist); //[OK]
+    void pMatrix2HTML(string path, bool renumber, int seqnumber); //[OK]
+    float PSA(int seqnumber, int communitynumber); //[OK]
     int ADH_count(int seqnumber,int communitynumber);
     void CalculateHighlyConservedPositions();
     void SuccessiveRandomElimination(string outputfilename, int step, int repetitions, int endvalue=100);
-    void DTRandomElimination(string outputfilename, int repetitions, int max, int min, int step);
-    void Cluster2SCM(string clusterfilename, string familyID, bool renumber, int seqnumber, int offset, bool html, bool text);
+    vector<float> DTRandomElimination(string outputfilename, int repetitions, int max, int min, int step); //[OK]
+    void Cluster2SCM(string clusterfilename, string path, bool renumber, int seqnumber, int offset, bool html, bool text); //[OK]
     void Cluster2PymolScript(string clusterfilename, string familyID, int seqnumber, int offset);
     void AlignmentWrite(string outputfilename); //[OK]
     vector<string> getSequencesName(); //[OK]

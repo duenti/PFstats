@@ -46,6 +46,12 @@ private slots:
 
     void on_cmbRefSeq_2_activated(int index);
 
+    void on_cmbRefSeq_3_activated(int index);
+
+    void on_lstRefSeqs_itemSelectionChanged();
+
+    void on_lstRefSeqs_2_itemSelectionChanged();
+
 private:
     Ui::MainWindow *ui;
     void changeWizardCmds(bool bl);
@@ -61,6 +67,12 @@ private:
     void alignfilter(Alignment align, float occupancy, float minId, float maxId, int refseq);
     void conservation(Alignment align, int refseq, int offset, char chain, string pdbfile = "");
     void conservedresidues(Alignment align, vector<int> referencesequences, string outputFile, float minconservation);
+    vector<float> minss(Alignment align, string outputfilename, int repetitions); //from 100 to 1;
+    void pcalc(Alignment align, string outputgraphfilename, int minlogp, float minssfraction, float mindeltafreq);
+    void trivcomm(string pcalcfilename, string communitiesfilename);
+    void output(Alignment align, string communitiesfilename, int seqnumber, int offset);
+    void adherence(Alignment align, string communitiesfilename, string outputfilename);
+    void comm2seqrenumbering(Alignment align, string communitiesfilename, vector<int> referencesequences, string path);
 };
 
 #endif // MAINWINDOW_H

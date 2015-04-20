@@ -52,15 +52,13 @@ SOURCES       = ../Pfstats/main.cpp \
 		../Pfstats/mainwindow.cpp \
 		../Pfstats/qcustomplot.cpp \
 		../Pfstats/alignment.cpp moc_mainwindow.cpp \
-		moc_qcustomplot.cpp \
-		moc_alignment.cpp
+		moc_qcustomplot.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		qcustomplot.o \
 		alignment.o \
 		moc_mainwindow.o \
-		moc_qcustomplot.o \
-		moc_alignment.o
+		moc_qcustomplot.o
 DIST          = ../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.4/gcc_64/mkspecs/common/shell-unix.conf \
 		../../../Qt/5.4/gcc_64/mkspecs/common/unix.conf \
@@ -506,9 +504,9 @@ check: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_qcustomplot.cpp moc_alignment.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_qcustomplot.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_qcustomplot.cpp moc_alignment.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_qcustomplot.cpp
 moc_mainwindow.cpp: ../../../Qt/5.4/gcc_64/include/QtWidgets/QMainWindow \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qmainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qwidget.h \
@@ -616,6 +614,9 @@ moc_mainwindow.cpp: ../../../Qt/5.4/gcc_64/include/QtWidgets/QMainWindow \
 		../../../Qt/5.4/gcc_64/include/QtGui/qicon.h \
 		../Pfstats/alignment.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/QObject \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QProgressDialog \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qprogressdialog.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qdialog.h \
 		../Pfstats/mainwindow.h
 	/home/neli/Qt/5.4/gcc_64/bin/moc $(DEFINES) -I/home/neli/Qt/5.4/gcc_64/mkspecs/linux-g++ -I'/home/neli/Dropbox/Pfstats UI/Pfstats' -I/home/neli/Qt/5.4/gcc_64/include -I/home/neli/Qt/5.4/gcc_64/include/QtPrintSupport -I/home/neli/Qt/5.4/gcc_64/include/QtWidgets -I/home/neli/Qt/5.4/gcc_64/include/QtGui -I/home/neli/Qt/5.4/gcc_64/include/QtNetwork -I/home/neli/Qt/5.4/gcc_64/include/QtCore -I. ../Pfstats/mainwindow.h -o moc_mainwindow.cpp
 
@@ -1099,59 +1100,6 @@ moc_qcustomplot.cpp: ../../../Qt/5.4/gcc_64/include/QtCore/QObject \
 		../../../Qt/5.4/gcc_64/include/QtPrintSupport/qtprintsupportversion.h \
 		../Pfstats/qcustomplot.h
 	/home/neli/Qt/5.4/gcc_64/bin/moc $(DEFINES) -I/home/neli/Qt/5.4/gcc_64/mkspecs/linux-g++ -I'/home/neli/Dropbox/Pfstats UI/Pfstats' -I/home/neli/Qt/5.4/gcc_64/include -I/home/neli/Qt/5.4/gcc_64/include/QtPrintSupport -I/home/neli/Qt/5.4/gcc_64/include/QtWidgets -I/home/neli/Qt/5.4/gcc_64/include/QtGui -I/home/neli/Qt/5.4/gcc_64/include/QtNetwork -I/home/neli/Qt/5.4/gcc_64/include/QtCore -I. ../Pfstats/qcustomplot.h -o moc_qcustomplot.cpp
-
-moc_alignment.cpp: ../../../Qt/5.4/gcc_64/include/QtCore/QObject \
-		../../../Qt/5.4/gcc_64/include/QtCore/qobject.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qobjectdefs.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qnamespace.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qglobal.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qconfig.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qfeatures.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qsystemdetection.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qprocessordetection.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qcompilerdetection.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qtypeinfo.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qtypetraits.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qsysinfo.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qlogging.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qflags.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qbasicatomic.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_bootstrap.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qgenericatomic.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_msvc.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_armv7.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_armv6.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_armv5.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_ia64.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_mips.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_x86.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_cxx11.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_gcc.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qatomic_unix.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qglobalstatic.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qmutex.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qnumeric.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qstring.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qchar.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qbytearray.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qrefcount.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qarraydata.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qstringbuilder.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qlist.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qalgorithms.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qiterator.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qbytearraylist.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qcoreevent.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qscopedpointer.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qmetatype.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qvarlengtharray.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qcontainerfwd.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qisenum.h \
-		../../../Qt/5.4/gcc_64/include/QtCore/qobject_impl.h \
-		../Pfstats/alignment.h
-	/home/neli/Qt/5.4/gcc_64/bin/moc $(DEFINES) -I/home/neli/Qt/5.4/gcc_64/mkspecs/linux-g++ -I'/home/neli/Dropbox/Pfstats UI/Pfstats' -I/home/neli/Qt/5.4/gcc_64/include -I/home/neli/Qt/5.4/gcc_64/include/QtPrintSupport -I/home/neli/Qt/5.4/gcc_64/include/QtWidgets -I/home/neli/Qt/5.4/gcc_64/include/QtGui -I/home/neli/Qt/5.4/gcc_64/include/QtNetwork -I/home/neli/Qt/5.4/gcc_64/include/QtCore -I. ../Pfstats/alignment.h -o moc_alignment.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -1758,6 +1706,9 @@ main.o: ../Pfstats/main.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qicon.h \
 		../Pfstats/alignment.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/QObject \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QProgressDialog \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qprogressdialog.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qdialog.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QApplication \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qapplication.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qcoreapplication.h \
@@ -1876,10 +1827,12 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qicon.h \
 		../Pfstats/alignment.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/QObject \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QProgressDialog \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qprogressdialog.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qdialog.h \
 		ui_mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QMessageBox \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qmessagebox.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qdialog.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QFileDialog \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qfiledialog.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qdir.h \
@@ -2580,8 +2533,8 @@ alignment.o: ../Pfstats/alignment.cpp ../Pfstats/alignment.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qcontainerfwd.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qisenum.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qobject_impl.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/QMessageBox \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qmessagebox.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QProgressDialog \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qprogressdialog.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qdialog.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qwidget.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qwindowdefs.h \
@@ -2634,7 +2587,18 @@ alignment.o: ../Pfstats/alignment.cpp ../Pfstats/alignment.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qfile.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qfiledevice.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qvector2d.h \
-		../../../Qt/5.4/gcc_64/include/QtGui/qtouchdevice.h
+		../../../Qt/5.4/gcc_64/include/QtGui/qtouchdevice.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QMessageBox \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qmessagebox.h \
+		../../../Qt/5.4/gcc_64/include/QtCore/QFile \
+		../../../Qt/5.4/gcc_64/include/QtCore/QTextStream \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QApplication \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qapplication.h \
+		../../../Qt/5.4/gcc_64/include/QtCore/qcoreapplication.h \
+		../../../Qt/5.4/gcc_64/include/QtCore/qeventloop.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		../../../Qt/5.4/gcc_64/include/QtGui/qguiapplication.h \
+		../../../Qt/5.4/gcc_64/include/QtGui/qinputmethod.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o alignment.o ../Pfstats/alignment.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
@@ -2642,9 +2606,6 @@ moc_mainwindow.o: moc_mainwindow.cpp
 
 moc_qcustomplot.o: moc_qcustomplot.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_qcustomplot.o moc_qcustomplot.cpp
-
-moc_alignment.o: moc_alignment.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_alignment.o moc_alignment.cpp
 
 ####### Install
 

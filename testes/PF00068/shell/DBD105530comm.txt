@@ -1,0 +1,11 @@
+2 communities
+6 nodes in community 1
+G96
+C188
+D195
+C443
+G119
+H194
+2 nodes in community 2
+I40
+A439

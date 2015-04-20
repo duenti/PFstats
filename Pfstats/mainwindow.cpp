@@ -526,6 +526,9 @@ void MainWindow::adherence(Alignment align, string communitiesfilename, string o
             if (align.Communities[c2].aa.size()>1) fprintf(outputfile,"\t%f",align.PSA(c1,c2));
         fprintf(outputfile,"\n");
     }
+
+    QMessageBox::information(this,"Adherence","Adherence generated.");
+
 }
 
 void MainWindow::comm2seqrenumbering(Alignment align, string communitiesfilename, vector<int> seqlist, string path){
@@ -562,6 +565,8 @@ void MainWindow::comm2seqrenumbering(Alignment align, string communitiesfilename
         fprintf(outputfile,"</center>\n</table>\n</body>\n</html>\n");
         fclose (outputfile);
     }
+
+    QMessageBox::information(this,"Comm2SeqRenumbering","All statics file are generated.");
 }
 
 void MainWindow::addAlignment(string path){
@@ -1153,7 +1158,7 @@ void MainWindow::on_cmdCorrelation_clicked()
     //Chamar comm2seqrenumbering
     vector<int> refSeqs;
 
-    QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
+    QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
     for(int i = 0; i < indexList.size(); i++){
         refSeqs.push_back(indexList.at(i).row());
     }
@@ -1198,6 +1203,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
         ui->lstRefSeqs_2->addItem(QString::fromStdString(sequences.at(i)));
     }
     ui->cmbRefSeq_2->setCurrentIndex(1);
+    ui->cmbRefSeq_3->setCurrentIndex(1);
 }
 
 void MainWindow::on_cmbRefSeq_activated(int index)
@@ -1262,17 +1268,16 @@ void MainWindow::on_cmbRefSeq_3_activated(int index)
 
 void MainWindow::on_lstRefSeqs_itemSelectionChanged()
 {
-    QMessageBox::information(this,"ds","1");
     QModelIndexList indexes = ui->lstRefSeqs->selectionModel()->selectedIndexes();
-//QMessageBox::information(this,"ds","2");
+
     std::vector<int> indexList;
     foreach(QModelIndex index, indexes)
     {
         indexList.push_back(index.row());
     }
-//QMessageBox::information(this,"ds","3");
+
     ui->lstRefSeqs_2->clearSelection();
-//QMessageBox::information(this,"ds","4");
+
     for(int i=0; i < indexList.size(); i++){
         ui->lstRefSeqs_2->item(indexList[i])->setSelected(true);
     }

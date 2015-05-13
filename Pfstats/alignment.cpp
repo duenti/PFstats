@@ -26,6 +26,112 @@ string Alignment::getFilepath(){
     return this->filepath;
 }
 
+string Alignment::getLocalDir(){
+    return this->localdir;
+}
+
+void Alignment::setLocalDir(string dir){
+    this->localdir = dir;
+}
+
+string Alignment::getWebDir(){
+    return this->webdir;
+}
+
+void Alignment::setWebDir(string dir){
+    this->webdir = dir;
+}
+
+string Alignment::getLocalPDBDir(){
+    return this->localpdbdir;
+}
+
+void Alignment::setLocalPDBDir(string dir){
+    this->localpdbdir = dir;
+}
+
+string Alignment::getWebPDBDir(){
+    return this->webpdbdir;
+}
+
+void Alignment::setWebPDBDir(string dir){
+    this->webpdbdir = dir;
+}
+
+vector<vector<string> > Alignment::getAllFilters(){
+    return this->filtersList;
+}
+
+vector<vector<string> > Alignment::getAllSequences(){
+    return this->filterSequences;
+}
+
+vector<string> Alignment::getFullAlignment(){
+    return this->fullAlignment;
+}
+
+void Alignment::addFilterSequence(vector<string> align){
+    this->filterSequences.push_back(align);
+}
+
+void Alignment::loadFullAlignment(){
+    this->sequences.clear();
+    this->sequencenames.clear();
+
+    for(int i = 0; i < this->fullAlignment.size(); i++){
+        sequences.push_back(this->fullSequences[i]);
+        sequencenames.push_back(this->fullAlignment[i]);
+    }
+}
+
+void Alignment::addParameter(string tag, string filter, int refSeq, int offset, char chain, string pdb){
+    if(pdb == "") pdb = "0";
+    string parameter = tag + "," + filter + "," + QString::number(refSeq).toStdString() + "," + QString::number(offset).toStdString() + "," + chain + "," + pdb;
+    parameters.push_back(parameter);
+    QMessageBox::information(NULL,"Add Conservation",QString::number(parameters.size()));
+}
+
+void Alignment::addParameter(string tag, string filter, int repetitions){
+    string parameter = tag + "," + filter + "," + QString::number(repetitions).toStdString();
+    parameters.push_back(parameter);
+}
+
+void Alignment::addParameter(string tag, string filter, int minlog, float minssfraction, float mindeltafreq){
+    string parameter = tag + "," + filter + "," + QString::number(minlog).toStdString() + "," + QString::number(minssfraction).toStdString() + "," + QString::number(mindeltafreq).toStdString();
+    parameters.push_back(parameter);
+}
+
+vector<string> Alignment::getConservationParameters(){
+    for(int i = 0; i < parameters.size(); i++){
+        vector<string> splitVec = split(parameters[i],',');
+        //QMessageBox::information(NULL,"ok",splitVec[0].c_str());
+        if(splitVec[0] == "conservation") return splitVec;
+    }
+
+    vector<string> vecnull;
+    return vecnull;
+}
+
+vector<string> Alignment::getMinssParameters(){
+    for(int i = 0; i < parameters.size(); i++){
+        vector<string> splitVec = split(parameters[i],',');
+        if(splitVec[0] == "minss") return splitVec;
+    }
+
+    vector<string> vecnull;
+    return vecnull;
+}
+
+vector<string> Alignment::getCorrelationParameters(){
+    for(int i = 0; i < parameters.size(); i++){
+        vector<string> splitVec = split(parameters[i],',');
+        if(splitVec[0] == "correlation") return splitVec;
+    }
+
+    vector<string> vecnull;
+    return vecnull;
+}
+
 string Alignment::getDir(){
     string path = "";
     vector<string> tmpVec = this->split(filepath,'/');
@@ -300,6 +406,197 @@ int Alignment::getRefSeqOffset(){
     return 0;
 }
 
+void Alignment::generateXML(string outputXML){
+    QFile f(outputXML.c_str());
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream out(&f);
+
+    out << "<PFStats>\n";
+    out << "<file>\n";
+    if(this->localdir != "")
+        out << "   <local>" << this->localdir.c_str() << "</local>\n";
+    if(this->webdir != "")
+        out << "   <web>" << this->webdir.c_str() << "</web>\n";
+    if(this->localpdbdir != "")
+        out << "   <pdb>" << this->localpdbdir.c_str() << "</pdb>\n";
+    out << "</file>\n";
+
+    //QMessageBox::warning(NULL,"teste",QString::number(this->filtersList.size()));
+
+    for(int i = 0; i < filtersList.size(); i++){
+        string parameters = filtersList[i][0];
+        vector<string> parsVec = this->split(parameters,' ');
+        string occ = parsVec[0];
+        string minid = parsVec[1];
+        string maxid = parsVec[2];
+        string refseq = parsVec[3];
+
+        out << "<filter occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
+        for(int j = 1; j < filtersList[i].size(); j++){
+            vector<string> vecSplit = this->split(filtersList[i][j],'/');
+            out << "   <entry id='" << j-1 << "' offset='" << vecSplit[1].c_str() << "'>" << vecSplit[0].c_str() << "</entry>\n";
+        }
+        out << "</filter>\n";
+    }
+
+    out << "<conservation>\n";
+    out << "   <parameters>\n";
+
+    vector<string> consPars = this->getConservationParameters();
+
+    if(consPars.size() >4){
+        out << "      <filter>" << consPars[1].c_str() << "</filter>\n";
+        out << "      <refseq>" << consPars[2].c_str() << "</refseq>\n";
+        out << "      <offset>" << consPars[3].c_str() << "</offset>\n";
+        out << "      <chain>" << consPars[4].c_str() << "</chain>\n";
+    }
+
+    out << "   </parameters>\n";
+
+    for(int i = 0; i < consDG.size(); i++){
+        out << "   <pos id='" << i+1 << "'>\n";
+        out << "      <deltaG>" << consDG[i] << "</deltaG>\n";
+        out << "      <GAP>\n";
+        out << "         <frequence>" << consvfreq[i][0] << "</frequence>\n";
+        out << "      </GAP>\n";
+        out << "      <ALA>\n";
+        out << "         <frequence>" << consvfreq[i][1] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][0] << "</percent>\n";
+        out << "      </ALA>\n";
+        out << "      <CYS>\n";
+        out << "         <frequence>" << consvfreq[i][2] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][1] << "</percent>\n";
+        out << "      </CYS>\n";
+        out << "      <ASP>\n";
+        out << "         <frequence>" << consvfreq[i][3] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][2] << "</percent>\n";
+        out << "      </ASP>\n";
+        out << "      <GLU>\n";
+        out << "         <frequence>" << consvfreq[i][4] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][3] << "</percent>\n";
+        out << "      </GLU>\n";
+        out << "      <PHE>\n";
+        out << "         <frequence>" << consvfreq[i][5] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][4] << "</percent>\n";
+        out << "      </PHE>\n";
+        out << "      <GLY>\n";
+        out << "         <frequence>" << consvfreq[i][6] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][5] << "</percent>\n";
+        out << "      </GLY>\n";
+        out << "      <HIS>\n";
+        out << "         <frequence>" << consvfreq[i][7] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][6] << "</percent>\n";
+        out << "      </HIS>\n";
+        out << "      <ILE>\n";
+        out << "         <frequence>" << consvfreq[i][8] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][7] << "</percent>\n";
+        out << "      </ILE>\n";
+        out << "      <LYS>\n";
+        out << "         <frequence>" << consvfreq[i][9] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][8] << "</percent>\n";
+        out << "      </LYS>\n";
+        out << "      <LEU>\n";
+        out << "         <frequence>" << consvfreq[i][10] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][9] << "</percent>\n";
+        out << "      </LEU>\n";
+        out << "      <MET>\n";
+        out << "         <frequence>" << consvfreq[i][11] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][10] << "</percent>\n";
+        out << "      </MET>\n";
+        out << "      <ASN>\n";
+        out << "         <frequence>" << consvfreq[i][12] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][11] << "</percent>\n";
+        out << "      </ASN>\n";
+        out << "      <PRO>\n";
+        out << "         <frequence>" << consvfreq[i][13] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][12] << "</percent>\n";
+        out << "      </PRO>\n";
+        out << "      <GLN>\n";
+        out << "         <frequence>" << consvfreq[i][14] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][13] << "</percent>\n";
+        out << "      </GLN>\n";
+        out << "      <ARG>\n";
+        out << "         <frequence>" << consvfreq[i][15] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][14] << "</percent>\n";
+        out << "      </ARG>\n";
+        out << "      <SER>\n";
+        out << "         <frequence>" << consvfreq[i][16] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][15] << "</percent>\n";
+        out << "      </SER>\n";
+        out << "      <THR>\n";
+        out << "         <frequence>" << consvfreq[i][17] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][16] << "</percent>\n";
+        out << "      </THR>\n";
+        out << "      <VAL>\n";
+        out << "         <frequence>" << consvfreq[i][18] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][17] << "</percent>\n";
+        out << "      </VAL>\n";
+        out << "      <TRP>\n";
+        out << "         <frequence>" << consvfreq[i][19] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][18] << "</percent>\n";
+        out << "      </TRP>\n";
+        out << "      <TYR>\n";
+        out << "         <frequence>" << consvfreq[i][20] << "</frequence>\n";
+        out << "         <percent>" << consfreqPerc[i][19] << "</percent>\n";
+        out << "      </TYR>\n";
+        out << "   </pos>\n";
+    }
+
+    out << "</conservation>\n";
+
+    out << "<minss>\n";
+
+    out << "   <parameters>\n";
+
+    vector<string> minssParam = this->getMinssParameters();
+
+    if(minssParam.size() > 2){
+        out << "      <filter>" << minssParam[1].c_str() << "</filter>\n";
+        out << "      <repetitions>" << minssParam[2].c_str() << "</repetitions>\n";
+    }
+
+    out << "   </parameters>\n";
+
+    for(int i = 0; i < this->minssData.size(); i++){
+        out << "   <data id='" << i+1 << "'>" << minssData[99-i] << "</data>\n";
+    }
+
+    out << "<\minss>\n";
+
+
+    out << "<correlation>\n";
+    out << "   <parameters>\n";
+
+    vector<string> corrParam = this->getCorrelationParameters();
+
+    if(corrParam.size() > 4){
+        out << "      <filter>" << corrParam[1].c_str() << "</filter>\n";
+        out << "      <minlog>" << corrParam[2].c_str() << "</minlog>\n";
+        out << "      <minss>" << corrParam[3].c_str() << "</minss>\n";
+        out << "      <deltafreq>" << corrParam[4].c_str() << "</deltafreq>\n";
+    }
+
+    out << "   </parameters>\n";
+
+    out << "   <corrgraph>\n";
+
+    for(int i = 0; i < corrGraph.size(); i++){
+        string v1 = std::get<0>(corrGraph[i]);
+        string v2 = std::get<1>(corrGraph[i]);
+        int val = std::get<2>(corrGraph[i]);
+
+        out << "      <edge v1='" << v1.c_str() << "' v2='" << v2.c_str() << "'>" << QString::number(val) << "</edge>\n";
+    }
+
+    out << "   </corrgraph>\n";
+    out << "</correlation>\n";
+
+    out << "</PFStats>";
+    f.close();
+}
+
 bool Alignment::GetFromFile(){
     fstream alignmentfile;
     string line;
@@ -359,6 +656,11 @@ bool Alignment::GetFromFile(){
             for(c2=0; c2<=20; c2++)
                 subsetfrequencies[c1].push_back(0);
         }
+    }
+
+    for(int i = 0; i < sequencenames.size(); i++){
+        this->fullAlignment.push_back(sequencenames[i]);
+        this->fullSequences.push_back(sequences[i]);
     }
 }
 
@@ -469,7 +771,7 @@ int Alignment::seqcode2seqint(string refseqcode){
     return -1;
 }
 
-void Alignment::AlignmentTrimming(float minocc, int refseq, string newalignmentfilename){
+void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -499,12 +801,28 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string newalignmentf
         }
     }
 
+    vector<string> filterVec;
+    string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+    filterVec.push_back(parameters);
+    for(int i = 0; i < sequencenames.size(); i++){
+        filterVec.push_back(sequencenames[i]);
+    }
+
+    vector<string> sequenceVec;
+    sequenceVec.push_back(parameters);
+    for(int i = 0; i < sequences.size(); i++){
+        sequenceVec.push_back(sequences[i]);
+    }
+
+    filtersList.push_back(filterVec);
+    filterSequences.push_back(sequenceVec);
+
     progress.close();
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 
 }
 
-void Alignment::IdentityMinimum(float minid, int refseq, string newalignmentfilename){
+void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Culling Minimum Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -527,11 +845,27 @@ void Alignment::IdentityMinimum(float minid, int refseq, string newalignmentfile
         }
     }
 
+    vector<string> filterVec;
+    string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
+    filterVec.push_back(parameters);
+    for(int i = 0; i < sequencenames.size(); i++){
+        filterVec.push_back(sequencenames[i]);
+    }
+
+    vector<string> sequenceVec;
+    sequenceVec.push_back(parameters);
+    for(int i = 0; i < sequences.size(); i++){
+        sequenceVec.push_back(sequences[i]);
+    }
+
+    filtersList.push_back(filterVec);
+    filterSequences.push_back(sequenceVec);
+
     progress.close();
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 }
 
-void Alignment::IdentityTrimming(float maxid, string newalignmentfilename){
+void Alignment::IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -567,6 +901,22 @@ void Alignment::IdentityTrimming(float maxid, string newalignmentfilename){
         }
         seq1++;
     }
+
+    vector<string> filterVec;
+    string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
+    filterVec.push_back(parameters);
+    for(int i = 0; i < sequencenames.size(); i++){
+        filterVec.push_back(sequencenames[i]);
+    }
+
+    vector<string> sequenceVec;
+    sequenceVec.push_back(parameters);
+    for(int i = 0; i < sequences.size(); i++){
+        sequenceVec.push_back(sequences[i]);
+    }
+
+    filtersList.push_back(filterVec);
+    filterSequences.push_back(sequenceVec);
 
     progress.close();
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
@@ -608,6 +958,7 @@ void Alignment::dGCalculation(){
 }
 
 void Alignment::dGWrite(){
+    /*
     string outputfilename;
     vector<string> vecPath = split(this->getFilepath(),'.');
 
@@ -629,9 +980,15 @@ void Alignment::dGWrite(){
     }
 
     f.close();
+    */
+
+    for(int i = 0; i<sequences[0].size()-1;i++){
+        consDG.push_back(float(dG[i]));
+    }
 }
 
 void Alignment::FreqWrite(){
+    /*
     int i,j;
     string path = "";
     string freqpath, freqpercpath;
@@ -700,6 +1057,24 @@ void Alignment::FreqWrite(){
      }
 
     f2.close();
+    */
+    for (int i=0;i<=sequences[0].size()-1;i++){//-1 para não incluir o ALL
+        vector<int> freqs;
+        for (int j=0;j<=20;j++){
+            freqs.push_back(frequencies[i][j]);
+        }
+        consvfreq.push_back(freqs);
+    }
+
+     for (int i=0;i<=sequences[0].size();i++){
+         vector<float> freqpercs;
+         for (int j=1;j<=20;j++){
+             if(frequencies[i][j]!=sequences.size()){
+                freqpercs.push_back(100.0*(float)frequencies[i][j]/((float)sequences.size()));
+             }else freqpercs.push_back(100.00);
+         }
+         consfreqPerc.push_back(freqpercs);
+     }
 }
 
 void Alignment::CalculateReferenceVector(int seqnumber){
@@ -791,7 +1166,7 @@ void Alignment::dGDTCalculation(int numseqs){
     }
 }
 
-vector<float> Alignment::DTRandomElimination(string outputfilename, int repetitions, int max, int min, int step){
+vector<float> Alignment::DTRandomElimination(int repetitions, int max, int min, int step){
     int c1,c3;
     long double partialresult=0;
     long double partialsum=0;
@@ -809,17 +1184,19 @@ vector<float> Alignment::DTRandomElimination(string outputfilename, int repetiti
         if(((float)frequencies[i][0])/((float)sequences.size())<=1) populatedpos.push_back(i);
     }
 
+    /*
     QFile sucelimfile(outputfilename.c_str());
     if (!sucelimfile.open(QIODevice::WriteOnly | QIODevice::Text))
             return outputVec;
     QTextStream out(&sucelimfile);
+    */
 
     dGDTCalculation(sequences.size());
 
     for(i=0;i<=populatedpos.size()-1;i++)
         partialresult+=dGDT[populatedpos[i]];
 
-    out << "100\t" << float(partialresult/((long double)populatedpos.size())) << "\n";
+    //out << "100\t" << float(partialresult/((long double)populatedpos.size())) << "\n";
     outputVec.push_back(float(partialresult/((long double)populatedpos.size())));
 
     for (c1=0;c1<=sequences.size()-1;c1++) SortOrder.push_back(c1);
@@ -845,10 +1222,15 @@ vector<float> Alignment::DTRandomElimination(string outputfilename, int repetiti
                 partialsum+=dGDT[populatedpos[c3]];
         }
         //printf("%f - %d\n",(float)partialsum,populatedpos.size());
-        out << 100-i << "\t" << (float)(partialsum/((long double)(populatedpos.size()*repetitions))) << "\n";
+        //out << 100-i << "\t" << (float)(partialsum/((long double)(populatedpos.size()*repetitions))) << "\n";
         outputVec.push_back((float)(partialsum/((long double)(populatedpos.size()*repetitions))));
     }
-    sucelimfile.close();
+    //sucelimfile.close();
+
+    for(int i = 0; i < outputVec.size(); i++){
+        this->minssData.push_back(outputVec.at(i));
+    }
+
     return outputVec;
 
 }
@@ -897,15 +1279,10 @@ int Alignment::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
     return 0;
 }
 
-void Alignment::SympvalueCalculation(string outputgraph, int minlogp, float minssfraction, float mindeltafreq){
-    int c1,c2,pos1,pos2,aa1,aa2,aa2pos2count,aa1pos1count;
+void Alignment::SympvalueCalculation(int minlogp, float minssfraction, float mindeltafreq){
+    int c2,pos1,pos2,aa1,aa2,aa2pos2count,aa1pos1count;
     short int pvalue1,pvalue2;
     bool mindeltafreqok;
-
-    QFile outputgraphfile(outputgraph.c_str());
-    if (!outputgraphfile.open(QIODevice::WriteOnly | QIODevice::Text))
-            return;
-    QTextStream out(&outputgraphfile);
 
     QProgressDialog progress("Calculating...", "Abort", 0,sequences[0].size()-2);
     progress.setWindowModality(Qt::WindowModal);
@@ -958,15 +1335,20 @@ void Alignment::SympvalueCalculation(string outputgraph, int minlogp, float mins
                                 pvalue1=Singlepvalue(num2aa(aa1),pos1,num2aa(aa2),pos2);
                                 pvalue2=Singlepvalue(num2aa(aa2),pos2,num2aa(aa1),pos1);
 
-                                if((abs((pvalue1+pvalue2)/2)>=minlogp)&&(abs(pvalue2)>=minlogp)&&(abs(pvalue2)>=minlogp))
-                                    out << num2aa(aa1) << pos1+1 << " " << num2aa(aa2) << pos2+1 << " " << (pvalue1+pvalue2)/2 << "\n";
+                                if((abs((pvalue1+pvalue2)/2)>=minlogp)&&(abs(pvalue2)>=minlogp)&&(abs(pvalue2)>=minlogp)){
+                                    string residue1 = num2aa(aa1) + QString::number(pos1+1).toStdString();
+                                    string residue2 = num2aa(aa2) + QString::number(pos2+1).toStdString();
+                                    int edgeValue = (pvalue1+pvalue2)/2;
+                                    tuple<string,string,int> node(residue1,residue2,edgeValue);
+                                    this->corrGraph.push_back(node);
+                                    //out << num2aa(aa1) << pos1+1 << " " << num2aa(aa2) << pos2+1 << " " << (pvalue1+pvalue2)/2 << "\n";
+                                }
                             }
                         }
                     }
                 }
         }
     }
-    outputgraphfile.close();
 }
 
 

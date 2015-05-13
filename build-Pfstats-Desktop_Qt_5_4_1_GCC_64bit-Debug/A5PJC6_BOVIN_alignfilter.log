@@ -20,6 +20,6 @@
 
 
 Parameters:
-   minimum occupancy: 0.800000
-   minimum identity: 0.800000
-   maximum identity: 0.800000
+   minimum occupancy: 0,800000
+   minimum identity: 0,150000
+   maximum identity: 0,800000

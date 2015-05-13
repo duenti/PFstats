@@ -46,7 +46,7 @@ void MainWindow::resetObjects(){
     ui->txtPDBfilepath->clear();
     ui->cmbRefSeq_2->setCurrentIndex(0);
     ui->cmbRefSeq_3->setCurrentIndex(0);
-    ui->lstRefSeqs->clear();
+    //ui->lstRefSeqs->clear();
     ui->lstRefSeqs_2->clear();
     ui->txtOffset->clear();
     ui->txtOffset_2->clear();
@@ -57,6 +57,17 @@ void MainWindow::resetObjects(){
     ui->txtMinssFraction->setValue(0.2);
     ui->txtMinDeltaFreq->setValue(0.3);
     ui->txtGraphPath->clear();
+}
+
+bool MainWindow::compareLocalWebPDB(string local, string web){
+    vector<string> localVec = this->split(local,'/');
+    vector<string> webVec = this->split(web,'/');
+
+    string localfile = localVec[localVec.size()-1];
+    string webfile = webVec[webVec.size()-1];
+
+    if(localfile == webfile) return true;
+    return false;
 }
 
 vector<string> MainWindow::split(string text, char sep){
@@ -153,7 +164,7 @@ bool MainWindow::checkfile(const string &name){
     return false;
 }
 
-void MainWindow::alignfilter(Alignment align, float occupancy, float minId, float maxId, int refseq){
+void MainWindow::alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName){
     string outputlogfilename = ui->cmbRefSeq->currentText().toStdString() + "_alignfilter.log";
     FILE *outputlog;
 
@@ -182,30 +193,51 @@ void MainWindow::alignfilter(Alignment align, float occupancy, float minId, floa
 
     ostringstream buffer;
     buffer << "occ" << (int)(occupancy*100) << "min" << (int)(minId*100) << "max" << (int)(maxId*100);
-    string path = this->makeNewPath(ui->listWidget->currentItem()->text().toStdString(),buffer.str());
+    //string path = this->makeNewPath(ui->listWidget->currentItem()->text().toStdString(),buffer.str());
 
     //QMessageBox::information(this,"DEBUG",refseq);
 
-    //Calculate
-    string firstrefseq = align.sequences[refseq];
-    string firstrefseqname = align.sequencenames[refseq];
-    align.sequences.insert(align.sequences.begin(),firstrefseq);
-    align.sequencenames.insert(align.sequencenames.begin(),firstrefseqname);
-
-    align.AlignmentTrimming(occupancy,0);
-    align.IdentityMinimum(minId,refseq);
-    align.IdentityTrimming(maxId);
-
-    printf("\nFirstRefSeqName: %s\n",firstrefseqname.c_str());
-    if ((string)(align.sequencenames[0])!=firstrefseqname){
-        align.sequences.insert(align.sequences.begin(),firstrefseq);
-        align.sequencenames.insert(align.sequencenames.begin(),firstrefseqname);
+    int i = 0;
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            break;
+        }
     }
 
-    align.setFilepath(path);
-    //QMessageBox::information(this,"a",fullAlignment.getFilepath().c_str());
-    align.AlignmentWrite(path);
+    alinhamentos[i].loadFullAlignment();
 
+    //Calculate
+    string firstrefseq = alinhamentos[i].sequences[refseq];
+    string firstrefseqname = alinhamentos[i].sequencenames[refseq];
+    //alinhamentos[i].sequences.insert(alinhamentos[i].sequences.begin(),firstrefseq);
+    //alinhamentos[i].sequencenames.insert(alinhamentos[i].sequencenames.begin(),firstrefseqname);
+//QMessageBox::information(this,"test","1");
+    alinhamentos[i].AlignmentTrimming(occupancy,0,refseqName);
+//QMessageBox::information(this,"test","2");
+    alinhamentos[i].IdentityMinimum(minId,0,occupancy,refseqName);
+//QMessageBox::information(this,"test","3");
+    alinhamentos[i].IdentityTrimming(maxId,occupancy,minId,0,refseqName);
+//QMessageBox::information(this,"test","4");
+
+    printf("\nFirstRefSeqName: %s\n",firstrefseqname.c_str());
+    if ((string)(alinhamentos[i].sequencenames[0])!=firstrefseqname){
+        alinhamentos[i].sequences.insert(alinhamentos[i].sequences.begin(),firstrefseq);
+        alinhamentos[i].sequencenames.insert(alinhamentos[i].sequencenames.begin(),firstrefseqname);
+    }
+
+    vector<vector<string> > filterList = alinhamentos.at(i).getAllFilters();
+    ui->listWidget2->clear();
+    ui->listWidget2->addItem("Full Alignment");
+
+    for(int j = 0; j < filterList.size(); j++){
+        ui->listWidget2->addItem(filterList[j][0].c_str());
+    }
+
+    //alinhamentos[i].setFilepath(path);
+    //QMessageBox::information(this,"a",fullAlignment.getFilepath().c_str());
+    //alignPath.AlignmentWrite(path);
+/*
     //Add na Lista
     bool same = false;
     for(int i = 0; i < ui->listWidget->count(); i++){
@@ -213,18 +245,18 @@ void MainWindow::alignfilter(Alignment align, float occupancy, float minId, floa
     }
     if(!same) ui->listWidget->addItem(path.c_str());
 
-    alinhamentos.push_back(align);
-
+    alinhamentos.push_back(alignPath);
+*/
 }
 
-void MainWindow::conservation(Alignment align, int refseq, int offset, char chain, string pdbfile){
-    align.CalculateFrequencies();
-    align.dGCalculation();
-    align.dGWrite();
-    align.FreqWrite();
+void MainWindow::conservation(int ai, int refseq, int offset, char chain, string pdbfile){
+    alinhamentos[ai].CalculateFrequencies();
+    alinhamentos[ai].dGCalculation();
+    alinhamentos[ai].dGWrite();
+    alinhamentos[ai].FreqWrite();
 
     if(pdbfile != ""){
-        vector<string> vecPath = split(align.getFilepath(),'.');
+        vector<string> vecPath = split(alinhamentos[ai].getFilepath(),'.');
         string path = "";
 
         for(int i=0;i<vecPath.size()-1;i++){
@@ -234,25 +266,30 @@ void MainWindow::conservation(Alignment align, int refseq, int offset, char chai
 
         //printf("\n%s\n",path.c_str());
 
-        align.writedGtoPDB(pdbfile, path,offset,chain,refseq);
+        alinhamentos[ai].writedGtoPDB(pdbfile, path,offset,chain,refseq);
     }
+
+    if(ui->listWidget2->currentItem() == NULL)
+        alinhamentos[ai].addParameter("conservation","Full Alignment",refseq, offset, chain, pdbfile);
+    else
+        alinhamentos[ai].addParameter("conservation", ui->listWidget2->currentItem()->text().toStdString(), refseq, offset, chain, pdbfile);
 
     QMessageBox::information(this,"Files Created","The files has been successfully created.");
 }
 
 //Passar vetor de indices ->currentIndex
-void MainWindow::conservedresidues(Alignment align, vector<int> referencesequences, string outputFile, float minconservation){
+void MainWindow::conservedresidues(int ai, vector<int> referencesequences, float minconservation){
     int c1, c2;
     float freq;
     vector<char> conservedaa;
     vector<int> conservedpos;
     vector<float> conservedfreq;
 
-    align.CalculateFrequencies();
+    alinhamentos[ai].CalculateFrequencies();
 
-    for(c1 = 0; c1 < align.frequencies.size()-2; c1++){
+    for(c1 = 0; c1 < alinhamentos[ai].frequencies.size()-2; c1++){
         for(c2 = 1; c2 <=20; c2++){
-            freq = (float)align.frequencies[c1][c2]/((float)align.sequences.size());
+            freq = (float)alinhamentos[ai].frequencies[c1][c2]/((float)alinhamentos[ai].sequences.size());
             if(freq >= minconservation){
                 conservedaa.push_back(num2aa(c2));
                 conservedpos.push_back(c1);
@@ -265,7 +302,7 @@ void MainWindow::conservedresidues(Alignment align, vector<int> referencesequenc
         QMessageBox::information(this,"Conserved Residues", "No residues match the conservation minimum");
         return;
     }
-
+/*
     QFile file(outputFile.c_str());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
             return;
@@ -282,42 +319,47 @@ void MainWindow::conservedresidues(Alignment align, vector<int> referencesequenc
     }
     out << "</tr>\n";
     for (c1=0;c1<=referencesequences.size()-1;c1++){
-        out << "<tr><th><b>" << align.sequencenames[referencesequences[c1]].c_str();
+        out << "<tr><th><b>" << alinhamentos[ai].sequencenames[referencesequences[c1]].c_str();
         for (c2=0;c2<=conservedaa.size()-1;c2++){
-            if(align.AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2]) ==0){
+            if(alinhamentos[ai].AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2]) ==0){
                 out << "<th><font color=#FF0000>-</font></th>";
             }else{
-                if (align.sequences[referencesequences[c1]][conservedpos[c2]]==conservedaa[c2])
-                    out << "<th>" << conservedaa[c2] << align.AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2]) + GetOffsetFromSeqName(align.sequencenames[referencesequences[c1]]) << "</th>";
+                if (alinhamentos[ai].sequences[referencesequences[c1]][conservedpos[c2]]==conservedaa[c2])
+                    out << "<th>" << conservedaa[c2] << alinhamentos[ai].AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2]) + GetOffsetFromSeqName(alinhamentos[ai].sequencenames[referencesequences[c1]]) << "</th>";
                 else
-                    out << "<th><font color=#FF0000>" << align.sequences[referencesequences[c1]][conservedpos[c2]] << align.AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2])+GetOffsetFromSeqName(align.sequencenames[referencesequences[c1]]) << "</font></th>";
+                    out << "<th><font color=#FF0000>" << alinhamentos[ai].sequences[referencesequences[c1]][conservedpos[c2]] << alinhamentos[ai].AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2])+GetOffsetFromSeqName(alinhamentos[ai].sequencenames[referencesequences[c1]]) << "</font></th>";
             }
         }
         out << "</tr>\n";
     }
     file.close();
-
+*/
     QMessageBox::information(this,"Conserved Residues", "Conserved residues exported to HTML table.");
 }
 
-vector<float> MainWindow::minss(Alignment align, string outputfilename, int repetitions){
+vector<float> MainWindow::minss(int ai, int repetitions){
     vector<float> outputVec;
-    align.CalculateFrequencies();
-    outputVec = align.DTRandomElimination(outputfilename,repetitions,99,1,1);
+    alinhamentos[ai].CalculateFrequencies();
+    outputVec = alinhamentos[ai].DTRandomElimination(repetitions,99,1,1);
 
-    QMessageBox::information(this,"Minss","Data file generated.");
+    if(ui->listWidget2->currentItem() == NULL)
+        alinhamentos[ai].addParameter("minss","Full Alignment",repetitions);
+    else
+        alinhamentos[ai].addParameter("minss", ui->listWidget2->currentItem()->text().toStdString(), repetitions);
+
+    QMessageBox::information(this,"Minss","Minss calculated.");
 
     return outputVec;
 }
 
-void MainWindow::pcalc(Alignment align, string outputgraphfilename, int minlogp, float minssfraction, float mindeltafreq){
-    align.CalculateFrequencies();
-    align.SympvalueCalculation(outputgraphfilename,minlogp,minssfraction,mindeltafreq);
+void MainWindow::pcalc(int ai, int minlogp, float minssfraction, float mindeltafreq){
+    alinhamentos[ai].CalculateFrequencies();
+    alinhamentos[ai].SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
 
     QMessageBox::information(this,"PCalc","Communities graph generated.");
 }
 
-void MainWindow::trivcomm(string pcalcfilename, string communitiesfilename){
+void MainWindow::trivcomm(){
     char aa1,aa2;
     int pos1,pos2;
     int score;
@@ -737,6 +779,16 @@ void MainWindow::on_cmdOpen_clicked()
     Alignment align;
     align.setFilepath(fileName.toUtf8().constData());
     align.GetFromFile();
+
+    //Salva Full Alignment
+    //vector<string> filterSequence;
+    //vector<string> filterList;
+
+
+
+    //Armazena local para XML
+    align.setLocalDir(fileName.toStdString());
+
     alinhamentos.push_back(align);
 
     ui->cmdOpen->setEnabled(true);
@@ -813,6 +865,7 @@ void MainWindow::on_cmdFetch_clicked()
         Alignment align;
         align.setFilepath(filename.toUtf8().constData());
         align.GetFromFile();
+        align.setWebDir(url.toStdString());
         alinhamentos.push_back(align);
     }
 
@@ -878,14 +931,15 @@ void MainWindow::on_cmdApplyFilter_clicked()
     minId = ui->txtMinId->value();
     maxId = ui->txtMaxId->value();
 
-    Alignment fullAlignment, cutAlignment;
+    Alignment fullAlignment;
     fullAlignment.setFilepath(inputfilename);
     fullAlignment.GetFromFile();
     fullAlignment.CalculateFrequencies();
 
     refseq = ui->cmbRefSeq->currentIndex()-1;
+    string refseqName = ui->cmbRefSeq->currentText().toStdString();
 
-    this->alignfilter(fullAlignment,occupancy,minId,maxId,refseq);
+    this->alignfilter(fullAlignment.getFilepath(),occupancy,minId,maxId,refseq,refseqName);
 
 
     ui->cmdApplyFilter->setEnabled(true);
@@ -938,6 +992,8 @@ void MainWindow::on_cmdFetchPDB_clicked()
         f.close();
 
         ui->txtPDBfilepath->setText(filename);
+
+        this->pdbweb = url.toStdString();
     }
 
     ui->cmdFetchPDB->setEnabled(true);
@@ -957,6 +1013,7 @@ void MainWindow::on_cmdPDBfromFile_clicked()
     }
 
     ui->txtPDBfilepath->setText(fileName);
+    this->pdbweb = "";
 
     ui->cmdPDBfromFile->setEnabled(true);
 }
@@ -996,24 +1053,32 @@ void MainWindow::on_cmdConservation_clicked()
     refseq = ui->cmbRefSeq_2->currentIndex();
     chain = ui->txtChain->text().at(0).toLatin1();
 
-    Alignment fullAlignment;
-
-    for(int i = 0; i < alinhamentos.size(); i++){
+    //Alignment fullAlignment;
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
         if(alignfilename == alinhamentos.at(i).getFilepath()){
-            fullAlignment = alinhamentos[i];
+            //fullAlignment = alinhamentos[i];
+            break;
         }
     }
 
-    this->conservation(fullAlignment,refseq,offset,chain,pdbfilename);
+    if(ui->txtPDBfilepath->text() != ""){
+        alinhamentos[i].setLocalPDBDir(ui->txtPDBfilepath->text().toStdString());
+    }
 
+    if(this->compareLocalWebPDB(ui->txtPDBfilepath->text().toStdString(),this->pdbweb))
+        alinhamentos[i].setWebPDBDir(pdbweb);
+
+    this->conservation(i,refseq,offset,chain,pdbfilename);
+/*
     //CONSERVED RESIDUES
     vector<int> refSeqs;
     float minCons = (float)ui->txtMinConserv->value();
     QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
-    for(int i = 0; i < indexList.size(); i++){
-        refSeqs.push_back(indexList.at(i).row());
+    for(int j = 0; j < indexList.size(); j++){
+        refSeqs.push_back(indexList.at(j).row());
     }
-
+/*
     vector<string> vecPath = split(fullAlignment.getFilepath(),'.');
     string path = "";
 
@@ -1021,10 +1086,11 @@ void MainWindow::on_cmdConservation_clicked()
         path += vecPath[i];
     }
     path += "_CONSERVEDRESIDUES.html";
-
-    this->conservedresidues(fullAlignment,refSeqs,path,minCons);
+*/
+    //this->conservedresidues(i,refSeqs,minCons);
 
     ui->cmdConservation->setEnabled(true);
+
 }
 
 void MainWindow::on_cmdMinss_clicked()
@@ -1038,37 +1104,36 @@ void MainWindow::on_cmdMinss_clicked()
     }
 
     string alignfilename = ui->listWidget->currentItem()->text().toStdString();
-    Alignment align;
+    int i = 0;
 
-    for(int i = 0; i < alinhamentos.size(); i++){
+    for(i = 0; i < alinhamentos.size(); i++){
         if(alignfilename == alinhamentos.at(i).getFilepath()){
-            align = alinhamentos[i];
+            break;
         }
     }
-
-    vector<string> vecPath = split(align.getFilepath(),'.');
+/*
+    vector<string> vecPath = split(alinhamentos[i].getFilepath(),'.');
     string path = "";
 
     for(int i=0;i<vecPath.size()-1;i++){
         path += vecPath[i];
     }
     path += "_MINSS.dat";
-
+*/
     int repetitions = ui->txtNoAlignments->value();
 
     vector<float> minssData;
-    minssData = this->minss(align,path,repetitions);
+    minssData = this->minss(i,repetitions);
 
-    for(int i = 0; i < minssData.size(); i++)
-        printf("%f\n",minssData[i]);
+    for(int j = 0; j < minssData.size(); j++)
+        printf("%f\n",minssData[j]);
     //http://www.qcustomplot.com/index.php/tutorials/settingup
 
-    //Exemplo
     QVector<double> x(100), y(100);
-    for (int i=0; i<100; ++i)
+    for (int j=0; j<100; ++j)
     {
-      x[i] = i+1; // x goes from -1 to 1
-      y[99-i] = minssData[i]; // let's plot a quadratic function
+      x[j] = j+1; // x goes from -1 to 1
+      y[99-j] = minssData[j]; // let's plot a quadratic function
     }
 
     ui->graficMinss->addGraph();
@@ -1114,57 +1179,67 @@ void MainWindow::on_cmdCorrelation_clicked()
         return;
     }
 
+    /*
     if(ui->txtGraphPath->text() == ""){
         QMessageBox::warning(this,"Error","You must select a output file.");
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
+    */
 
     //Chamar PCalc
-    string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
+    //string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
     int minlogp = ui->txtMinScore->value();
     float minssfraction = ui->txtMinssFraction->value();
     float mindeltafreq = ui->txtMinDeltaFreq->value();
 
     string alignfilename = ui->listWidget->currentItem()->text().toStdString();
-    Alignment align;
 
-    for(int i = 0; i < alinhamentos.size(); i++){
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
         if(alignfilename == alinhamentos.at(i).getFilepath()){
-            align = alinhamentos[i];
+            break;
         }
     }
 
-    this->pcalc(align,outputgraphfilename,minlogp,minssfraction,mindeltafreq);
+    if(ui->listWidget2->currentItem() == NULL)
+        alinhamentos[i].addParameter("correlation", "Full Alignment", minlogp, minssfraction, mindeltafreq);
+    else
+        alinhamentos[i].addParameter("correlation",ui->listWidget2->currentItem()->text().toStdString(),minlogp, minssfraction, mindeltafreq);
+
+    this->pcalc(i,minlogp,minssfraction,mindeltafreq);
 
     //Chamar Trivcomm
+    /*
     vector<string> vecPath = split(outputgraphfilename,'.');
     string trivpath = "";
 
-    for(int i=0;i<vecPath.size()-1;i++){
-        trivpath += vecPath[i];
+    for(int j=0;j<vecPath.size()-1;j++){
+        trivpath += vecPath[j];
     }
     trivpath += "_COMM.txt";
+    */
 
     this->trivcomm(outputgraphfilename,trivpath);
 
     //Chamar Output
-    this->output(align,trivpath,ui->cmbRefSeq_3->currentIndex(),ui->txtOffset_2->text().toInt());
+    this->output(alinhamentos[i],trivpath,ui->cmbRefSeq_3->currentIndex(),ui->txtOffset_2->text().toInt());
 
     //Chamar Adherence
-    string adhout = align.getDir() + "ADH.txt";
-    this->adherence(align,trivpath,adhout);
+    string adhout = alinhamentos[i].getDir() + "ADH.txt";
+    this->adherence(alinhamentos[i],trivpath,adhout);
 
     //Chamar comm2seqrenumbering
     vector<int> refSeqs;
 
     QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
-    for(int i = 0; i < indexList.size(); i++){
-        refSeqs.push_back(indexList.at(i).row());
+    for(int j = 0; j < indexList.size(); j++){
+        refSeqs.push_back(indexList.at(j).row());
     }
 
-    this->comm2seqrenumbering(align,trivpath,refSeqs,align.getDir());
-
+    this->comm2seqrenumbering(alinhamentos[i],trivpath,refSeqs,alinhamentos[i].getDir());
+*/
     ui->cmdCorrelation->setEnabled(true);
 }
 
@@ -1172,7 +1247,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
 {
     string path = ui->listWidget->currentItem()->text().toUtf8().constData();
     vector<string> sequences;
-
+/*
     for(int i = 0; i < alinhamentos.size(); i++){
         if(path == alinhamentos.at(i).getFilepath()){
             sequences = alinhamentos.at(i).getSequencesName();
@@ -1181,8 +1256,16 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
             int offset = alinhamentos.at(i).getRefSeqOffset();
             QString qoffset = "" + offset;
             ui->txtOffset->setText(qoffset);
-            */
+            *//*
 
+            break;
+        }
+    }
+*/
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            sequences = alinhamentos.at(i).getSequencesName();
             break;
         }
     }
@@ -1193,17 +1276,87 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbRefSeq_2->addItem("");
     ui->cmbRefSeq_3->clear();
     ui->cmbRefSeq_3->addItem("");
-    ui->lstRefSeqs->clear();
+    //ui->lstRefSeqs->clear();
     ui->lstRefSeqs_2->clear();
+
     for(int i = 0; i < sequences.size(); i++){
         ui->cmbRefSeq->addItem(QString::fromStdString(sequences.at(i)));
-        ui->cmbRefSeq_2->addItem(QString::fromStdString(sequences.at(i)));
-        ui->cmbRefSeq_3->addItem(QString::fromStdString(sequences.at(i)));
-        ui->lstRefSeqs->addItem(QString::fromStdString(sequences.at(i)));
-        ui->lstRefSeqs_2->addItem(QString::fromStdString(sequences.at(i)));
+        //ui->cmbRefSeq_2->addItem(QString::fromStdString(sequences.at(i)));
+        //ui->cmbRefSeq_3->addItem(QString::fromStdString(sequences.at(i)));
+        //ui->lstRefSeqs->addItem(QString::fromStdString(sequences.at(i)));
+        //ui->lstRefSeqs_2->addItem(QString::fromStdString(sequences.at(i)));
     }
+
+    ui->listWidget2->clear();
+    ui->listWidget2->addItem("Full Alignment");
+
+    vector<vector<string> > filterList = alinhamentos.at(i).getAllFilters();
+
+    for(int j = 0; j < filterList.size(); j++){
+        ui->listWidget2->addItem(filterList[j][0].c_str());
+    }
+
+    //ui->cmbRefSeq_2->setCurrentIndex(1);
+    //ui->cmbRefSeq_3->setCurrentIndex(1);
+}
+
+void MainWindow::on_listWidget2_activated(const QModelIndex &index)
+{
+    //Acha qual alinhamento está trabalhando
+    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    //Analisa qual o filtro de trabalho
+    string filterPars = ui->listWidget2->currentItem()->text().toStdString();
+
+    vector<vector<string> > filterList = alinhamentos.at(i).getAllFilters();
+    vector<vector<string> > filterSeq = alinhamentos.at(i).getAllSequences();
+
+    ui->cmbRefSeq_2->clear();
+    ui->cmbRefSeq_2->addItem("");
+    ui->cmbRefSeq_3->clear();
+    ui->cmbRefSeq_3->addItem("");
+    //ui->lstRefSeqs->clear();
+    ui->lstRefSeqs_2->clear();
+
+    if(filterPars == "Full Alignment"){
+        alinhamentos[i].loadFullAlignment();
+        vector<string> fullAlignment = alinhamentos.at(i).getFullAlignment();
+        for(int j = 0; j < fullAlignment.size(); j++){
+            vector<string> splitVec = this->split(fullAlignment[j],'/');
+            ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
+            ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
+            //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
+            ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
+        }
+    }else{
+        for(int j = 0; j < filterList.size(); j++){
+            if(filterList[j][0] == filterPars){
+                alinhamentos[i].sequences.clear();
+                alinhamentos[i].sequencenames.clear();
+                for(int k = 1; k < filterList[j].size(); k++){
+                    vector<string> splitVec = this->split(filterList[j][k],'/');
+                    ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
+                    ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
+                    //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
+                    ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
+                    alinhamentos[i].sequencenames.push_back(filterList[j][k]);
+                    alinhamentos[i].sequences.push_back(filterSeq[j][k]);
+                }
+                break;
+            }
+        }
+    }
+
     ui->cmbRefSeq_2->setCurrentIndex(1);
     ui->cmbRefSeq_3->setCurrentIndex(1);
+
 }
 
 void MainWindow::on_cmbRefSeq_activated(int index)
@@ -1265,10 +1418,10 @@ void MainWindow::on_cmbRefSeq_3_activated(int index)
         }
     }
 }
-
+/*
 void MainWindow::on_lstRefSeqs_itemSelectionChanged()
 {
-    QModelIndexList indexes = ui->lstRefSeqs->selectionModel()->selectedIndexes();
+    //QModelIndexList indexes = ui->lstRefSeqs->selectionModel()->selectedIndexes();
 
     std::vector<int> indexList;
     foreach(QModelIndex index, indexes)
@@ -1282,7 +1435,7 @@ void MainWindow::on_lstRefSeqs_itemSelectionChanged()
         ui->lstRefSeqs_2->item(indexList[i])->setSelected(true);
     }
 }
-
+*/
 
 
 void MainWindow::on_lstRefSeqs_2_itemSelectionChanged()
@@ -1302,4 +1455,38 @@ void MainWindow::on_lstRefSeqs_2_itemSelectionChanged()
         ui->lstRefSeqs->item(indexList[i])->setSelected(true);
     }
     */
+}
+
+void MainWindow::on_cmdSaveResults_clicked()
+{
+    ui->cmdSaveResults->setEnabled(false);
+
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Error","You must select an alignment");
+        ui->cmdApplyFilter->setEnabled(true);
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    vector<string> vecPath = split(alinhamentos[i].getFilepath(),'.');
+    string path = "";
+
+    for(int i=0;i<vecPath.size()-1;i++){
+        path += vecPath[i];
+    }
+    path += ".xml";
+
+    alinhamentos[i].generateXML(path);
+
+    QMessageBox::information(this,"Save Results","XML generated successfully");
+
+    ui->cmdSaveResults->setEnabled(true);
 }

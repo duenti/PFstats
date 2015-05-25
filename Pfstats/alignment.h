@@ -36,9 +36,12 @@ private:
     vector<vector<float> > consfreqPerc;
     vector<tuple<string,string,int> > corrGraph;
     vector<vector<string> > comunidades;
-    vector<string> refSeqs;
-    vector<vector<int> > communityX;
-    vector<vector<int> > communityXps;
+    vector<string> corrRefSeqs;
+    vector<vector<string> > residuesComm;
+    vector<vector<string> > residuesCommPs;
+    vector<vector<vector<float> > > communityX;
+    vector<vector<float> > communityXAll;
+    vector<vector<vector<int> > > communityXps;
     vector<string> parameters;
     //function_tag,parameters.
 
@@ -86,11 +89,21 @@ public:
     void setWebPDBDir(string dir);
     vector<vector<string> > getAllFilters();
     vector<vector<string> > getAllSequences();
+    vector<tuple<string,string,int> > getCorrelationGraph();
+    tuple<string,string,int> getCorrelationEdge(int i);
+    int getCorrelationGraphSize();
+    void addCorrRefSeq(string seq);
+    void addCommunity(vector<string> comm);
+    void printCorrGraph();
+    void printCommunity();
     void addFilterSequence(vector<string> align);
     void loadFullAlignment();
     void addParameter(string tag, string filter, int refSeq, int offset, char chain, string pdb);//Conservation
     void addParameter(string tag, string filter, int repetitions);//Minss
     void addParameter(string tag, string filter, int minlog, float minssfraction, float mindeltafreq); //Correlation
+    vector<vector<int> > createBlankIntMatrix(int i1, int j1, int v);
+    void createBlankComunityVector(int x, int y, int z, float v);
+    void createBlankComunityPsVector(int x, int y, int z, int v);
     vector<string> getConservationParameters();
     vector<string> getMinssParameters();
     vector<string> getCorrelationParameters();
@@ -156,6 +169,7 @@ public:
     void SympvalueCalculation (int minlogp, float minssfraction, float mindeltafreq);//[OK]
     void pvalueCalculation(string outputgraph, int minlogp, float minssfraction, bool writefullgraph, float mindeltafreq, bool signedgraph);
     void GetCommunitiesFromFile(string clusterfilename); //[OK]
+    void getCommunitiesFromRAM();
     void DeltaCommunitiesCalculation(void); //[OK]
     void DeltaCommunitiesOutput(string deltaoutputfilename); //[OK]
     void ElementRanking(string path, bool renumber, int seqnumber,int offset); //[OK]
@@ -163,12 +177,14 @@ public:
     void SCM2HTML(string scmfilename,const std::vector <char> &aalist, const std::vector <int> &poslist, bool renumber, int seqnumber, int offset); //[OK]
     void Write_SCM(string scmfilename,const std::vector <char> &aalist, const std::vector <int> &poslist); //[OK]
     void pMatrix2HTML(string path, bool renumber, int seqnumber); //[OK]
+    void pMatrix2HTMLRAM(bool renumber, int seqnumber); //[OK]
     float PSA(int seqnumber, int communitynumber); //[OK]
     int ADH_count(int seqnumber,int communitynumber);
     void CalculateHighlyConservedPositions();
     void SuccessiveRandomElimination(string outputfilename, int step, int repetitions, int endvalue=100);
     vector<float> DTRandomElimination(int repetitions, int max, int min, int step); //[OK]
     void Cluster2SCM(string clusterfilename, string path, bool renumber, int seqnumber, int offset, bool html, bool text); //[OK]
+    void Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset); //[10%]
     void Cluster2PymolScript(string clusterfilename, string familyID, int seqnumber, int offset);
     void AlignmentWrite(string outputfilename); //[OK]
     vector<string> getSequencesName(); //[OK]

@@ -75,8 +75,8 @@ private:
     void conservedresidues(int ai, vector<int> referencesequences, float minconservation);
     vector<float> minss(int ai, int repetitions); //from 100 to 1;
     void pcalc(int ai, int minlogp, float minssfraction, float mindeltafreq);
-    void trivcomm();
-    void output(Alignment align, string communitiesfilename, int seqnumber, int offset);
+    void trivcomm(int ai);
+    void output(int ai, int seqnumber, int offset);
     void adherence(Alignment align, string communitiesfilename, string outputfilename);
     void comm2seqrenumbering(Alignment align, string communitiesfilename, vector<int> referencesequences, string path);
 };

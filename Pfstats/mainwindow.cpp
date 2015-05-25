@@ -210,8 +210,9 @@ void MainWindow::alignfilter(string alignPath, float occupancy, float minId, flo
     //Calculate
     string firstrefseq = alinhamentos[i].sequences[refseq];
     string firstrefseqname = alinhamentos[i].sequencenames[refseq];
-    //alinhamentos[i].sequences.insert(alinhamentos[i].sequences.begin(),firstrefseq);
-    //alinhamentos[i].sequencenames.insert(alinhamentos[i].sequencenames.begin(),firstrefseqname);
+    //printf("%s: %s\n",firstrefseq.c_str(),firstrefseqname.c_str());
+    alinhamentos[i].sequences.insert(alinhamentos[i].sequences.begin(),firstrefseq);
+    alinhamentos[i].sequencenames.insert(alinhamentos[i].sequencenames.begin(),firstrefseqname);
 //QMessageBox::information(this,"test","1");
     alinhamentos[i].AlignmentTrimming(occupancy,0,refseqName);
 //QMessageBox::information(this,"test","2");
@@ -355,14 +356,12 @@ vector<float> MainWindow::minss(int ai, int repetitions){
 void MainWindow::pcalc(int ai, int minlogp, float minssfraction, float mindeltafreq){
     alinhamentos[ai].CalculateFrequencies();
     alinhamentos[ai].SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
+    //alinhamentos[ai].printCorrGraph();
 
     QMessageBox::information(this,"PCalc","Communities graph generated.");
 }
 
-void MainWindow::trivcomm(){
-    char aa1,aa2;
-    int pos1,pos2;
-    int score;
+void MainWindow::trivcomm(int ai){
     int maxsize;
     int biggestcommunity;
     int c1,c2;
@@ -371,11 +370,27 @@ void MainWindow::trivcomm(){
     bool member2found=false;
     vector < vector <int> > posCommunities;
     vector < vector <char> > aaCommunities;
-    FILE *pcalcfile;
-    FILE *communitiesfile;
 
-    pcalcfile=fopen(pcalcfilename.c_str(),"r+");
-    fscanf(pcalcfile,"%c%d %c%d %d\n",&aa1,&pos1,&aa2,&pos2,&score);
+    tuple<string,string,int> edge = alinhamentos[ai].getCorrelationEdge(0);
+    string v1 = std::get<0>(edge);
+    string v2 = std::get<1>(edge);
+    int score = std::get<2>(edge);
+    //printf("V1: %s, V2: %s\n",v1.c_str(),v2.c_str());
+    char aa1 = v1[0];
+    char aa2 = v2[0];
+    int pos1, pos2;
+
+    string temp = "";
+    for(int i = 1; i < v1.length(); i++){
+        temp += v1[i];
+    }
+    pos1 = std::atoi(temp.c_str());
+
+    temp = "";
+    for(int i = 1; i < v2.length(); i++){
+        temp += v2[i];
+    }
+    pos2 = std::atoi(temp.c_str());
 
     posCommunities.push_back(vector<int>());
     aaCommunities.push_back(vector<char>());
@@ -387,16 +402,37 @@ void MainWindow::trivcomm(){
         aaCommunities[0].push_back(aa2);
     }else{
         posCommunities.push_back(vector<int>());
-           aaCommunities.push_back(vector<char>());
-           posCommunities[1].push_back(pos1);
-           aaCommunities[1].push_back(aa1);
+        aaCommunities.push_back(vector<char>());
+        posCommunities[1].push_back(pos1);
+        aaCommunities[1].push_back(aa1);
     }
 
-    while(!feof(pcalcfile)){
-        fscanf(pcalcfile,"%c%d %c%d %d\n",&aa1,&pos1,&aa2,&pos2,&score);
+    for(int i = 1; i < alinhamentos[ai].getCorrelationGraphSize(); i++){
+        edge = alinhamentos[ai].getCorrelationEdge(i);
+        v1 = std::get<0>(edge);
+        v2 = std::get<1>(edge);
+        score = std::get<2>(edge);
 
-        member1found=false;
-        member2found=false;
+        //printf("V1: %s, V2: %s\n",v1.c_str(),v2.c_str());
+
+        aa1 = v1[0];
+        aa2 = v2[0];
+        pos1, pos2;
+
+        string temp = "";
+        for(int i = 1; i < v1.length(); i++){
+            temp += v1[i];
+        }
+        pos1 = std::atoi(temp.c_str());
+
+        temp = "";
+        for(int i = 1; i < v2.length(); i++){
+            temp += v2[i];
+        }
+        pos2 = std::atoi(temp.c_str());
+
+        member1found = false;
+        member2found = false;
 
         for(c1=0;c1<=posCommunities.size()-1;c1++){
             for (c2=0;c2<=posCommunities[c1].size()-1;c2++){
@@ -474,7 +510,6 @@ void MainWindow::trivcomm(){
                     QMessageBox::warning(this,"Trivcomm",str);
                     return;
                 }
-
             if (found2comm!=found1comm){
                 if(score>0){
                     for(c1=0;c1<=aaCommunities[found2comm].size()-1;c1++){
@@ -489,8 +524,9 @@ void MainWindow::trivcomm(){
             }
         }
     }
-    communitiesfile=fopen(communitiesfilename.c_str(),"w+");
-    fprintf(communitiesfile,"%d communities\n",aaCommunities.size());
+
+    //communitiesfile=fopen(communitiesfilename.c_str(),"w+");
+    //fprintf(communitiesfile,"%d communities\n",aaCommunities.size());
     c2=1;
 
     while(aaCommunities.size()>0){
@@ -509,11 +545,16 @@ void MainWindow::trivcomm(){
             }
         }
 
-        fprintf(communitiesfile,"%d nodes in community %d\n",aaCommunities[biggestcommunity].size(),c2);
+        //fprintf(communitiesfile,"%d nodes in community %d\n",aaCommunities[biggestcommunity].size(),c2);
 
+        vector<string> comm;
         for(c1=0;c1<=aaCommunities[biggestcommunity].size()-1;c1++){
-            fprintf(communitiesfile,"%c%d\n",aaCommunities[biggestcommunity][c1],posCommunities[biggestcommunity][c1]);
+            //fprintf(communitiesfile,"%c%d\n",aaCommunities[biggestcommunity][c1],posCommunities[biggestcommunity][c1]);
+            string node = aaCommunities[biggestcommunity][c1] + QString::number(posCommunities[biggestcommunity][c1]).toStdString();
+            comm.push_back(node);
         }
+        alinhamentos[ai].addCommunity(comm);
+        comm.clear();
 
         aaCommunities[biggestcommunity].clear();
         posCommunities[biggestcommunity].clear();
@@ -521,28 +562,34 @@ void MainWindow::trivcomm(){
         posCommunities.erase(posCommunities.begin()+biggestcommunity);
         c2++;
     }
-    fclose(communitiesfile);
+    //alinhamentos[ai].printCommunity();
 }
 
-void MainWindow::output(Alignment align, string communitiesfilename, int seqnumber, int offset){
-    align.CalculateFrequencies();
-    align.GetCommunitiesFromFile(communitiesfilename);
-    string path = align.getDir();
+void MainWindow::output(int ai, int seqnumber, int offset){
+    alinhamentos[ai].CalculateFrequencies();
+    //alinhamentos[ai].GetCommunitiesFromFile(communitiesfilename);
+    alinhamentos[ai].getCommunitiesFromRAM();
+    //string path = alinhamentos[ai].getDir();
 
-    if(seqnumber>0) align.Cluster2SCM(communitiesfilename,path,true,seqnumber,offset,true,false);
-    else align.Cluster2SCM(communitiesfilename,path,false,seqnumber,offset,true,false);
+    //communityX.html
+    if(seqnumber > 0) alinhamentos[ai].Cluster2SCMFromRAM(true,seqnumber,offset);
+    else alinhamentos[ai].Cluster2SCMFromRAM(false,seqnumber,offset);
+    //if(seqnumber>0) alinhamentos[ai].Cluster2SCM(communitiesfilename,path,true,seqnumber,offset,true,false);
+    //else alinhamentos[ai].Cluster2SCM(communitiesfilename,path,false,seqnumber,offset,true,false);
 
-    align.DeltaCommunitiesCalculation();
-    align.DeltaCommunitiesOutput(path + "Deltas.html");
+    //alinhamentos[ai].DeltaCommunitiesCalculation();
+    //alinhamentos[ai].DeltaCommunitiesOutput(path + "Deltas.html");
 
-    if (seqnumber>0)
-        align.ElementRanking(path, true, seqnumber,offset);
-    else
-        align.ElementRanking(path, false, seqnumber,offset);
+    //if (seqnumber>0)
+    //    alinhamentos[ai].ElementRanking(path, true, seqnumber,offset);
+    //else
+    //    alinhamentos[ai].ElementRanking(path, false, seqnumber,offset);
 
-    align.pMatrix2HTML(path,false,1);
+    //comunityXps.html
+    alinhamentos[ai].pMatrix2HTMLRAM(false,1);
+    //alinhamentos[ai].pMatrix2HTML("/home/neli/teste",false,1);
 
-    align.Cluster2PymolScript(communitiesfilename,path,seqnumber,offset);
+    //alinhamentos[ai].Cluster2PymolScript(communitiesfilename,path,seqnumber,offset);
 
     QMessageBox::information(this,"Output","Output files are generated sucessfully.");
 }
@@ -1211,21 +1258,26 @@ void MainWindow::on_cmdCorrelation_clicked()
     this->pcalc(i,minlogp,minssfraction,mindeltafreq);
 
     //Chamar Trivcomm
-    /*
-    vector<string> vecPath = split(outputgraphfilename,'.');
-    string trivpath = "";
+    this->trivcomm(i);
 
-    for(int j=0;j<vecPath.size()-1;j++){
-        trivpath += vecPath[j];
+    //Salvar Refs Seqs
+    // get selected ids
+    QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
+    QList<int> ids;
+    for(int j = 0; j < indexList.size(); j++){
+        ids += indexList.at(j).row();
     }
-    trivpath += "_COMM.txt";
-    */
 
-    this->trivcomm(outputgraphfilename,trivpath);
+    for(int j = 0; j < ids.size(); j++){
+        //QMessageBox::information(this,"ok",QString::number(ids[j]));
+        alinhamentos[i].addCorrRefSeq(ui->lstRefSeqs_2->item(ids[j])->text().toStdString());
+    }
+
 
     //Chamar Output
-    this->output(alinhamentos[i],trivpath,ui->cmbRefSeq_3->currentIndex(),ui->txtOffset_2->text().toInt());
+    this->output(i,1,ui->txtOffset_2->text().toInt());
 
+    /*
     //Chamar Adherence
     string adhout = alinhamentos[i].getDir() + "ADH.txt";
     this->adherence(alinhamentos[i],trivpath,adhout);

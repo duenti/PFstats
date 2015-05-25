@@ -66,6 +66,46 @@ vector<vector<string> > Alignment::getAllSequences(){
     return this->filterSequences;
 }
 
+vector<tuple<string,string,int> > Alignment::getCorrelationGraph(){
+    return this->corrGraph;
+}
+
+void Alignment::addCorrRefSeq(string seq){
+    this->corrRefSeqs.push_back(seq);
+}
+
+tuple<string,string,int> Alignment::getCorrelationEdge(int i){
+    return corrGraph[i];
+}
+
+int Alignment::getCorrelationGraphSize(){
+    return corrGraph.size();
+}
+
+void Alignment::addCommunity(vector<string> comm){
+    comunidades.push_back(comm);
+}
+
+void Alignment::printCorrGraph(){
+    for(int i = 0; i < this->corrGraph.size(); i++){
+        string v1 = std::get<0>(corrGraph[i]);
+        string v2 = std::get<1>(corrGraph[i]);
+        int value = std::get<2>(corrGraph[i]);
+
+        printf("%s,%s: %d\n",v1.c_str(),v2.c_str(),value);
+    }
+}
+
+void Alignment::printCommunity(){
+    for(int i = 0; i < comunidades.size(); i++){
+        printf("Comunidade %d:\n",i);
+        for(int j = 0; j < comunidades[i].size(); j++){
+            printf("%s\n",comunidades[i][j].c_str());
+        }
+        printf("\n");
+    }
+}
+
 vector<string> Alignment::getFullAlignment(){
     return this->fullAlignment;
 }
@@ -99,6 +139,21 @@ void Alignment::addParameter(string tag, string filter, int repetitions){
 void Alignment::addParameter(string tag, string filter, int minlog, float minssfraction, float mindeltafreq){
     string parameter = tag + "," + filter + "," + QString::number(minlog).toStdString() + "," + QString::number(minssfraction).toStdString() + "," + QString::number(mindeltafreq).toStdString();
     parameters.push_back(parameter);
+}
+
+vector<vector<int> > Alignment::createBlankIntMatrix(int i1, int j1, int v){
+    vector<vector<int> > matrix;
+
+    for(int i = 0; i < i1; i++){
+        vector<int> vec
+                ;
+        for(int j = 0; j < j1; j++){
+            vec.push_back(v);
+        }
+        matrix.push_back(vec);
+    }
+
+    return matrix;
 }
 
 vector<string> Alignment::getConservationParameters(){
@@ -591,6 +646,91 @@ void Alignment::generateXML(string outputXML){
     }
 
     out << "   </corrgraph>\n";
+
+    out << "   <communities>\n";
+
+    for(int i = 0; i < comunidades.size(); i++){
+        out << "      <community id='" << i+1 << "'>\n";
+
+        for(int j = 0; j < comunidades[i].size(); j++){
+            out << "         <node>" << comunidades[i][j].c_str() << "</node>\n";
+        //QMessageBox::information(NULL,QString::number(i),comunidades[i][j].c_str());
+        }
+        out << "      </community>\n";
+    }
+
+    out << "   </communities>\n";
+
+
+    out << "   <referecences>\n";
+
+    for(int i = 0; i < corrRefSeqs.size(); i++)
+        out << "      <protein>" << corrRefSeqs[i].c_str() << "</protein>\n";
+
+    out << "   </references>\n";
+
+    out << "   <output>\n";
+
+    for(int i = 0; i < this->communityX.size(); i++){
+        out << "      <community id='" << i + 1 << "'>\n";
+
+        //Falta ALL
+        out << "         <table>\n";
+
+        out << "            <column>ALL</column>\n";
+        for(int j = 0; j < this->residuesComm[i].size(); j++){
+            out << "            <column>" << this->residuesComm[i][j].c_str() << "</column>\n";
+        }
+
+        out << "         </table>\n";
+
+        out << "         <table_data>\n";
+
+        for(int j = 0; j < this->communityX[i].size(); j++){
+            out << "            <row id='" << j << "' c0='" << this->communityXAll[i][j] << "' ";
+            for(int k = 0; k < this->communityX[i][j].size(); k++){
+                if(j==k) out << "c" << k+1 << "='X' ";
+                else out << "c" << k+1 << "='" << this->communityX[i][j][k]*100 << "' ";
+            }
+            out << "/>\n";
+        }
+
+        out << "         </table_data>\n";
+
+        out << "      </community>\n";
+    }
+
+    //printf("CXPS: %d / CXPSSIZE: %d", this->communityXps.size(), residuesCommPs.size());
+
+    for(int i = 0; i < this->communityXps.size(); i++){
+        out << "      <logP c='" << i+1 << "'>\n";
+
+        out << "         <table>\n";
+
+        for(int j = 0; j < this->residuesCommPs[i].size(); j++){
+            out << "            <column>" << this->residuesCommPs[i][j].c_str() << "</column>\n";
+        }
+
+        out << "         </table>\n";
+
+        out << "         <table_data>\n";
+
+        for(int j = 0; j < this->communityXps[i].size(); j++){
+            out << "            <row id='" << j << "' ";
+            for(int k = 0; k < this->communityXps[i][j].size(); k++){
+                if(j==k) out << "c" << k << "='X' ";
+                else out << "c" << k << "='" << this->communityXps[i][j][k] << "' ";
+            }
+            out << "/>\n";
+        }
+
+        out << "         </table_data>\n";
+
+        out << "      </logP>\n";
+    }
+
+    out << "   </output>\n";
+
     out << "</correlation>\n";
 
     out << "</PFStats>";
@@ -1273,10 +1413,8 @@ int Alignment::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
                 return(-cbd(subalignmentseqs.size(),aa2pos2count,((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size())),true));
             else
                 return(cbd(subalignmentseqs.size(),aa2pos2count,((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size())),false));
-        }
-        return 0;
-    }
-    return 0;
+        }else return 0;
+    }else return 0;
 }
 
 void Alignment::SympvalueCalculation(int minlogp, float minssfraction, float mindeltafreq){
@@ -1357,9 +1495,6 @@ void Alignment::GetCommunitiesFromFile(string clusterfilename){
     int nclusters;
     int nelements;
     char tempstring[500];
-    string filename;
-    vector<char> aalist;
-    vector<int> poslist;
     FILE *clusterfile;
     clusterfile=fopen(clusterfilename.c_str(),"r+");
 
@@ -1387,6 +1522,29 @@ void Alignment::GetCommunitiesFromFile(string clusterfilename){
     }
 
     fclose(clusterfile);
+}
+
+void Alignment::getCommunitiesFromRAM(){
+    this->resetCommunities();
+
+    for(int i = 0; i < comunidades.size(); i++){
+        for(int j = 0; j < comunidades[i].size(); j++){
+            string node = comunidades[i][j];
+
+            tempcommunity.aa.push_back(node[0]);
+
+            string tempPos = node.substr(1);
+
+            tempcommunity.pos.push_back(atoi(tempPos.c_str())-1);
+        }
+
+        if(comunidades[i].size() > 0)
+            Communities.push_back(tempcommunity);
+
+        tempcommunity.aa.clear();
+        tempcommunity.pos.clear();
+    }
+
 }
 
 void Alignment::DeltaCommunitiesCalculation(){
@@ -1522,22 +1680,26 @@ void Alignment::SelfCorrelationMatrixCalculation(const std::vector<char> &aalist
 
     if(selfcorrelationmatrix.size()!=0){
         for (i=0;i<=selfcorrelationmatrix.size()-1;i++){
-            selfcorrelationmatrix[0].clear();
+            selfcorrelationmatrix[i].clear();
         }
         selfcorrelationmatrix.clear();
     }
 
     for (i=0;i<=aalist.size()-1;i++){
         selfcorrelationmatrix.push_back( vector<float> (aalist.size())) ;
-        for (j=0;j<=aalist.size()-1;j++) selfcorrelationmatrix[i].push_back(0);
+        //for (j=0;j<=aalist.size()-1;j++) selfcorrelationmatrix[i].push_back(0);
     }
 
     for (j=0;j<=aalist.size()-1;j++){
         SubAlignmentIndices(aalist[j],poslist[j]);
 
         for (i=0;i<=aalist.size()-1;i++){
+            //printf("%d\n",subalignmentseqs.size());
             if(i==j) selfcorrelationmatrix[i][j]=-1;
-            else selfcorrelationmatrix[i][j]=((float)SubAlignmentFrequency(aalist[i],poslist[i]))/((float)subalignmentseqs.size());
+            else{
+                selfcorrelationmatrix[i][j]=((float)SubAlignmentFrequency(aalist[i],poslist[i]))/((float)subalignmentseqs.size());
+                //printf("%f / %d = %f \n",(float)SubAlignmentFrequency(aalist[i],poslist[i]),subalignmentseqs.size(),selfcorrelationmatrix[i][j]);
+            }
         }
     }
 }
@@ -1629,6 +1791,7 @@ void Alignment::pMatrix2HTML(string path, bool renumber, int seqnumber){
                 for (j=0;j<=Communities[c1].aa.size()-1;j++){
                     if(i==j) fprintf(pmfile,"<td>X</td>\n");
                     else
+                        printf("%c%d e %c%d\n",Communities[c1].aa[i],Communities[c1].pos[i],Communities[c1].aa[j],Communities[c1].pos[j]);
                         fprintf(pmfile,"<td>%d</td>\n",Singlepvalue(Communities[c1].aa[i],Communities[c1].pos[i],Communities[c1].aa[j],Communities[c1].pos[j]));
                 }
                 fprintf(pmfile,"<tr>\n");
@@ -1637,6 +1800,48 @@ void Alignment::pMatrix2HTML(string path, bool renumber, int seqnumber){
             fclose(pmfile);
         }
     }
+}
+
+void Alignment::pMatrix2HTMLRAM(bool renumber, int seqnumber){
+    for(int c1 = 0; c1 < Communities.size(); c1++){
+        if(Communities[c1].aa.size() > 1){
+
+            vector<vector<int> > matrix = this->createBlankIntMatrix(Communities[c1].aa.size(),Communities[c1].aa.size(),-1);
+            vector<string> clustersResidues;
+            for(int j = 0; j < Communities[c1].aa.size(); j++){
+                string residue;
+                if(!renumber) residue = Communities[c1].aa[j] + QString::number(Communities[c1].pos[j]+1).toStdString();
+                else if(AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j]) != 0) residue = Communities[c1].aa[j] + QString::number(AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j])).toStdString();
+                else residue = Communities[c1].aa[j] + QString::number(Communities[c1].pos[j]+1).toStdString();
+                clustersResidues.push_back(residue);
+            }
+            residuesCommPs.push_back(clustersResidues);
+
+            for(int i = 0; i < Communities[c1].aa.size(); i++){
+                for(int j = 0; j < Communities[c1].aa.size(); j++){
+                    if(i != j){
+                        matrix[i][j] = Singlepvalue(Communities[c1].aa[i],Communities[c1].pos[i],Communities[c1].aa[j],Communities[c1].pos[j]);
+                        //printf("%c%d e %c%d\n",Communities[c1].aa[i],Communities[c1].pos[i],Communities[c1].aa[j],Communities[c1].pos[j]);
+                        //printf("i=%d, j=%d, value=%d\n",i,j,matrix[i][j]);
+                    }
+                }
+            }
+
+            this->communityXps.push_back(matrix);
+        }
+    }
+/*
+    for(int i = 0; i < communityXps.size(); i++){
+        printf("Comunidade %d:\n",i);
+        for(int j = 0; j < communityXps[i].size(); j++){
+            for(int k = 0; k < communityXps[i][j].size(); k++){
+                printf("%d ", communityXps[i][j][k]);
+            }
+            printf("\n");
+        }
+        printf("\n\n");
+    }
+*/
 }
 
 float Alignment::PSA(int seqnumber, int communitynumber){
@@ -1691,6 +1896,63 @@ void Alignment::Cluster2SCM(string clusterfilename, string path, bool renumber, 
         }
     }
     fclose(clusterfile);
+}
+
+void Alignment::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
+    int nclusters = comunidades.size();
+    //nclusters = 1;
+    vector<char> aalist;
+    vector<int> poslist;
+
+
+    for(int i = 0; i < nclusters; i++){
+        aalist.clear();
+        poslist.clear();
+        vector<float> clusterXAll;
+
+        for(int j = 0; j < comunidades[i].size(); j++){
+            string temp = comunidades[i][j];
+            aalist.push_back(temp[0]);
+            poslist.push_back(atoi(temp.substr(1).c_str())-1);
+        }
+/*
+        for(int j = 0; j < aalist.size(); j++){
+            printf("%c%d\n",aalist[j],poslist[j]);
+        }
+*/
+        if(comunidades[i].size() > 1){
+            SelfCorrelationMatrixCalculation(aalist,poslist);
+
+            //ESCRITA SCM2HTML*RAM
+            vector<string> clustersResidues;
+            for(int j = 0; j < aalist.size(); j++){
+                string residue;
+                if(!renumber) residue = aalist[j] + QString::number(poslist[j]+1).toStdString();
+                else if (AlignNumbering2Sequence(seqnumber,poslist[j])!=0) residue = aalist[j] + QString::number(AlignNumbering2Sequence(seqnumber,poslist[j])+offset).toStdString();
+                else residue = aalist[j] + "X(" + QString::number(poslist[j] + 1).toStdString() + ")";
+                clustersResidues.push_back(residue);
+            }
+            residuesComm.push_back(clustersResidues);
+
+            for(int j = 0; j < aalist.size(); j++){
+                clusterXAll.push_back((float)100*frequencies[poslist[j]][freqmatrixposition(aalist[j])]/((float)sequences.size()));
+            }
+
+/*
+            //printf("SCM SIZE = %d\n",selfcorrelationmatrix.size());
+            for(int j = 0; j < selfcorrelationmatrix.size(); j++){
+                //printf("i = %d, SIZE = %d\n", j, aalist.size());
+                for(int k = 0; k < selfcorrelationmatrix[j].size(); k++){
+                    printf(" %5.1f ",100 * selfcorrelationmatrix[j][k]);
+                }
+                printf("\n");
+            }
+*/
+            this->communityX.push_back(selfcorrelationmatrix);
+            this->communityXAll.push_back(clusterXAll);
+        }
+    }
+
 }
 
 void Alignment::Cluster2PymolScript(string clusterfilename, string path, int seqnumber, int offset){

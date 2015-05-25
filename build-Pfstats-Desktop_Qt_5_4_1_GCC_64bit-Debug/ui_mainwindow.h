@@ -833,10 +833,10 @@ public:
         txtMinssFraction = new QDoubleSpinBox(layoutWidget8);
         txtMinssFraction->setObjectName(QStringLiteral("txtMinssFraction"));
         txtMinssFraction->setMaximumSize(QSize(60, 16777215));
-        txtMinssFraction->setMinimum(0);
+        txtMinssFraction->setMinimum(0.01);
         txtMinssFraction->setMaximum(1);
         txtMinssFraction->setSingleStep(0.01);
-        txtMinssFraction->setValue(0);
+        txtMinssFraction->setValue(0.2);
 
         horizontalLayout_21->addWidget(txtMinssFraction);
 

@@ -74,6 +74,10 @@ void Alignment::addCorrRefSeq(string seq){
     this->corrRefSeqs.push_back(seq);
 }
 
+void Alignment::clearCorrRefSeq(){
+    this->corrRefSeqs.clear();
+}
+
 tuple<string,string,int> Alignment::getCorrelationEdge(int i){
     return corrGraph[i];
 }
@@ -84,6 +88,10 @@ int Alignment::getCorrelationGraphSize(){
 
 void Alignment::addCommunity(vector<string> comm){
     comunidades.push_back(comm);
+}
+
+void Alignment::clearCommunity(){
+    comunidades.clear();
 }
 
 void Alignment::printCorrGraph(){
@@ -128,7 +136,7 @@ void Alignment::addParameter(string tag, string filter, int refSeq, int offset, 
     if(pdb == "") pdb = "0";
     string parameter = tag + "," + filter + "," + QString::number(refSeq).toStdString() + "," + QString::number(offset).toStdString() + "," + chain + "," + pdb;
     parameters.push_back(parameter);
-    QMessageBox::information(NULL,"Add Conservation",QString::number(parameters.size()));
+    //QMessageBox::information(NULL,"Add Conservation",QString::number(parameters.size()));
 }
 
 void Alignment::addParameter(string tag, string filter, int repetitions){
@@ -496,242 +504,264 @@ void Alignment::generateXML(string outputXML){
         out << "</filter>\n";
     }
 
-    out << "<conservation>\n";
-    out << "   <parameters>\n";
+    if(consDG.size() > 0){
+        out << "<conservation>\n";
 
-    vector<string> consPars = this->getConservationParameters();
+        vector<string> consPars = this->getConservationParameters();
+        if(consPars.size() > 0){
+            out << "   <parameters>\n";
 
-    if(consPars.size() >4){
-        out << "      <filter>" << consPars[1].c_str() << "</filter>\n";
-        out << "      <refseq>" << consPars[2].c_str() << "</refseq>\n";
-        out << "      <offset>" << consPars[3].c_str() << "</offset>\n";
-        out << "      <chain>" << consPars[4].c_str() << "</chain>\n";
+            if(consPars.size() >4){
+                out << "      <filter>" << consPars[1].c_str() << "</filter>\n";
+                out << "      <refseq>" << consPars[2].c_str() << "</refseq>\n";
+                out << "      <offset>" << consPars[3].c_str() << "</offset>\n";
+                out << "      <chain>" << consPars[4].c_str() << "</chain>\n";
+            }
+
+            out << "   </parameters>\n";
+        }
+
+        for(int i = 0; i < consDG.size(); i++){
+            out << "   <pos id='" << i+1 << "'>\n";
+            out << "      <deltaG>" << consDG[i] << "</deltaG>\n";
+            out << "      <GAP>\n";
+            out << "         <frequence>" << consvfreq[i][0] << "</frequence>\n";
+            out << "      </GAP>\n";
+            out << "      <ALA>\n";
+            out << "         <frequence>" << consvfreq[i][1] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][0] << "</percent>\n";
+            out << "      </ALA>\n";
+            out << "      <CYS>\n";
+            out << "         <frequence>" << consvfreq[i][2] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][1] << "</percent>\n";
+            out << "      </CYS>\n";
+            out << "      <ASP>\n";
+            out << "         <frequence>" << consvfreq[i][3] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][2] << "</percent>\n";
+            out << "      </ASP>\n";
+            out << "      <GLU>\n";
+            out << "         <frequence>" << consvfreq[i][4] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][3] << "</percent>\n";
+            out << "      </GLU>\n";
+            out << "      <PHE>\n";
+            out << "         <frequence>" << consvfreq[i][5] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][4] << "</percent>\n";
+            out << "      </PHE>\n";
+            out << "      <GLY>\n";
+            out << "         <frequence>" << consvfreq[i][6] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][5] << "</percent>\n";
+            out << "      </GLY>\n";
+            out << "      <HIS>\n";
+            out << "         <frequence>" << consvfreq[i][7] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][6] << "</percent>\n";
+            out << "      </HIS>\n";
+            out << "      <ILE>\n";
+            out << "         <frequence>" << consvfreq[i][8] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][7] << "</percent>\n";
+            out << "      </ILE>\n";
+            out << "      <LYS>\n";
+            out << "         <frequence>" << consvfreq[i][9] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][8] << "</percent>\n";
+            out << "      </LYS>\n";
+            out << "      <LEU>\n";
+            out << "         <frequence>" << consvfreq[i][10] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][9] << "</percent>\n";
+            out << "      </LEU>\n";
+            out << "      <MET>\n";
+            out << "         <frequence>" << consvfreq[i][11] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][10] << "</percent>\n";
+            out << "      </MET>\n";
+            out << "      <ASN>\n";
+            out << "         <frequence>" << consvfreq[i][12] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][11] << "</percent>\n";
+            out << "      </ASN>\n";
+            out << "      <PRO>\n";
+            out << "         <frequence>" << consvfreq[i][13] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][12] << "</percent>\n";
+            out << "      </PRO>\n";
+            out << "      <GLN>\n";
+            out << "         <frequence>" << consvfreq[i][14] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][13] << "</percent>\n";
+            out << "      </GLN>\n";
+            out << "      <ARG>\n";
+            out << "         <frequence>" << consvfreq[i][15] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][14] << "</percent>\n";
+            out << "      </ARG>\n";
+            out << "      <SER>\n";
+            out << "         <frequence>" << consvfreq[i][16] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][15] << "</percent>\n";
+            out << "      </SER>\n";
+            out << "      <THR>\n";
+            out << "         <frequence>" << consvfreq[i][17] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][16] << "</percent>\n";
+            out << "      </THR>\n";
+            out << "      <VAL>\n";
+            out << "         <frequence>" << consvfreq[i][18] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][17] << "</percent>\n";
+            out << "      </VAL>\n";
+            out << "      <TRP>\n";
+            out << "         <frequence>" << consvfreq[i][19] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][18] << "</percent>\n";
+            out << "      </TRP>\n";
+            out << "      <TYR>\n";
+            out << "         <frequence>" << consvfreq[i][20] << "</frequence>\n";
+            out << "         <percent>" << consfreqPerc[i][19] << "</percent>\n";
+            out << "      </TYR>\n";
+            out << "   </pos>\n";
+        }
+
+        out << "</conservation>\n";
     }
-
-    out << "   </parameters>\n";
-
-    for(int i = 0; i < consDG.size(); i++){
-        out << "   <pos id='" << i+1 << "'>\n";
-        out << "      <deltaG>" << consDG[i] << "</deltaG>\n";
-        out << "      <GAP>\n";
-        out << "         <frequence>" << consvfreq[i][0] << "</frequence>\n";
-        out << "      </GAP>\n";
-        out << "      <ALA>\n";
-        out << "         <frequence>" << consvfreq[i][1] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][0] << "</percent>\n";
-        out << "      </ALA>\n";
-        out << "      <CYS>\n";
-        out << "         <frequence>" << consvfreq[i][2] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][1] << "</percent>\n";
-        out << "      </CYS>\n";
-        out << "      <ASP>\n";
-        out << "         <frequence>" << consvfreq[i][3] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][2] << "</percent>\n";
-        out << "      </ASP>\n";
-        out << "      <GLU>\n";
-        out << "         <frequence>" << consvfreq[i][4] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][3] << "</percent>\n";
-        out << "      </GLU>\n";
-        out << "      <PHE>\n";
-        out << "         <frequence>" << consvfreq[i][5] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][4] << "</percent>\n";
-        out << "      </PHE>\n";
-        out << "      <GLY>\n";
-        out << "         <frequence>" << consvfreq[i][6] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][5] << "</percent>\n";
-        out << "      </GLY>\n";
-        out << "      <HIS>\n";
-        out << "         <frequence>" << consvfreq[i][7] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][6] << "</percent>\n";
-        out << "      </HIS>\n";
-        out << "      <ILE>\n";
-        out << "         <frequence>" << consvfreq[i][8] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][7] << "</percent>\n";
-        out << "      </ILE>\n";
-        out << "      <LYS>\n";
-        out << "         <frequence>" << consvfreq[i][9] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][8] << "</percent>\n";
-        out << "      </LYS>\n";
-        out << "      <LEU>\n";
-        out << "         <frequence>" << consvfreq[i][10] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][9] << "</percent>\n";
-        out << "      </LEU>\n";
-        out << "      <MET>\n";
-        out << "         <frequence>" << consvfreq[i][11] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][10] << "</percent>\n";
-        out << "      </MET>\n";
-        out << "      <ASN>\n";
-        out << "         <frequence>" << consvfreq[i][12] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][11] << "</percent>\n";
-        out << "      </ASN>\n";
-        out << "      <PRO>\n";
-        out << "         <frequence>" << consvfreq[i][13] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][12] << "</percent>\n";
-        out << "      </PRO>\n";
-        out << "      <GLN>\n";
-        out << "         <frequence>" << consvfreq[i][14] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][13] << "</percent>\n";
-        out << "      </GLN>\n";
-        out << "      <ARG>\n";
-        out << "         <frequence>" << consvfreq[i][15] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][14] << "</percent>\n";
-        out << "      </ARG>\n";
-        out << "      <SER>\n";
-        out << "         <frequence>" << consvfreq[i][16] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][15] << "</percent>\n";
-        out << "      </SER>\n";
-        out << "      <THR>\n";
-        out << "         <frequence>" << consvfreq[i][17] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][16] << "</percent>\n";
-        out << "      </THR>\n";
-        out << "      <VAL>\n";
-        out << "         <frequence>" << consvfreq[i][18] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][17] << "</percent>\n";
-        out << "      </VAL>\n";
-        out << "      <TRP>\n";
-        out << "         <frequence>" << consvfreq[i][19] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][18] << "</percent>\n";
-        out << "      </TRP>\n";
-        out << "      <TYR>\n";
-        out << "         <frequence>" << consvfreq[i][20] << "</frequence>\n";
-        out << "         <percent>" << consfreqPerc[i][19] << "</percent>\n";
-        out << "      </TYR>\n";
-        out << "   </pos>\n";
-    }
-
-    out << "</conservation>\n";
-
-    out << "<minss>\n";
-
-    out << "   <parameters>\n";
 
     vector<string> minssParam = this->getMinssParameters();
+    if(minssParam.size() > 0){
 
-    if(minssParam.size() > 2){
-        out << "      <filter>" << minssParam[1].c_str() << "</filter>\n";
-        out << "      <repetitions>" << minssParam[2].c_str() << "</repetitions>\n";
+        out << "<minss>\n";
+
+        out << "   <parameters>\n";
+
+
+
+        if(minssParam.size() > 2){
+            out << "      <filter>" << minssParam[1].c_str() << "</filter>\n";
+            out << "      <repetitions>" << minssParam[2].c_str() << "</repetitions>\n";
+        }
+
+        out << "   </parameters>\n";
+
+        for(int i = 0; i < this->minssData.size(); i++){
+            out << "   <data id='" << i+1 << "'>" << minssData[99-i] << "</data>\n";
+        }
+
+        out << "</minss>\n";
     }
-
-    out << "   </parameters>\n";
-
-    for(int i = 0; i < this->minssData.size(); i++){
-        out << "   <data id='" << i+1 << "'>" << minssData[99-i] << "</data>\n";
-    }
-
-    out << "<\minss>\n";
-
-
-    out << "<correlation>\n";
-    out << "   <parameters>\n";
 
     vector<string> corrParam = this->getCorrelationParameters();
+    if(corrParam.size() > 0){
 
-    if(corrParam.size() > 4){
-        out << "      <filter>" << corrParam[1].c_str() << "</filter>\n";
-        out << "      <minlog>" << corrParam[2].c_str() << "</minlog>\n";
-        out << "      <minss>" << corrParam[3].c_str() << "</minss>\n";
-        out << "      <deltafreq>" << corrParam[4].c_str() << "</deltafreq>\n";
-    }
-
-    out << "   </parameters>\n";
-
-    out << "   <corrgraph>\n";
-
-    for(int i = 0; i < corrGraph.size(); i++){
-        string v1 = std::get<0>(corrGraph[i]);
-        string v2 = std::get<1>(corrGraph[i]);
-        int val = std::get<2>(corrGraph[i]);
-
-        out << "      <edge v1='" << v1.c_str() << "' v2='" << v2.c_str() << "'>" << QString::number(val) << "</edge>\n";
-    }
-
-    out << "   </corrgraph>\n";
-
-    out << "   <communities>\n";
-
-    for(int i = 0; i < comunidades.size(); i++){
-        out << "      <community id='" << i+1 << "'>\n";
-
-        for(int j = 0; j < comunidades[i].size(); j++){
-            out << "         <node>" << comunidades[i][j].c_str() << "</node>\n";
-        //QMessageBox::information(NULL,QString::number(i),comunidades[i][j].c_str());
-        }
-        out << "      </community>\n";
-    }
-
-    out << "   </communities>\n";
+        out << "<correlation>\n";
+        out << "   <parameters>\n";
 
 
-    out << "   <referecences>\n";
 
-    for(int i = 0; i < corrRefSeqs.size(); i++)
-        out << "      <protein>" << corrRefSeqs[i].c_str() << "</protein>\n";
-
-    out << "   </references>\n";
-
-    out << "   <output>\n";
-
-    for(int i = 0; i < this->communityX.size(); i++){
-        out << "      <community id='" << i + 1 << "'>\n";
-
-        //Falta ALL
-        out << "         <table>\n";
-
-        out << "            <column>ALL</column>\n";
-        for(int j = 0; j < this->residuesComm[i].size(); j++){
-            out << "            <column>" << this->residuesComm[i][j].c_str() << "</column>\n";
+        if(corrParam.size() > 4){
+            out << "      <filter>" << corrParam[1].c_str() << "</filter>\n";
+            out << "      <minlog>" << corrParam[2].c_str() << "</minlog>\n";
+            out << "      <minss>" << corrParam[3].c_str() << "</minss>\n";
+            out << "      <deltafreq>" << corrParam[4].c_str() << "</deltafreq>\n";
         }
 
-        out << "         </table>\n";
+        out << "   </parameters>\n";
 
-        out << "         <table_data>\n";
+        if(corrGraph.size() > 0){
 
-        for(int j = 0; j < this->communityX[i].size(); j++){
-            out << "            <row id='" << j << "' c0='" << this->communityXAll[i][j] << "' ";
-            for(int k = 0; k < this->communityX[i][j].size(); k++){
-                if(j==k) out << "c" << k+1 << "='X' ";
-                else out << "c" << k+1 << "='" << this->communityX[i][j][k]*100 << "' ";
+            out << "   <corrgraph>\n";
+
+            for(int i = 0; i < corrGraph.size(); i++){
+                string v1 = std::get<0>(corrGraph[i]);
+                string v2 = std::get<1>(corrGraph[i]);
+                int val = std::get<2>(corrGraph[i]);
+
+                out << "      <edge v1='" << v1.c_str() << "' v2='" << v2.c_str() << "'>" << QString::number(val) << "</edge>\n";
             }
-            out << "/>\n";
+
+            out << "   </corrgraph>\n";
         }
 
-        out << "         </table_data>\n";
+        if(comunidades.size() > 0){
 
-        out << "      </community>\n";
-    }
+            out << "   <communities>\n";
 
-    //printf("CXPS: %d / CXPSSIZE: %d", this->communityXps.size(), residuesCommPs.size());
+            for(int i = 0; i < comunidades.size(); i++){
+                out << "      <community id='" << i+1 << "'>\n";
 
-    for(int i = 0; i < this->communityXps.size(); i++){
-        out << "      <logP c='" << i+1 << "'>\n";
-
-        out << "         <table>\n";
-
-        for(int j = 0; j < this->residuesCommPs[i].size(); j++){
-            out << "            <column>" << this->residuesCommPs[i][j].c_str() << "</column>\n";
-        }
-
-        out << "         </table>\n";
-
-        out << "         <table_data>\n";
-
-        for(int j = 0; j < this->communityXps[i].size(); j++){
-            out << "            <row id='" << j << "' ";
-            for(int k = 0; k < this->communityXps[i][j].size(); k++){
-                if(j==k) out << "c" << k << "='X' ";
-                else out << "c" << k << "='" << this->communityXps[i][j][k] << "' ";
+                for(int j = 0; j < comunidades[i].size(); j++){
+                    out << "         <node>" << comunidades[i][j].c_str() << "</node>\n";
+                //QMessageBox::information(NULL,QString::number(i),comunidades[i][j].c_str());
+                }
+                out << "      </community>\n";
             }
-            out << "/>\n";
+
+            out << "   </communities>\n";
         }
 
-        out << "         </table_data>\n";
+        if(corrRefSeqs.size() > 0){
 
-        out << "      </logP>\n";
+            out << "   <references>\n";
+
+            for(int i = 0; i < corrRefSeqs.size(); i++)
+                out << "      <protein>" << corrRefSeqs[i].c_str() << "</protein>\n";
+
+            out << "   </references>\n";
+        }
+
+        if(communityX.size() > 0 || communityXps.size() > 0){
+
+            out << "   <output>\n";
+
+            for(int i = 0; i < this->communityX.size(); i++){
+                out << "      <community id='" << i + 1 << "'>\n";
+
+
+                out << "         <table>\n";
+
+                out << "            <column>ALL</column>\n";
+                for(int j = 0; j < this->residuesComm[i].size(); j++){
+                    out << "            <column>" << this->residuesComm[i][j].c_str() << "</column>\n";
+                }
+
+                out << "         </table>\n";
+
+                out << "         <table_data>\n";
+
+                for(int j = 0; j < this->communityX[i].size(); j++){
+                    out << "            <row id='" << j << "' c0='" << this->communityXAll[i][j] << "' ";
+                    for(int k = 0; k < this->communityX[i][j].size(); k++){
+                        if(j==k) out << "c" << k+1 << "='X' ";
+                        else out << "c" << k+1 << "='" << this->communityX[i][j][k]*100 << "' ";
+                    }
+                    out << "/>\n";
+                }
+
+                out << "         </table_data>\n";
+
+                out << "      </community>\n";
+            }
+
+            //printf("CXPS: %d / CXPSSIZE: %d", this->communityXps.size(), residuesCommPs.size());
+
+            for(int i = 0; i < this->communityXps.size(); i++){
+                out << "      <logP c='" << i+1 << "'>\n";
+
+                out << "         <table>\n";
+
+                for(int j = 0; j < this->residuesCommPs[i].size(); j++){
+                    out << "            <column>" << this->residuesCommPs[i][j].c_str() << "</column>\n";
+                }
+
+                out << "         </table>\n";
+
+                out << "         <table_data>\n";
+
+                for(int j = 0; j < this->communityXps[i].size(); j++){
+                    out << "            <row id='" << j << "' ";
+                    for(int k = 0; k < this->communityXps[i][j].size(); k++){
+                        if(j==k) out << "c" << k << "='X' ";
+                        else out << "c" << k << "='" << this->communityXps[i][j][k] << "' ";
+                    }
+                    out << "/>\n";
+                }
+
+                out << "         </table_data>\n";
+
+                out << "      </logP>\n";
+            }
+
+            out << "   </output>\n";
+        }
+
+        out << "</correlation>\n";
     }
-
-    out << "   </output>\n";
-
-    out << "</correlation>\n";
 
     out << "</PFStats>";
     f.close();
@@ -1122,6 +1152,7 @@ void Alignment::dGWrite(){
     f.close();
     */
 
+    consDG.clear();
     for(int i = 0; i<sequences[0].size()-1;i++){
         consDG.push_back(float(dG[i]));
     }
@@ -1198,6 +1229,8 @@ void Alignment::FreqWrite(){
 
     f2.close();
     */
+    consfreqPerc.clear();
+    consvfreq.clear();
     for (int i=0;i<=sequences[0].size()-1;i++){//-1 para não incluir o ALL
         vector<int> freqs;
         for (int j=0;j<=20;j++){
@@ -1367,6 +1400,7 @@ vector<float> Alignment::DTRandomElimination(int repetitions, int max, int min, 
     }
     //sucelimfile.close();
 
+    minssData.clear();
     for(int i = 0; i < outputVec.size(); i++){
         this->minssData.push_back(outputVec.at(i));
     }
@@ -1421,6 +1455,7 @@ void Alignment::SympvalueCalculation(int minlogp, float minssfraction, float min
     int c2,pos1,pos2,aa1,aa2,aa2pos2count,aa1pos1count;
     short int pvalue1,pvalue2;
     bool mindeltafreqok;
+    this->corrGraph.clear();
 
     QProgressDialog progress("Calculating...", "Abort", 0,sequences[0].size()-2);
     progress.setWindowModality(Qt::WindowModal);
@@ -1803,6 +1838,9 @@ void Alignment::pMatrix2HTML(string path, bool renumber, int seqnumber){
 }
 
 void Alignment::pMatrix2HTMLRAM(bool renumber, int seqnumber){
+    this->communityXps.clear();
+    this->residuesCommPs.clear();
+
     for(int c1 = 0; c1 < Communities.size(); c1++){
         if(Communities[c1].aa.size() > 1){
 
@@ -1903,6 +1941,9 @@ void Alignment::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
     //nclusters = 1;
     vector<char> aalist;
     vector<int> poslist;
+    this->communityX.clear();
+    this->communityXAll.clear();
+    this->residuesComm.clear();
 
 
     for(int i = 0; i < nclusters; i++){

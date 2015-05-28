@@ -29,21 +29,22 @@ private:
     string webpdbdir = "";
     vector<vector<string> > filtersList; //Primeiro itém de cada vector interno se refere aos parâmetros, seguido da lista de proteínas
     vector<vector<string> > filterSequences; //"        "            "                "                  "           "
-    vector<float> minssData;
-    vector<float> consDG;
+    vector<float> minssData; //Resetando
+    vector<float> consDG;//Resetando
     vector<string> consParams;
-    vector<vector<int> > consvfreq;
-    vector<vector<float> > consfreqPerc;
-    vector<tuple<string,string,int> > corrGraph;
-    vector<vector<string> > comunidades;
-    vector<string> corrRefSeqs;
-    vector<vector<string> > residuesComm;
-    vector<vector<string> > residuesCommPs;
-    vector<vector<vector<float> > > communityX;
-    vector<vector<float> > communityXAll;
-    vector<vector<vector<int> > > communityXps;
+    vector<vector<int> > consvfreq;//Resetando
+    vector<vector<float> > consfreqPerc;//Resetando
+    vector<tuple<string,string,int> > corrGraph;//Testar
+    vector<vector<string> > comunidades;//Testar
+    vector<string> corrRefSeqs;//Testar
+    vector<vector<string> > residuesComm;//Testar
+    vector<vector<string> > residuesCommPs;//Testar
+    vector<vector<vector<float> > > communityX;//Testar
+    vector<vector<float> > communityXAll;//Testar
+    vector<vector<vector<int> > > communityXps;//Testar
     vector<string> parameters;
     //function_tag,parameters.
+
 
     struct community {
            vector<int> pos;
@@ -93,7 +94,9 @@ public:
     tuple<string,string,int> getCorrelationEdge(int i);
     int getCorrelationGraphSize();
     void addCorrRefSeq(string seq);
+    void clearCorrRefSeq();
     void addCommunity(vector<string> comm);
+    void clearCommunity();
     void printCorrGraph();
     void printCommunity();
     void addFilterSequence(vector<string> align);

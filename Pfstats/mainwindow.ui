@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>6</number>
     </property>
     <widget class="QWidget" name="page">
      <widget class="QLabel" name="label">
@@ -1172,14 +1172,161 @@ This will calculate a set of correlation scores for the full alignment, using th
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_7"/>
+    <widget class="QWidget" name="page_7">
+     <widget class="QLabel" name="label_32">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>-10</y>
+        <width>491</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Results&lt;/span&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QStackedWidget" name="stackedWidget2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>80</y>
+        <width>631</width>
+        <height>391</height>
+       </rect>
+      </property>
+      <widget class="QWidget" name="page_8">
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>601</width>
+          <height>351</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Check the results that you want to visualize</string>
+        </property>
+        <widget class="QPushButton" name="cmdShow">
+         <property name="geometry">
+          <rect>
+           <x>480</x>
+           <y>310</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Show</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>50</y>
+           <width>561</width>
+           <height>181</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_27">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <widget class="QCheckBox" name="checkResults1">
+              <property name="text">
+               <string>List of sequences after filter</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults2">
+              <property name="text">
+               <string>Table of frequence conservation</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults3">
+              <property name="text">
+               <string>Table of percentage conservation</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults4">
+              <property name="text">
+               <string>Conserved Residues</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults5">
+              <property name="text">
+               <string>Correlation and Anti-Correlation list</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <widget class="QCheckBox" name="checkResults6">
+              <property name="text">
+               <string>List of Communities</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults7">
+              <property name="text">
+               <string>Correlation Tables (Percentage)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults8">
+              <property name="text">
+               <string>Correlation Tables (Log P scores)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults9">
+              <property name="text">
+               <string>Adherence matrix</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults10">
+              <property name="text">
+               <string>Residues of communities</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_9"/>
+     </widget>
+    </widget>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>417</x>
       <y>497</y>
-      <width>378</width>
+      <width>531</width>
       <height>29</height>
      </rect>
     </property>
@@ -1236,6 +1383,13 @@ This will calculate a set of correlation scores for the full alignment, using th
       <widget class="QPushButton" name="cmdSaveResults">
        <property name="text">
         <string>Save Results</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cmdShowResults">
+       <property name="text">
+        <string>Show Results</string>
        </property>
       </widget>
      </item>
@@ -1383,9 +1537,9 @@ This will calculate a set of correlation scores for the full alignment, using th
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
-  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

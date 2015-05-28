@@ -187,12 +187,14 @@ public:
     QLabel *label_31;
     QListWidget *lstRefSeqs_2;
     QWidget *page_7;
+    QLabel *label_32;
     QWidget *layoutWidget10;
     QHBoxLayout *horizontalLayout_9;
     QPushButton *cmdMain;
     QPushButton *cmdBack;
     QPushButton *cmdAdvance;
     QPushButton *cmdSaveResults;
+    QPushButton *cmdShowResults;
     QWidget *layoutWidget11;
     QVBoxLayout *verticalLayout_11;
     QListWidget *listWidget;
@@ -204,10 +206,10 @@ public:
     QMenu *menuShow;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
+    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup_3;
     QButtonGroup *buttonGroup_4;
-    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -930,10 +932,14 @@ public:
         stackedWidget->addWidget(page_6);
         page_7 = new QWidget();
         page_7->setObjectName(QStringLiteral("page_7"));
+        label_32 = new QLabel(page_7);
+        label_32->setObjectName(QStringLiteral("label_32"));
+        label_32->setGeometry(QRect(50, -10, 491, 131));
+        label_32->setWordWrap(true);
         stackedWidget->addWidget(page_7);
         layoutWidget10 = new QWidget(centralWidget);
         layoutWidget10->setObjectName(QStringLiteral("layoutWidget10"));
-        layoutWidget10->setGeometry(QRect(570, 497, 378, 29));
+        layoutWidget10->setGeometry(QRect(417, 497, 531, 29));
         horizontalLayout_9 = new QHBoxLayout(layoutWidget10);
         horizontalLayout_9->setSpacing(6);
         horizontalLayout_9->setContentsMargins(11, 11, 11, 11);
@@ -964,6 +970,11 @@ public:
         cmdSaveResults->setObjectName(QStringLiteral("cmdSaveResults"));
 
         horizontalLayout_9->addWidget(cmdSaveResults);
+
+        cmdShowResults = new QPushButton(layoutWidget10);
+        cmdShowResults->setObjectName(QStringLiteral("cmdShowResults"));
+
+        horizontalLayout_9->addWidget(cmdShowResults);
 
         layoutWidget11 = new QWidget(centralWidget);
         layoutWidget11->setObjectName(QStringLiteral("layoutWidget11"));
@@ -1021,7 +1032,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(5);
+        stackedWidget->setCurrentIndex(6);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1111,10 +1122,13 @@ public:
         txtOffset_2->setText(QApplication::translate("MainWindow", "0", 0));
         label_29->setText(QApplication::translate("MainWindow", "Reference Sequence:", 0));
         label_31->setText(QApplication::translate("MainWindow", "Secundary Reference Sequences:", 0));
+        label_32->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Results</span></p>\n"
+"</body></html>", 0));
         cmdMain->setText(QApplication::translate("MainWindow", "Main", 0));
         cmdBack->setText(QApplication::translate("MainWindow", "Back", 0));
         cmdAdvance->setText(QApplication::translate("MainWindow", "Advance", 0));
         cmdSaveResults->setText(QApplication::translate("MainWindow", "Save Results", 0));
+        cmdShowResults->setText(QApplication::translate("MainWindow", "Show Results", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuMethod->setTitle(QApplication::translate("MainWindow", "Methods", 0));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0));

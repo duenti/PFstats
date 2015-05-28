@@ -56,12 +56,15 @@ private slots:
 
     void on_listWidget2_activated(const QModelIndex &index);
 
+    void on_cmdShowResults_clicked();
+
 private:
     Ui::MainWindow *ui;
     void changeWizardCmds(bool bl);
     void resetObjects();
     bool wizard;
     string pdbweb = "";
+    int stackBeforeShowResults = 0;
     bool compareLocalWebPDB(string local, string web);
     vector<Alignment> alinhamentos;
     void addAlignment(string path);

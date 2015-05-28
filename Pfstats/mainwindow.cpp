@@ -235,6 +235,8 @@ void MainWindow::alignfilter(string alignPath, float occupancy, float minId, flo
         ui->listWidget2->addItem(filterList[j][0].c_str());
     }
 
+    ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+
     //alinhamentos[i].setFilepath(path);
     //QMessageBox::information(this,"a",fullAlignment.getFilepath().c_str());
     //alignPath.AlignmentWrite(path);
@@ -370,6 +372,7 @@ void MainWindow::trivcomm(int ai){
     bool member2found=false;
     vector < vector <int> > posCommunities;
     vector < vector <char> > aaCommunities;
+    alinhamentos[ai].clearCommunity();
 
     tuple<string,string,int> edge = alinhamentos[ai].getCorrelationEdge(0);
     string v1 = std::get<0>(edge);
@@ -669,6 +672,8 @@ void MainWindow::changeWizardCmds(bool bl){
     ui->cmdAdvance->setEnabled(bl);
     ui->cmdBack->setEnabled(bl);
     ui->cmdMain->setEnabled(bl);
+    ui->cmdSaveResults->setEnabled(bl);
+    ui->cmdShowResults->setEnabled(bl);
 }
 
 void MainWindow::inputAlignment_triggered(){
@@ -777,6 +782,18 @@ void MainWindow::on_cmdBack_clicked()
     }
     else if(ctIx == 2) ui->cmdBack->setEnabled(false);
     else if(ctIx == 5) ui->cmdAdvance->setEnabled(true);
+    else if(ctIx == 6){
+        int newctIx = stackBeforeShowResults;
+
+        changeWizardCmds(true);
+
+        if(newctIx == 0) changeWizardCmds(false);
+        else if(newctIx == 1) ui->cmdBack->setEnabled(false);
+        else if(newctIx == 5) ui->cmdAdvance->setEnabled(false);
+
+        ui->stackedWidget->setCurrentIndex(newctIx);
+        return;
+    }
 
 
     ui->stackedWidget->setCurrentIndex(ctIx-1);
@@ -931,6 +948,31 @@ void MainWindow::on_cmdApplyFilter_clicked()
         QMessageBox::warning(this,"Error","All fields must be filled");
         return ;
     }
+
+    for(int i = 0; i < ui->listWidget2->count(); i++){
+        string filtered = ui->listWidget2->item(i)->text().toStdString();
+        vector<string> vecFilter = this->split(filtered,' ');
+        //QMessageBox::information(this,"a",QString::number(filtered.size()));
+        if(vecFilter.size() == 4){
+            //QMessageBox::information(this,"a","ok");
+            float minCov = atof(vecFilter[0].c_str());
+            float minId = atof(vecFilter[1].c_str());
+            float maxId = atof(vecFilter[2].c_str());
+            string refSeq = vecFilter[3];
+            float minCov2 = ui->txtMinCover->text().toFloat();
+            float minId2 = ui->txtMinId->text().toFloat();
+            float maxId2 = ui->txtMaxId->text().toFloat();
+            string refSeq2 = ui->cmbRefSeq->currentText().toStdString();
+
+            if(minCov == minCov2 && minId == minId2 && maxId == maxId2 && refSeq == refSeq2){
+                QMessageBox::warning(this,"Filter applied","This filter is already saved.");
+                ui->cmdApplyFilter->setEnabled(true);
+                return;
+            }
+        }
+    }
+
+
 /*
     minCover = ui->txtMinCover->text().toFloat(&ok);
     if(!ok){
@@ -1540,5 +1582,19 @@ void MainWindow::on_cmdSaveResults_clicked()
 
     QMessageBox::information(this,"Save Results","XML generated successfully");
 
+    ui->cmdSaveResults->setEnabled(true);
+}
+
+void MainWindow::on_cmdShowResults_clicked()
+{
+    ui->cmdShowResults->setEnabled(false);
+
+    stackBeforeShowResults = ui->stackedWidget->currentIndex();
+
+    ui->stackedWidget->setCurrentIndex(6);
+
+    ui->cmdMain->setEnabled(true);
+    ui->cmdBack->setEnabled(true);
+    ui->cmdAdvance->setEnabled(false);
     ui->cmdSaveResults->setEnabled(true);
 }

@@ -20,6 +20,177 @@ Alignment::Alignment(string path){
 
 Alignment::~Alignment()
 {
+
+}
+
+void Alignment::clear(){
+    filepath.clear();
+    filepath.shrink_to_fit();
+    refSeqName.clear();
+    refSeqName.shrink_to_fit();
+    subalignmentseqs.clear();
+    subalignmentseqs.shrink_to_fit();
+    referencevector.clear();
+    referencevector.shrink_to_fit();
+    SortOrder.clear();
+    SortOrder.shrink_to_fit();
+    fullAlignment.clear();
+    fullAlignment.shrink_to_fit();
+    fullSequences.clear();
+    fullSequences.shrink_to_fit();
+    localdir = "";
+    localdir.shrink_to_fit();
+    webdir = "";
+    webdir.shrink_to_fit();
+    localpdbdir = "";
+    localpdbdir.shrink_to_fit();
+    webpdbdir = "";
+    webpdbdir.shrink_to_fit();
+
+    for(int i = 0; i < filtersList.size(); i++){
+        filtersList[i].clear();
+        filtersList[i].shrink_to_fit();
+        filterSequences[i].clear();
+        filterSequences[i].shrink_to_fit();
+    }
+    filtersList.clear();
+    filtersList.shrink_to_fit();
+    filterSequences.clear();
+    filterSequences.shrink_to_fit();
+
+    minssData.clear();
+    minssData.shrink_to_fit();
+    consDG.clear();
+    consDG.shrink_to_fit();
+    consParams.clear();
+    consParams.shrink_to_fit();
+
+    for(int i = 0; i < consvfreq.size(); i++){
+        consvfreq[i].clear();
+        consvfreq[i].shrink_to_fit();
+        consfreqPerc[i].clear();
+        consfreqPerc[i].shrink_to_fit();
+    }
+    consvfreq.clear();
+    consvfreq.shrink_to_fit();
+    consfreqPerc.clear();
+    consfreqPerc.shrink_to_fit();
+
+    corrGraph.clear();
+    corrGraph.shrink_to_fit();
+
+    for(int i = 0; i < comunidades.size(); i++){
+        comunidades[i].clear();
+        comunidades[i].shrink_to_fit();
+    }
+    comunidades.clear();
+    comunidades.shrink_to_fit();
+
+    corrRefSeqs.clear();
+    corrRefSeqs.shrink_to_fit();
+
+    for(int i = 0; i < residuesComm.size(); i++){
+        residuesComm[i].clear();
+        residuesComm[i].shrink_to_fit();
+        residuesCommPs[i].clear();
+        residuesCommPs[i].shrink_to_fit();
+    }
+    residuesComm.clear();
+    residuesComm.shrink_to_fit();
+    residuesCommPs.clear();
+    residuesCommPs.shrink_to_fit();
+
+    for(int i = 0; i < communityXAll.size(); i++){
+        communityXAll[i].clear();
+        communityXAll[i].shrink_to_fit();
+    }
+    communityXAll.clear();
+    communityXAll.shrink_to_fit();
+
+    for(int i = 0; i < communityX.size(); i++){
+        for(int j = 0; j < communityX[i].size(); j++){
+            communityX[i][j].clear();
+            communityX[i][j].shrink_to_fit();
+            communityXps[i][j].clear();
+            communityXps[i][j].shrink_to_fit();
+        }
+        communityX[i].clear();
+        communityX[i].shrink_to_fit();
+        communityXps[i].clear();
+        communityXps[i].shrink_to_fit();
+    }
+    communityX.clear();
+    communityX.shrink_to_fit();
+    communityXps.clear();
+    communityXps.shrink_to_fit();
+
+    parameters.clear();
+    parameters.shrink_to_fit();
+    sequences.clear();
+    sequences.shrink_to_fit();
+    sequencenames.clear();
+    sequencenames.shrink_to_fit();
+
+    for(int i = 0; i < frequencies.size(); i++){
+        frequencies[i].clear();
+        frequencies[i].shrink_to_fit();
+    }
+    frequencies.clear();
+    frequencies.shrink_to_fit();
+
+    for(int i = 0; i < subsetfrequencies.size(); i++){
+        subsetfrequencies[i].clear();
+        subsetfrequencies[i].shrink_to_fit();
+    }
+    subsetfrequencies.clear();
+    subsetfrequencies.shrink_to_fit();
+
+    for(int i = 0; i < Deltas.size(); i++){
+        Deltas[i].clear();
+        Deltas[i].shrink_to_fit();
+    }
+    Deltas.clear();
+    Deltas.shrink_to_fit();
+
+    Communities.clear();
+    Communities.shrink_to_fit();
+
+    for(int i = 0; i < AASpecificConservation.size(); i++){
+        AASpecificConservation[i].clear();
+        AASpecificConservation[i].shrink_to_fit();
+    }
+    AASpecificConservation.clear();
+    AASpecificConservation.shrink_to_fit();
+
+    dG.clear();
+    dG.shrink_to_fit();
+    dGDT.clear();
+    dGDT.shrink_to_fit();
+    normalizeddG.clear();
+    normalizeddG.shrink_to_fit();
+    hiconservedpos.clear();
+    hiconservedpos.shrink_to_fit();
+
+    for(int i = 0; i < minuslogpvalues.size(); i++){
+        minuslogpvalues[i].clear();
+        minuslogpvalues[i].shrink_to_fit();
+    }
+    minuslogpvalues.clear();
+    minuslogpvalues.shrink_to_fit();
+
+    for(int i = 0; i < selfcorrelationmatrix.size(); i++){
+        selfcorrelationmatrix[i].clear();
+        selfcorrelationmatrix[i].shrink_to_fit();
+    }
+    selfcorrelationmatrix.clear();
+    selfcorrelationmatrix.shrink_to_fit();
+
+    for(int i = 0; i < identitymatrix.size(); i++){
+        identitymatrix[i].clear();
+        identitymatrix[i].shrink_to_fit();
+    }
+    identitymatrix.clear();
+    identitymatrix.shrink_to_fit();
 }
 
 string Alignment::getFilepath(){
@@ -118,8 +289,200 @@ vector<string> Alignment::getFullAlignment(){
     return this->fullAlignment;
 }
 
+vector<string> Alignment::getFullSequences(){
+    return this->fullSequences;
+}
+
+int Alignment::getConsFreqSize(){
+    return this->consvfreq.size();
+}
+
+int Alignment::getConsFreqPercSize(){
+    return this->consfreqPerc.size();
+}
+
+int Alignment::getCorrGraphSize(){
+    return this->corrGraph.size();
+}
+
+int Alignment::getCommListSize(){
+    return this->comunidades.size();
+}
+
+int Alignment::getNumOfUtilComms(){
+    return this->communityX.size();
+}
+
+vector<int> Alignment::getConsFreqRow(int i){
+    return this->consvfreq[i];
+}
+
+vector<float> Alignment::getConsFreqPercRow(int i){
+    return this->consfreqPerc[i];
+}
+
+tuple<string,string,int> Alignment::getCorrGraphTuple(int i){
+    return this->corrGraph[i];
+}
+
+vector<string> Alignment::getCommunitie(int i){
+    return this->comunidades[i];
+}
+
+vector<float> Alignment::getCommXRow(int c, int i){
+    return this->communityX[c][i];
+}
+
+vector<int> Alignment::getCommPsRow(int c, int i){
+    return this->communityXps[c][i];
+}
+
+vector<float> Alignment::getCommAll(int c){
+    return this->communityXAll[c];
+}
+
+vector<string> Alignment::getResiduesComm(int c){
+    return this->residuesComm[c];
+}
+
+vector<string> Alignment::getResiduesCommPs(int c){
+    return this->residuesCommPs[c];
+}
+
 void Alignment::addFilterSequence(vector<string> align){
     this->filterSequences.push_back(align);
+}
+
+void Alignment::addFilterSequence(vector<string> names, vector<string> sequences){
+    if(names[0] == "0 0 0 0"){
+        for(int i = 1; i < names.size(); i++){
+            this->fullAlignment.push_back(names[i]);
+            this->fullSequences.push_back(sequences[i]);
+        }
+    }
+    this->filtersList.push_back(names);
+    this->filterSequences.push_back(sequences);
+}
+
+void Alignment::setConsDG(vector<float> dg){
+    this->consDG = dg;
+}
+
+void Alignment::addConsFreqRow(vector<int> consfreq){
+    this->consvfreq.push_back(consfreq);
+}
+
+void Alignment::addConsFreqPercRow(vector<float> cfreqperc){
+    this->consfreqPerc.push_back(cfreqperc);
+}
+
+void Alignment::setMinssVector(vector<float> minss){
+    this->minssData = minss;
+}
+
+void Alignment::addCorrGraphEdge(string v1, string v2, int e){
+    tuple<string,string,int> tup;
+    std::get<0>(tup) = v1;
+    std::get<1>(tup) = v2;
+    std::get<2>(tup) = e;
+
+    this->corrGraph.push_back(tup);
+}
+
+void Alignment::addResiduesComm(vector<string> comm){
+    this->residuesComm.push_back(comm);
+}
+
+void Alignment::addResiduesCommPs(vector<string> comm){
+    this->residuesCommPs.push_back(comm);
+}
+
+void Alignment::addCommXAll(vector<float> comm){
+    this->communityXAll.push_back(comm);
+
+    //printf("COMUNIDADE\n");
+    //for(int i = 0; i < comm.size(); i++) printf("%f\n",comm[i]);
+}
+
+void Alignment::addCommX(vector<vector<float> > comm){
+    this->communityX.push_back(comm);
+
+    /*
+    printf("COMUNIDADE\n");
+    for(int i = 0; i < comm.size(); i++){
+        for(int j = 0; j < comm[i].size(); j++){
+            printf(" %f ",comm[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+    */
+}
+
+void Alignment::addCommXps(vector<vector<int> > comm){
+    this->communityXps.push_back(comm);
+
+    /*
+    printf("COMUNIDADE\n");
+    for(int i = 0; i < comm.size(); i++){
+        for(int j = 0; j < comm[i].size(); j++){
+            printf(" %d ",comm[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+    */
+}
+
+void Alignment::printConsFreq(){
+    for(int i = 0; i < consvfreq.size(); i++){
+        for(int j = 0; j < consvfreq[i].size(); j++){
+            printf(" %d ",consvfreq[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void Alignment::printConsFreqPerc(){
+    for(int i = 0; i < consfreqPerc.size(); i++){
+        for(int j = 0; j < consfreqPerc[i].size(); j++){
+            printf(" %f ",consfreqPerc[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void Alignment::printCorrRefSeqs(){
+    for(int i = 0; i < corrRefSeqs.size(); i++){
+        printf("%s\n",corrRefSeqs[i].c_str());
+    }
+}
+
+void Alignment::printResiduesComm(){
+    for(int i = 0; i < this->residuesComm.size(); i++){
+        printf("COMUNIDADE %d:\n",i);
+        for(int j = 0; j < this->residuesComm[i].size(); j++){
+            printf("%s\n",residuesComm[i][j].c_str());
+        }
+    }
+}
+
+void Alignment::printResiduesCommPs(){
+    for(int i = 0; i < this->residuesCommPs.size(); i++){
+        printf("COMUNIDADE %d:\n",i);
+        for(int j = 0; j < this->residuesCommPs[i].size(); j++){
+            printf("%s\n",residuesCommPs[i][j].c_str());
+        }
+    }
+}
+
+void Alignment::printFrequencies(){
+    for(int i = 0; i < frequencies.size(); i++){
+        for(int j = 0; j < frequencies[i].size(); j++){
+            printf(" %d ",frequencies[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 void Alignment::loadFullAlignment(){
@@ -132,9 +495,8 @@ void Alignment::loadFullAlignment(){
     }
 }
 
-void Alignment::addParameter(string tag, string filter, int refSeq, int offset, char chain, string pdb){
-    if(pdb == "") pdb = "0";
-    string parameter = tag + "," + filter + "," + QString::number(refSeq).toStdString() + "," + QString::number(offset).toStdString() + "," + chain + "," + pdb;
+void Alignment::addParameter(string tag, string filter, int refSeq, int offset, char chain, float minCons){
+    string parameter = tag + "," + filter + "," + QString::number(refSeq).toStdString() + "," + QString::number(offset).toStdString() + "," + chain + "," + QString::number(minCons).toStdString();
     parameters.push_back(parameter);
     //QMessageBox::information(NULL,"Add Conservation",QString::number(parameters.size()));
 }
@@ -476,6 +838,7 @@ void Alignment::generateXML(string outputXML){
 
     QTextStream out(&f);
 
+    out << "<?xml version=\"1.0\"?>\n\n";
     out << "<PFStats>\n";
     out << "<file>\n";
     if(this->localdir != "")
@@ -488,20 +851,27 @@ void Alignment::generateXML(string outputXML){
 
     //QMessageBox::warning(NULL,"teste",QString::number(this->filtersList.size()));
 
-    for(int i = 0; i < filtersList.size(); i++){
-        string parameters = filtersList[i][0];
-        vector<string> parsVec = this->split(parameters,' ');
-        string occ = parsVec[0];
-        string minid = parsVec[1];
-        string maxid = parsVec[2];
-        string refseq = parsVec[3];
+    if(filtersList.size() > 0){
 
-        out << "<filter occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
-        for(int j = 1; j < filtersList[i].size(); j++){
-            vector<string> vecSplit = this->split(filtersList[i][j],'/');
-            out << "   <entry id='" << j-1 << "' offset='" << vecSplit[1].c_str() << "'>" << vecSplit[0].c_str() << "</entry>\n";
+        out << "<filters>\n";
+
+        for(int i = 0; i < filtersList.size(); i++){
+            string parameters = filtersList[i][0];
+            vector<string> parsVec = this->split(parameters,' ');
+            string occ = parsVec[0];
+            string minid = parsVec[1];
+            string maxid = parsVec[2];
+            string refseq = parsVec[3];
+
+            out << "<filter occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
+            for(int j = 1; j < filtersList[i].size(); j++){
+                vector<string> vecSplit = this->split(filtersList[i][j],'/');
+                out << "   <entry id='" << j-1 << "' offset='" << vecSplit[1].c_str() << "' name='" << vecSplit[0].c_str() << "'>" << filterSequences[i][j].c_str() << "</entry>\n";
+            }
+            out << "</filter>\n";
         }
-        out << "</filter>\n";
+
+        out << "</filters>\n";
     }
 
     if(consDG.size() > 0){
@@ -520,7 +890,7 @@ void Alignment::generateXML(string outputXML){
 
             out << "   </parameters>\n";
         }
-
+        out << "   <positions>\n";
         for(int i = 0; i < consDG.size(); i++){
             out << "   <pos id='" << i+1 << "'>\n";
             out << "      <deltaG>" << consDG[i] << "</deltaG>\n";
@@ -609,6 +979,7 @@ void Alignment::generateXML(string outputXML){
             out << "      </TYR>\n";
             out << "   </pos>\n";
         }
+        out << "   </positions>\n";
 
         out << "</conservation>\n";
     }
@@ -834,11 +1205,23 @@ bool Alignment::GetFromFile(){
     }
 }
 
+void Alignment::updateFullAlignment(){
+    sequences.clear();
+    sequencenames.clear();
+
+    for(int i = 1; i < filtersList[0].size(); i++){
+        sequences.push_back(this->filterSequences[0][i]);
+        //printf("%s\n",filtersList[0][i].c_str());
+        sequencenames.push_back(this->filtersList[0][i]);
+    }
+}
+
 bool Alignment::getFromStd(string text){
     //Implementar
 }
 
 vector<string> Alignment::getSequencesName(){
+    /*
     vector<string> names;
     ifstream sequenceFile(this->filepath.c_str());
     string line = "";
@@ -855,6 +1238,27 @@ vector<string> Alignment::getSequencesName(){
         }
     }
     return names;
+    */
+
+    return sequencenames;
+}
+
+string Alignment::getSequence(string seqname){
+/*
+    for(int i = 0; i < this->sequencenames.size(); i++){
+        vector<string> splitVec = this->split(sequencenames[i].c_str(),'/');
+        //printf("%s\n",splitVec[0].c_str());
+
+        if(splitVec[0] == seqname)
+            return this->sequences[i];
+    }
+
+    return "Error! Sequence not found";
+    */
+
+    for(int i = 0; i < sequencenames.size(); i++){
+        if(sequencenames[i] == seqname) return sequences[i];
+    }
 }
 
 void Alignment::CalculateFrequencies(){
@@ -1434,7 +1838,7 @@ int Alignment::SubAlignmentFrequency(char aa, int pos){
 int Alignment::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
     int aa2pos2count=0;
     int c2;
-
+    //QMessageBox::information(NULL,"a",QString::number(frequencies.size()));
     if(pos1==pos2) return 0;
     SubAlignmentIndices(aa1,pos1);
 
@@ -1886,13 +2290,18 @@ float Alignment::PSA(int seqnumber, int communitynumber){
     int i,j;
     float sum=0;
 
+    //QMessageBox::information(NULL,"a",QString::number(sequences.size()));
+
     if(Communities[communitynumber].aa.size()>1)
         for (i=0;i<=Communities[communitynumber].aa.size()-1;i++){
             for(j=0;j<=Communities[communitynumber].aa.size()-1;j++){
-                if(((Communities[communitynumber].aa[i]==sequences[seqnumber][Communities[communitynumber].pos[i]])&&(Communities[communitynumber].aa[j]==sequences[seqnumber][Communities[communitynumber].pos[j]]))&&(Communities[communitynumber].pos[i]!=Communities[communitynumber].pos[j]))
+                if(((Communities[communitynumber].aa[i]==sequences[seqnumber][Communities[communitynumber].pos[i]])&&(Communities[communitynumber].aa[j]==sequences[seqnumber][Communities[communitynumber].pos[j]]))&&(Communities[communitynumber].pos[i]!=Communities[communitynumber].pos[j])){
                     sum+=Singlepvalue(Communities[communitynumber].aa[i],Communities[communitynumber].pos[i],Communities[communitynumber].aa[j],Communities[communitynumber].pos[j]);
+                    //QMessageBox::information(NULL,"a","OK");
+                }
             }
         }
+    //QMessageBox::information(NULL,"a","FIM PSA");
     return(sum/(float)(Communities[communitynumber].aa.size()*(Communities[communitynumber].aa.size()-1)));
 }
 

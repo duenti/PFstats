@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>983</width>
-    <height>595</height>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>280</x>
       <y>9</y>
       <width>691</width>
-      <height>482</height>
+      <height>521</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -558,6 +558,19 @@
        <string>Apply</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_27">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>140</y>
+        <width>121</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>(Full Alignment)</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="page_4">
      <widget class="QLabel" name="label_14">
@@ -580,7 +593,7 @@
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>180</y>
+        <y>150</y>
         <width>511</width>
         <height>111</height>
        </rect>
@@ -670,9 +683,9 @@
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>310</y>
+        <y>260</y>
         <width>671</width>
-        <height>151</height>
+        <height>241</height>
        </rect>
       </property>
       <property name="title">
@@ -681,8 +694,8 @@
       <widget class="QPushButton" name="cmdConservation">
        <property name="geometry">
         <rect>
-         <x>500</x>
-         <y>110</y>
+         <x>80</x>
+         <y>210</y>
          <width>80</width>
          <height>23</height>
         </rect>
@@ -694,123 +707,145 @@
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
-         <x>250</x>
-         <y>40</y>
-         <width>339</width>
-         <height>29</height>
+         <x>10</x>
+         <y>30</y>
+         <width>251</width>
+         <height>163</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_16">
+       <layout class="QVBoxLayout" name="verticalLayout_15">
         <item>
-         <widget class="QLabel" name="label_17">
-          <property name="text">
-           <string>Main Reference Sequence:</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Offset:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="txtOffset">
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <item>
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Chain:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="txtChain">
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>A</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_24">
+            <item>
+             <widget class="QLabel" name="label_28">
+              <property name="text">
+               <string>Minumum Conservation:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="txtMinConserv">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.800000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QComboBox" name="cmbRefSeq_2">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_14">
+          <item>
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>Main Reference Sequence:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cmbRefSeq_2">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>226</width>
-         <height>103</height>
+         <x>320</x>
+         <y>20</y>
+         <width>258</width>
+         <height>217</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_7">
+       <layout class="QVBoxLayout" name="verticalLayout_16">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_17">
-            <item>
-             <widget class="QLabel" name="label_18">
-              <property name="text">
-               <string>Offset:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="txtOffset">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>0</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_18">
-            <item>
-             <widget class="QLabel" name="label_19">
-              <property name="text">
-               <string>Chain:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="txtChain">
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>A</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
+         <widget class="QLabel" name="label_44">
+          <property name="text">
+           <string>Secundary Reference Sequences:</string>
+          </property>
+         </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_24">
-          <item>
-           <widget class="QLabel" name="label_28">
-            <property name="text">
-             <string>Minumum Conservation:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="txtMinConserv">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="maximum">
-             <double>1.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.010000000000000</double>
-            </property>
-            <property name="value">
-             <double>0.800000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QListWidget" name="lstRefSeqs">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::MultiSelection</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -926,24 +961,11 @@ This will calculate a set of correlation scores for the full alignment, using th
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QLabel" name="label_27">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>300</y>
-        <width>161</width>
-        <height>17</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Output graph file path:</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="cmdCorrelation">
       <property name="geometry">
        <rect>
-        <x>480</x>
-        <y>370</y>
+        <x>90</x>
+        <y>390</y>
         <width>99</width>
         <height>27</height>
        </rect>
@@ -955,30 +977,24 @@ This will calculate a set of correlation scores for the full alignment, using th
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>330</y>
-        <width>527</width>
-        <height>31</height>
+        <x>291</x>
+        <y>150</y>
+        <width>321</width>
+        <height>311</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_23">
+      <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QLineEdit" name="txtGraphPath">
-         <property name="minimumSize">
-          <size>
-           <width>350</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="cmdGraphPath">
+        <widget class="QLabel" name="label_31">
          <property name="text">
-          <string>Choose</string>
+          <string>Secundary Reference Sequences:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="lstRefSeqs_2">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
          </property>
         </widget>
        </item>
@@ -988,99 +1004,127 @@ This will calculate a set of correlation scores for the full alignment, using th
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>110</y>
-        <width>186</width>
-        <height>138</height>
+        <y>150</y>
+        <width>187</width>
+        <height>198</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_8">
+      <layout class="QVBoxLayout" name="verticalLayout_17">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <layout class="QVBoxLayout" name="verticalLayout_8">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_20">
+          <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
-            <widget class="QLabel" name="label_24">
-             <property name="text">
-              <string>Minimum Score:</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_20">
+             <item>
+              <widget class="QLabel" name="label_24">
+               <property name="text">
+                <string>Minimum Score:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="txtMinScore">
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="value">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QSpinBox" name="txtMinScore">
-             <property name="maximumSize">
-              <size>
-               <width>60</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="value">
-              <number>10</number>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_21">
+             <item>
+              <widget class="QLabel" name="label_25">
+               <property name="text">
+                <string>Minss Fraction:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="txtMinssFraction">
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.200000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_22">
+             <item>
+              <widget class="QLabel" name="label_26">
+               <property name="text">
+                <string>Minumum Delta:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="txtMinDeltaFreq">
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.300000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_21">
+          <layout class="QHBoxLayout" name="horizontalLayout_26">
            <item>
-            <widget class="QLabel" name="label_25">
+            <widget class="QLabel" name="label_30">
              <property name="text">
-              <string>Minss Fraction:</string>
+              <string>Offset:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="txtMinssFraction">
+            <widget class="QLineEdit" name="txtOffset_2">
              <property name="maximumSize">
               <size>
                <width>60</width>
                <height>16777215</height>
               </size>
              </property>
-             <property name="minimum">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.200000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_22">
-           <item>
-            <widget class="QLabel" name="label_26">
              <property name="text">
-              <string>Minumum Delta:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="txtMinDeltaFreq">
-             <property name="maximumSize">
-              <size>
-               <width>60</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.300000000000000</double>
+              <string>0</string>
              </property>
             </widget>
            </item>
@@ -1089,43 +1133,7 @@ This will calculate a set of correlation scores for the full alignment, using th
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_26">
-         <item>
-          <widget class="QLabel" name="label_30">
-           <property name="text">
-            <string>Offset:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="txtOffset_2">
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>270</x>
-        <y>110</y>
-        <width>304</width>
-        <height>191</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_10">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_25">
+        <layout class="QVBoxLayout" name="verticalLayout_10">
          <item>
           <widget class="QLabel" name="label_29">
            <property name="text">
@@ -1146,24 +1154,6 @@ This will calculate a set of correlation scores for the full alignment, using th
              <width>150</width>
              <height>16777215</height>
             </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
-         <item>
-          <widget class="QLabel" name="label_31">
-           <property name="text">
-            <string>Secundary Reference Sequences:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QListWidget" name="lstRefSeqs_2">
-           <property name="selectionMode">
-            <enum>QAbstractItemView::MultiSelection</enum>
            </property>
           </widget>
          </item>
@@ -1199,6 +1189,9 @@ This will calculate a set of correlation scores for the full alignment, using th
         <height>391</height>
        </rect>
       </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="page_8">
        <widget class="QGroupBox" name="groupBox_5">
         <property name="geometry">
@@ -1225,7 +1218,7 @@ This will calculate a set of correlation scores for the full alignment, using th
           <string>Show</string>
          </property>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -1260,6 +1253,9 @@ This will calculate a set of correlation scores for the full alignment, using th
             </item>
             <item>
              <widget class="QCheckBox" name="checkResults4">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Conserved Residues</string>
               </property>
@@ -1306,6 +1302,9 @@ This will calculate a set of correlation scores for the full alignment, using th
             </item>
             <item>
              <widget class="QCheckBox" name="checkResults10">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Residues of communities</string>
               </property>
@@ -1315,9 +1314,1149 @@ This will calculate a set of correlation scores for the full alignment, using th
           </item>
          </layout>
         </widget>
+        <widget class="QLabel" name="lblHidden">
+         <property name="geometry">
+          <rect>
+           <x>450</x>
+           <y>10</y>
+           <width>67</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </widget>
       </widget>
-      <widget class="QWidget" name="page_9"/>
+      <widget class="QWidget" name="page_9">
+       <widget class="QLabel" name="label_20">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>301</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;List of sequences after filters&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QListWidget" name="lstProteinsFiltered">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>60</y>
+          <width>161</width>
+          <height>301</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_33">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>40</y>
+          <width>67</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Proteins:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QTextEdit" name="txtSequence">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>190</y>
+          <width>421</width>
+          <height>171</height>
+         </rect>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_34">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>170</y>
+          <width>81</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Sequence:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblRefSeq1">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>50</y>
+          <width>351</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Reference Sequence:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblOccupancy">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>80</y>
+          <width>161</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Occupancy: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinId">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>110</y>
+          <width>191</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minimum Identity: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMaxId">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>140</y>
+          <width>191</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Maximum Identity: </string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_10">
+       <widget class="QLabel" name="label_35">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>231</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Table of frequence conservation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableFreq">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>90</y>
+          <width>601</width>
+          <height>291</height>
+         </rect>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <column>
+         <property name="text">
+          <string>Pos</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>GAP</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ALA</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>CYS</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ASP</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>GLU</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>PHE</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>GLY</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>HIS</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ILE</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>LYS</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>LEU</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>MET</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ASN</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>PRO</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>GLN</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ARG</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>SER</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>THR</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>VAL</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>TRP</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>TYR</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QLabel" name="lblFilter">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>10</y>
+          <width>281</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblRefSeq">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>281</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Reference Sequence: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblOffset">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>40</y>
+          <width>91</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Offset: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblChain">
+        <property name="geometry">
+         <rect>
+          <x>450</x>
+          <y>40</y>
+          <width>91</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Chain: </string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_11">
+       <widget class="QLabel" name="lblRefSeq_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>281</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Reference Sequence: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblChain_2">
+        <property name="geometry">
+         <rect>
+          <x>450</x>
+          <y>40</y>
+          <width>91</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Chain: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblFilter_2">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>10</y>
+          <width>281</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblOffset_2">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>40</y>
+          <width>91</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Offset: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_36">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Table of percentage conservation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableFreqPerc">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>90</y>
+          <width>601</width>
+          <height>291</height>
+         </rect>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <column>
+         <property name="text">
+          <string>Pos</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ALA</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>CYS</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ASP</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>GLU</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>PHE</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>GLY</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>HIS</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ILE</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>LYS</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>LEU</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>MET</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ASN</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>PRO</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>GLN</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>ARG</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>SER</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>THR</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>VAL</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>TRP</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>TYR</string>
+         </property>
+        </column>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_12">
+       <widget class="QLabel" name="label_37">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>151</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Conserved Residues&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableConsRes">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>90</y>
+          <width>601</width>
+          <height>291</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblFilter_8">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>10</y>
+          <width>281</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinCons">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>40</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minimum Conservation: </string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_13">
+       <widget class="QLabel" name="label_38">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>281</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Correlation and Anti-Correlation list&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QTreeWidget" name="treeCorrelation">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>50</y>
+          <width>311</width>
+          <height>311</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Residue 1</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Residue 2</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Score</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QLabel" name="lblFilter_3">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>70</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinLogP">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>110</y>
+          <width>201</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minimum Score: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinss">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>150</y>
+          <width>191</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minss Fraction: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblDeltaFreq">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>190</y>
+          <width>221</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Delta Frequence: </string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_14">
+       <widget class="QLabel" name="label_39">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>151</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;List of Communities&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblFilter_4">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>70</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinLogP_2">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>110</y>
+          <width>201</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minimum Score: </string>
+        </property>
+       </widget>
+       <widget class="QTreeWidget" name="treeCorrelationComm">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>50</y>
+          <width>311</width>
+          <height>311</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Communities</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QLabel" name="lblDeltaFreq_2">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>190</y>
+          <width>221</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Delta Frequence: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinss_2">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>150</y>
+          <width>191</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minss Fraction: </string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_15">
+       <widget class="QLabel" name="label_40">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>241</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Correlation Tables (Percentage)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblFilter_5">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinLogP_3">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>40</y>
+          <width>201</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minimum Score: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinss_3">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>40</y>
+          <width>191</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minss Fraction: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblDeltaFreq_3">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>70</y>
+          <width>221</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Delta Frequence: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblComunidade">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>151</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Comunidade </string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableComm1">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>100</y>
+          <width>621</width>
+          <height>291</height>
+         </rect>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
+       </widget>
+       <widget class="QPushButton" name="cmdNextComm">
+        <property name="geometry">
+         <rect>
+          <x>320</x>
+          <y>70</y>
+          <width>31</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&gt;</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cmdBackComm">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>70</y>
+          <width>31</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_16">
+       <widget class="QLabel" name="label_41">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Correlation Tables (Log P scores)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinss_4">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>40</y>
+          <width>191</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minss Fraction: </string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cmdBackComm_2">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>70</y>
+          <width>31</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblDeltaFreq_4">
+        <property name="geometry">
+         <rect>
+          <x>420</x>
+          <y>70</y>
+          <width>221</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Delta Frequence: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblComunidade_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>151</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Comunidade </string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cmdNextComm_2">
+        <property name="geometry">
+         <rect>
+          <x>320</x>
+          <y>70</y>
+          <width>31</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblMinLogP_4">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>40</y>
+          <width>201</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Minimum Score: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblFilter_6">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableComm2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>100</y>
+          <width>621</width>
+          <height>291</height>
+         </rect>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_17">
+       <widget class="QLabel" name="label_42">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>141</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Adherence matrix&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblFilter_7">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableAdherence">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>621</width>
+          <height>291</height>
+         </rect>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_18">
+       <widget class="QLabel" name="label_43">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>191</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Residues of communities&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableResiduesComm">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>621</width>
+          <height>311</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cmdNextResComm">
+        <property name="geometry">
+         <rect>
+          <x>320</x>
+          <y>50</y>
+          <width>31</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&gt;</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="cmdBackResComm">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>50</y>
+          <width>31</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblComunidade_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>50</y>
+          <width>151</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Comunidade </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblFilter_9">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>10</y>
+          <width>261</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Filter: </string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="cmdNextResult">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>480</y>
+        <width>101</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Next Result</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cmdBackResult">
+      <property name="geometry">
+       <rect>
+        <x>248</x>
+        <y>480</y>
+        <width>101</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Back Result</string>
+      </property>
      </widget>
     </widget>
    </widget>
@@ -1325,7 +2464,7 @@ This will calculate a set of correlation scores for the full alignment, using th
     <property name="geometry">
      <rect>
       <x>417</x>
-      <y>497</y>
+      <y>540</y>
       <width>531</width>
       <height>29</height>
      </rect>
@@ -1434,6 +2573,8 @@ This will calculate a set of correlation scores for the full alignment, using th
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen_XML"/>
+    <addaction name="separator"/>
     <addaction name="actionInput_Alignment"/>
     <addaction name="actionExport_Alignment"/>
     <addaction name="actionFetch_From_PFAM"/>
@@ -1524,6 +2665,11 @@ This will calculate a set of correlation scores for the full alignment, using th
     <string>Close Alignment</string>
    </property>
   </action>
+  <action name="actionOpen_XML">
+   <property name="text">
+    <string>Open XML</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -1537,9 +2683,9 @@ This will calculate a set of correlation scores for the full alignment, using th
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

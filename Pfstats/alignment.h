@@ -34,14 +34,14 @@ private:
     vector<string> consParams;
     vector<vector<int> > consvfreq;//Resetando
     vector<vector<float> > consfreqPerc;//Resetando
-    vector<tuple<string,string,int> > corrGraph;//Testar
-    vector<vector<string> > comunidades;//Testar
-    vector<string> corrRefSeqs;//Testar
-    vector<vector<string> > residuesComm;//Testar
-    vector<vector<string> > residuesCommPs;//Testar
-    vector<vector<vector<float> > > communityX;//Testar
-    vector<vector<float> > communityXAll;//Testar
-    vector<vector<vector<int> > > communityXps;//Testar
+    vector<tuple<string,string,int> > corrGraph;//Resetando
+    vector<vector<string> > comunidades;//Resetando
+    vector<string> corrRefSeqs;//Resetando
+    vector<vector<string> > residuesComm;//Resetando
+    vector<vector<string> > residuesCommPs;//Resetando
+    vector<vector<vector<float> > > communityX;//Resetando
+    vector<vector<float> > communityXAll;//Resetando
+    vector<vector<vector<int> > > communityXps;//Resetando
     vector<string> parameters;
     //function_tag,parameters.
 
@@ -73,6 +73,7 @@ public:
     Alignment();
     Alignment(string path);
     ~Alignment();
+    void clear();
     vector<string> split(string text, char sep);
     string getFilepath();
     string getDir();
@@ -100,17 +101,51 @@ public:
     void printCorrGraph();
     void printCommunity();
     void addFilterSequence(vector<string> align);
+    void addFilterSequence(vector<string> names, vector<string> sequences);
+    void setConsDG(vector<float> dg);
+    void addConsFreqRow(vector<int> consfreq);
+    void addConsFreqPercRow(vector<float> cfreqperc);
+    void setMinssVector(vector<float> minss);
+    void addCorrGraphEdge(string v1, string v2, int e);
+    void addResiduesComm(vector<string> comm);
+    void addResiduesCommPs(vector<string> comm);
+    void addCommXAll(vector<float> comm);
+    void addCommX(vector<vector<float> > comm);
+    void addCommXps(vector<vector<int> > comm);
+    void printConsFreq();
+    void printConsFreqPerc();
+    void printCorrRefSeqs();
+    void printResiduesComm();
+    void printResiduesCommPs();
+    void printFrequencies();
     void loadFullAlignment();
-    void addParameter(string tag, string filter, int refSeq, int offset, char chain, string pdb);//Conservation
+    void addParameter(string tag, string filter, int refSeq, int offset, char chain, float minCons);//Conservation
     void addParameter(string tag, string filter, int repetitions);//Minss
     void addParameter(string tag, string filter, int minlog, float minssfraction, float mindeltafreq); //Correlation
     vector<vector<int> > createBlankIntMatrix(int i1, int j1, int v);
     void createBlankComunityVector(int x, int y, int z, float v);
     void createBlankComunityPsVector(int x, int y, int z, int v);
+    //vector<string> getFilterParameters();
     vector<string> getConservationParameters();
     vector<string> getMinssParameters();
     vector<string> getCorrelationParameters();
     vector<string> getFullAlignment();
+    vector<string> getFullSequences();
+    int getConsFreqSize();
+    int getConsFreqPercSize();
+    int getCorrGraphSize();
+    int getCommListSize();
+    int getNumOfUtilComms();
+    vector<int> getConsFreqRow(int i);
+    vector<float> getConsFreqPercRow(int i);
+    tuple<string,string,int> getCorrGraphTuple(int i);
+    vector<string> getCommunitie(int i);
+    vector<float> getCommXRow(int c, int i);
+    vector<float> getCommAll(int c);
+    vector<int> getCommPsRow(int c, int i);
+    vector<string> getResiduesComm(int c);
+    vector<string> getResiduesCommPs(int c);
+    void updateFullAlignment();
     vector<string> sequences;
     vector<string> sequencenames;
     vector<vector<int> > frequencies;
@@ -191,6 +226,7 @@ public:
     void Cluster2PymolScript(string clusterfilename, string familyID, int seqnumber, int offset);
     void AlignmentWrite(string outputfilename); //[OK]
     vector<string> getSequencesName(); //[OK]
+    string getSequence(string seqname);
 };
 
 #endif // ALIGNMENT_H

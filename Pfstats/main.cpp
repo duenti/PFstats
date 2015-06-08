@@ -9,8 +9,6 @@ int main(int argc, char *argv[])
     MainWindow w;
     QDesktopWidget dw;
 
-    printf("teste");
-
     //int x = dw.width();
     //int y = dw.height();
 

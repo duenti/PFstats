@@ -1190,7 +1190,7 @@ This will calculate a set of correlation scores for the full alignment, using th
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="page_8">
        <widget class="QGroupBox" name="groupBox_5">

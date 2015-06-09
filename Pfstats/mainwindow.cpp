@@ -1430,19 +1430,19 @@ void MainWindow::on_cmdFetch_clicked()
     //Monta URL
     QString url = "http://pfam.xfam.org/family/" + ui->txtAccession->text() + "/alignment/";
 
-    if(ui->radioButton->isChecked()) url += "seed/format?format=pfam&alnType=seed&order=";
-    else url += "full/format?format=pfam&alnType=full&order=";
+    if(ui->radioButton->isChecked()) url += "seed/format?format=pfam&amp;alnType=seed&amp;order=";
+    else url += "full/format?format=pfam&amp;alnType=full&amp;order=";
 
-    if(ui->radioButton_3->isChecked()) url += "t&case=";
-    else url += "a&case=";
+    if(ui->radioButton_3->isChecked()) url += "t&amp;case=";
+    else url += "a&amp;case=";
 
-    if(ui->radioButton_5->isChecked()) url += "l&gaps=";
-    else url += "u&gaps=";
+    if(ui->radioButton_5->isChecked()) url += "l&amp;gaps=";
+    else url += "u&amp;gaps=";
 
-    if(ui->radioButton_7->isChecked()) url += "dashes&download=0";
-    else if(ui->radioButton_8->isChecked()) url += "dots&download=0";
-    else if(ui->radioButton_9->isChecked()) url += "default&download=0";
-    else url += "none&download=0";
+    if(ui->radioButton_7->isChecked()) url += "dashes&amp;download=0";
+    else if(ui->radioButton_8->isChecked()) url += "dots&amp;download=0";
+    else if(ui->radioButton_9->isChecked()) url += "default&amp;download=0";
+    else url += "none&amp;download=0";
 
     //Faz a conexão
     QUrl qurl = url;

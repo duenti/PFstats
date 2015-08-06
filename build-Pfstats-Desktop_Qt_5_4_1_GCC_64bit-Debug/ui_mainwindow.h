@@ -55,6 +55,42 @@ public:
     QAction *actionAbout;
     QAction *actionClose_Alignment;
     QAction *actionOpen_XML;
+    QAction *actionAlignmentPFAM;
+    QAction *actionAlignmentTXT;
+    QAction *actionAlignmentXML;
+    QAction *actionFreqTXT;
+    QAction *actionFreqCSV;
+    QAction *actionFreqXML;
+    QAction *actionFreqHTML;
+    QAction *actionFreqPercTXT;
+    QAction *actionFreqPercCSV;
+    QAction *actionFreqPercXML;
+    QAction *actionFreqPercHTML;
+    QAction *actionResults_Table;
+    QAction *actionConservation_Scatterplot;
+    QAction *actionCommunities_Graph;
+    QAction *actionConserved_Residues_in_Structure;
+    QAction *actionConsResXML;
+    QAction *actionConsResHTML;
+    QAction *actionConsResTXT;
+    QAction *actionCorrListTXT;
+    QAction *actionCorrListCSV;
+    QAction *actionCorrListXML;
+    QAction *actionCommTXT;
+    QAction *actionCommXML;
+    QAction *actionCorrTablePercTXT;
+    QAction *actionCorrTablePercXML;
+    QAction *actionCorrTablePercHTML;
+    QAction *actionCorrTableTXT;
+    QAction *actionCorrTableXML;
+    QAction *actionCorrTableHTML;
+    QAction *actionAdhTXT;
+    QAction *actionAdhCSV;
+    QAction *actionAdhXML;
+    QAction *actionAdhHTML;
+    QAction *actionResCommTXT;
+    QAction *actionResCommXML;
+    QAction *actionResCommHTML;
     QWidget *centralWidget;
     QStackedWidget *stackedWidget;
     QWidget *page;
@@ -102,7 +138,10 @@ public:
     QSpacerItem *horizontalSpacer_4;
     QWidget *page_3;
     QLabel *label_9;
-    QWidget *layoutWidget_2;
+    QPushButton *cmdApplyFilter;
+    QLabel *label_27;
+    QWidget *layoutWidget2;
+    QVBoxLayout *verticalLayout_19;
     QVBoxLayout *verticalLayout_4;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_10;
@@ -119,24 +158,23 @@ public:
     QLabel *label_13;
     QSpacerItem *horizontalSpacer_7;
     QDoubleSpinBox *txtMaxId;
-    QPushButton *cmdApplyFilter;
-    QLabel *label_27;
+    QCheckBox *chkIntermediateFilter;
     QWidget *page_4;
     QLabel *label_14;
     QGroupBox *groupBox_3;
     QPushButton *cmdPDBfromFile;
-    QWidget *layoutWidget2;
+    QWidget *layoutWidget3;
     QHBoxLayout *horizontalLayout_14;
     QLabel *label_15;
     QLineEdit *txtPDBfilepath;
-    QWidget *layoutWidget3;
+    QWidget *layoutWidget4;
     QHBoxLayout *horizontalLayout_15;
     QLabel *label_16;
     QLineEdit *txtPDBName;
     QPushButton *cmdFetchPDB;
     QGroupBox *groupBox_4;
     QPushButton *cmdConservation;
-    QWidget *layoutWidget4;
+    QWidget *layoutWidget5;
     QVBoxLayout *verticalLayout_15;
     QVBoxLayout *verticalLayout_7;
     QVBoxLayout *verticalLayout_5;
@@ -152,14 +190,16 @@ public:
     QVBoxLayout *verticalLayout_14;
     QLabel *label_17;
     QComboBox *cmbRefSeq_2;
-    QWidget *layoutWidget5;
+    QWidget *layoutWidget6;
     QVBoxLayout *verticalLayout_16;
     QLabel *label_44;
     QListWidget *lstRefSeqs;
     QWidget *page_5;
     QLabel *label_21;
     QCustomPlot *graficMinss;
-    QWidget *layoutWidget6;
+    QWidget *layoutWidget7;
+    QVBoxLayout *verticalLayout_18;
+    QLabel *lblNseq;
     QHBoxLayout *horizontalLayout_19;
     QLabel *label_22;
     QSpinBox *txtNoAlignments;
@@ -168,11 +208,11 @@ public:
     QWidget *page_6;
     QLabel *label_23;
     QPushButton *cmdCorrelation;
-    QWidget *layoutWidget7;
+    QWidget *layoutWidget8;
     QVBoxLayout *verticalLayout_9;
     QLabel *label_31;
     QListWidget *lstRefSeqs_2;
-    QWidget *layoutWidget8;
+    QWidget *layoutWidget9;
     QVBoxLayout *verticalLayout_17;
     QVBoxLayout *verticalLayout_8;
     QVBoxLayout *verticalLayout_6;
@@ -197,7 +237,7 @@ public:
     QWidget *page_8;
     QGroupBox *groupBox_5;
     QPushButton *cmdShow;
-    QWidget *layoutWidget9;
+    QWidget *layoutWidget10;
     QHBoxLayout *horizontalLayout_27;
     QVBoxLayout *verticalLayout_12;
     QCheckBox *checkResults1;
@@ -288,28 +328,45 @@ public:
     QLabel *lblFilter_9;
     QPushButton *cmdNextResult;
     QPushButton *cmdBackResult;
-    QWidget *layoutWidget10;
+    QWidget *layoutWidget11;
     QHBoxLayout *horizontalLayout_9;
     QPushButton *cmdMain;
     QPushButton *cmdBack;
     QPushButton *cmdAdvance;
     QPushButton *cmdSaveResults;
     QPushButton *cmdShowResults;
-    QWidget *layoutWidget11;
+    QWidget *layoutWidget12;
     QVBoxLayout *verticalLayout_11;
+    QHBoxLayout *horizontalLayout_23;
+    QLabel *label_45;
+    QPushButton *cmdRemoveAlignment;
     QListWidget *listWidget;
+    QHBoxLayout *horizontalLayout_16;
+    QLabel *label_46;
+    QPushButton *cmdRemoveFilter;
     QListWidget *listWidget2;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuMethod;
     QMenu *menuHelp;
     QMenu *menuShow;
+    QMenu *menuExport;
+    QMenu *menuAlignment;
+    QMenu *menuFrequence_Conservation;
+    QMenu *menuFrequence_Conservation_2;
+    QMenu *menuConserved_Residues;
+    QMenu *menuCorrelation_List;
+    QMenu *menuCommunities;
+    QMenu *menuCorrelation_Tables;
+    QMenu *menuCorrelation_Tables_Log_P;
+    QMenu *menuAdherence_Matrix;
+    QMenu *menuResidues_Of_Communities;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
     QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup_3;
-    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_4;
+    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -338,6 +395,78 @@ public:
         actionClose_Alignment->setObjectName(QStringLiteral("actionClose_Alignment"));
         actionOpen_XML = new QAction(MainWindow);
         actionOpen_XML->setObjectName(QStringLiteral("actionOpen_XML"));
+        actionAlignmentPFAM = new QAction(MainWindow);
+        actionAlignmentPFAM->setObjectName(QStringLiteral("actionAlignmentPFAM"));
+        actionAlignmentTXT = new QAction(MainWindow);
+        actionAlignmentTXT->setObjectName(QStringLiteral("actionAlignmentTXT"));
+        actionAlignmentXML = new QAction(MainWindow);
+        actionAlignmentXML->setObjectName(QStringLiteral("actionAlignmentXML"));
+        actionFreqTXT = new QAction(MainWindow);
+        actionFreqTXT->setObjectName(QStringLiteral("actionFreqTXT"));
+        actionFreqCSV = new QAction(MainWindow);
+        actionFreqCSV->setObjectName(QStringLiteral("actionFreqCSV"));
+        actionFreqXML = new QAction(MainWindow);
+        actionFreqXML->setObjectName(QStringLiteral("actionFreqXML"));
+        actionFreqHTML = new QAction(MainWindow);
+        actionFreqHTML->setObjectName(QStringLiteral("actionFreqHTML"));
+        actionFreqPercTXT = new QAction(MainWindow);
+        actionFreqPercTXT->setObjectName(QStringLiteral("actionFreqPercTXT"));
+        actionFreqPercCSV = new QAction(MainWindow);
+        actionFreqPercCSV->setObjectName(QStringLiteral("actionFreqPercCSV"));
+        actionFreqPercXML = new QAction(MainWindow);
+        actionFreqPercXML->setObjectName(QStringLiteral("actionFreqPercXML"));
+        actionFreqPercHTML = new QAction(MainWindow);
+        actionFreqPercHTML->setObjectName(QStringLiteral("actionFreqPercHTML"));
+        actionResults_Table = new QAction(MainWindow);
+        actionResults_Table->setObjectName(QStringLiteral("actionResults_Table"));
+        actionConservation_Scatterplot = new QAction(MainWindow);
+        actionConservation_Scatterplot->setObjectName(QStringLiteral("actionConservation_Scatterplot"));
+        actionCommunities_Graph = new QAction(MainWindow);
+        actionCommunities_Graph->setObjectName(QStringLiteral("actionCommunities_Graph"));
+        actionConserved_Residues_in_Structure = new QAction(MainWindow);
+        actionConserved_Residues_in_Structure->setObjectName(QStringLiteral("actionConserved_Residues_in_Structure"));
+        actionConsResXML = new QAction(MainWindow);
+        actionConsResXML->setObjectName(QStringLiteral("actionConsResXML"));
+        actionConsResHTML = new QAction(MainWindow);
+        actionConsResHTML->setObjectName(QStringLiteral("actionConsResHTML"));
+        actionConsResTXT = new QAction(MainWindow);
+        actionConsResTXT->setObjectName(QStringLiteral("actionConsResTXT"));
+        actionCorrListTXT = new QAction(MainWindow);
+        actionCorrListTXT->setObjectName(QStringLiteral("actionCorrListTXT"));
+        actionCorrListCSV = new QAction(MainWindow);
+        actionCorrListCSV->setObjectName(QStringLiteral("actionCorrListCSV"));
+        actionCorrListXML = new QAction(MainWindow);
+        actionCorrListXML->setObjectName(QStringLiteral("actionCorrListXML"));
+        actionCommTXT = new QAction(MainWindow);
+        actionCommTXT->setObjectName(QStringLiteral("actionCommTXT"));
+        actionCommXML = new QAction(MainWindow);
+        actionCommXML->setObjectName(QStringLiteral("actionCommXML"));
+        actionCorrTablePercTXT = new QAction(MainWindow);
+        actionCorrTablePercTXT->setObjectName(QStringLiteral("actionCorrTablePercTXT"));
+        actionCorrTablePercXML = new QAction(MainWindow);
+        actionCorrTablePercXML->setObjectName(QStringLiteral("actionCorrTablePercXML"));
+        actionCorrTablePercHTML = new QAction(MainWindow);
+        actionCorrTablePercHTML->setObjectName(QStringLiteral("actionCorrTablePercHTML"));
+        actionCorrTableTXT = new QAction(MainWindow);
+        actionCorrTableTXT->setObjectName(QStringLiteral("actionCorrTableTXT"));
+        actionCorrTableXML = new QAction(MainWindow);
+        actionCorrTableXML->setObjectName(QStringLiteral("actionCorrTableXML"));
+        actionCorrTableHTML = new QAction(MainWindow);
+        actionCorrTableHTML->setObjectName(QStringLiteral("actionCorrTableHTML"));
+        actionAdhTXT = new QAction(MainWindow);
+        actionAdhTXT->setObjectName(QStringLiteral("actionAdhTXT"));
+        actionAdhCSV = new QAction(MainWindow);
+        actionAdhCSV->setObjectName(QStringLiteral("actionAdhCSV"));
+        actionAdhXML = new QAction(MainWindow);
+        actionAdhXML->setObjectName(QStringLiteral("actionAdhXML"));
+        actionAdhHTML = new QAction(MainWindow);
+        actionAdhHTML->setObjectName(QStringLiteral("actionAdhHTML"));
+        actionResCommTXT = new QAction(MainWindow);
+        actionResCommTXT->setObjectName(QStringLiteral("actionResCommTXT"));
+        actionResCommXML = new QAction(MainWindow);
+        actionResCommXML->setObjectName(QStringLiteral("actionResCommXML"));
+        actionResCommHTML = new QAction(MainWindow);
+        actionResCommHTML->setObjectName(QStringLiteral("actionResCommHTML"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         stackedWidget = new QStackedWidget(centralWidget);
@@ -576,23 +705,32 @@ public:
         label_9->setObjectName(QStringLiteral("label_9"));
         label_9->setGeometry(QRect(50, -10, 491, 131));
         label_9->setWordWrap(true);
-        layoutWidget_2 = new QWidget(page_3);
-        layoutWidget_2->setObjectName(QStringLiteral("layoutWidget_2"));
-        layoutWidget_2->setGeometry(QRect(130, 130, 272, 136));
-        verticalLayout_4 = new QVBoxLayout(layoutWidget_2);
+        cmdApplyFilter = new QPushButton(page_3);
+        cmdApplyFilter->setObjectName(QStringLiteral("cmdApplyFilter"));
+        cmdApplyFilter->setGeometry(QRect(220, 310, 80, 23));
+        label_27 = new QLabel(page_3);
+        label_27->setObjectName(QStringLiteral("label_27"));
+        label_27->setGeometry(QRect(410, 140, 121, 17));
+        layoutWidget2 = new QWidget(page_3);
+        layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
+        layoutWidget2->setGeometry(QRect(130, 130, 262, 166));
+        verticalLayout_19 = new QVBoxLayout(layoutWidget2);
+        verticalLayout_19->setSpacing(6);
+        verticalLayout_19->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_19->setObjectName(QStringLiteral("verticalLayout_19"));
+        verticalLayout_19->setContentsMargins(0, 0, 0, 0);
+        verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(6);
-        verticalLayout_4->setContentsMargins(11, 11, 11, 11);
         verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
-        verticalLayout_4->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setSpacing(6);
         horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
-        label_10 = new QLabel(layoutWidget_2);
+        label_10 = new QLabel(layoutWidget2);
         label_10->setObjectName(QStringLiteral("label_10"));
 
         horizontalLayout_10->addWidget(label_10);
 
-        cmbRefSeq = new QComboBox(layoutWidget_2);
+        cmbRefSeq = new QComboBox(layoutWidget2);
         cmbRefSeq->setObjectName(QStringLiteral("cmbRefSeq"));
 
         horizontalLayout_10->addWidget(cmbRefSeq);
@@ -603,7 +741,7 @@ public:
         horizontalLayout_11 = new QHBoxLayout();
         horizontalLayout_11->setSpacing(6);
         horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
-        label_11 = new QLabel(layoutWidget_2);
+        label_11 = new QLabel(layoutWidget2);
         label_11->setObjectName(QStringLiteral("label_11"));
 
         horizontalLayout_11->addWidget(label_11);
@@ -612,7 +750,7 @@ public:
 
         horizontalLayout_11->addItem(horizontalSpacer_5);
 
-        txtMinCover = new QDoubleSpinBox(layoutWidget_2);
+        txtMinCover = new QDoubleSpinBox(layoutWidget2);
         txtMinCover->setObjectName(QStringLiteral("txtMinCover"));
         txtMinCover->setMinimum(0.01);
         txtMinCover->setSingleStep(0.01);
@@ -626,7 +764,7 @@ public:
         horizontalLayout_12 = new QHBoxLayout();
         horizontalLayout_12->setSpacing(6);
         horizontalLayout_12->setObjectName(QStringLiteral("horizontalLayout_12"));
-        label_12 = new QLabel(layoutWidget_2);
+        label_12 = new QLabel(layoutWidget2);
         label_12->setObjectName(QStringLiteral("label_12"));
 
         horizontalLayout_12->addWidget(label_12);
@@ -635,7 +773,7 @@ public:
 
         horizontalLayout_12->addItem(horizontalSpacer_6);
 
-        txtMinId = new QDoubleSpinBox(layoutWidget_2);
+        txtMinId = new QDoubleSpinBox(layoutWidget2);
         txtMinId->setObjectName(QStringLiteral("txtMinId"));
         txtMinId->setMinimum(0.01);
         txtMinId->setSingleStep(0.01);
@@ -649,7 +787,7 @@ public:
         horizontalLayout_13 = new QHBoxLayout();
         horizontalLayout_13->setSpacing(6);
         horizontalLayout_13->setObjectName(QStringLiteral("horizontalLayout_13"));
-        label_13 = new QLabel(layoutWidget_2);
+        label_13 = new QLabel(layoutWidget2);
         label_13->setObjectName(QStringLiteral("label_13"));
 
         horizontalLayout_13->addWidget(label_13);
@@ -658,7 +796,7 @@ public:
 
         horizontalLayout_13->addItem(horizontalSpacer_7);
 
-        txtMaxId = new QDoubleSpinBox(layoutWidget_2);
+        txtMaxId = new QDoubleSpinBox(layoutWidget2);
         txtMaxId->setObjectName(QStringLiteral("txtMaxId"));
         txtMaxId->setMinimum(0.01);
         txtMaxId->setSingleStep(0.01);
@@ -669,12 +807,15 @@ public:
 
         verticalLayout_4->addLayout(horizontalLayout_13);
 
-        cmdApplyFilter = new QPushButton(page_3);
-        cmdApplyFilter->setObjectName(QStringLiteral("cmdApplyFilter"));
-        cmdApplyFilter->setGeometry(QRect(220, 270, 80, 23));
-        label_27 = new QLabel(page_3);
-        label_27->setObjectName(QStringLiteral("label_27"));
-        label_27->setGeometry(QRect(410, 140, 121, 17));
+
+        verticalLayout_19->addLayout(verticalLayout_4);
+
+        chkIntermediateFilter = new QCheckBox(layoutWidget2);
+        chkIntermediateFilter->setObjectName(QStringLiteral("chkIntermediateFilter"));
+        chkIntermediateFilter->setChecked(false);
+
+        verticalLayout_19->addWidget(chkIntermediateFilter);
+
         stackedWidget->addWidget(page_3);
         page_4 = new QWidget();
         page_4->setObjectName(QStringLiteral("page_4"));
@@ -688,45 +829,45 @@ public:
         cmdPDBfromFile = new QPushButton(groupBox_3);
         cmdPDBfromFile->setObjectName(QStringLiteral("cmdPDBfromFile"));
         cmdPDBfromFile->setGeometry(QRect(350, 30, 131, 23));
-        layoutWidget2 = new QWidget(groupBox_3);
-        layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
-        layoutWidget2->setGeometry(QRect(30, 70, 471, 29));
-        horizontalLayout_14 = new QHBoxLayout(layoutWidget2);
+        layoutWidget3 = new QWidget(groupBox_3);
+        layoutWidget3->setObjectName(QStringLiteral("layoutWidget3"));
+        layoutWidget3->setGeometry(QRect(30, 70, 471, 29));
+        horizontalLayout_14 = new QHBoxLayout(layoutWidget3);
         horizontalLayout_14->setSpacing(6);
         horizontalLayout_14->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_14->setObjectName(QStringLiteral("horizontalLayout_14"));
         horizontalLayout_14->setContentsMargins(0, 0, 0, 0);
-        label_15 = new QLabel(layoutWidget2);
+        label_15 = new QLabel(layoutWidget3);
         label_15->setObjectName(QStringLiteral("label_15"));
 
         horizontalLayout_14->addWidget(label_15);
 
-        txtPDBfilepath = new QLineEdit(layoutWidget2);
+        txtPDBfilepath = new QLineEdit(layoutWidget3);
         txtPDBfilepath->setObjectName(QStringLiteral("txtPDBfilepath"));
         txtPDBfilepath->setMinimumSize(QSize(400, 0));
         txtPDBfilepath->setReadOnly(true);
 
         horizontalLayout_14->addWidget(txtPDBfilepath);
 
-        layoutWidget3 = new QWidget(groupBox_3);
-        layoutWidget3->setObjectName(QStringLiteral("layoutWidget3"));
-        layoutWidget3->setGeometry(QRect(30, 30, 302, 29));
-        horizontalLayout_15 = new QHBoxLayout(layoutWidget3);
+        layoutWidget4 = new QWidget(groupBox_3);
+        layoutWidget4->setObjectName(QStringLiteral("layoutWidget4"));
+        layoutWidget4->setGeometry(QRect(30, 30, 302, 29));
+        horizontalLayout_15 = new QHBoxLayout(layoutWidget4);
         horizontalLayout_15->setSpacing(6);
         horizontalLayout_15->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
         horizontalLayout_15->setContentsMargins(0, 0, 0, 0);
-        label_16 = new QLabel(layoutWidget3);
+        label_16 = new QLabel(layoutWidget4);
         label_16->setObjectName(QStringLiteral("label_16"));
 
         horizontalLayout_15->addWidget(label_16);
 
-        txtPDBName = new QLineEdit(layoutWidget3);
+        txtPDBName = new QLineEdit(layoutWidget4);
         txtPDBName->setObjectName(QStringLiteral("txtPDBName"));
 
         horizontalLayout_15->addWidget(txtPDBName);
 
-        cmdFetchPDB = new QPushButton(layoutWidget3);
+        cmdFetchPDB = new QPushButton(layoutWidget4);
         cmdFetchPDB->setObjectName(QStringLiteral("cmdFetchPDB"));
 
         horizontalLayout_15->addWidget(cmdFetchPDB);
@@ -740,10 +881,10 @@ public:
         cmdConservation = new QPushButton(groupBox_4);
         cmdConservation->setObjectName(QStringLiteral("cmdConservation"));
         cmdConservation->setGeometry(QRect(80, 210, 80, 23));
-        layoutWidget4 = new QWidget(groupBox_4);
-        layoutWidget4->setObjectName(QStringLiteral("layoutWidget4"));
-        layoutWidget4->setGeometry(QRect(10, 30, 251, 163));
-        verticalLayout_15 = new QVBoxLayout(layoutWidget4);
+        layoutWidget5 = new QWidget(groupBox_4);
+        layoutWidget5->setObjectName(QStringLiteral("layoutWidget5"));
+        layoutWidget5->setGeometry(QRect(10, 30, 251, 163));
+        verticalLayout_15 = new QVBoxLayout(layoutWidget5);
         verticalLayout_15->setSpacing(6);
         verticalLayout_15->setContentsMargins(11, 11, 11, 11);
         verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
@@ -757,12 +898,12 @@ public:
         horizontalLayout_17 = new QHBoxLayout();
         horizontalLayout_17->setSpacing(6);
         horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
-        label_18 = new QLabel(layoutWidget4);
+        label_18 = new QLabel(layoutWidget5);
         label_18->setObjectName(QStringLiteral("label_18"));
 
         horizontalLayout_17->addWidget(label_18);
 
-        txtOffset = new QLineEdit(layoutWidget4);
+        txtOffset = new QLineEdit(layoutWidget5);
         txtOffset->setObjectName(QStringLiteral("txtOffset"));
         txtOffset->setMaximumSize(QSize(60, 16777215));
 
@@ -774,12 +915,12 @@ public:
         horizontalLayout_18 = new QHBoxLayout();
         horizontalLayout_18->setSpacing(6);
         horizontalLayout_18->setObjectName(QStringLiteral("horizontalLayout_18"));
-        label_19 = new QLabel(layoutWidget4);
+        label_19 = new QLabel(layoutWidget5);
         label_19->setObjectName(QStringLiteral("label_19"));
 
         horizontalLayout_18->addWidget(label_19);
 
-        txtChain = new QLineEdit(layoutWidget4);
+        txtChain = new QLineEdit(layoutWidget5);
         txtChain->setObjectName(QStringLiteral("txtChain"));
         txtChain->setMaximumSize(QSize(60, 16777215));
 
@@ -794,12 +935,12 @@ public:
         horizontalLayout_24 = new QHBoxLayout();
         horizontalLayout_24->setSpacing(6);
         horizontalLayout_24->setObjectName(QStringLiteral("horizontalLayout_24"));
-        label_28 = new QLabel(layoutWidget4);
+        label_28 = new QLabel(layoutWidget5);
         label_28->setObjectName(QStringLiteral("label_28"));
 
         horizontalLayout_24->addWidget(label_28);
 
-        txtMinConserv = new QDoubleSpinBox(layoutWidget4);
+        txtMinConserv = new QDoubleSpinBox(layoutWidget5);
         txtMinConserv->setObjectName(QStringLiteral("txtMinConserv"));
         txtMinConserv->setMaximumSize(QSize(60, 16777215));
         txtMinConserv->setMaximum(1);
@@ -817,12 +958,12 @@ public:
         verticalLayout_14 = new QVBoxLayout();
         verticalLayout_14->setSpacing(6);
         verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));
-        label_17 = new QLabel(layoutWidget4);
+        label_17 = new QLabel(layoutWidget5);
         label_17->setObjectName(QStringLiteral("label_17"));
 
         verticalLayout_14->addWidget(label_17);
 
-        cmbRefSeq_2 = new QComboBox(layoutWidget4);
+        cmbRefSeq_2 = new QComboBox(layoutWidget5);
         cmbRefSeq_2->setObjectName(QStringLiteral("cmbRefSeq_2"));
         cmbRefSeq_2->setMinimumSize(QSize(150, 0));
 
@@ -831,20 +972,20 @@ public:
 
         verticalLayout_15->addLayout(verticalLayout_14);
 
-        layoutWidget5 = new QWidget(groupBox_4);
-        layoutWidget5->setObjectName(QStringLiteral("layoutWidget5"));
-        layoutWidget5->setGeometry(QRect(320, 20, 258, 217));
-        verticalLayout_16 = new QVBoxLayout(layoutWidget5);
+        layoutWidget6 = new QWidget(groupBox_4);
+        layoutWidget6->setObjectName(QStringLiteral("layoutWidget6"));
+        layoutWidget6->setGeometry(QRect(320, 20, 258, 217));
+        verticalLayout_16 = new QVBoxLayout(layoutWidget6);
         verticalLayout_16->setSpacing(6);
         verticalLayout_16->setContentsMargins(11, 11, 11, 11);
         verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
         verticalLayout_16->setContentsMargins(0, 0, 0, 0);
-        label_44 = new QLabel(layoutWidget5);
+        label_44 = new QLabel(layoutWidget6);
         label_44->setObjectName(QStringLiteral("label_44"));
 
         verticalLayout_16->addWidget(label_44);
 
-        lstRefSeqs = new QListWidget(layoutWidget5);
+        lstRefSeqs = new QListWidget(layoutWidget6);
         lstRefSeqs->setObjectName(QStringLiteral("lstRefSeqs"));
         lstRefSeqs->setSelectionMode(QAbstractItemView::MultiSelection);
 
@@ -859,21 +1000,29 @@ public:
         label_21->setWordWrap(true);
         graficMinss = new QCustomPlot(page_5);
         graficMinss->setObjectName(QStringLiteral("graficMinss"));
-        graficMinss->setGeometry(QRect(40, 180, 541, 291));
-        layoutWidget6 = new QWidget(page_5);
-        layoutWidget6->setObjectName(QStringLiteral("layoutWidget6"));
-        layoutWidget6->setGeometry(QRect(50, 140, 390, 29));
-        horizontalLayout_19 = new QHBoxLayout(layoutWidget6);
+        graficMinss->setGeometry(QRect(40, 190, 541, 291));
+        layoutWidget7 = new QWidget(page_5);
+        layoutWidget7->setObjectName(QStringLiteral("layoutWidget7"));
+        layoutWidget7->setGeometry(QRect(50, 120, 406, 54));
+        verticalLayout_18 = new QVBoxLayout(layoutWidget7);
+        verticalLayout_18->setSpacing(6);
+        verticalLayout_18->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_18->setObjectName(QStringLiteral("verticalLayout_18"));
+        verticalLayout_18->setContentsMargins(0, 0, 0, 0);
+        lblNseq = new QLabel(layoutWidget7);
+        lblNseq->setObjectName(QStringLiteral("lblNseq"));
+
+        verticalLayout_18->addWidget(lblNseq);
+
+        horizontalLayout_19 = new QHBoxLayout();
         horizontalLayout_19->setSpacing(6);
-        horizontalLayout_19->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_19->setObjectName(QStringLiteral("horizontalLayout_19"));
-        horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
-        label_22 = new QLabel(layoutWidget6);
+        label_22 = new QLabel(layoutWidget7);
         label_22->setObjectName(QStringLiteral("label_22"));
 
         horizontalLayout_19->addWidget(label_22);
 
-        txtNoAlignments = new QSpinBox(layoutWidget6);
+        txtNoAlignments = new QSpinBox(layoutWidget7);
         txtNoAlignments->setObjectName(QStringLiteral("txtNoAlignments"));
         txtNoAlignments->setMinimumSize(QSize(60, 0));
         txtNoAlignments->setMaximum(10000);
@@ -885,10 +1034,13 @@ public:
 
         horizontalLayout_19->addItem(horizontalSpacer_8);
 
-        cmdMinss = new QPushButton(layoutWidget6);
+        cmdMinss = new QPushButton(layoutWidget7);
         cmdMinss->setObjectName(QStringLiteral("cmdMinss"));
 
         horizontalLayout_19->addWidget(cmdMinss);
+
+
+        verticalLayout_18->addLayout(horizontalLayout_19);
 
         stackedWidget->addWidget(page_5);
         page_6 = new QWidget();
@@ -900,29 +1052,29 @@ public:
         cmdCorrelation = new QPushButton(page_6);
         cmdCorrelation->setObjectName(QStringLiteral("cmdCorrelation"));
         cmdCorrelation->setGeometry(QRect(90, 390, 99, 27));
-        layoutWidget7 = new QWidget(page_6);
-        layoutWidget7->setObjectName(QStringLiteral("layoutWidget7"));
-        layoutWidget7->setGeometry(QRect(291, 150, 321, 311));
-        verticalLayout_9 = new QVBoxLayout(layoutWidget7);
+        layoutWidget8 = new QWidget(page_6);
+        layoutWidget8->setObjectName(QStringLiteral("layoutWidget8"));
+        layoutWidget8->setGeometry(QRect(291, 150, 321, 311));
+        verticalLayout_9 = new QVBoxLayout(layoutWidget8);
         verticalLayout_9->setSpacing(6);
         verticalLayout_9->setContentsMargins(11, 11, 11, 11);
         verticalLayout_9->setObjectName(QStringLiteral("verticalLayout_9"));
         verticalLayout_9->setContentsMargins(0, 0, 0, 0);
-        label_31 = new QLabel(layoutWidget7);
+        label_31 = new QLabel(layoutWidget8);
         label_31->setObjectName(QStringLiteral("label_31"));
 
         verticalLayout_9->addWidget(label_31);
 
-        lstRefSeqs_2 = new QListWidget(layoutWidget7);
+        lstRefSeqs_2 = new QListWidget(layoutWidget8);
         lstRefSeqs_2->setObjectName(QStringLiteral("lstRefSeqs_2"));
         lstRefSeqs_2->setSelectionMode(QAbstractItemView::MultiSelection);
 
         verticalLayout_9->addWidget(lstRefSeqs_2);
 
-        layoutWidget8 = new QWidget(page_6);
-        layoutWidget8->setObjectName(QStringLiteral("layoutWidget8"));
-        layoutWidget8->setGeometry(QRect(50, 150, 187, 198));
-        verticalLayout_17 = new QVBoxLayout(layoutWidget8);
+        layoutWidget9 = new QWidget(page_6);
+        layoutWidget9->setObjectName(QStringLiteral("layoutWidget9"));
+        layoutWidget9->setGeometry(QRect(50, 150, 187, 198));
+        verticalLayout_17 = new QVBoxLayout(layoutWidget9);
         verticalLayout_17->setSpacing(6);
         verticalLayout_17->setContentsMargins(11, 11, 11, 11);
         verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
@@ -936,12 +1088,12 @@ public:
         horizontalLayout_20 = new QHBoxLayout();
         horizontalLayout_20->setSpacing(6);
         horizontalLayout_20->setObjectName(QStringLiteral("horizontalLayout_20"));
-        label_24 = new QLabel(layoutWidget8);
+        label_24 = new QLabel(layoutWidget9);
         label_24->setObjectName(QStringLiteral("label_24"));
 
         horizontalLayout_20->addWidget(label_24);
 
-        txtMinScore = new QSpinBox(layoutWidget8);
+        txtMinScore = new QSpinBox(layoutWidget9);
         txtMinScore->setObjectName(QStringLiteral("txtMinScore"));
         txtMinScore->setMaximumSize(QSize(60, 16777215));
         txtMinScore->setValue(10);
@@ -954,12 +1106,12 @@ public:
         horizontalLayout_21 = new QHBoxLayout();
         horizontalLayout_21->setSpacing(6);
         horizontalLayout_21->setObjectName(QStringLiteral("horizontalLayout_21"));
-        label_25 = new QLabel(layoutWidget8);
+        label_25 = new QLabel(layoutWidget9);
         label_25->setObjectName(QStringLiteral("label_25"));
 
         horizontalLayout_21->addWidget(label_25);
 
-        txtMinssFraction = new QDoubleSpinBox(layoutWidget8);
+        txtMinssFraction = new QDoubleSpinBox(layoutWidget9);
         txtMinssFraction->setObjectName(QStringLiteral("txtMinssFraction"));
         txtMinssFraction->setMaximumSize(QSize(60, 16777215));
         txtMinssFraction->setMinimum(0.01);
@@ -975,12 +1127,12 @@ public:
         horizontalLayout_22 = new QHBoxLayout();
         horizontalLayout_22->setSpacing(6);
         horizontalLayout_22->setObjectName(QStringLiteral("horizontalLayout_22"));
-        label_26 = new QLabel(layoutWidget8);
+        label_26 = new QLabel(layoutWidget9);
         label_26->setObjectName(QStringLiteral("label_26"));
 
         horizontalLayout_22->addWidget(label_26);
 
-        txtMinDeltaFreq = new QDoubleSpinBox(layoutWidget8);
+        txtMinDeltaFreq = new QDoubleSpinBox(layoutWidget9);
         txtMinDeltaFreq->setObjectName(QStringLiteral("txtMinDeltaFreq"));
         txtMinDeltaFreq->setMaximumSize(QSize(60, 16777215));
         txtMinDeltaFreq->setMinimum(0.01);
@@ -999,12 +1151,12 @@ public:
         horizontalLayout_26 = new QHBoxLayout();
         horizontalLayout_26->setSpacing(6);
         horizontalLayout_26->setObjectName(QStringLiteral("horizontalLayout_26"));
-        label_30 = new QLabel(layoutWidget8);
+        label_30 = new QLabel(layoutWidget9);
         label_30->setObjectName(QStringLiteral("label_30"));
 
         horizontalLayout_26->addWidget(label_30);
 
-        txtOffset_2 = new QLineEdit(layoutWidget8);
+        txtOffset_2 = new QLineEdit(layoutWidget9);
         txtOffset_2->setObjectName(QStringLiteral("txtOffset_2"));
         txtOffset_2->setMaximumSize(QSize(60, 16777215));
 
@@ -1019,12 +1171,12 @@ public:
         verticalLayout_10 = new QVBoxLayout();
         verticalLayout_10->setSpacing(6);
         verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
-        label_29 = new QLabel(layoutWidget8);
+        label_29 = new QLabel(layoutWidget9);
         label_29->setObjectName(QStringLiteral("label_29"));
 
         verticalLayout_10->addWidget(label_29);
 
-        cmbRefSeq_3 = new QComboBox(layoutWidget8);
+        cmbRefSeq_3 = new QComboBox(layoutWidget9);
         cmbRefSeq_3->setObjectName(QStringLiteral("cmbRefSeq_3"));
         cmbRefSeq_3->setMinimumSize(QSize(150, 0));
         cmbRefSeq_3->setMaximumSize(QSize(150, 16777215));
@@ -1052,10 +1204,10 @@ public:
         cmdShow = new QPushButton(groupBox_5);
         cmdShow->setObjectName(QStringLiteral("cmdShow"));
         cmdShow->setGeometry(QRect(480, 310, 99, 27));
-        layoutWidget9 = new QWidget(groupBox_5);
-        layoutWidget9->setObjectName(QStringLiteral("layoutWidget9"));
-        layoutWidget9->setGeometry(QRect(20, 50, 561, 181));
-        horizontalLayout_27 = new QHBoxLayout(layoutWidget9);
+        layoutWidget10 = new QWidget(groupBox_5);
+        layoutWidget10->setObjectName(QStringLiteral("layoutWidget10"));
+        layoutWidget10->setGeometry(QRect(20, 50, 561, 181));
+        horizontalLayout_27 = new QHBoxLayout(layoutWidget10);
         horizontalLayout_27->setSpacing(6);
         horizontalLayout_27->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_27->setObjectName(QStringLiteral("horizontalLayout_27"));
@@ -1063,28 +1215,28 @@ public:
         verticalLayout_12 = new QVBoxLayout();
         verticalLayout_12->setSpacing(6);
         verticalLayout_12->setObjectName(QStringLiteral("verticalLayout_12"));
-        checkResults1 = new QCheckBox(layoutWidget9);
+        checkResults1 = new QCheckBox(layoutWidget10);
         checkResults1->setObjectName(QStringLiteral("checkResults1"));
 
         verticalLayout_12->addWidget(checkResults1);
 
-        checkResults2 = new QCheckBox(layoutWidget9);
+        checkResults2 = new QCheckBox(layoutWidget10);
         checkResults2->setObjectName(QStringLiteral("checkResults2"));
 
         verticalLayout_12->addWidget(checkResults2);
 
-        checkResults3 = new QCheckBox(layoutWidget9);
+        checkResults3 = new QCheckBox(layoutWidget10);
         checkResults3->setObjectName(QStringLiteral("checkResults3"));
 
         verticalLayout_12->addWidget(checkResults3);
 
-        checkResults4 = new QCheckBox(layoutWidget9);
+        checkResults4 = new QCheckBox(layoutWidget10);
         checkResults4->setObjectName(QStringLiteral("checkResults4"));
-        checkResults4->setEnabled(false);
+        checkResults4->setEnabled(true);
 
         verticalLayout_12->addWidget(checkResults4);
 
-        checkResults5 = new QCheckBox(layoutWidget9);
+        checkResults5 = new QCheckBox(layoutWidget10);
         checkResults5->setObjectName(QStringLiteral("checkResults5"));
 
         verticalLayout_12->addWidget(checkResults5);
@@ -1095,29 +1247,29 @@ public:
         verticalLayout_13 = new QVBoxLayout();
         verticalLayout_13->setSpacing(6);
         verticalLayout_13->setObjectName(QStringLiteral("verticalLayout_13"));
-        checkResults6 = new QCheckBox(layoutWidget9);
+        checkResults6 = new QCheckBox(layoutWidget10);
         checkResults6->setObjectName(QStringLiteral("checkResults6"));
 
         verticalLayout_13->addWidget(checkResults6);
 
-        checkResults7 = new QCheckBox(layoutWidget9);
+        checkResults7 = new QCheckBox(layoutWidget10);
         checkResults7->setObjectName(QStringLiteral("checkResults7"));
 
         verticalLayout_13->addWidget(checkResults7);
 
-        checkResults8 = new QCheckBox(layoutWidget9);
+        checkResults8 = new QCheckBox(layoutWidget10);
         checkResults8->setObjectName(QStringLiteral("checkResults8"));
 
         verticalLayout_13->addWidget(checkResults8);
 
-        checkResults9 = new QCheckBox(layoutWidget9);
+        checkResults9 = new QCheckBox(layoutWidget10);
         checkResults9->setObjectName(QStringLiteral("checkResults9"));
 
         verticalLayout_13->addWidget(checkResults9);
 
-        checkResults10 = new QCheckBox(layoutWidget9);
+        checkResults10 = new QCheckBox(layoutWidget10);
         checkResults10->setObjectName(QStringLiteral("checkResults10"));
-        checkResults10->setEnabled(false);
+        checkResults10->setEnabled(true);
 
         verticalLayout_13->addWidget(checkResults10);
 
@@ -1463,60 +1615,101 @@ public:
         cmdBackResult->setObjectName(QStringLiteral("cmdBackResult"));
         cmdBackResult->setGeometry(QRect(248, 480, 101, 27));
         stackedWidget->addWidget(page_7);
-        layoutWidget10 = new QWidget(centralWidget);
-        layoutWidget10->setObjectName(QStringLiteral("layoutWidget10"));
-        layoutWidget10->setGeometry(QRect(417, 540, 531, 29));
-        horizontalLayout_9 = new QHBoxLayout(layoutWidget10);
+        layoutWidget11 = new QWidget(centralWidget);
+        layoutWidget11->setObjectName(QStringLiteral("layoutWidget11"));
+        layoutWidget11->setGeometry(QRect(417, 540, 531, 29));
+        horizontalLayout_9 = new QHBoxLayout(layoutWidget11);
         horizontalLayout_9->setSpacing(6);
         horizontalLayout_9->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_9->setObjectName(QStringLiteral("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
-        cmdMain = new QPushButton(layoutWidget10);
+        cmdMain = new QPushButton(layoutWidget11);
         cmdMain->setObjectName(QStringLiteral("cmdMain"));
         cmdMain->setEnabled(true);
         cmdMain->setMaximumSize(QSize(150, 16777215));
 
         horizontalLayout_9->addWidget(cmdMain);
 
-        cmdBack = new QPushButton(layoutWidget10);
+        cmdBack = new QPushButton(layoutWidget11);
         cmdBack->setObjectName(QStringLiteral("cmdBack"));
         cmdBack->setEnabled(true);
         cmdBack->setMaximumSize(QSize(150, 16777215));
 
         horizontalLayout_9->addWidget(cmdBack);
 
-        cmdAdvance = new QPushButton(layoutWidget10);
+        cmdAdvance = new QPushButton(layoutWidget11);
         cmdAdvance->setObjectName(QStringLiteral("cmdAdvance"));
         cmdAdvance->setEnabled(true);
         cmdAdvance->setMaximumSize(QSize(150, 16777215));
 
         horizontalLayout_9->addWidget(cmdAdvance);
 
-        cmdSaveResults = new QPushButton(layoutWidget10);
+        cmdSaveResults = new QPushButton(layoutWidget11);
         cmdSaveResults->setObjectName(QStringLiteral("cmdSaveResults"));
 
         horizontalLayout_9->addWidget(cmdSaveResults);
 
-        cmdShowResults = new QPushButton(layoutWidget10);
+        cmdShowResults = new QPushButton(layoutWidget11);
         cmdShowResults->setObjectName(QStringLiteral("cmdShowResults"));
 
         horizontalLayout_9->addWidget(cmdShowResults);
 
-        layoutWidget11 = new QWidget(centralWidget);
-        layoutWidget11->setObjectName(QStringLiteral("layoutWidget11"));
-        layoutWidget11->setGeometry(QRect(9, 9, 258, 511));
-        verticalLayout_11 = new QVBoxLayout(layoutWidget11);
+        layoutWidget12 = new QWidget(centralWidget);
+        layoutWidget12->setObjectName(QStringLiteral("layoutWidget12"));
+        layoutWidget12->setGeometry(QRect(11, 10, 258, 551));
+        verticalLayout_11 = new QVBoxLayout(layoutWidget12);
         verticalLayout_11->setSpacing(6);
         verticalLayout_11->setContentsMargins(11, 11, 11, 11);
         verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
         verticalLayout_11->setContentsMargins(0, 0, 0, 0);
-        listWidget = new QListWidget(layoutWidget11);
+        horizontalLayout_23 = new QHBoxLayout();
+        horizontalLayout_23->setSpacing(6);
+        horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
+        label_45 = new QLabel(layoutWidget12);
+        label_45->setObjectName(QStringLiteral("label_45"));
+
+        horizontalLayout_23->addWidget(label_45);
+
+        cmdRemoveAlignment = new QPushButton(layoutWidget12);
+        cmdRemoveAlignment->setObjectName(QStringLiteral("cmdRemoveAlignment"));
+        cmdRemoveAlignment->setMinimumSize(QSize(20, 20));
+        cmdRemoveAlignment->setMaximumSize(QSize(20, 20));
+
+        horizontalLayout_23->addWidget(cmdRemoveAlignment);
+
+
+        verticalLayout_11->addLayout(horizontalLayout_23);
+
+        listWidget = new QListWidget(layoutWidget12);
         listWidget->setObjectName(QStringLiteral("listWidget"));
         listWidget->setMaximumSize(QSize(300, 150));
 
         verticalLayout_11->addWidget(listWidget);
 
-        listWidget2 = new QListWidget(layoutWidget11);
+        horizontalLayout_16 = new QHBoxLayout();
+        horizontalLayout_16->setSpacing(6);
+        horizontalLayout_16->setObjectName(QStringLiteral("horizontalLayout_16"));
+        label_46 = new QLabel(layoutWidget12);
+        label_46->setObjectName(QStringLiteral("label_46"));
+
+        horizontalLayout_16->addWidget(label_46);
+
+        cmdRemoveFilter = new QPushButton(layoutWidget12);
+        cmdRemoveFilter->setObjectName(QStringLiteral("cmdRemoveFilter"));
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(cmdRemoveFilter->sizePolicy().hasHeightForWidth());
+        cmdRemoveFilter->setSizePolicy(sizePolicy);
+        cmdRemoveFilter->setMinimumSize(QSize(20, 20));
+        cmdRemoveFilter->setMaximumSize(QSize(20, 20));
+
+        horizontalLayout_16->addWidget(cmdRemoveFilter);
+
+
+        verticalLayout_11->addLayout(horizontalLayout_16);
+
+        listWidget2 = new QListWidget(layoutWidget12);
         listWidget2->setObjectName(QStringLiteral("listWidget2"));
 
         verticalLayout_11->addWidget(listWidget2);
@@ -1533,6 +1726,28 @@ public:
         menuHelp->setObjectName(QStringLiteral("menuHelp"));
         menuShow = new QMenu(menuBar);
         menuShow->setObjectName(QStringLiteral("menuShow"));
+        menuExport = new QMenu(menuBar);
+        menuExport->setObjectName(QStringLiteral("menuExport"));
+        menuAlignment = new QMenu(menuExport);
+        menuAlignment->setObjectName(QStringLiteral("menuAlignment"));
+        menuFrequence_Conservation = new QMenu(menuExport);
+        menuFrequence_Conservation->setObjectName(QStringLiteral("menuFrequence_Conservation"));
+        menuFrequence_Conservation_2 = new QMenu(menuExport);
+        menuFrequence_Conservation_2->setObjectName(QStringLiteral("menuFrequence_Conservation_2"));
+        menuConserved_Residues = new QMenu(menuExport);
+        menuConserved_Residues->setObjectName(QStringLiteral("menuConserved_Residues"));
+        menuCorrelation_List = new QMenu(menuExport);
+        menuCorrelation_List->setObjectName(QStringLiteral("menuCorrelation_List"));
+        menuCommunities = new QMenu(menuExport);
+        menuCommunities->setObjectName(QStringLiteral("menuCommunities"));
+        menuCorrelation_Tables = new QMenu(menuExport);
+        menuCorrelation_Tables->setObjectName(QStringLiteral("menuCorrelation_Tables"));
+        menuCorrelation_Tables_Log_P = new QMenu(menuExport);
+        menuCorrelation_Tables_Log_P->setObjectName(QStringLiteral("menuCorrelation_Tables_Log_P"));
+        menuAdherence_Matrix = new QMenu(menuExport);
+        menuAdherence_Matrix->setObjectName(QStringLiteral("menuAdherence_Matrix"));
+        menuResidues_Of_Communities = new QMenu(menuExport);
+        menuResidues_Of_Communities->setObjectName(QStringLiteral("menuResidues_Of_Communities"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -1543,6 +1758,7 @@ public:
 
         menuBar->addAction(menuFile->menuAction());
         menuBar->addAction(menuMethod->menuAction());
+        menuBar->addAction(menuExport->menuAction());
         menuBar->addAction(menuShow->menuAction());
         menuBar->addAction(menuHelp->menuAction());
         menuFile->addAction(actionOpen_XML);
@@ -1557,11 +1773,60 @@ public:
         menuMethod->addAction(actionDecompose_Network);
         menuMethod->addAction(actionAnalyze_Conservation_Sets);
         menuHelp->addAction(actionAbout);
+        menuShow->addAction(actionResults_Table);
+        menuShow->addAction(actionConservation_Scatterplot);
+        menuShow->addAction(actionConserved_Residues_in_Structure);
+        menuShow->addAction(actionCommunities_Graph);
+        menuExport->addAction(menuAlignment->menuAction());
+        menuExport->addSeparator();
+        menuExport->addAction(menuFrequence_Conservation->menuAction());
+        menuExport->addAction(menuFrequence_Conservation_2->menuAction());
+        menuExport->addAction(menuConserved_Residues->menuAction());
+        menuExport->addSeparator();
+        menuExport->addAction(menuCorrelation_List->menuAction());
+        menuExport->addAction(menuCommunities->menuAction());
+        menuExport->addAction(menuCorrelation_Tables->menuAction());
+        menuExport->addAction(menuCorrelation_Tables_Log_P->menuAction());
+        menuExport->addAction(menuAdherence_Matrix->menuAction());
+        menuExport->addAction(menuResidues_Of_Communities->menuAction());
+        menuAlignment->addAction(actionAlignmentPFAM);
+        menuAlignment->addAction(actionAlignmentTXT);
+        menuAlignment->addAction(actionAlignmentXML);
+        menuFrequence_Conservation->addSeparator();
+        menuFrequence_Conservation->addAction(actionFreqTXT);
+        menuFrequence_Conservation->addAction(actionFreqCSV);
+        menuFrequence_Conservation->addAction(actionFreqXML);
+        menuFrequence_Conservation->addAction(actionFreqHTML);
+        menuFrequence_Conservation_2->addAction(actionFreqPercTXT);
+        menuFrequence_Conservation_2->addAction(actionFreqPercCSV);
+        menuFrequence_Conservation_2->addAction(actionFreqPercXML);
+        menuFrequence_Conservation_2->addAction(actionFreqPercHTML);
+        menuConserved_Residues->addAction(actionConsResTXT);
+        menuConserved_Residues->addAction(actionConsResXML);
+        menuConserved_Residues->addAction(actionConsResHTML);
+        menuCorrelation_List->addAction(actionCorrListTXT);
+        menuCorrelation_List->addAction(actionCorrListCSV);
+        menuCorrelation_List->addAction(actionCorrListXML);
+        menuCommunities->addAction(actionCommTXT);
+        menuCommunities->addAction(actionCommXML);
+        menuCorrelation_Tables->addAction(actionCorrTablePercTXT);
+        menuCorrelation_Tables->addAction(actionCorrTablePercXML);
+        menuCorrelation_Tables->addAction(actionCorrTablePercHTML);
+        menuCorrelation_Tables_Log_P->addAction(actionCorrTableTXT);
+        menuCorrelation_Tables_Log_P->addAction(actionCorrTableXML);
+        menuCorrelation_Tables_Log_P->addAction(actionCorrTableHTML);
+        menuAdherence_Matrix->addAction(actionAdhTXT);
+        menuAdherence_Matrix->addAction(actionAdhCSV);
+        menuAdherence_Matrix->addAction(actionAdhXML);
+        menuAdherence_Matrix->addAction(actionAdhHTML);
+        menuResidues_Of_Communities->addAction(actionResCommTXT);
+        menuResidues_Of_Communities->addAction(actionResCommXML);
+        menuResidues_Of_Communities->addAction(actionResCommHTML);
 
         retranslateUi(MainWindow);
 
         stackedWidget->setCurrentIndex(6);
-        stackedWidget2->setCurrentIndex(3);
+        stackedWidget2->setCurrentIndex(7);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1581,6 +1846,42 @@ public:
         actionAbout->setText(QApplication::translate("MainWindow", "About", 0));
         actionClose_Alignment->setText(QApplication::translate("MainWindow", "Close Alignment", 0));
         actionOpen_XML->setText(QApplication::translate("MainWindow", "Open XML", 0));
+        actionAlignmentPFAM->setText(QApplication::translate("MainWindow", "PFAM", 0));
+        actionAlignmentTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionAlignmentXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionFreqTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionFreqCSV->setText(QApplication::translate("MainWindow", "CSV", 0));
+        actionFreqXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionFreqHTML->setText(QApplication::translate("MainWindow", "HTML", 0));
+        actionFreqPercTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionFreqPercCSV->setText(QApplication::translate("MainWindow", "CSV", 0));
+        actionFreqPercXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionFreqPercHTML->setText(QApplication::translate("MainWindow", "HTML", 0));
+        actionResults_Table->setText(QApplication::translate("MainWindow", "Results Table", 0));
+        actionConservation_Scatterplot->setText(QApplication::translate("MainWindow", "Conservation Scatterplot", 0));
+        actionCommunities_Graph->setText(QApplication::translate("MainWindow", "Communities Graph", 0));
+        actionConserved_Residues_in_Structure->setText(QApplication::translate("MainWindow", "Conserved Residues in Structure", 0));
+        actionConsResXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionConsResHTML->setText(QApplication::translate("MainWindow", "HTML", 0));
+        actionConsResTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionCorrListTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionCorrListCSV->setText(QApplication::translate("MainWindow", "CSV", 0));
+        actionCorrListXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionCommTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionCommXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionCorrTablePercTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionCorrTablePercXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionCorrTablePercHTML->setText(QApplication::translate("MainWindow", "HTML", 0));
+        actionCorrTableTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionCorrTableXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionCorrTableHTML->setText(QApplication::translate("MainWindow", "HTML", 0));
+        actionAdhTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionAdhCSV->setText(QApplication::translate("MainWindow", "CSV", 0));
+        actionAdhXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionAdhHTML->setText(QApplication::translate("MainWindow", "HTML", 0));
+        actionResCommTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionResCommXML->setText(QApplication::translate("MainWindow", "XML", 0));
+        actionResCommHTML->setText(QApplication::translate("MainWindow", "HTML", 0));
         label->setText(QApplication::translate("MainWindow", "<h1>PFstats</h1>\n"
 "<p>PFstats contains a set of functions that you can use to analyze correlation and conservation in protein sequences.</p>\n"
 "<p>You can choose navigate through these functions in the menu bar or just start the wizard at the bottom of this window.</p>", 0));
@@ -1609,12 +1910,13 @@ public:
         cmdFetch->setText(QApplication::translate("MainWindow", "Fetch", 0));
         label_9->setText(QApplication::translate("MainWindow", "<h1>Step 2 - Filtering Alignment</h1>\n"
 "<p>Even high quality alignments such as those available in PFAM usually need some filtering in order to eliminate or minimize known problems.</p>", 0));
+        cmdApplyFilter->setText(QApplication::translate("MainWindow", "Apply", 0));
+        label_27->setText(QApplication::translate("MainWindow", "(Full Alignment)", 0));
         label_10->setText(QApplication::translate("MainWindow", "Reference Sequence:", 0));
         label_11->setText(QApplication::translate("MainWindow", "Minimum Coverage:", 0));
         label_12->setText(QApplication::translate("MainWindow", "Minimu Identy:", 0));
         label_13->setText(QApplication::translate("MainWindow", "Maximum Identy:", 0));
-        cmdApplyFilter->setText(QApplication::translate("MainWindow", "Apply", 0));
-        label_27->setText(QApplication::translate("MainWindow", "(Full Alignment)", 0));
+        chkIntermediateFilter->setText(QApplication::translate("MainWindow", "Generate intermediate filters", 0));
         label_14->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Step 3 - Conservation</span></p><p>A series of simple frequency-based calculations are done using conservation.</p><p>At this step, you might need a PDB file, you can get one by visiting <span style=\" font-style:italic;\">pdb.org</span> or fetching from here.</p></body></html>", 0));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "PDB File", 0));
         cmdPDBfromFile->setText(QApplication::translate("MainWindow", "Choose from file", 0));
@@ -1636,6 +1938,7 @@ public:
 "</p>\n"
 "\n"
 "</body></html>", 0));
+        lblNseq->setText(QApplication::translate("MainWindow", "Number of sequences in the alignment: ", 0));
         label_22->setText(QApplication::translate("MainWindow", "Number of sub-alignments:", 0));
         cmdMinss->setText(QApplication::translate("MainWindow", "Calculate", 0));
         label_23->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Step 5 - Correlation</span></p>\n"
@@ -1819,10 +2122,25 @@ public:
         cmdAdvance->setText(QApplication::translate("MainWindow", "Advance", 0));
         cmdSaveResults->setText(QApplication::translate("MainWindow", "Save Results", 0));
         cmdShowResults->setText(QApplication::translate("MainWindow", "Show Results", 0));
+        label_45->setText(QApplication::translate("MainWindow", "Alignment:", 0));
+        cmdRemoveAlignment->setText(QApplication::translate("MainWindow", "-", 0));
+        label_46->setText(QApplication::translate("MainWindow", "Filter:", 0));
+        cmdRemoveFilter->setText(QApplication::translate("MainWindow", "-", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuMethod->setTitle(QApplication::translate("MainWindow", "Methods", 0));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0));
-        menuShow->setTitle(QApplication::translate("MainWindow", "Show", 0));
+        menuShow->setTitle(QApplication::translate("MainWindow", "Visualize", 0));
+        menuExport->setTitle(QApplication::translate("MainWindow", "Export", 0));
+        menuAlignment->setTitle(QApplication::translate("MainWindow", "Alignment", 0));
+        menuFrequence_Conservation->setTitle(QApplication::translate("MainWindow", "Frequence Conservation", 0));
+        menuFrequence_Conservation_2->setTitle(QApplication::translate("MainWindow", "Frequence Conservation (%)", 0));
+        menuConserved_Residues->setTitle(QApplication::translate("MainWindow", "Conserved Residues", 0));
+        menuCorrelation_List->setTitle(QApplication::translate("MainWindow", "Correlation List", 0));
+        menuCommunities->setTitle(QApplication::translate("MainWindow", "Communities", 0));
+        menuCorrelation_Tables->setTitle(QApplication::translate("MainWindow", "Correlation Tables (%)", 0));
+        menuCorrelation_Tables_Log_P->setTitle(QApplication::translate("MainWindow", "Correlation Tables (Log P)", 0));
+        menuAdherence_Matrix->setTitle(QApplication::translate("MainWindow", "Adherence Matrix", 0));
+        menuResidues_Of_Communities->setTitle(QApplication::translate("MainWindow", "Residues Of Communities", 0));
     } // retranslateUi
 
 };

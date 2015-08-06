@@ -13,6 +13,11 @@ TARGET = Pfstats
 TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -fopenmp
+#LIBS +=-lstdc++\
+#    libQt5PrintSupport.so.5
+
+LIBS += -fopenmp
 
 SOURCES += main.cpp\
         mainwindow.cpp \

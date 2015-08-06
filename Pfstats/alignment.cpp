@@ -1,4 +1,5 @@
 #include "alignment.h"
+#include <omp.h>
 #include <fstream>
 #include <math.h>
 #include <cstdlib>
@@ -6,6 +7,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QApplication>
+#include <QFileDialog>
 
 Alignment::Alignment()
 {
@@ -237,6 +239,24 @@ vector<vector<string> > Alignment::getAllSequences(){
     return this->filterSequences;
 }
 
+void Alignment::removeFilterItem(int pos){
+    filtersList[pos].clear();
+    filtersList[pos].shrink_to_fit();
+    filtersList.erase(filtersList.begin() + pos);
+
+    filterSequences[pos].clear();
+    filterSequences[pos].shrink_to_fit();
+    filterSequences.erase(filterSequences.begin() + pos);
+}
+
+string Alignment::getFilterName(int i, int j){
+    return this->filtersList[i][j];
+}
+
+int Alignment::getFilterSize(){
+    return this->filtersList.size();
+}
+
 vector<tuple<string,string,int> > Alignment::getCorrelationGraph(){
     return this->corrGraph;
 }
@@ -245,8 +265,16 @@ void Alignment::addCorrRefSeq(string seq){
     this->corrRefSeqs.push_back(seq);
 }
 
+string Alignment::getCorrRefSeq(int i){
+    return corrRefSeqs[i];
+}
+
 void Alignment::clearCorrRefSeq(){
     this->corrRefSeqs.clear();
+}
+
+int Alignment::getCorrRefSeqsSize(){
+    return corrRefSeqs.size();
 }
 
 tuple<string,string,int> Alignment::getCorrelationEdge(int i){
@@ -286,6 +314,7 @@ void Alignment::printCommunity(){
 }
 
 vector<string> Alignment::getFullAlignment(){
+    //printf("\n%d\n",fullAlignment.size());
     return this->fullAlignment;
 }
 
@@ -355,9 +384,11 @@ void Alignment::addFilterSequence(vector<string> align){
 
 void Alignment::addFilterSequence(vector<string> names, vector<string> sequences){
     if(names[0] == "0 0 0 0"){
-        for(int i = 1; i < names.size(); i++){
-            this->fullAlignment.push_back(names[i]);
-            this->fullSequences.push_back(sequences[i]);
+        if(fullAlignment.size() == 0){
+            for(int i = 1; i < names.size(); i++){
+                this->fullAlignment.push_back(names[i]);
+                this->fullSequences.push_back(sequences[i]);
+            }
         }
     }
     this->filtersList.push_back(names);
@@ -374,6 +405,22 @@ void Alignment::addConsFreqRow(vector<int> consfreq){
 
 void Alignment::addConsFreqPercRow(vector<float> cfreqperc){
     this->consfreqPerc.push_back(cfreqperc);
+}
+
+void Alignment::clearConsRefs(){
+    this->consRefSeqs.clear();
+}
+
+void Alignment::addConsRef(string ref){
+    this->consRefSeqs.push_back(ref);
+}
+
+int Alignment::getConsRefsSize(){
+    return consRefSeqs.size();
+}
+
+string Alignment::getConsref(int i){
+    return consRefSeqs[i];
 }
 
 void Alignment::setMinssVector(vector<float> minss){
@@ -788,6 +835,9 @@ string Alignment::outputBfactor(string line, float Bf){
 
     sprintf(Bfchar,"%-5.1f",Bf);
     Bfstring=(string)Bfchar;
+    for(int i = 0; i < Bfstring.length(); i++){
+        if(Bfstring[i] == ',') Bfstring[i] = '.';
+    }
     bsize=Bfstring.size();
     if(Bfstring.size()<6) for (int c1=1;c1<=6-bsize;c1++) Bfstring=" "+Bfstring;
     return(line.substr(0,60)+Bfstring+line.substr(66));
@@ -980,6 +1030,16 @@ void Alignment::generateXML(string outputXML){
             out << "   </pos>\n";
         }
         out << "   </positions>\n";
+
+        if(consRefSeqs.size() > 0){
+            out << "   <references>\n";
+
+            for(int i = 0; i < consRefSeqs.size(); i++){
+                out << "      <protein>" << consRefSeqs[i].c_str() << "</protein>\n";
+            }
+
+            out << "   </references>\n";
+        }
 
         out << "</conservation>\n";
     }
@@ -1345,7 +1405,7 @@ int Alignment::seqcode2seqint(string refseqcode){
     return -1;
 }
 
-void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, string newalignmentfilename){
+void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -1375,28 +1435,34 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, s
         }
     }
 
-    vector<string> filterVec;
-    string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
-    filterVec.push_back(parameters);
-    for(int i = 0; i < sequencenames.size(); i++){
-        filterVec.push_back(sequencenames[i]);
-    }
+    if(intermediate){
+        vector<string> filterVec;
+        string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        filterVec.push_back(parameters);
+        filterVec.push_back(refseqName);
+        for(int i = 0; i < sequencenames.size(); i++){
+            if(sequencenames[i] != refseqName)
+                filterVec.push_back(sequencenames[i]);
+        }
 
-    vector<string> sequenceVec;
-    sequenceVec.push_back(parameters);
-    for(int i = 0; i < sequences.size(); i++){
-        sequenceVec.push_back(sequences[i]);
-    }
+        vector<string> sequenceVec;
+        sequenceVec.push_back(parameters);
+        sequenceVec.push_back(refSeq);
+        for(int i = 0; i < sequences.size(); i++){
+            if(sequencenames[i] != refseqName)
+                sequenceVec.push_back(sequences[i]);
+        }
 
-    filtersList.push_back(filterVec);
-    filterSequences.push_back(sequenceVec);
+        filtersList.push_back(filterVec);
+        filterSequences.push_back(sequenceVec);
+    }
 
     progress.close();
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 
 }
 
-void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string newalignmentfilename){
+void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Culling Minimum Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -1419,27 +1485,33 @@ void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string re
         }
     }
 
-    vector<string> filterVec;
-    string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
-    filterVec.push_back(parameters);
-    for(int i = 0; i < sequencenames.size(); i++){
-        filterVec.push_back(sequencenames[i]);
-    }
+    if(intermediate){
+        vector<string> filterVec;
+        string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
+        filterVec.push_back(parameters);
+        filterVec.push_back(refSeqName);
+        for(int i = 0; i < sequencenames.size(); i++){
+            if(sequencenames[i] != refSeqName)
+                filterVec.push_back(sequencenames[i]);
+        }
 
-    vector<string> sequenceVec;
-    sequenceVec.push_back(parameters);
-    for(int i = 0; i < sequences.size(); i++){
-        sequenceVec.push_back(sequences[i]);
-    }
+        vector<string> sequenceVec;
+        sequenceVec.push_back(parameters);
+        sequenceVec.push_back(refSeq);
+        for(int i = 0; i < sequences.size(); i++){
+            if(sequencenames[i] != refSeqName)
+                sequenceVec.push_back(sequences[i]);
+        }
 
-    filtersList.push_back(filterVec);
-    filterSequences.push_back(sequenceVec);
+        filtersList.push_back(filterVec);
+        filterSequences.push_back(sequenceVec);
+    }
 
     progress.close();
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 }
 
-void Alignment::IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string newalignmentfilename){
+void Alignment::IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -1476,21 +1548,27 @@ void Alignment::IdentityTrimming(float maxid, float minocc, float minid, int ref
         seq1++;
     }
 
-    vector<string> filterVec;
-    string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
-    filterVec.push_back(parameters);
-    for(int i = 0; i < sequencenames.size(); i++){
-        filterVec.push_back(sequencenames[i]);
-    }
+    if(intermediate){
+        vector<string> filterVec;
+        string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
+        filterVec.push_back(parameters);
+        filterVec.push_back(refseqName);
+        for(int i = 0; i < sequencenames.size(); i++){
+            if(sequencenames[i] != refseqName)
+                filterVec.push_back(sequencenames[i]);
+        }
 
-    vector<string> sequenceVec;
-    sequenceVec.push_back(parameters);
-    for(int i = 0; i < sequences.size(); i++){
-        sequenceVec.push_back(sequences[i]);
-    }
+        vector<string> sequenceVec;
+        sequenceVec.push_back(parameters);
+        sequenceVec.push_back(refSeq);
+        for(int i = 0; i < sequences.size(); i++){
+            if(sequencenames[i] != refseqName)
+                sequenceVec.push_back(sequences[i]);
+        }
 
-    filtersList.push_back(filterVec);
-    filterSequences.push_back(sequenceVec);
+        filtersList.push_back(filterVec);
+        filterSequences.push_back(sequenceVec);
+    }
 
     progress.close();
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
@@ -1738,16 +1816,32 @@ void Alignment::dGDTCalculation(int numseqs){
             if(subsetfrequencies[c1][c2]>0)
                 partialresult += pow(((long double)subsetfrequencies[c1][c2]/((long double)numseqs)) * log(((long double)subsetfrequencies[c1][c2]/((long double)numseqs))/(meanf[c2])),2);
         }
+        //printf("numseq: %d - partial: %f\n",numseqs,partialresult);
         if(Ci>0) dGDT.push_back(sqrt(partialresult/((float) Ci)));
         else dGDT.push_back(0);
     }
+}
+
+void Alignment::calculateShenkin(int numseqs){
+    //long double partialSum = 0;
+    for (int i = 0; i < subsetfrequencies.size(); i++)
+        for(int j = 0; j < subsetfrequencies[0].size(); j++)
+            subsetfrequencies[i][j]=0;
+
+    for(int i = 0; i < numseqs; i++){
+        for(int j = 0; j < sequences[0].size(); j++){
+            subsetfrequencies[j][freqmatrixposition(sequences[SortOrder[i]][j])]++;
+            subsetfrequencies[sequences[0].size()][freqmatrixposition(sequences[SortOrder[i]][j])]++;
+        }
+    }
+
 }
 
 vector<float> Alignment::DTRandomElimination(int repetitions, int max, int min, int step){
     int c1,c3;
     long double partialresult=0;
     long double partialsum=0;
-    vector<int> SortOrder;
+    //vector<int> SortOrder;
     vector<int> populatedpos;
     vector<float> outputVec;
     int currentsize; // current size of sub-alignment
@@ -1791,12 +1885,16 @@ vector<float> Alignment::DTRandomElimination(int repetitions, int max, int min, 
         currentsize=sequences.size()-((i*sequences.size())/(100));
         if (currentsize<=0) break;
 
+        omp_set_num_threads(1);
+        #pragma omp parallel for shared(partialsum)
         for(c1=1;c1<=repetitions;c1++){
             random_shuffle(SortOrder.begin(),SortOrder.end());
             dGDTCalculation(currentsize);
-
-            for (c3=0;c3<=populatedpos.size()-1;c3++)
+            //#pragma omp parallel for reduction (+:partialsum)
+            for (c3=0;c3<=populatedpos.size()-1;c3++){
                 partialsum+=dGDT[populatedpos[c3]];
+            }
+            //printf("%f\n",partialsum);
         }
         //printf("%f - %d\n",(float)partialsum,populatedpos.size());
         //out << 100-i << "\t" << (float)(partialsum/((long double)(populatedpos.size()*repetitions))) << "\n";
@@ -1811,6 +1909,123 @@ vector<float> Alignment::DTRandomElimination(int repetitions, int max, int min, 
 
     return outputVec;
 
+}
+
+vector<float> Alignment::ShenkinEntropy(int repetitions, int gapFilter){
+    vector<int> populatedpos;
+    vector<float> outputVec;
+    vector<vector<int> > subsetTemp;
+    double partialsum=0;
+    int tamanhoSeq = 0;
+    int currentsize = sequences.size();
+    for(int i = 0; i < frequencies[0].size(); i++)
+        tamanhoSeq += frequencies[0][i];
+
+    //Filtro por GAP
+    populatedpos.clear();
+    for(int i = 0; i < frequencies.size(); i++){
+        //if (frequencies[i][0]/tamanhoSeq <= gapFilter)
+            populatedpos.push_back(i);
+    }
+
+    //Primeira Iteração
+    for(int k = 0; k < populatedpos.size() -1; k++){
+        for(int l = 0; l <= 20; l++){
+            double subsetfreq = (double)frequencies[k][l]/(double)currentsize;
+            if(subsetfreq > 0)
+                partialsum += (subsetfreq* log(subsetfreq));
+        }
+    }
+    partialsum = partialsum * -1;
+    outputVec.push_back((float)(partialsum/((long double)(populatedpos.size()))));
+
+    //Cria sortOrder
+    SortOrder.clear();
+    for(int i = 0; i < sequences.size()-1; i++)
+        SortOrder.push_back(i);
+
+    //Populaciona subsetlocal
+    for(int i = 0; i < subsetfrequencies.size(); i++){
+        vector<int> temp;
+        for(int j = 0; j < subsetfrequencies[0].size(); j++){
+            temp.push_back(0);
+        }
+        subsetTemp.push_back(temp);
+    }
+
+    QProgressDialog progress("Calculating...", "Abort", 0,99);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for(int i = 1; i < 100; i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) break;
+
+        partialsum = 0;
+        currentsize=sequences.size()-((i*sequences.size())/(100));
+
+        if (currentsize<=0) break;
+
+
+
+        omp_set_num_threads(8);
+        #pragma omp parallel for firstprivate(subsetTemp) reduction (+:partialsum)
+        //Teste sem filtro
+        for(int j = 0; j < repetitions; j++){
+            random_shuffle(SortOrder.begin(),SortOrder.end());
+
+            /*
+            //Calcula frequência do subalinhamento
+            for (int i1 = 0; i1 < subsetfrequencies.size(); i1++)
+                for(int j1 = 0; j1 < subsetfrequencies[0].size(); j1++)
+                    subsetfrequencies[i1][j1]=0;
+
+            for(int i1 = 0; i1 < currentsize; i1++){
+                for(int j1 = 0; j1 < sequences[0].size(); j1++){
+                    subsetfrequencies[j1][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
+                    subsetfrequencies[sequences[0].size()][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
+                }
+            }*/
+
+            //Calcula frequência do subalinhamento
+            for (int i1 = 0; i1 < subsetTemp.size(); i1++)
+                for(int j1 = 0; j1 < subsetTemp[0].size(); j1++)
+                    subsetTemp[i1][j1]=0;
+
+            for(int i1 = 0; i1 < currentsize; i1++){
+                for(int j1 = 0; j1 < sequences[0].size(); j1++){
+                    subsetTemp[j1][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
+                    subsetTemp[sequences[0].size()][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
+                }
+            }
+
+            for(int k = 0; k < populatedpos.size() - 1; k++){
+                for(int l = 0; l <= 20; l++){
+                    double subsetfreq = (double)subsetTemp[k][l]/(double)currentsize;
+                    //printf("%d / %d = %f\n",subsetfrequencies[k][l],currentsize,subsetfreq);
+                    if(subsetfreq > 0){
+                        if(subsetfreq* log(subsetfreq) < 0) partialsum += (subsetfreq* log(subsetfreq) * -1);
+                        else partialsum += (subsetfreq* log(subsetfreq));
+                        //printf("%f * %f = %f\n",subsetfreq,log(subsetfreq),partialsum);
+                    }
+                }
+            }
+            //partialsum = partialsum * -1;
+            //printf("TOTAL = %f\n",partialsum);
+
+        }
+        outputVec.push_back((float)(partialsum/((long double)(populatedpos.size()*repetitions))));
+    }
+
+    minssData.clear();
+    for(int i = 0; i < outputVec.size(); i++){
+        //printf("%f\n",outputVec[i]);
+        this->minssData.push_back(outputVec.at(i));
+    }
+
+    return outputVec;
 }
 
 void Alignment::SubAlignmentIndices(char aa, int pos){
@@ -2377,9 +2592,16 @@ void Alignment::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
             vector<string> clustersResidues;
             for(int j = 0; j < aalist.size(); j++){
                 string residue;
-                if(!renumber) residue = aalist[j] + QString::number(poslist[j]+1).toStdString();
-                else if (AlignNumbering2Sequence(seqnumber,poslist[j])!=0) residue = aalist[j] + QString::number(AlignNumbering2Sequence(seqnumber,poslist[j])+offset).toStdString();
-                else residue = aalist[j] + "X(" + QString::number(poslist[j] + 1).toStdString() + ")";
+                if(!renumber){
+                    residue = aalist[j] + QString::number(poslist[j]+1).toStdString();
+                }else if (AlignNumbering2Sequence(seqnumber,poslist[j])!=0){
+                    residue = aalist[j] + QString::number(AlignNumbering2Sequence(seqnumber,poslist[j])+offset).toStdString();
+                }else{
+                    //residue = string(aalist[j]).c_str() + "X(";// + QString::number(poslist[j] + 1).toStdString() + ")";
+                    char test[50];
+                    sprintf(test,"%cX(%d)",aalist[j],poslist[j] + 1);
+                    residue = test;
+                }
                 clustersResidues.push_back(residue);
             }
             residuesComm.push_back(clustersResidues);
@@ -2390,10 +2612,10 @@ void Alignment::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
 
 /*
             //printf("SCM SIZE = %d\n",selfcorrelationmatrix.size());
-            for(int j = 0; j < selfcorrelationmatrix.size(); j++){
+            for(int j = 0; j < residuesComm.size(); j++){
                 //printf("i = %d, SIZE = %d\n", j, aalist.size());
-                for(int k = 0; k < selfcorrelationmatrix[j].size(); k++){
-                    printf(" %5.1f ",100 * selfcorrelationmatrix[j][k]);
+                for(int k = 0; k < residuesComm[j].size(); k++){
+                    printf(" %s ",residuesComm[j][k].c_str());
                 }
                 printf("\n");
             }
@@ -2445,4 +2667,1489 @@ void Alignment::Cluster2PymolScript(string clusterfilename, string path, int seq
     }
     fclose(clusterfile);
     fclose(pymolscriptfile);
+}
+
+void Alignment::exportAlignment(QString filename, string filter, int type){
+    int ai = -2;
+    for(int i = 0; i < this->filtersList.size(); i++){
+        if(filtersList[i][0] == filter){
+            ai = i;
+            break;
+        }
+    }
+    if(filter == "Full Alignment") ai = -1;
+    else if(ai == -2){
+        QMessageBox::critical(NULL,"Error","Alignment not found.");
+        return;
+    }
+
+    switch(type){
+        case 0://PFAM
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "pfam" && tempFN[tempFN.size()-1] != "PFAM")
+                filename += ".pfam";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+            if(ai >= 0){
+                for(int i = 1; i < filtersList[ai].size(); i++){
+                    out << filtersList[ai][i].c_str() << " " << filterSequences[ai][i].c_str() << "\n";
+                }
+            }else if(ai == -1){
+                for(int i = 0; i < fullAlignment.size(); i++){
+                    out << fullAlignment[i].c_str() << " " << fullSequences[i].c_str() << "\n";
+                }
+            }
+
+            f.close();
+            break;
+        }
+        case 1://TXT
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+                filename += ".txt";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+            if(ai >= 0){
+                for(int i = 1; i < filtersList[ai].size(); i++){
+                    out << filtersList[ai][i].c_str() << " " << filterSequences[ai][i].c_str() << "\n";
+                }
+            }else if(ai == -1){
+                for(int i = 0; i < fullAlignment.size(); i++){
+                    out << fullAlignment[i].c_str() << " " << fullSequences[i].c_str() << "\n";
+                }
+            }
+
+            f.close();
+            break;
+        }
+        case 2://XML
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+            out << "<?xml version=\"1.0\"?>\n\n";
+            out << "<PFStats>\n";
+            out << "   <filters>\n";
+
+            if(ai >= 0){
+                vector<string> parsVec = this->split(filter,' ');
+                string occ = parsVec[0];
+                string minid = parsVec[1];
+                string maxid = parsVec[2];
+                string refseq = parsVec[3];
+
+                out << "      <filter occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
+                for(int i = 1; i < filtersList[ai].size(); i++){
+                    vector<string> vecSplit = this->split(filtersList[ai][i],'/');
+                    out << "         <entry id='" << i-1 << "' offset='" << vecSplit[1].c_str() << "' name='" << vecSplit[0].c_str() << "'>" << filterSequences[ai][i].c_str() << "</entry>\n";
+                }
+            }else if(ai == -1){
+                out << "      <filter occ='0' minid='0' maxid='0' refseq='0' >\n";
+
+                for(int i = 0; i < fullAlignment.size(); i++){
+                    vector<string> vecSplit = this->split(fullAlignment[i],'/');
+                    out << "         <entry id='" << i << "' offset='" << vecSplit[1].c_str() << "' name='" << vecSplit[0].c_str() << "'>" << fullSequences[i].c_str() << "</entry>\n";
+                }
+            }
+
+            out << "      </filter>\n";
+            out << "   </filters>\n";
+            out << "</PFStats>\n";
+
+            f.close();
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this alignment.");
+            return;
+        }
+    }
+    QMessageBox::information(NULL,"Exporting Alignment","Alignment saved succesfully.");
+}
+
+void Alignment::exportFreq(QString filename, int type, bool perc){
+    vector<string> consPars = this->getConservationParameters();
+    if(consPars.size() == 0){
+        QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+        return;
+    }
+
+    string filter = consPars[1].c_str();
+    string refseq = consPars[2].c_str();
+    string offset = consPars[3].c_str();
+    string chain = consPars[4].c_str();
+
+    switch(type){
+        case 0://TXT
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+                filename += ".txt";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "#FILTER(3) REFSEQ OFFSET CHAIN\n";
+            out << "#" << filter.c_str() << " " << offset.c_str() << " " << chain.c_str() << "\n";
+
+            if(perc){
+                out.setRealNumberPrecision(1);
+                out.setFieldAlignment(QTextStream::AlignLeft);
+                out.setRealNumberNotation(QTextStream::FixedNotation);
+                out << "pos  ALA  CYS  ASP  GLU  PHE  GLY  HIS  ILE  LYS  LEU  MET  ASN  PRO  GLN  ARG  SER  THR  VAL  TRP  TYR\n";
+                for(int i = 0; i < consfreqPerc.size()-1; i++){
+                    out.setFieldWidth(5);
+                    out << i+1;
+                    for(int j = 0; j < consfreqPerc[i].size(); j++){
+                        out.setFieldWidth(5);
+                        out << consfreqPerc[i][j];
+                    }
+                    out << qSetFieldWidth(0) << "\n";
+                }
+            }else{
+                out << "pos  ALA   CYS   ASP   GLU   PHE   GLY   HIS   ILE   LYS   LEU   MET   ASN   PRO   GLN   ARG   SER   THR   VAL   TRP   TYR\n";
+                for(int i = 0; i < consvfreq.size(); i++){
+                    if(i >= 0 && i <= 8)
+                        out << i+1 << "    ";
+                    else if(i >=9 && i <= 98)
+                        out << i+1 << "   ";
+                    else if(i > 99)
+                        out << i+1 << "  ";
+                    for(int j = 0; j < consvfreq[i].size(); j++){
+                        if(consvfreq[i][j] >= 0 && consvfreq[i][j] <= 9)
+                            out << consvfreq[i][j] << "     ";
+                        else if(consvfreq[i][j] >= 10 && consvfreq[i][j] <= 99)
+                            out << consvfreq[i][j] << "    ";
+                        else if(consvfreq[i][j] > 99)
+                            out << consvfreq[i][j] << "   ";
+                    }
+                    out << "\n";
+                }
+            }
+
+            f.close();
+            break;
+        }
+        case 1://CSV
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "csv" && tempFN[tempFN.size()-1] != "CSV")
+                filename += ".csv";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            if(perc){
+                for(int i = 0; i < consfreqPerc.size(); i++){
+                    out << i+1 << ",";
+                    for(int j = 0; j < consfreqPerc[i].size()-1; j++)
+                        out << consfreqPerc[i][j] << ",";
+                    out << consfreqPerc[i][consfreqPerc[i].size()-1] << "\n";
+                }
+            }else{
+                for(int i = 0; i < consvfreq.size(); i++){
+                    out << i+1 << ",";
+                    for(int j = 0; j < consvfreq[i].size()-1; j++)
+                        out << consvfreq[i][j] << ",";
+                    out << consvfreq[i][consvfreq[i].size()-1] << "\n";
+                }
+            }
+
+            f.close();
+            break;
+        }
+        case 2://XML
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n\n";
+            out << "<PFStats>\n";
+            out << "   <conservation>\n";
+
+            out << "      <parameters>\n";
+
+            out << "         <filter>" << filter.c_str() << "</filter>\n";
+            out << "         <refseq>" << refseq.c_str() << "</refseq>\n";
+            out << "         <offset>" << offset.c_str() << "</offset>\n";
+            out << "         <chain>" << chain.c_str() << "</chain>\n";
+
+            out << "      </parameters>\n";
+
+            out << "   <positions>\n";
+
+            if(perc){
+                for(int i = 0; i < consfreqPerc.size(); i++){
+                    out << "      <pos id='" << i+1 << "'>\n";
+                    out << "         <ALA>\n";
+                    out << "            <percent>" << consfreqPerc[i][0] << "</percent>\n";
+                    out << "         </ALA>\n";
+                    out << "         <CYS>\n";
+                    out << "            <percent>" << consfreqPerc[i][1] << "</percent>\n";
+                    out << "         </CYS>\n";
+                    out << "         <ASP>\n";
+                    out << "            <percent>" << consfreqPerc[i][2] << "</percent>\n";
+                    out << "         </ASP>\n";
+                    out << "         <GLU>\n";
+                    out << "            <percent>" << consfreqPerc[i][3] << "</percent>\n";
+                    out << "         </GLU>\n";
+                    out << "         <PHE>\n";
+                    out << "            <percent>" << consfreqPerc[i][4] << "</percent>\n";
+                    out << "         </PHE>\n";
+                    out << "         <GLY>\n";
+                    out << "            <percent>" << consfreqPerc[i][5] << "</percent>\n";
+                    out << "         </GLY>\n";
+                    out << "         <HIS>\n";
+                    out << "            <percent>" << consfreqPerc[i][6] << "</percent>\n";
+                    out << "         </HIS>\n";
+                    out << "         <ILE>\n";
+                    out << "            <percent>" << consfreqPerc[i][7] << "</percent>\n";
+                    out << "         </ILE>\n";
+                    out << "         <LYS>\n";
+                    out << "            <percent>" << consfreqPerc[i][8] << "</percent>\n";
+                    out << "         </LYS>\n";
+                    out << "         <LEU>\n";
+                    out << "            <percent>" << consfreqPerc[i][9] << "</percent>\n";
+                    out << "         </LEU>\n";
+                    out << "         <MET>\n";
+                    out << "            <percent>" << consfreqPerc[i][10] << "</percent>\n";
+                    out << "         </MET>\n";
+                    out << "         <ASN>\n";
+                    out << "            <percent>" << consfreqPerc[i][11] << "</percent>\n";
+                    out << "         </ASN>\n";
+                    out << "         <PRO>\n";
+                    out << "            <percent>" << consfreqPerc[i][12] << "</percent>\n";
+                    out << "         </PRO>\n";
+                    out << "         <GLN>\n";
+                    out << "            <percent>" << consfreqPerc[i][13] << "</percent>\n";
+                    out << "         </GLN>\n";
+                    out << "         <ARG>\n";
+                    out << "            <percent>" << consfreqPerc[i][14] << "</percent>\n";
+                    out << "         </ARG>\n";
+                    out << "         <SER>\n";
+                    out << "            <percent>" << consfreqPerc[i][15] << "</percent>\n";
+                    out << "         </SER>\n";
+                    out << "         <THR>\n";
+                    out << "            <percent>" << consfreqPerc[i][16] << "</percent>\n";
+                    out << "         </THR>\n";
+                    out << "         <VAL>\n";
+                    out << "            <percent>" << consfreqPerc[i][17] << "</percent>\n";
+                    out << "         </VAL>\n";
+                    out << "         <TRP>\n";
+                    out << "            <percent>" << consfreqPerc[i][18] << "</percent>\n";
+                    out << "         </TRP>\n";
+                    out << "         <TYR>\n";
+                    out << "            <percent>" << consfreqPerc[i][19] << "</percent>\n";
+                    out << "         </TYR>\n";
+                    out << "      </pos>\n";
+                }
+            }else{
+                for(int i = 0; i < consvfreq.size(); i++){
+                    out << "      <pos id='" << i+1 << "'>\n";
+                    out << "         <GAP>\n";
+                    out << "            <frequence>" << consvfreq[i][0] << "</frequence>\n";
+                    out << "         </GAP>\n";
+                    out << "         <ALA>\n";
+                    out << "            <frequence>" << consvfreq[i][1] << "</frequence>\n";
+                    out << "         </ALA>\n";
+                    out << "         <CYS>\n";
+                    out << "            <frequence>" << consvfreq[i][2] << "</frequence>\n";
+                    out << "         </CYS>\n";
+                    out << "         <ASP>\n";
+                    out << "            <frequence>" << consvfreq[i][3] << "</frequence>\n";
+                    out << "         </ASP>\n";
+                    out << "         <GLU>\n";
+                    out << "            <frequence>" << consvfreq[i][4] << "</frequence>\n";
+                    out << "         </GLU>\n";
+                    out << "         <PHE>\n";
+                    out << "            <frequence>" << consvfreq[i][5] << "</frequence>\n";
+                    out << "         </PHE>\n";
+                    out << "         <GLY>\n";
+                    out << "            <frequence>" << consvfreq[i][6] << "</frequence>\n";
+                    out << "         </GLY>\n";
+                    out << "         <HIS>\n";
+                    out << "            <frequence>" << consvfreq[i][7] << "</frequence>\n";
+                    out << "         </HIS>\n";
+                    out << "         <ILE>\n";
+                    out << "            <frequence>" << consvfreq[i][8] << "</frequence>\n";
+                    out << "         </ILE>\n";
+                    out << "         <LYS>\n";
+                    out << "            <frequence>" << consvfreq[i][9] << "</frequence>\n";
+                    out << "         </LYS>\n";
+                    out << "         <LEU>\n";
+                    out << "            <frequence>" << consvfreq[i][10] << "</frequence>\n";
+                    out << "         </LEU>\n";
+                    out << "         <MET>\n";
+                    out << "            <frequence>" << consvfreq[i][11] << "</frequence>\n";
+                    out << "         </MET>\n";
+                    out << "         <ASN>\n";
+                    out << "            <frequence>" << consvfreq[i][12] << "</frequence>\n";
+                    out << "         </ASN>\n";
+                    out << "         <PRO>\n";
+                    out << "            <frequence>" << consvfreq[i][13] << "</frequence>\n";
+                    out << "         </PRO>\n";
+                    out << "         <GLN>\n";
+                    out << "            <frequence>" << consvfreq[i][14] << "</frequence>\n";
+                    out << "         </GLN>\n";
+                    out << "         <ARG>\n";
+                    out << "            <frequence>" << consvfreq[i][15] << "</frequence>\n";
+                    out << "         </ARG>\n";
+                    out << "         <SER>\n";
+                    out << "            <frequence>" << consvfreq[i][16] << "</frequence>\n";
+                    out << "         </SER>\n";
+                    out << "         <THR>\n";
+                    out << "            <frequence>" << consvfreq[i][17] << "</frequence>\n";
+                    out << "         </THR>\n";
+                    out << "         <VAL>\n";
+                    out << "            <frequence>" << consvfreq[i][18] << "</frequence>\n";
+                    out << "         </VAL>\n";
+                    out << "         <TRP>\n";
+                    out << "            <frequence>" << consvfreq[i][19] << "</frequence>\n";
+                    out << "         </TRP>\n";
+                    out << "         <TYR>\n";
+                    out << "            <frequence>" << consvfreq[i][20] << "</frequence>\n";
+                    out << "         </TYR>\n";
+                    out << "      </pos>\n";
+                }
+            }
+
+            out << "   </positions>\n";
+            out << "   </conservation>\n";
+            out << "</PFStats>\n";
+
+            f.close();
+            break;
+        }
+        case 3://HTML
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "html" && tempFN[tempFN.size()-1] != "HTML")
+                filename += ".html";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<!DOCTYPE html>\n";
+            out << "<html>\n";
+            out << "<body>\n";
+            out << "<table border='1'>\n";
+            out << "\t<tr>\n";
+            out << "\t\t" << filter.c_str() << "\n";
+            out << "\t</tr>\n";
+            out << "\t<tr>\n";
+            out << "\t\tOffset: " << offset.c_str() <<"\n";
+            out << "\t\tChain: " << chain.c_str() << "\n";
+            out << "\t</tr>\n";
+            out << "\t<tr>\n";
+            out << "\t\t<td><b>POS</b></td>\n";
+            if(!perc) out << "\t\t<td><b>GAP</b></td>\n";
+            out << "\t\t<td><b>ALA</b></td>\n";
+            out << "\t\t<td><b>CYS</b></td>\n";
+            out << "\t\t<td><b>ASP</b></td>\n";
+            out << "\t\t<td><b>GLU</b></td>\n";
+            out << "\t\t<td><b>PHE</b></td>\n";
+            out << "\t\t<td><b>GLY</b></td>\n";
+            out << "\t\t<td><b>HIS</b></td>\n";
+            out << "\t\t<td><b>ILE</b></td>\n";
+            out << "\t\t<td><b>LYS</b></td>\n";
+            out << "\t\t<td><b>LEU</b></td>\n";
+            out << "\t\t<td><b>MET</b></td>\n";
+            out << "\t\t<td><b>ASN</b></td>\n";
+            out << "\t\t<td><b>PRO</b></td>\n";
+            out << "\t\t<td><b>GLN</b></td>\n";
+            out << "\t\t<td><b>ARG</b></td>\n";
+            out << "\t\t<td><b>SER</b></td>\n";
+            out << "\t\t<td><b>THR</b></td>\n";
+            out << "\t\t<td><b>VAL</b></td>\n";
+            out << "\t\t<td><b>TRP</b></td>\n";
+            out << "\t\t<td><b>TYR</b></td>\n";
+            out << "\t</tr>\n";
+
+            if(perc){
+                for(int i = 0; i < consfreqPerc.size(); i++){
+                    out << "\t<tr>\n";
+                    out << "\t\t<td>" << i+1 << "</td>\n";
+                    for(int j = 0; j < consfreqPerc[i].size(); j++){
+                        out << "\t\t<td>" << consfreqPerc[i][j] << "</td>\n";
+                    }
+                    out << "</tr>\n";
+                }
+            }else{
+                for(int i = 0; i < consvfreq.size(); i++){
+                    out << "\t<tr>\n";
+                    out << "\t\t<td>" << i+1 << "</td>\n";
+                    for(int j = 0; j < consvfreq[i].size(); j++){
+                        out << "\t\t<td>" << consvfreq[i][j] << "</td>\n";
+                    }
+                    out << "</tr>\n";
+                }
+            }
+
+            out << "</table>\n";
+            out << "</body>\n";
+            out << "</html>\n";
+
+            f.close();
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+    QMessageBox::information(NULL,"Exporting Data","Conservation data was exported.");
+}
+
+void Alignment::exportConsRes(QString filename, int type, float mincons, vector<int> refSeqs){
+    vector<char> conservedaa;
+    vector<int> conservedpos;
+    vector<float> conservedfreq;
+
+    this->CalculateFrequencies();
+
+    for(int i = 0; i < frequencies.size()-2; i++){
+        for(int j = 1; j <= 20; j++){
+            float freq = frequencies[i][j]/((float)sequences.size());
+            //printf("freq=%f / minCons=%f\n",freq,minCons);
+            if(freq >= mincons){
+                conservedaa.push_back(num2aa(j));
+                conservedpos.push_back(i);
+                conservedfreq.push_back(100.0*freq);
+            }
+        }
+    }
+
+
+    switch(type){
+        case 0:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+                filename += ".txt";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "Sequence ";
+            for(int i = 0; i < conservedaa.size(); i++)
+                out <<  conservedaa[i] << conservedpos[i]+1 << " (" << QString::number(conservedfreq[i],'f',1) << ") ";
+            out << "\n";
+
+            for(int i = 0; i < refSeqs.size(); i++){
+                out << sequencenames[refSeqs[i]].c_str() << " ";
+                for(int j = 0; j < conservedaa.size(); j++){
+                    if(AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) == 0) out << "- ";
+                    else{
+                        if(sequences[refSeqs[i]][conservedpos[j]]==conservedaa[j])
+                            out << conservedaa[j] << AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(sequencenames[refSeqs[i]]) << " ";
+                        else
+                            out << sequences[refSeqs[i]][conservedpos[j]] << AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(sequencenames[refSeqs[i]]) << " ";
+                    }
+                }
+                out << "\n";
+            }
+            f.close();
+            break;
+        }
+        case 1:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            out << "\t<conservedResidues>\n";
+
+            for(int i = 0; i < conservedaa.size(); i++){
+                out << "\t\t<residue alignN=\"" << conservedaa[i] << conservedpos[i]+1 << "\" freq=\"" << QString::number(conservedfreq[i],'f',1) << "\">\n";
+
+                for(int j = 0; j < refSeqs.size(); j++){
+                    out << "\t\t\t<entry protein=\"" << sequencenames[refSeqs[j]].c_str() << "\" ";
+                    if(AlignNumbering2Sequence(refSeqs[j]+1,conservedpos[i]) == 0)
+                        out << "seqN=\"-\" conserv=\"false\"/>\n";
+                    else{
+                        if(sequences[refSeqs[j]][conservedpos[i]]==conservedaa[i]){
+                            out << "seqN=\"" << conservedaa[i] << AlignNumbering2Sequence(refSeqs[j]+1,conservedpos[i]) + GetOffsetFromSeqName(sequencenames[refSeqs[j]]);
+                            out << "\" conserv=\"true\"/>\n";
+                        }else{
+                            out << "seqN=\"" << sequences[refSeqs[j]][conservedpos[i]] << AlignNumbering2Sequence(refSeqs[j]+1,conservedpos[i]) + GetOffsetFromSeqName(sequencenames[refSeqs[j]]);
+                            out << "\" conserv=\"false\"/>\n";
+                        }
+                    }
+                }
+
+                out << "\t\t</residue>\n";
+            }
+
+            out << "\t</conservedResidues>\n";
+            out << "</PFStats>\n";
+            f.close();
+            break;
+        }
+        case 2:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "html" && tempFN[tempFN.size()-1] != "HTML")
+                filename += ".html";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+            out.setFieldAlignment(QTextStream::AlignLeft);
+            out.setRealNumberNotation(QTextStream::FixedNotation);
+            out.setRealNumberPrecision(1);
+
+            out << "<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th><b>Sequence</b></th>";
+
+            for (int c1=0;c1<=conservedaa.size()-1;c1++){
+                out << "<th><b>" << conservedaa[c1] << conservedpos[c1]+1 << " (" << conservedfreq[c1] <<")</b></th>";
+            }
+            out << "</tr>\n";
+            for (int c1=0;c1<=refSeqs.size()-1;c1++){
+                out << "<tr><th><b>" << sequencenames[refSeqs[c1]].c_str();
+                for (int c2=0;c2<=conservedaa.size()-1;c2++){
+                    if(AlignNumbering2Sequence(refSeqs[c1]+1,conservedpos[c2]) ==0){
+                        out << "<th><font color=#FF0000>-</font></th>";
+                    }else{
+                        if (sequences[refSeqs[c1]][conservedpos[c2]]==conservedaa[c2])
+                            out << "<th>" << conservedaa[c2] << AlignNumbering2Sequence(refSeqs[c1]+1,conservedpos[c2]) + GetOffsetFromSeqName(sequencenames[refSeqs[c1]]) << "</th>";
+                        else
+                            out << "<th><font color=#FF0000>" << sequences[refSeqs[c1]][conservedpos[c2]] << AlignNumbering2Sequence(refSeqs[c1]+1,conservedpos[c2])+GetOffsetFromSeqName(sequencenames[refSeqs[c1]]) << "</font></th>";
+                    }
+                }
+                out << "</tr>\n";
+            }
+            f.close();
+
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+    QMessageBox::information(NULL,"Exporting Data","Conserved residues data was exported.");
+}
+
+void Alignment::exportCorrGraph(QString filename, int type){
+    switch(type){
+        case 0:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+                filename += ".txt";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            vector<string> corrPars = this->getCorrelationParameters();
+
+            if(corrPars.size() == 0){
+                QMessageBox::warning(NULL,"Warning","Some data might corrupted. Try run correlation again");
+                return;
+            }
+
+            out << "#FILTER: " << corrPars[1].c_str() << "\n";
+            out << "#MIN SCORE: " << corrPars[2].c_str() << "\n";
+            out << "#MINSS FRACTION: " << corrPars[3].c_str() << "\n";
+            out << "#DELTA FREQ: " << corrPars[4].c_str() << "\n";
+
+            for(int i = 0; i < this->corrGraph.size(); i++){
+                tuple<string,string,int> tupCorr = corrGraph[i];
+
+                out << std::get<0>(tupCorr).c_str() << " " << std::get<1>(tupCorr).c_str() << " " << std::get<2>(tupCorr) << "\n";
+            }
+
+            f.close();
+            break;
+        }
+        case 1:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "csv" && tempFN[tempFN.size()-1] != "CSV")
+                filename += ".csv";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            for(int i = 0; i < this->corrGraph.size(); i++){
+                tuple<string,string,int> tupCorr = corrGraph[i];
+
+                out << std::get<0>(tupCorr).c_str() << "," << std::get<1>(tupCorr).c_str() << "," << std::get<2>(tupCorr) << "\n";
+            }
+            f.close();
+            break;
+        }
+        case 2:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            vector<string> corrPars = this->getCorrelationParameters();
+
+            if(corrPars.size() == 0){
+                QMessageBox::warning(NULL,"Warning","Some data might corrupted. Try run correlation again");
+                return;
+            }
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            out << "\t<correlation>\n";
+            out << "\t\t<parameters>\n";
+
+            out << "\t\t\t<filter>" << corrPars[1].c_str() << "</filter>\n";
+            out << "\t\t\t<minScore>" << corrPars[2].c_str() << "</minScore>\n";
+            out << "\t\t\t<minss>" << corrPars[3].c_str() << "</minss>\n";
+            out << "\t\t\t<delta>" << corrPars[4].c_str() << "</delta>\n";
+
+            out << "\t\t</parameters>\n";
+
+            out << "\t\t<graph>\n";
+
+            for(int i = 0; i < this->corrGraph.size(); i++){
+                tuple<string,string,int> tupCorr = corrGraph[i];
+
+                out << "\t\t\t<entry res1=\"" << std::get<0>(tupCorr).c_str() << "\" res2=\"" << std::get<1>(tupCorr).c_str() << "\" value=\"" << std::get<2>(tupCorr) << "\" />\n";
+            }
+
+            out << "\t\t</graph>\n";
+            out << "\t</correlation>\n";
+            out << "</PFStats>\n";
+            f.close();
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+    QMessageBox::information(NULL,"Exporting Data","Correlation list data was exported.");
+}
+
+void Alignment::exportCommList(QString filename, int type){
+
+    switch(type){
+        case 0:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+                filename += ".txt";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << comunidades.size() << " communities\n";
+
+            for(int i = 0; i < comunidades.size(); i++){
+                out << comunidades[i].size() << " nodes in community " << i+1 << "\n";
+                for(int j = 0; j < comunidades[i].size(); j++){
+                    out << comunidades[i][j].c_str() << "\n";
+                }
+            }
+            f.close();
+
+            break;
+        }
+        case 1:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            out << "\t<communities>\n";
+
+            for(int i = 0; i < comunidades.size(); i++){
+                out << "\t\t<community id=\"" << i+1 << "\">\n";
+
+                for(int j = 0; j < comunidades[i].size(); j++){
+                    out << "\t\t\t<node>" << comunidades[i][j].c_str() << "</node>\n";
+                }
+
+                out << "\t\t</community>\n";
+            }
+
+            out << "\t</communities>\n";
+            out << "</PFStats>";
+            f.close();
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+    QMessageBox::information(NULL,"Exporting Data","Correlation list data was exported.");
+}
+
+void Alignment::exportCorrTable(QString filename, int type, bool perc){
+    if(perc){
+        switch(type){
+            case 0:
+            {
+                for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                    //QMessageBox::information(NULL,"OK","Teste");
+                    vector<string> tempFN = split(filename.toStdString(),'.');
+                    string path = "";
+                    if(tempFN.size() == 1) path = tempFN[0];
+                    else{
+                        for(int j = 0; j < tempFN.size()-1; j++){
+                            path +=tempFN[j];
+                        }
+                    }
+                    path += "_comm" + QString::number(i+1).toStdString() + ".txt";
+
+                    //Salva em arquivo
+                    QFile f(path.c_str());
+                    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                        return;
+                    }
+
+                    QTextStream out(&f);
+
+                    out << "ALL ";
+                    for(int j = 0; j < residuesComm[i].size(); j++){
+                        out << residuesComm[i][j].c_str() << " ";
+                    }
+                    out << "\n";
+
+                    for(int j = 0; j < communityX[i].size(); j++){
+                        out << residuesComm[i][j].c_str() << " " << QString::number(communityXAll[i][j],'f',2) << " ";
+
+                        for(int k = 0; k < communityX[i][j].size(); k++){
+                            if (communityX[i][j][k] == -1) out << "X ";
+                            else out << QString::number(communityX[i][j][k]*100,'f',4) << " ";
+                        }
+                        out << "\n";
+                    }
+
+                    f.close();
+                }
+
+                break;
+            }
+            case 1:
+            {
+                vector<string> tempFN = split(filename.toStdString(),'.');
+                if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                    filename += ".xml";
+
+                //Salva em arquivo
+                QFile f(filename);
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "<?xml version=\"1.0\"?>\n";
+                out << "<PFStats>\n";
+
+                for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                    out << "\t<community id=\"" << i+1 << "\">\n";
+                    out << "\t\t<table>\n";
+
+                    out << "<column>ALL</column>\n";
+                    for(int j = 0; j < residuesComm[i].size(); j++){
+                        out << "<column>" << residuesComm[i][j].c_str() << "</column>\n";
+                    }
+
+                    out << "\t\t</table>\n";
+
+                    out << "\t\t<table_data>\n";
+
+                    for(int j = 0; j < communityX[i].size(); j++){
+                        out << "\t\t\t<row id=\"" << j << "\" c0=\"" << QString::number(communityXAll[i][j],'f',2) << "\" ";
+
+                        for(int k = 0; k < communityX[i][j].size(); k++){
+                            if (communityX[i][j][k] == 0)
+                                out << "c" << k+1 << "=\"X\" ";
+                            else
+                                out << "c" << k+1 << "=\"" << QString::number(communityX[i][j][k]*100,'f',4) << "\" ";
+                        }
+                        out << "/>\n";
+                    }
+
+                    out << "\t\t</table_data>\n";
+
+                    out << "\t</community>\n";
+                }
+
+                out << "</PFStats>";
+
+                f.close();
+                break;
+            }
+            case 2:
+            {
+                for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                    vector<string> tempFN = split(filename.toStdString(),'.');
+                    string path = "";
+                    if(tempFN.size() == 1) path = tempFN[0];
+                    else{
+                        for(int j = 0; j < tempFN.size()-1; j++){
+                            path +=tempFN[j];
+                        }
+                    }
+                    path += "_comm" + QString::number(i+1).toStdString() + ".html";
+
+                    //Salva em arquivo
+                    QFile f(path.c_str());
+                    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                        return;
+                    }
+
+                    QTextStream out(&f);
+
+                    out << "<html>\n";
+                    out << "<body>\n";
+
+                    out << "<table border=1>\n";
+                    out << "<center>\n";
+
+                    out << "<tr>\n";
+                    out << "<th>POS</th>\n<th>ALL</th>\n";
+
+                    for(int j = 0; j < residuesComm[i].size(); j++){
+                        out << "<th>" << residuesComm[i][j].c_str() << "</th>\n";
+                    }
+
+                    out << "</tr>\n";
+
+                    for(int j = 0; j < communityX[i].size(); j++){
+                        out << "<tr>\n<td><b>" << residuesComm[i][j].c_str() << "</b></td>\n";
+                        out << "<td>" << QString::number(communityXAll[i][j],'f',1) << "</td>\n";
+
+                        for(int k = 0; k < communityX[i][j].size(); k++){
+                            if (communityX[i][j][k] == 0)
+                                out << "<td>X</td>\n";
+                            else
+                                if(communityX[i][j][k]*100 - communityXAll[i][j] > 15)
+                                    out << "<td><font color=#00FF00>" << QString::number(communityX[i][j][k]*100,'f',1) << "</td>\n";
+                                else out << "<td>" << QString::number(communityX[i][j][k]*100,'f',1) << "</td>\n";
+                        }
+                        out << "</tr>";
+                    }
+
+
+                    out << "</body>\n";
+                    out << "</html>";
+                    f.close();
+                }
+
+                break;
+            }
+            default:
+            {
+                QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+                return;
+            }
+        }
+    }else{
+        switch(type){
+            case 0:
+            {
+                for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                    //QMessageBox::information(NULL,"OK","Teste");
+                    vector<string> tempFN = split(filename.toStdString(),'.');
+                    string path = "";
+                    if(tempFN.size() == 1) path = tempFN[0];
+                    else{
+                        for(int j = 0; j < tempFN.size()-1; j++){
+                            path +=tempFN[j];
+                        }
+                    }
+                    path += "_comm" + QString::number(i+1).toStdString() + ".txt";
+
+                    //Salva em arquivo
+                    QFile f(path.c_str());
+                    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                        return;
+                    }
+
+                    QTextStream out(&f);
+
+                    for(int j = 0; j < residuesCommPs[i].size(); j++){
+                        out << residuesCommPs[i][j].c_str() << " ";
+                    }
+                    out << "\n";
+
+                    for(int j = 0; j < communityXps[i].size(); j++){
+                        out << residuesCommPs[i][j].c_str() << " ";
+
+                        for(int k = 0; k < communityXps[i][j].size(); k++){
+                            if (communityXps[i][j][k] == -1) out << "X ";
+                            else out << QString::number(communityXps[i][j][k]) << " ";
+                        }
+                        out << "\n";
+                    }
+
+                    f.close();
+                }
+                break;
+            }
+            case 1:
+            {
+                vector<string> tempFN = split(filename.toStdString(),'.');
+                if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                    filename += ".xml";
+
+                //Salva em arquivo
+                QFile f(filename);
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "<?xml version=\"1.0\"?>\n";
+                out << "<PFStats>\n";
+
+                for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                    out << "\t<community id=\"" << i+1 << "\">\n";
+                    out << "\t\t<table>\n";
+
+                    for(int j = 0; j < residuesCommPs[i].size(); j++){
+                        out << "<column>" << residuesCommPs[i][j].c_str() << "</column>\n";
+                    }
+
+                    out << "\t\t</table>\n";
+
+                    out << "\t\t<table_data>\n";
+
+                    for(int j = 0; j < communityXps[i].size(); j++){
+                        out << "\t\t\t<row id=\"" << j << "\" ";
+
+                        for(int k = 0; k < communityXps[i][j].size(); k++){
+                            if (communityXps[i][j][k] == 0)
+                                out << "c" << k << "=\"X\" ";
+                            else
+                                out << "c" << k << "=\"" << QString::number(communityXps[i][j][k]) << "\" ";
+                        }
+                        out << "/>\n";
+                    }
+
+                    out << "\t\t</table_data>\n";
+
+                    out << "\t</community>\n";
+                }
+
+                out << "</PFStats>";
+
+                f.close();
+                break;
+            }
+            case 2:
+            {
+                for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                    vector<string> tempFN = split(filename.toStdString(),'.');
+                    string path = "";
+                    if(tempFN.size() == 1) path = tempFN[0];
+                    else{
+                        for(int j = 0; j < tempFN.size()-1; j++){
+                            path +=tempFN[j];
+                        }
+                    }
+                    path += "_comm" + QString::number(i+1).toStdString() + ".html";
+
+                    //Salva em arquivo
+                    QFile f(path.c_str());
+                    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                        return;
+                    }
+
+                    QTextStream out(&f);
+
+                    out << "<html>\n";
+                    out << "<body>\n";
+
+                    out << "<table border=1>\n";
+                    out << "<center>\n";
+
+                    out << "<tr>\n";
+                    out << "<th>POS</th>\n";
+
+                    for(int j = 0; j < residuesCommPs[i].size(); j++){
+                        out << "<th>" << residuesCommPs[i][j].c_str() << "</th>\n";
+                    }
+
+                    out << "</tr>\n";
+
+                    for(int j = 0; j < communityXps[i].size(); j++){
+                        out << "<tr>\n<td><b>" << residuesCommPs[i][j].c_str() << "</b></td>\n";
+
+                        for(int k = 0; k < communityXps[i][j].size(); k++){
+                            if (communityXps[i][j][k] == 0)
+                                out << "<td>X</td>\n";
+                            else
+                                out << "<td>" << QString::number(communityXps[i][j][k]) << "</td>\n";
+                        }
+                        out << "</tr>";
+                    }
+
+
+                    out << "</table>\n";
+                    out << "</body>\n";
+                    out << "</html>";
+                    f.close();
+                }
+                break;
+            }
+            default:
+            {
+                QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+                return;
+            }
+        }
+    }
+
+    QMessageBox::information(NULL,"Exporting Data","Correlation table data was exported.");
+}
+
+void Alignment::exportAdh(QString filename, int type){
+    switch(type){
+        case 0:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+                filename += ".txt";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "PROTEIN_SEQUENCE\t";
+            for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                out << "Comm" << i+1 << " (" << residuesComm[i].size() << ")\t";
+            }
+            out << "\n";
+
+            for(int i = 0; i < sequences.size()-1; i++){
+                out << sequencenames[i].c_str() << "\t";
+
+                for(int j = 0; j < this->getNumOfUtilComms(); j++){
+                    if(Communities[j].aa.size() > 1){
+                        float psa = this->PSA(i,j);
+
+                        out << QString::number(psa,'f',6) << "\t";
+                    }
+                }
+                out << "\n";
+            }
+
+            f.close();
+            break;
+        }
+        case 1:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "csv" && tempFN[tempFN.size()-1] != "CSV")
+                filename += ".csv";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            for(int i = 0; i < sequences.size()-1; i++){
+                out << sequencenames[i].c_str();
+
+                for(int j = 0; j < this->getNumOfUtilComms(); j++){
+                    if(Communities[j].aa.size() > 1){
+                        float psa = this->PSA(i,j);
+
+                        out << "," << QString::number(psa,'f',6);
+                    }
+                }
+                out << "\n";
+            }
+
+            f.close();
+            break;
+        }
+        case 2:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            out << "<adherence>\n";
+
+            for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                if(Communities[i].aa.size() > 1){
+                    out << "\t<community id=\"" << i+1 << "\">\n";
+
+                    for(int j = 0; j < sequences.size()-1; j++){
+                        float psa = this->PSA(j,i);
+
+                        out << "\t\t<protein value=\"" << QString::number(psa,'f',6) << "\">" << sequencenames[j].c_str() << "</protein>\n";
+                    }
+                    out << "\t</community>\n";
+                }
+            }
+
+            out << "</adherence>\n";
+            out << "</PFStats>\n";
+
+            f.close();
+            break;
+        }
+        case 3:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "html" && tempFN[tempFN.size()-1] != "HTML")
+                filename += ".html";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<html>\n";
+            out << "<body>\n";
+
+            out << "<table border=1>\n";
+            out << "<center>\n";
+
+            out << "<tr>\n";
+            out << "<th>PROTEIN SEQUENCE</th>\n";
+
+            for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                out << "<th>Comm" << i+1 << " (" << residuesComm[i].size() << ")</th>\n";
+            }
+            out << "</tr>\n";
+
+            for(int i = 0; i < sequences.size()-1; i++){
+                out << "<tr>\n<td><b>" << sequencenames[i].c_str() << "</b></td>\n";
+
+                for(int j = 0; j < this->getNumOfUtilComms(); j++){
+                    if(Communities[j].aa.size() > 1){
+                        float psa = this->PSA(i,j);
+
+                        out << "<td>" << QString::number(psa,'f',6) << "</td>\n";
+                    }
+                }
+                out << "</tr>\n";
+            }
+
+            out << "</table></body>\n</html>";
+
+            f.close();
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+    QMessageBox::information(NULL,"Exporting Data","Adherence data was exported.");
+}
+
+void Alignment::exportResComm(QString filename, int type, vector<int> refSeqs){
+
+    switch(type){
+        case 0:
+        {
+            for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                vector<string> tempFN = split(filename.toStdString(),'.');
+                string path = "";
+                if(tempFN.size() == 1) path = tempFN[0];
+                else{
+                    for(int j = 0; j < tempFN.size()-1; j++){
+                        path +=tempFN[j];
+                    }
+                }
+                path += "_comm" + QString::number(i+1).toStdString() + ".txt";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+
+                out << "Sequence";
+
+                for(int j = 0; j < Communities[i].pos.size(); j++){
+                    string textCab = Communities[i].aa[j] + QString::number(Communities[i].pos[j]+1).toStdString();
+                    out << "\t" << textCab.c_str();
+                }
+                out << "\n";
+
+                for(int j = 0; j < refSeqs.size(); j++){
+                    out << sequencenames[refSeqs[j]].c_str();
+
+                    for(int k = 0; k < Communities[i].pos.size(); k++){
+                        if(sequences[refSeqs[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
+                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+
+                            out << "\t" << textItem.c_str();
+                        }else{
+                            if(sequences[refSeqs[j]][Communities[i].pos[k]] == '-')
+                                out << "\t - ";
+                            else{
+                                string textItem = sequences[refSeqs[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+
+                                out << "\t" << textItem.c_str();
+                            }
+                        }
+                    }
+                    out << "\n";
+                }
+                f.close();
+            }
+            break;
+        }
+        case 1:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            out << "<commRes>\n";
+
+            for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                out << "\t<community id=\"" << i+1 << "\">\n";
+
+                for(int j = 0; j < Communities[i].pos.size(); j++){
+                    string textCab = Communities[i].aa[j] + QString::number(Communities[i].pos[j]+1).toStdString();
+                    out << "\t\t<residue alignNumber=\"" << textCab.c_str() << "\">\n";
+
+
+                    for(int k = 0; k < refSeqs.size(); k++){
+                        if(sequences[refSeqs[k]][Communities[i].pos[j]] == Communities[i].aa[j]){
+                            string textItem = Communities[i].aa[j] + QString::number(AlignNumbering2Sequence(refSeqs[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refSeqs[k]])).toStdString();
+
+                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"true\">" << sequencenames[refSeqs[k]].c_str() << "</sequence>\n";
+                        }else if(sequences[refSeqs[k]][Communities[i].pos[j]] != '-'){
+                            string textItem = sequences[refSeqs[k]][Communities[i].pos[j]] + QString::number(AlignNumbering2Sequence(refSeqs[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refSeqs[k]])).toStdString();
+
+                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"false\">" << sequencenames[refSeqs[k]].c_str() << "</sequence>\n";
+                        }
+                    }
+
+                    out << "\t\t</residue>\n";
+                }
+
+                out << "\t</community>\n";
+            }
+
+            out << "</commRes>\n";
+            out << "</PFStats>";
+
+            f.close();
+            break;
+        }
+        case 2:
+        {
+            for(int i = 0; i < this->getNumOfUtilComms(); i++){
+                vector<string> tempFN = split(filename.toStdString(),'.');
+                string path = "";
+                if(tempFN.size() == 1) path = tempFN[0];
+                else{
+                    for(int j = 0; j < tempFN.size()-1; j++){
+                        path +=tempFN[j];
+                    }
+                }
+                path += "_comm" + QString::number(i+1).toStdString() + ".html";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "<html>\n";
+                out << "<body>\n";
+
+                out << "<table border=1>\n";
+                out << "<center>\n";
+
+                out << "<tr>\n";
+                out << "<th>Sequence</th>\n";
+
+                for(int j = 0; j < Communities[i].pos.size(); j++){
+                    string textCab = Communities[i].aa[j] + QString::number(Communities[i].pos[j]+1).toStdString();
+                    out << "<th>" << textCab.c_str() << "</th>\n";
+                }
+                out << "</tr>\n";
+
+                for(int j = 0; j < refSeqs.size(); j++){
+                    out << "<tr>\n<td><b>" << sequencenames[refSeqs[j]].c_str() << "</b></td>\n";
+
+                    for(int k = 0; k < Communities[i].pos.size(); k++){
+                        if(sequences[refSeqs[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
+                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+
+                            out << "<td><b><font color=#00FF00>" << textItem.c_str() << "</font></b></td>\n";
+                        }else{
+                            if(sequences[refSeqs[j]][Communities[i].pos[k]] == '-')
+                                out << "<td><center>-</center></td>\n";
+                            else{
+                                string textItem = sequences[refSeqs[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+
+                                out << "<td>" << textItem.c_str() << "</td>\n";
+                            }
+                        }
+                    }
+                    out << "</tr>\n";
+                }
+                out << "</table>\n";
+                out << "</body>\n";
+                out << "</html>";
+                f.close();
+            }
+
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+
+    QMessageBox::information(NULL,"Exporting Data","Residues of communities data was exported.");
 }

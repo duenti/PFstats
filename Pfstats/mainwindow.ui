@@ -408,148 +408,11 @@
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QWidget" name="layoutWidget_2">
-      <property name="geometry">
-       <rect>
-        <x>130</x>
-        <y>130</y>
-        <width>272</width>
-        <height>136</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
-         <item>
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Reference Sequence:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="cmbRefSeq"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_11">
-         <item>
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Minimum Coverage:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="txtMinCover">
-           <property name="minimum">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.800000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_12">
-         <item>
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Minimu Identy:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="txtMinId">
-           <property name="minimum">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.150000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_13">
-         <item>
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Maximum Identy:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_7">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="txtMaxId">
-           <property name="minimum">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.800000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
      <widget class="QPushButton" name="cmdApplyFilter">
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>270</y>
+        <y>310</y>
         <width>80</width>
         <height>23</height>
        </rect>
@@ -570,6 +433,157 @@
       <property name="text">
        <string>(Full Alignment)</string>
       </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>130</y>
+        <width>262</width>
+        <height>166</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_19">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Reference Sequence:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="cmbRefSeq"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <item>
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Minimum Coverage:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="txtMinCover">
+             <property name="minimum">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.800000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>Minimu Identy:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="txtMinId">
+             <property name="minimum">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.150000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <item>
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>Maximum Identy:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="txtMaxId">
+             <property name="minimum">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.800000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkIntermediateFilter">
+         <property name="text">
+          <string>Generate intermediate filters</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="page_4">
@@ -877,7 +891,7 @@ This module implements the procedure described in (Dima and Thirumalai 2006). It
       <property name="geometry">
        <rect>
         <x>40</x>
-        <y>180</y>
+        <y>190</y>
         <width>541</width>
         <height>291</height>
        </rect>
@@ -887,54 +901,65 @@ This module implements the procedure described in (Dima and Thirumalai 2006). It
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>140</y>
-        <width>390</width>
-        <height>29</height>
+        <y>120</y>
+        <width>406</width>
+        <height>54</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_19">
+      <layout class="QVBoxLayout" name="verticalLayout_18">
        <item>
-        <widget class="QLabel" name="label_22">
+        <widget class="QLabel" name="lblNseq">
          <property name="text">
-          <string>Number of sub-alignments:</string>
+          <string>Number of sequences in the alignment: </string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="txtNoAlignments">
-         <property name="minimumSize">
-          <size>
-           <width>60</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximum">
-          <number>10000</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="cmdMinss">
-         <property name="text">
-          <string>Calculate</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_19">
+         <item>
+          <widget class="QLabel" name="label_22">
+           <property name="text">
+            <string>Number of sub-alignments:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="txtNoAlignments">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="value">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdMinss">
+           <property name="text">
+            <string>Calculate</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -1190,7 +1215,7 @@ This will calculate a set of correlation scores for the full alignment, using th
        </rect>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>7</number>
       </property>
       <widget class="QWidget" name="page_8">
        <widget class="QGroupBox" name="groupBox_5">
@@ -1254,7 +1279,7 @@ This will calculate a set of correlation scores for the full alignment, using th
             <item>
              <widget class="QCheckBox" name="checkResults4">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>Conserved Residues</string>
@@ -1303,7 +1328,7 @@ This will calculate a set of correlation scores for the full alignment, using th
             <item>
              <widget class="QCheckBox" name="checkResults10">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>Residues of communities</string>
@@ -2537,13 +2562,43 @@ This will calculate a set of correlation scores for the full alignment, using th
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>9</x>
-      <y>9</y>
+      <x>11</x>
+      <y>10</y>
       <width>258</width>
-      <height>511</height>
+      <height>551</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_11">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_23">
+       <item>
+        <widget class="QLabel" name="label_45">
+         <property name="text">
+          <string>Alignment:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cmdRemoveAlignment">
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item>
       <widget class="QListWidget" name="listWidget">
        <property name="maximumSize">
@@ -2553,6 +2608,42 @@ This will calculate a set of correlation scores for the full alignment, using th
         </size>
        </property>
       </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_16">
+       <item>
+        <widget class="QLabel" name="label_46">
+         <property name="text">
+          <string>Filter:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cmdRemoveFilter">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QListWidget" name="listWidget2"/>
@@ -2598,11 +2689,116 @@ This will calculate a set of correlation scores for the full alignment, using th
    </widget>
    <widget class="QMenu" name="menuShow">
     <property name="title">
-     <string>Show</string>
+     <string>Visualize</string>
     </property>
+    <addaction name="actionResults_Table"/>
+    <addaction name="actionConservation_Scatterplot"/>
+    <addaction name="actionConserved_Residues_in_Structure"/>
+    <addaction name="actionCommunities_Graph"/>
+   </widget>
+   <widget class="QMenu" name="menuExport">
+    <property name="title">
+     <string>Export</string>
+    </property>
+    <widget class="QMenu" name="menuAlignment">
+     <property name="title">
+      <string>Alignment</string>
+     </property>
+     <addaction name="actionAlignmentPFAM"/>
+     <addaction name="actionAlignmentTXT"/>
+     <addaction name="actionAlignmentXML"/>
+    </widget>
+    <widget class="QMenu" name="menuFrequence_Conservation">
+     <property name="title">
+      <string>Frequence Conservation</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionFreqTXT"/>
+     <addaction name="actionFreqCSV"/>
+     <addaction name="actionFreqXML"/>
+     <addaction name="actionFreqHTML"/>
+    </widget>
+    <widget class="QMenu" name="menuFrequence_Conservation_2">
+     <property name="title">
+      <string>Frequence Conservation (%)</string>
+     </property>
+     <addaction name="actionFreqPercTXT"/>
+     <addaction name="actionFreqPercCSV"/>
+     <addaction name="actionFreqPercXML"/>
+     <addaction name="actionFreqPercHTML"/>
+    </widget>
+    <widget class="QMenu" name="menuConserved_Residues">
+     <property name="title">
+      <string>Conserved Residues</string>
+     </property>
+     <addaction name="actionConsResTXT"/>
+     <addaction name="actionConsResXML"/>
+     <addaction name="actionConsResHTML"/>
+    </widget>
+    <widget class="QMenu" name="menuCorrelation_List">
+     <property name="title">
+      <string>Correlation List</string>
+     </property>
+     <addaction name="actionCorrListTXT"/>
+     <addaction name="actionCorrListCSV"/>
+     <addaction name="actionCorrListXML"/>
+    </widget>
+    <widget class="QMenu" name="menuCommunities">
+     <property name="title">
+      <string>Communities</string>
+     </property>
+     <addaction name="actionCommTXT"/>
+     <addaction name="actionCommXML"/>
+    </widget>
+    <widget class="QMenu" name="menuCorrelation_Tables">
+     <property name="title">
+      <string>Correlation Tables (%)</string>
+     </property>
+     <addaction name="actionCorrTablePercTXT"/>
+     <addaction name="actionCorrTablePercXML"/>
+     <addaction name="actionCorrTablePercHTML"/>
+    </widget>
+    <widget class="QMenu" name="menuCorrelation_Tables_Log_P">
+     <property name="title">
+      <string>Correlation Tables (Log P)</string>
+     </property>
+     <addaction name="actionCorrTableTXT"/>
+     <addaction name="actionCorrTableXML"/>
+     <addaction name="actionCorrTableHTML"/>
+    </widget>
+    <widget class="QMenu" name="menuAdherence_Matrix">
+     <property name="title">
+      <string>Adherence Matrix</string>
+     </property>
+     <addaction name="actionAdhTXT"/>
+     <addaction name="actionAdhCSV"/>
+     <addaction name="actionAdhXML"/>
+     <addaction name="actionAdhHTML"/>
+    </widget>
+    <widget class="QMenu" name="menuResidues_Of_Communities">
+     <property name="title">
+      <string>Residues Of Communities</string>
+     </property>
+     <addaction name="actionResCommTXT"/>
+     <addaction name="actionResCommXML"/>
+     <addaction name="actionResCommHTML"/>
+    </widget>
+    <addaction name="menuAlignment"/>
+    <addaction name="separator"/>
+    <addaction name="menuFrequence_Conservation"/>
+    <addaction name="menuFrequence_Conservation_2"/>
+    <addaction name="menuConserved_Residues"/>
+    <addaction name="separator"/>
+    <addaction name="menuCorrelation_List"/>
+    <addaction name="menuCommunities"/>
+    <addaction name="menuCorrelation_Tables"/>
+    <addaction name="menuCorrelation_Tables_Log_P"/>
+    <addaction name="menuAdherence_Matrix"/>
+    <addaction name="menuResidues_Of_Communities"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMethod"/>
+   <addaction name="menuExport"/>
    <addaction name="menuShow"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -2670,6 +2866,186 @@ This will calculate a set of correlation scores for the full alignment, using th
     <string>Open XML</string>
    </property>
   </action>
+  <action name="actionAlignmentPFAM">
+   <property name="text">
+    <string>PFAM</string>
+   </property>
+  </action>
+  <action name="actionAlignmentTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionAlignmentXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionFreqTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionFreqCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionFreqXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionFreqHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionFreqPercTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionFreqPercCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionFreqPercXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionFreqPercHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionResults_Table">
+   <property name="text">
+    <string>Results Table</string>
+   </property>
+  </action>
+  <action name="actionConservation_Scatterplot">
+   <property name="text">
+    <string>Conservation Scatterplot</string>
+   </property>
+  </action>
+  <action name="actionCommunities_Graph">
+   <property name="text">
+    <string>Communities Graph</string>
+   </property>
+  </action>
+  <action name="actionConserved_Residues_in_Structure">
+   <property name="text">
+    <string>Conserved Residues in Structure</string>
+   </property>
+  </action>
+  <action name="actionConsResXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionConsResHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionConsResTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionCorrListTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionCorrListCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionCorrListXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionCommTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionCommXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionCorrTablePercTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionCorrTablePercXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionCorrTablePercHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionCorrTableTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionCorrTableXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionCorrTableHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionAdhTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionAdhCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionAdhXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionAdhHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionResCommTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionResCommXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionResCommHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2685,7 +3061,7 @@ This will calculate a set of correlation scores for the full alignment, using th
  <buttongroups>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

@@ -32,6 +32,7 @@ private:
     vector<float> minssData; //Resetando
     vector<float> consDG;//Resetando
     vector<string> consParams;
+    vector<string> consRefSeqs;
     vector<vector<int> > consvfreq;//Resetando
     vector<vector<float> > consfreqPerc;//Resetando
     vector<tuple<string,string,int> > corrGraph;//Resetando
@@ -91,11 +92,17 @@ public:
     void setWebPDBDir(string dir);
     vector<vector<string> > getAllFilters();
     vector<vector<string> > getAllSequences();
+    void removeFilterItem(int pos);
+    string getFilterName(int i,int j);
+    int getFilterSize();
+    void addSequence();
     vector<tuple<string,string,int> > getCorrelationGraph();
     tuple<string,string,int> getCorrelationEdge(int i);
     int getCorrelationGraphSize();
     void addCorrRefSeq(string seq);
+    string getCorrRefSeq(int i);
     void clearCorrRefSeq();
+    int getCorrRefSeqsSize();
     void addCommunity(vector<string> comm);
     void clearCommunity();
     void printCorrGraph();
@@ -105,6 +112,10 @@ public:
     void setConsDG(vector<float> dg);
     void addConsFreqRow(vector<int> consfreq);
     void addConsFreqPercRow(vector<float> cfreqperc);
+    void clearConsRefs();
+    void addConsRef(string ref);
+    int getConsRefsSize();
+    string getConsref(int i);
     void setMinssVector(vector<float> minss);
     void addCorrGraphEdge(string v1, string v2, int e);
     void addResiduesComm(vector<string> comm);
@@ -187,9 +198,9 @@ public:
     float Identity(int seq1, int seq2); //[OK]
     int SeqSize(int seq); //[OK]
     void IdentityMatrixCalculation();
-    void IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string newalignmentfilename="");//[OK]
-    void IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string newalignmentfilename="");//[OK]
-    void AlignmentTrimming(float minocc, int refseq, string refseqName, string newalignmentfilename="");//[OK]
+    void IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void AlignmentTrimming(float minocc, int refseq, string refseqName, string refSeq,bool intermediate = true, string newalignmentfilename="");//[OK]
     void UniprotList(string uniprotlistfilename, string newalignmentfilename);
     void IdentityStatistics(string familyid);
     void dGCalculation();//[OK]
@@ -201,6 +212,7 @@ public:
     void NormalizedG(); //[OK]
     int seqcode2seqint (string refseqcode); //[OK]
     void writedGtoPDB(string PDBfilename, string dgPDBfilename,int initres,char chain,int seqnumber);//[OK]
+    void writeCommtoPDB(string PDBfilename, string commPDBfilename, int initres, char chain, int seqnumber);
     void SubAlignmentIndices(char aa,int pos); //[OK]
     int SubAlignmentFrequency(char aa,int pos); //[OK]
     int Singlepvalue(char aa1,int pos1, char aa2, int pos2); //[OK]
@@ -221,12 +233,22 @@ public:
     void CalculateHighlyConservedPositions();
     void SuccessiveRandomElimination(string outputfilename, int step, int repetitions, int endvalue=100);
     vector<float> DTRandomElimination(int repetitions, int max, int min, int step); //[OK]
+    void calculateShenkin(int numseqs);
+    vector<float> ShenkinEntropy(int repetitions, int gapFilter);
     void Cluster2SCM(string clusterfilename, string path, bool renumber, int seqnumber, int offset, bool html, bool text); //[OK]
     void Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset); //[10%]
     void Cluster2PymolScript(string clusterfilename, string familyID, int seqnumber, int offset);
     void AlignmentWrite(string outputfilename); //[OK]
     vector<string> getSequencesName(); //[OK]
     string getSequence(string seqname);
+    void exportAlignment(QString filename, string filter, int type); //TYPE: 0-PFAM, 1-TXT, 2-XML
+    void exportFreq(QString filename, int type, bool perc=false); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML //PERC: TRUE = In %
+    void exportConsRes(QString filename, int type, float mincons, vector<int> refSeqs); //TYPE: 0-TXT, 1-XML, 2-HTML
+    void exportCorrGraph(QString filename, int type); //TYPE: 0-TXT 1-CSV 2-XML
+    void exportCommList(QString filename, int type); //TYPE: 0-TXT 1-XML
+    void exportCorrTable(QString filename, int type, bool perc=true); //TYPE: 0-TXT, 1-XML, 2-HTML
+    void exportAdh(QString filename, int type); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML
+    void exportResComm(QString filename, int type, vector<int> refSeqs); //TYPE: 0-TXT, 1-XML, 2-HTML
 };
 
 #endif // ALIGNMENT_H

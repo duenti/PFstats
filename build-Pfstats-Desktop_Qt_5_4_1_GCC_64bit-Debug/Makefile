@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -Wall -W -D_REENTRANT -fPIE $(DEFINES)
-CXXFLAGS      = -pipe -std=c++11 -g -Wall -W -D_REENTRANT -fPIE $(DEFINES)
+CXXFLAGS      = -pipe -std=c++11 -fopenmp -g -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 INCPATH       = -I../Pfstats -I. -I../../../Qt/5.4/gcc_64/include -I../../../Qt/5.4/gcc_64/include/QtPrintSupport -I../../../Qt/5.4/gcc_64/include/QtWidgets -I../../../Qt/5.4/gcc_64/include/QtGui -I../../../Qt/5.4/gcc_64/include/QtNetwork -I../../../Qt/5.4/gcc_64/include/QtCore -I. -I. -I../../../Qt/5.4/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/neli/Qt/5.4/gcc_64/bin/qmake
 DEL_FILE      = rm -f
@@ -36,7 +36,7 @@ DISTNAME      = Pfstats1.0.0
 DISTDIR = /home/neli/Dropbox/Pfstats\ UI/Pfstats/.tmp/Pfstats1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/home/neli/Qt/5.4/gcc_64 -Wl,-rpath,/home/neli/Qt/5.4/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/home/neli/Qt/5.4/gcc_64/lib -lQt5PrintSupport -lQt5Widgets -lQt5Gui -lQt5Network -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -fopenmp -L/home/neli/Qt/5.4/gcc_64/lib -lQt5PrintSupport -lQt5Widgets -lQt5Gui -lQt5Network -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -1844,6 +1844,9 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qinputmethod.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QButtonGroup \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qbuttongroup.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QCheckBox \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qcheckbox.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qabstractbutton.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QComboBox \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qcombobox.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
@@ -1860,14 +1863,13 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtCore/qabstractitemmodel.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QDoubleSpinBox \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qspinbox.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/QGridLayout \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qgridlayout.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qlayout.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qlayoutitem.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qboxlayout.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QGroupBox \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qgroupbox.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QHBoxLayout \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qboxlayout.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qlayout.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qlayoutitem.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qgridlayout.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QHeaderView \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qheaderview.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qabstractitemview.h \
@@ -1890,7 +1892,6 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qmenubar.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QPushButton \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qabstractbutton.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QRadioButton \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qradiobutton.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QSpacerItem \
@@ -1899,8 +1900,18 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qstackedwidget.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QStatusBar \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qstatusbar.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QTableWidget \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qtablewidget.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qtableview.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QTextEdit \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qtextedit.h \
+		../../../Qt/5.4/gcc_64/include/QtGui/qtextdocument.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QToolBar \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qtoolbar.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QTreeWidget \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qtreewidget.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qtreeview.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/qtreewidgetitemiterator.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QVBoxLayout \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QWidget \
 		../Pfstats/qcustomplot.h \
@@ -2107,7 +2118,6 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qglyphrun.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qrawfont.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qfontdatabase.h \
-		../../../Qt/5.4/gcc_64/include/QtGui/qtextdocument.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qstatictext.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qsyntaxhighlighter.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qtextobject.h \
@@ -2159,11 +2169,6 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qitemdelegate.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qitemeditorfactory.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qstyleditemdelegate.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qtableview.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qtablewidget.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qtreeview.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qtreewidget.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qtreewidgetitemiterator.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qformlayout.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QLayout \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qgesture.h \
@@ -2195,7 +2200,6 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qundostack.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qundoview.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qcalendarwidget.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qcheckbox.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qcommandlinkbutton.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qdatetimeedit.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qdial.h \
@@ -2208,7 +2212,6 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qmdiarea.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qmdisubwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qplaintextedit.h \
-		../../../Qt/5.4/gcc_64/include/QtWidgets/qtextedit.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qprogressbar.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qscrollbar.h \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/qsizegrip.h \

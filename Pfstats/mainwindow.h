@@ -26,6 +26,39 @@ private slots:
     void fetchPFAM_triggered();
     void exportAlignment_triggered();
     void Open_XML_triggered();
+    void exportAlignment_PFAM();
+    void exportAlignment_TXT();
+    void exportAlignment_XML();
+    void exportFreqTXT();
+    void exportFreqCSV();
+    void exportFreqXML();
+    void exportFreqHTML();
+    void exportFreqPercTXT();
+    void exportFreqPercCSV();
+    void exportFreqPercXML();
+    void exportFreqPercHTML();
+    void exportConsResTXT();
+    void exportConsResXML();
+    void exportConsResHTML();
+    void exportCorrListTXT();
+    void exportCorrListCSV();
+    void exportCorrListXML();
+    void exportCommsTXT();
+    void exportCommsXML();
+    void exportCorrTablePercTXT();
+    void exportCorrTablePercXML();
+    void exportCorrTablePercHTML();
+    void exportCorrTableTXT();
+    void exportCorrTableXML();
+    void exportCorrTableHTML();
+    void exportAdhTXT();
+    void exportAdhCSV();
+    void exportAdhXML();
+    void exportAdhHTML();
+    void exportResCommTXT();
+    void exportResCommXML();
+    void exportResCommHTML();
+
 
     void on_cmdStartWizard_clicked();
     void on_cmdMain_clicked();
@@ -79,6 +112,10 @@ private slots:
 
     void on_cmdBackResComm_clicked();
 
+    void on_cmdRemoveFilter_clicked();
+
+    void on_cmdRemoveAlignment_clicked();
+
 private:
     Ui::MainWindow *ui;
     void changeWizardCmds(bool bl);
@@ -96,7 +133,7 @@ private:
     string makeNewPath(string oldPath, string fileSufix);
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
-    void alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName);
+    void alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName, bool intermediate = true);
     void conservation(int ai, int refseq, int offset, char chain, float minCons, string pdbfile = "");
     void conservedresidues(int ai, vector<int> referencesequences, float minconservation);
     vector<float> minss(int ai, int repetitions); //from 100 to 1;

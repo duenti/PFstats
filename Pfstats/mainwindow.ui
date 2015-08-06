@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>6</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page">
      <widget class="QLabel" name="label">
@@ -102,8 +102,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>&lt;h1&gt;Step 1 - Getting An Alignment&lt;/h1&gt;
-&lt;p&gt;You can Choose from get an Alignment from your own computer or directly from PFAM&lt;/p&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Getting An Alignment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You can Choose from get an Alignment from your own computer or directly from PFAM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -401,8 +400,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>&lt;h1&gt;Step 2 - Filtering Alignment&lt;/h1&gt;
-&lt;p&gt;Even high quality alignments such as those available in PFAM usually need some filtering in order to eliminate or minimize known problems.&lt;/p&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Filtering Alignment&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Even high quality alignments such as those available in PFAM usually need some filtering in order to eliminate or minimize known problems.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -597,7 +595,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Step 3 - Conservation&lt;/span&gt;&lt;/p&gt;&lt;p&gt;A series of simple frequency-based calculations are done using conservation.&lt;/p&gt;&lt;p&gt;At this step, you might need a PDB file, you can get one by visiting &lt;span style=&quot; font-style:italic;&quot;&gt;pdb.org&lt;/span&gt; or fetching from here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Conservation&lt;/span&gt;&lt;/p&gt;&lt;p&gt;A series of simple frequency-based calculations are done using conservation.&lt;/p&gt;&lt;p&gt;At this step, you might need a PDB file, you can get one by visiting &lt;span style=&quot; font-style:italic;&quot;&gt;pdb.org&lt;/span&gt; or fetching from here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -837,22 +835,39 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="">
        <property name="geometry">
         <rect>
-         <x>320</x>
-         <y>20</y>
+         <x>321</x>
+         <y>10</y>
          <width>258</width>
-         <height>217</height>
+         <height>222</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_16">
         <item>
-         <widget class="QLabel" name="label_44">
-          <property name="text">
-           <string>Secundary Reference Sequences:</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_25">
+          <item>
+           <widget class="QLabel" name="label_44">
+            <property name="text">
+             <string>Secundary Reference Sequences:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="cmdUploadConsRefsSeqs">
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QListWidget" name="lstRefSeqs">
@@ -876,12 +891,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Step 4 - Minss&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;
-This module implements the procedure described in (Dima and Thirumalai 2006). It calculates the average conservation for the full alignment and then for multiple sub-alignments with decreasing sizes.
-&lt;/p&gt;
-
-&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Minss&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This module implements the procedure described in (Dima and Thirumalai 2006). It calculates the average conservation for the full alignment and then for multiple sub-alignments with decreasing sizes. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -975,12 +985,7 @@ This module implements the procedure described in (Dima and Thirumalai 2006). It
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Step 5 - Correlation&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;
-This will calculate a set of correlation scores for the full alignment, using the cutoffs provided by the user.
-&lt;/p&gt;
-
-&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Correlation&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will calculate a set of correlation scores for the full alignment, using the cutoffs provided by the user. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -998,32 +1003,6 @@ This will calculate a set of correlation scores for the full alignment, using th
       <property name="text">
        <string>Calculate</string>
       </property>
-     </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>291</x>
-        <y>150</y>
-        <width>321</width>
-        <height>311</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
-       <item>
-        <widget class="QLabel" name="label_31">
-         <property name="text">
-          <string>Secundary Reference Sequences:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="lstRefSeqs_2">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::MultiSelection</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
@@ -1183,6 +1162,49 @@ This will calculate a set of correlation scores for the full alignment, using th
           </widget>
          </item>
         </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>292</x>
+        <y>151</y>
+        <width>281</width>
+        <height>351</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_28">
+         <item>
+          <widget class="QLabel" name="label_31">
+           <property name="text">
+            <string>Secundary Reference Sequences:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdCorRefSeqs">
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="lstRefSeqs_2">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -2783,11 +2805,26 @@ This will calculate a set of correlation scores for the full alignment, using th
      <addaction name="actionResCommXML"/>
      <addaction name="actionResCommHTML"/>
     </widget>
+    <widget class="QMenu" name="menuConservation_Reference_Sequences">
+     <property name="title">
+      <string>Conservation Reference Sequences</string>
+     </property>
+     <addaction name="actionConsRefsTXT"/>
+     <addaction name="actionConsRefsXML"/>
+    </widget>
+    <widget class="QMenu" name="menuCorrelation_Reference_Sequences">
+     <property name="title">
+      <string>Correlation Reference Sequences</string>
+     </property>
+     <addaction name="actionCorrRefsTXT"/>
+     <addaction name="actionCorrRefsXML"/>
+    </widget>
     <addaction name="menuAlignment"/>
     <addaction name="separator"/>
     <addaction name="menuFrequence_Conservation"/>
     <addaction name="menuFrequence_Conservation_2"/>
     <addaction name="menuConserved_Residues"/>
+    <addaction name="menuConservation_Reference_Sequences"/>
     <addaction name="separator"/>
     <addaction name="menuCorrelation_List"/>
     <addaction name="menuCommunities"/>
@@ -2795,6 +2832,7 @@ This will calculate a set of correlation scores for the full alignment, using th
     <addaction name="menuCorrelation_Tables_Log_P"/>
     <addaction name="menuAdherence_Matrix"/>
     <addaction name="menuResidues_Of_Communities"/>
+    <addaction name="menuCorrelation_Reference_Sequences"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMethod"/>
@@ -3044,6 +3082,26 @@ This will calculate a set of correlation scores for the full alignment, using th
   <action name="actionResCommHTML">
    <property name="text">
     <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionConsRefsTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionConsRefsXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionCorrRefsTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionCorrRefsXML">
+   <property name="text">
+    <string>XML</string>
    </property>
   </action>
  </widget>

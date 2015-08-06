@@ -59,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionResCommTXT,SIGNAL(triggered()),this,SLOT(exportResCommTXT()));
     connect(ui->actionResCommXML,SIGNAL(triggered()),this,SLOT(exportResCommXML()));
     connect(ui->actionResCommHTML,SIGNAL(triggered()),this,SLOT(exportResCommHTML()));
+    connect(ui->actionConsRefsTXT,SIGNAL(triggered()),this,SLOT(exportConsRefsTXT()));
+    connect(ui->actionConsRefsXML,SIGNAL(triggered()),this,SLOT(exportConsRefsXML()));
+    connect(ui->actionCorrRefsTXT,SIGNAL(triggered()),this,SLOT(exportCorrRefsTXT()));
+    connect(ui->actionCorrRefsXML,SIGNAL(triggered()),this,SLOT(exportCorrRefsXML()));
 }
 
 MainWindow::~MainWindow()
@@ -1945,6 +1949,7 @@ void MainWindow::on_cmdCorrelation_clicked()
         ids += indexList.at(j).row();
     }
 
+    alinhamentos[i].clearCorrRefSeq();
     for(int j = 0; j < ids.size(); j++){
         //QMessageBox::information(this,"ok",QString::number(ids[j]));
         alinhamentos[i].addCorrRefSeq(ui->lstRefSeqs_2->item(ids[j])->text().toStdString());
@@ -2004,11 +2009,27 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     //printf("SIZE: %d",sequences.size());
     vector<string> fullAlign = alinhamentos[i].getFullAlignment();
     //printf("\n%d\n",fullAlign.size());
-    for(int i = 0; i < fullAlign.size(); i++){
-        vector<string> splitVec = this->split(fullAlign[i],'/');
+    for(int i1 = 0; i1 < fullAlign.size(); i1++){
+        vector<string> splitVec = this->split(fullAlign[i1],'/');
         ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
         ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
         ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
+
+        for(int j = 0; j < alinhamentos[i].getConsRefsSize(); j++){
+            string ref1 = alinhamentos[i].getConsref(j);
+            if(splitVec[0] == ref1){
+                ui->lstRefSeqs->item(i1)->setSelected(true);
+                break;
+            }
+        }
+
+        for(int j = 0; j < alinhamentos[i].getCorrRefSeqsSize(); j++){
+            string ref1 = alinhamentos[i].getCorrRefSeq(j);
+            if(splitVec[0] == ref1){
+                ui->lstRefSeqs_2->item(i1)->setSelected(true);
+                break;
+            }
+        }
     }
 
     ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(fullAlign.size()));
@@ -3811,6 +3832,82 @@ void MainWindow::exportConsResHTML(){
     alinhamentos[i].exportConsRes(filename,2,ui->txtMinConserv->value(),refSeqs);
 }
 
+void MainWindow::exportConsRefsTXT(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getConsRefsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+
+    vector<string> refSeqs;
+    for(int i2 = 0; i2 < alinhamentos[i].getConsRefsSize(); i2++){
+        string ref1 = alinhamentos[i].getConsref(i2);
+        printf("%s\n",ref1.c_str());
+        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
+            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
+            if(ref1 == ref2){
+                refSeqs.push_back(ref1);
+                break;
+            }
+        }
+    }
+
+    alinhamentos[i].exportRefs(filename,0,refSeqs);
+}
+
+void MainWindow::exportConsRefsXML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getConsRefsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+
+    vector<string> refSeqs;
+    for(int i2 = 0; i2 < alinhamentos[i].getConsRefsSize(); i2++){
+        string ref1 = alinhamentos[i].getConsref(i2);
+        printf("%s\n",ref1.c_str());
+        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
+            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
+            if(ref1 == ref2){
+                refSeqs.push_back(ref1);
+                break;
+            }
+        }
+    }
+
+    alinhamentos[i].exportRefs(filename,1,refSeqs);
+}
+
 void MainWindow::exportCorrListTXT(){
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
@@ -4311,4 +4408,160 @@ void MainWindow::exportResCommHTML(){
     QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
 
     alinhamentos[i].exportResComm(filename,2,refSeqs);
+}
+
+void MainWindow::exportCorrRefsTXT(){
+    vector<string> refSeqs;
+
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getCorrRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run correlation.");
+        return;
+    }
+
+    for(int i1 = 0; i1 < alinhamentos[i].getCorrRefSeqsSize(); i1++){
+        string ref1 = alinhamentos[i].getCorrRefSeq(i1);
+
+        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
+            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
+            if(ref1 == ref2){
+                refSeqs.push_back(ref1);
+                break;
+            }
+        }
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+
+    alinhamentos[i].exportRefs(filename,0,refSeqs);
+}
+
+void MainWindow::exportCorrRefsXML(){
+    vector<string> refSeqs;
+
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getCorrRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run correlation.");
+        return;
+    }
+
+    for(int i1 = 0; i1 < alinhamentos[i].getCorrRefSeqsSize(); i1++){
+        string ref1 = alinhamentos[i].getCorrRefSeq(i1);
+
+        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
+            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
+            if(ref1 == ref2){
+                refSeqs.push_back(ref1);
+                break;
+            }
+        }
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+
+    alinhamentos[i].exportRefs(filename,1,refSeqs);
+}
+
+void MainWindow::on_cmdUploadConsRefsSeqs_clicked()
+{
+    int total = 0;
+    int selecteds = 0;
+
+    QString filename = QFileDialog::getOpenFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QMessageBox::warning(this,"Warning","File not found.");
+        return;
+    }
+
+    QTextStream in(&file);
+
+    QString prot = in.readLine();
+    ui->lstRefSeqs->clearSelection();
+    while (!prot.isNull())
+    {
+        total++;
+        printf("%s\n",prot.toStdString().c_str());
+
+        for(int i = 0; i < ui->lstRefSeqs->count(); i++){
+            if(prot == ui->lstRefSeqs->item(i)->text()){
+                ui->lstRefSeqs->item(i)->setSelected(true);
+                selecteds++;
+                break;
+            }
+        }
+        prot = in.readLine();
+    }
+
+    string msge = QString::number(selecteds).toStdString() + " of " + QString::number(total).toStdString() + " sequences have been found and selected.";
+    QMessageBox::information(this,"Upload Reference Sequences",msge.c_str());
+
+    file.close();
+}
+
+void MainWindow::on_cmdCorRefSeqs_clicked()
+{
+    int total = 0;
+    int selecteds = 0;
+
+    QString filename = QFileDialog::getOpenFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QMessageBox::warning(this,"Warning","File not found.");
+        return;
+    }
+
+    QTextStream in(&file);
+
+    QString prot = in.readLine();
+    ui->lstRefSeqs_2->clearSelection();
+    while (!prot.isNull())
+    {
+        total++;
+        printf("%s\n",prot.toStdString().c_str());
+
+        for(int i = 0; i < ui->lstRefSeqs_2->count(); i++){
+            if(prot == ui->lstRefSeqs_2->item(i)->text()){
+                ui->lstRefSeqs_2->item(i)->setSelected(true);
+                selecteds++;
+                break;
+            }
+        }
+        prot = in.readLine();
+    }
+
+    string msge = QString::number(selecteds).toStdString() + " of " + QString::number(total).toStdString() + " sequences have been found and selected.";
+    QMessageBox::information(this,"Upload Reference Sequences",msge.c_str());
+
+    file.close();
 }

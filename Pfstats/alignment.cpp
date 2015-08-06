@@ -3299,6 +3299,67 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
     QMessageBox::information(NULL,"Exporting Data","Conserved residues data was exported.");
 }
 
+void Alignment::exportRefs(QString filename, int type, vector<string> refSeqs){
+    switch(type){
+    case 0:
+    {
+        vector<string> tempFN = split(filename.toStdString(),'.');
+        if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+            filename += ".txt";
+
+        //Salva em arquivo
+        QFile f(filename);
+        if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+            return;
+        }
+
+        QTextStream out(&f);
+
+        for(int i = 0; i < refSeqs.size(); i++){
+            out << refSeqs[i].c_str() << "\n";
+        }
+
+        f.close();
+        break;
+    }
+    case 1:
+    {
+        vector<string> tempFN = split(filename.toStdString(),'.');
+        if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+            filename += ".xml";
+
+        //Salva em arquivo
+        QFile f(filename);
+        if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+            return;
+        }
+
+        QTextStream out(&f);
+
+        out << "<?xml version=\"1.0\"?>\n";
+        out << "<PFStats>\n";
+        out << "<references>\n";
+
+        for(int i = 0; i < refSeqs.size(); i++){
+            out << "<sequence>" << refSeqs[i].c_str() << "</sequence>\n";
+        }
+
+        out << "</references>\n";
+        out << "</PFStats>\n";
+
+        f.close();
+        break;
+        break;
+    }
+    default:
+    {
+        QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+        return;
+    }
+    }
+    QMessageBox::information(NULL,"Exporting Data","References sequences was exported.");
+}
+
 void Alignment::exportCorrGraph(QString filename, int type){
     switch(type){
         case 0:

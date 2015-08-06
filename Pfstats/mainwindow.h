@@ -58,7 +58,10 @@ private slots:
     void exportResCommTXT();
     void exportResCommXML();
     void exportResCommHTML();
-
+    void exportConsRefsTXT();
+    void exportConsRefsXML();
+    void exportCorrRefsTXT();
+    void exportCorrRefsXML();
 
     void on_cmdStartWizard_clicked();
     void on_cmdMain_clicked();
@@ -115,6 +118,10 @@ private slots:
     void on_cmdRemoveFilter_clicked();
 
     void on_cmdRemoveAlignment_clicked();
+
+    void on_cmdUploadConsRefsSeqs_clicked();
+
+    void on_cmdCorRefSeqs_clicked();
 
 private:
     Ui::MainWindow *ui;

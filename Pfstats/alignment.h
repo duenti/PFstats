@@ -244,6 +244,7 @@ public:
     void exportAlignment(QString filename, string filter, int type); //TYPE: 0-PFAM, 1-TXT, 2-XML
     void exportFreq(QString filename, int type, bool perc=false); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML //PERC: TRUE = In %
     void exportConsRes(QString filename, int type, float mincons, vector<int> refSeqs); //TYPE: 0-TXT, 1-XML, 2-HTML
+    void exportRefs(QString filename, int type, vector<string> refSeqs); //TYPE: 0-TXT, 1-XML
     void exportCorrGraph(QString filename, int type); //TYPE: 0-TXT 1-CSV 2-XML
     void exportCommList(QString filename, int type); //TYPE: 0-TXT 1-XML
     void exportCorrTable(QString filename, int type, bool perc=true); //TYPE: 0-TXT, 1-XML, 2-HTML

@@ -2,27 +2,36 @@
 #include <omp.h>
 #include <fstream>
 #include <math.h>
+#include "uniprot.h"
 #include <cstdlib>
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
 #include <QApplication>
 #include <QFileDialog>
+#include <QtNetwork>
+#include <set>
 
 Alignment::Alignment()
 {
     refSeqName = "";
+    minCons = 0.8;
 }
 
 Alignment::Alignment(string path){
     this->filepath = path;
     this->GetFromFile();
     refSeqName = "";
+    minCons = 0.8;
 }
 
 Alignment::~Alignment()
 {
 
+}
+
+void Alignment::setMinsCons(float v){
+    minCons = v;
 }
 
 void Alignment::clear(){
@@ -289,6 +298,16 @@ void Alignment::addCommunity(vector<string> comm){
     comunidades.push_back(comm);
 }
 
+void Alignment::addItemToCommunity(string res, int commindex){
+    comunidades[commindex].push_back(res);
+}
+
+void Alignment::removeItemOfCommunity(int comm, int item){
+    //QString text = "COMM: " + QString::number(comm) + " /ITEM: " + QString::number(item);
+    //QMessageBox::information(NULL,"a",text);
+    comunidades[comm].erase(comunidades[comm].begin() + item);
+}
+
 void Alignment::clearCommunity(){
     comunidades.clear();
 }
@@ -421,6 +440,30 @@ int Alignment::getConsRefsSize(){
 
 string Alignment::getConsref(int i){
     return consRefSeqs[i];
+}
+
+int Alignment::getUniprotMinedSize(){
+    return uniprotMined.size();
+}
+
+void Alignment::addUniprotEntry(Uniprot *entry){
+    uniprotMined.push_back(entry);
+}
+
+string Alignment::getUniprotEntryName(int i){
+    return uniprotMined[i]->getName();
+}
+
+int Alignment::getUniprotEntryNofFeatures(int i){
+    return uniprotMined[i]->countFeatures();
+}
+
+Feature* Alignment::getUniprotFeature(int i, int j){
+    return uniprotMined[i]->getFeature(j);
+}
+
+string Alignment::uniprotEntryToString(int i){
+    return uniprotMined[i]->toString();
 }
 
 void Alignment::setMinssVector(vector<float> minss){
@@ -1194,6 +1237,84 @@ void Alignment::generateXML(string outputXML){
         out << "</correlation>\n";
     }
 
+    if(uniprotMined.size() > 0){
+        //Getting proteins names
+        set<string> proteins;
+
+        for(int i = 0; i < uniprotMined.size(); i++)
+                proteins.insert(uniprotMined[i]->getName());
+
+
+        out << "<uniprot>\n";
+
+        for (set<string>::iterator it = proteins.begin(); it != proteins.end(); it++) {
+            string protName = *it;
+
+            out << "   <protein name=\"" << protName.c_str() << "\" ";
+
+            for(int i = 0; i < uniprotMined.size(); i++){
+                Uniprot* entryprot = uniprotMined[i];
+
+                if(protName == entryprot->getName()){
+                    if(entryprot->getDataset() == 0) out << "dataset=\"Swiss-Prot\">\n";
+                    else out << "dataset=\"TrEMBL\">\n";
+                    break;
+                }
+            }
+
+            for(int i = 0; i < uniprotMined.size(); i++){
+                    Uniprot* entryprot = uniprotMined[i];
+
+                    if(protName == entryprot->getName()){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
+                            Feature *f = entryprot->getFeature(j);
+
+                            if(f->getAgregate() == 0) out << "      <feature agregate=\"CONS\" ";
+                            else out << "      <feature agregate=\"" << f->getAgregate() << "\" ";
+
+                            if(f->getResidueColigated() != "")
+                                out << "seqResidue=\"" << f->getResidueColigated().c_str() << "\" ";
+                            if(f->getAlignResidue() != "")
+                                out << "alignResidue=\"" << f->getAlignResidue().c_str() << "\" ";
+                            if(f->getType() != "")
+                                out << "type=\"" << f->getType().c_str() << "\" ";
+                            if(f->getDescription() != "")
+                                out << "description=\"" << f->getDescription().c_str() << "\" ";
+                            if(f->getId() != "")
+                                out << "id=\"" << f->getId().c_str() << "\" ";
+                            out << ">\n";
+
+                            if(f->getOriginal() != "")
+                                out << "         <original>" << f->getOriginal().c_str() << "</original>\n";
+                            if(f->getVariation() != "")
+                                out << "         <variation>" << f->getVariation().c_str() << "</variation>\n";
+
+                            if(f->getBegin() != -1 || f->getPosition() != -1){
+                                out << "         <location>\n";
+
+                                if(f->getPosition() != -1)
+                                    out << "            <position position=\"" << f->getPosition() << "\"/>\n";
+
+                                if(f->getBegin() != -1 && f->getEnd() != -1){
+                                    out << "            <begin position=\"" << f->getBegin() << "\"/>\n";
+                                    out << "            <end position=\"" << f->getEnd() << "\"/>\n";
+                                }
+
+                                out << "         </location>\n";
+                            }
+
+                            out << "      </feature>\n";
+                        }
+
+                    }
+                }
+
+                out << "   </protein>\n";
+        }
+
+        out << "</uniprot>\n";
+    }
+
     out << "</PFStats>";
     f.close();
 }
@@ -1246,6 +1367,38 @@ bool Alignment::GetFromFile(){
         subsetfrequencies.clear();
     if(sequences.size()>0){
         for(c1=1;c1<=sequences.size()-1;c1++)
+        if(sequences[0].size()!=sequences[c1].size() || sequences[c1].size() == 0){
+            printf("Sequence #%d (%s) does not has the same size of the first sequence. Please check your alignment file",c1+1,sequencenames[c1].c_str());
+            return false;
+        }
+
+        for (c1=0;c1<=sequences.size()-1;c1++) SortOrder.push_back(c1);
+        for(c1=0;c1<=sequences[0].size();c1++){ // total positions: sequencesize + 1 (positions + totals)
+            subsetfrequencies.push_back( vector<int>(21) );
+            for(c2=0; c2<=20; c2++)
+                subsetfrequencies[c1].push_back(0);
+        }
+
+        for(int i = 0; i < sequencenames.size(); i++){
+            this->fullAlignment.push_back(sequencenames[i]);
+            this->fullSequences.push_back(sequences[i]);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Alignment::checkConsistency(){
+    int c1,c2;
+
+    SortOrder.clear();
+    if (subsetfrequencies.size()>0) for(c1=0;c1<=subsetfrequencies.size()-1;c1++)
+        subsetfrequencies[c1].clear();
+        subsetfrequencies.clear();
+    if(sequences.size()>0){
+        for(c1=1;c1<=sequences.size()-1;c1++)
         if(sequences[0].size()!=sequences[c1].size()){
             printf("Sequence #%d (%s) does not has the same size of the first sequence. Please check your alignment file",c1+1,sequencenames[c1].c_str());
             return false;
@@ -1259,6 +1412,8 @@ bool Alignment::GetFromFile(){
         }
     }
 
+    this->fullAlignment.clear();
+    this->fullSequences.clear();
     for(int i = 0; i < sequencenames.size(); i++){
         this->fullAlignment.push_back(sequencenames[i]);
         this->fullSequences.push_back(sequences[i]);
@@ -1920,7 +2075,7 @@ vector<float> Alignment::ShenkinEntropy(int repetitions, int gapFilter){
     int currentsize = sequences.size();
     for(int i = 0; i < frequencies[0].size(); i++)
         tamanhoSeq += frequencies[0][i];
-
+    QMessageBox::information(NULL,"a",QString::number(subsetfrequencies.size()));
     //Filtro por GAP
     populatedpos.clear();
     for(int i = 0; i < frequencies.size(); i++){
@@ -2511,6 +2666,7 @@ float Alignment::PSA(int seqnumber, int communitynumber){
         for (i=0;i<=Communities[communitynumber].aa.size()-1;i++){
             for(j=0;j<=Communities[communitynumber].aa.size()-1;j++){
                 if(((Communities[communitynumber].aa[i]==sequences[seqnumber][Communities[communitynumber].pos[i]])&&(Communities[communitynumber].aa[j]==sequences[seqnumber][Communities[communitynumber].pos[j]]))&&(Communities[communitynumber].pos[i]!=Communities[communitynumber].pos[j])){
+                    //QMessageBox::information(NULL,"a","OK");
                     sum+=Singlepvalue(Communities[communitynumber].aa[i],Communities[communitynumber].pos[i],Communities[communitynumber].aa[j],Communities[communitynumber].pos[j]);
                     //QMessageBox::information(NULL,"a","OK");
                 }
@@ -4213,4 +4369,1163 @@ void Alignment::exportResComm(QString filename, int type, vector<int> refSeqs){
     }
 
     QMessageBox::information(NULL,"Exporting Data","Residues of communities data was exported.");
+}
+
+void Alignment::exportLookProt(QString filename, int type){
+    set<string> proteins;
+
+    //GET LIST OF PROTEINS NAMES
+    for(int i = 0; i < uniprotMined.size(); i++)
+        proteins.insert(uniprotMined[i]->getName());
+
+    switch(type){
+        case 0:
+        {
+            for (set<string>::iterator it = proteins.begin(); it != proteins.end(); it++) {
+                string protName = *it;
+
+                string path = filename.toStdString() + "/" + protName + ".txt";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "RESIDUE CONS/COMM TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
+
+                for(int i = 0; i < uniprotMined.size(); i++){
+                    Uniprot* entryprot = uniprotMined[i];
+
+                    if(protName == entryprot->getName()){
+
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
+                            Feature* f = entryprot->getFeature(j);
+
+                            if(f->getResidueColigated() == "") out << "UNKNOWN ";
+                            else out << f->getResidueColigated().c_str() << " ";
+
+                            if(f->getAgregate() == 0) out << "CONS ";
+                            else if(f->getAgregate() > 0) out << f->getAgregate() << " ";
+                            else out << "UNKNOWN ";
+
+                            if(f->getType() == "") out << "NONE ";
+                            else out << f->getType().c_str() << " ";
+
+                            if(f->getDescription() == "") out << "NONE ";
+                            else out << f->getDescription().c_str() << " ";
+
+                            if(f->getPosition() == -1) out << "NONE ";
+                            else out << f->getPosition() << " ";
+
+                            if(f->getBegin() == -1) out << "NONE ";
+                            else out << f->getBegin() << " ";
+
+                            if(f->getEnd() == -1) out << "NONE ";
+                            else out << f->getEnd() << " ";
+
+                            if(f->getOriginal() == "") out << "NONE ";
+                            else out << f->getOriginal().c_str() << " ";
+
+                            if(f->getVariation() == "") out << "NONE";
+                            else out << f->getVariation().c_str();
+
+                            out << "\n";
+                        }
+
+                    }
+
+                }
+                f.close();
+            }
+            break;
+        }
+        case 1:
+        {
+            for (set<string>::iterator it = proteins.begin(); it != proteins.end(); it++) {
+                string protName = *it;
+
+                string path = filename.toStdString() + "/" + protName + ".csv";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                for(int i = 0; i < uniprotMined.size(); i++){
+                    Uniprot* entryprot = uniprotMined[i];
+
+                    if(protName == entryprot->getName()){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
+                            Feature* f = entryprot->getFeature(j);
+
+                            if(f->getResidueColigated() == "") out << "UNKNOWN,";
+                            else out << f->getResidueColigated().c_str() << ",";
+
+                            if(f->getAgregate() == 0) out << "CONS,";
+                            else if(f->getAgregate() > 0) out << f->getAgregate() << ",";
+                            else out << "UNKNOWN,";
+
+                            if(f->getType() == "") out << "NONE,";
+                            else out << f->getType().c_str() << ",";
+
+                            if(f->getDescription() == "") out << "NONE,";
+                            else out << f->getDescription().c_str() << ",";
+
+                            if(f->getPosition() == -1) out << "NONE,";
+                            else out << f->getPosition() << ",";
+
+                            if(f->getBegin() == -1) out << "NONE,";
+                            else out << f->getBegin() << ",";
+
+                            if(f->getEnd() == -1) out << "NONE,";
+                            else out << f->getEnd() << ",";
+
+                            if(f->getOriginal() == "") out << "NONE,";
+                            else out << f->getOriginal().c_str() << ",";
+
+                            if(f->getVariation() == "") out << "NONE";
+                            else out << f->getVariation().c_str();
+
+                            out << "\n";
+                        }
+
+                    }
+
+                }
+                f.close();
+            }
+
+            break;
+        }
+        case 2:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            for (set<string>::iterator it = proteins.begin(); it != proteins.end(); it++) {
+                string protName = *it;
+
+                out << "\t<protein name=\"" << protName.c_str() << "\" ";
+
+                for(int i = 0; i < uniprotMined.size(); i++){
+                    Uniprot* entryprot = uniprotMined[i];
+
+                    if(protName == entryprot->getName()){
+                        if(entryprot->getDataset() == 0) out << "dataset=\"Swiss-Prot\">\n";
+                        else out << "dataset=\"TrEMBL\">\n";
+                        break;
+                    }
+                }
+
+                for(int i = 0; i < uniprotMined.size(); i++){
+                    Uniprot* entryprot = uniprotMined[i];
+
+                    if(protName == entryprot->getName()){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
+                            Feature *f = entryprot->getFeature(j);
+
+                            if(f->getAgregate() == 0) out << "\t\t<feature agregate=\"CONS\" ";
+                            else out << "\t\t<feature agregate=\"" << f->getAgregate() << "\" ";
+
+                            if(f->getType() != "")
+                                out << "type=\"" << f->getType().c_str() << "\" ";
+                            if(f->getDescription() != "")
+                                out << "description=\"" << f->getDescription().c_str() << "\" ";
+                            if(f->getId() != "")
+                                out << "id=\"" << f->getId().c_str() << "\" ";
+                            out << ">\n";
+
+                            if(f->getOriginal() != "")
+                                out << "\t\t\t<original>" << f->getOriginal().c_str() << "</original>\n";
+                            if(f->getVariation() != "")
+                                out << "\t\t\t<variation>" << f->getVariation().c_str() << "</variation>\n";
+
+                            if(f->getBegin() != -1 || f->getPosition() != -1){
+                                out << "\t\t\t<location>\n";
+
+                                if(f->getPosition() != -1)
+                                    out << "\t\t\t\t<position position=\"" << f->getPosition() << "\"/>\n";
+
+                                if(f->getBegin() != -1 && f->getEnd() != -1){
+                                    out << "\t\t\t\t<begin position=\"" << f->getBegin() << "\"/>\n";
+                                    out << "\t\t\t\t<end position=\"" << f->getEnd() << "\"/>\n";
+                                }
+
+                                out << "\t\t\t</location>\n";
+                            }
+
+                            out << "\t\t</feature>\n";
+                        }
+
+                    }
+                }
+
+                out << "\t</protein>\n";
+            }
+
+            out << "</PFStats>";
+            f.close();
+
+            break;
+        }
+        case 3:
+        {
+            for (set<string>::iterator it = proteins.begin(); it != proteins.end(); it++) {
+                string protName = *it;
+
+                string path = filename.toStdString() + "/" + protName + ".html";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "<html>\n<body>\n<table border=1>\n<center>\n";
+                out << "<tr>\n";
+                out << "<th>Residue</th>\n";
+                out << "<th>Communitie</th>\n";
+                out << "<th>Type</th>\n";
+                out << "<th>Description</th>\n";
+                out << "<th>Position</th>\n";
+                out << "<th>Begin</th>\n";
+                out << "<th>End</th>\n";
+                out << "<th>Original</th>\n";
+                out << "<th>Variation</th>\n";
+                out << "</tr>\n";
+
+                for(int i = 0; i < uniprotMined.size(); i++){
+                    Uniprot* entryprot = uniprotMined[i];
+
+                    if(protName == entryprot->getName()){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
+                            out << "<tr>\n";
+
+                            Feature* f = entryprot->getFeature(j);
+
+                            out << "<td>" << f->getResidueColigated().c_str() << "</td>\n";
+
+                            if(f->getAgregate() == 0) out << "<td>CONS</td>\n";
+                            else if(f->getAgregate() > 0) out << "<td>" << f->getAgregate() << "</td>\n";
+                            else out << "<td>UNKNOWN</td>\n";
+
+                            if(f->getType() == "") out << "<td>NONE</td>\n";
+                            else out << "<td>" << f->getType().c_str() << "</td>\n";
+
+                            if(f->getDescription() == "") out << "<td>NONE</td>\n";
+                            else out << "<td>" << f->getDescription().c_str() << "</td>\n";
+
+                            if(f->getPosition() == -1) out << "<td></td>\n";
+                            else out << "<td>" << f->getPosition() << "</td>\n";
+
+                            if(f->getBegin() == -1) out << "<td></td>\n";
+                            else out << "<td>" << f->getBegin() << "</td>\n";
+
+                            if(f->getEnd() == -1) out << "<td></td>\n";
+                            else out << "<td>" << f->getEnd() << "</td>\n";
+
+                            if(f->getOriginal() == "") out << "<td></td>\n";
+                            else out << "<td>" << f->getOriginal().c_str() << "</td>\n";
+
+                            if(f->getVariation() == "") out << "<td></td>\n";
+                            else out << "<td>" << f->getVariation().c_str() << "</td>\n";
+
+                            out << "</tr>\n";
+                        }
+
+                    }
+
+                }
+                out << "</body>\n</html>";
+                f.close();
+
+            }
+
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+
+    QMessageBox::information(NULL,"Exporting Data","Uniprot Mined data was exported succesfully.");
+}
+
+void Alignment::exportLookComm(QString filename, int type){
+    switch(type){
+        case 0:
+        {
+            //COMMS
+            for(int i = 0; i < comunidades.size(); i++){
+                for(int j = 0; j < comunidades[i].size(); j++){
+                    string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + ".txt";
+
+                    //Salva em arquivo
+                    QFile f(path.c_str());
+                    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                        return;
+                    }
+
+                    QTextStream out(&f);
+
+                    out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
+
+                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+
+                    for(int k = 0; k < resFeats.size(); k++){
+                        out << resFeats[k]->getName().c_str() << " ";
+
+                        Feature *f = resFeats[k]->getFeature(0);
+
+                        if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << " ";
+                        else out << "UNKNOWN ";
+
+                        if(f->getType() != "") out << f->getType().c_str() << " ";
+                        else out << "NONE ";
+
+                        if(f->getDescription() != "") out << f->getDescription().c_str() << " ";
+                        else out << "NONE ";
+
+                        if(f->getPosition() == -1) out << "NONE ";
+                        else out << f->getPosition() << " ";
+
+                        if(f->getBegin() == -1) out << "NONE ";
+                        else out << f->getBegin() << " ";
+
+                        if(f->getEnd() == -1) out << "NONE ";
+                        else out << f->getEnd() << " ";
+
+                        if(f->getOriginal() == "") out << "NONE ";
+                        else out << f->getOriginal().c_str() << " ";
+
+                        if(f->getVariation() == "") out << "NONE";
+                        else out << f->getVariation().c_str();
+
+                        out << "\n";
+
+                    }
+
+                    f.close();
+                }
+            }
+
+            //CONS
+            vector<string> residues = this->getConsRes();
+
+            for(int i = 0; i < residues.size(); i++){
+                string path = filename.toStdString() + "/cons_" + residues[i] + ".txt";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
+
+                vector<Uniprot*> resFeats = this->getAllResidueFeatures(residues[i]);
+
+                for(int k = 0; k < resFeats.size(); k++){
+                    out << resFeats[k]->getName().c_str() << " ";
+
+                    Feature *f = resFeats[k]->getFeature(0);
+
+                    if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << " ";
+                    else out << "UNKNOWN ";
+
+                    if(f->getType() != "") out << f->getType().c_str() << " ";
+                    else out << "NONE ";
+
+                    if(f->getDescription() != "") out << f->getDescription().c_str() << " ";
+                    else out << "NONE ";
+
+                    if(f->getPosition() == -1) out << "NONE ";
+                    else out << f->getPosition() << " ";
+
+                    if(f->getBegin() == -1) out << "NONE ";
+                    else out << f->getBegin() << " ";
+
+                    if(f->getEnd() == -1) out << "NONE ";
+                    else out << f->getEnd() << " ";
+
+                    if(f->getOriginal() == "") out << "NONE ";
+                    else out << f->getOriginal().c_str() << " ";
+
+                    if(f->getVariation() == "") out << "NONE";
+                    else out << f->getVariation().c_str();
+
+                    out << "\n";
+
+                }
+
+                f.close();
+            }
+
+            break;
+        }
+        case 1:
+        {
+            //COMM
+            for(int i = 0; i < comunidades.size(); i++){
+                for(int j = 0; j < comunidades[i].size(); j++){
+                    string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + ".csv";
+
+                    //Salva em arquivo
+                    QFile f(path.c_str());
+                    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                        return;
+                    }
+
+                    QTextStream out(&f);
+
+                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+
+                    for(int k = 0; k < resFeats.size(); k++){
+                        out << resFeats[k]->getName().c_str() << ",";
+
+                        Feature *f = resFeats[k]->getFeature(0);
+
+                        if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << ",";
+                        else out << "UNKNOWN,";
+
+                        if(f->getType() != "") out << f->getType().c_str() << ",";
+                        else out << "NONE,";
+
+                        if(f->getDescription() != "") out << f->getDescription().c_str() << ",";
+                        else out << "NONE,";
+
+                        if(f->getPosition() == -1) out << "NONE,";
+                        else out << f->getPosition() << ",";
+
+                        if(f->getBegin() == -1) out << "NONE,";
+                        else out << f->getBegin() << ",";
+
+                        if(f->getEnd() == -1) out << "NONE,";
+                        else out << f->getEnd() << ",";
+
+                        if(f->getOriginal() == "") out << "NONE,";
+                        else out << f->getOriginal().c_str() << ",";
+
+                        if(f->getVariation() == "") out << "NONE";
+                        else out << f->getVariation().c_str();
+
+                        out << "\n";
+
+                    }
+
+                    f.close();
+                }
+            }
+
+            //CONS
+            vector<string> residues = this->getConsRes();
+
+            for(int i = 0; i < residues.size(); i++){
+                string path = filename.toStdString() + "/cons_" + residues[i] + ".csv";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
+
+                vector<Uniprot*> resFeats = this->getAllResidueFeatures(residues[i]);
+
+                for(int k = 0; k < resFeats.size(); k++){
+                    out << resFeats[k]->getName().c_str() << ",";
+
+                    Feature *f = resFeats[k]->getFeature(0);
+
+                    if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << ",";
+                    else out << "UNKNOWN,";
+
+                    if(f->getType() != "") out << f->getType().c_str() << ",";
+                    else out << "NONE,";
+
+                    if(f->getDescription() != "") out << f->getDescription().c_str() << ",";
+                    else out << "NONE,";
+
+                    if(f->getPosition() == -1) out << "NONE,";
+                    else out << f->getPosition() << ",";
+
+                    if(f->getBegin() == -1) out << "NONE,";
+                    else out << f->getBegin() << ",";
+
+                    if(f->getEnd() == -1) out << "NONE,";
+                    else out << f->getEnd() << ",";
+
+                    if(f->getOriginal() == "") out << "NONE,";
+                    else out << f->getOriginal().c_str() << ",";
+
+                    if(f->getVariation() == "") out << "NONE";
+                    else out << f->getVariation().c_str();
+
+                    out << "\n";
+
+                }
+
+                f.close();
+            }
+
+
+            break;
+        }
+        case 2:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            //COMM
+            for(int i = 0; i < comunidades.size(); i++){
+                out << "\t<community id=\"" << i+1 << "\">\n";
+
+                for(int j = 0; j < comunidades[i].size(); j++){
+                    out << "\t\t<residue alignN=\"" << comunidades[i][j].c_str() << "\">\n";
+
+                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+
+                    for(int k = 0; k < resFeats.size(); k++){
+                        out << "\t\t\t<feature ";
+                        out << "protein=\"" << resFeats[k]->getName().c_str() << "\" ";
+
+                        if(resFeats[k]->getDataset() == 0) out << "dataset=\"Swiss-Prot\" ";
+                        else out << "dataset=\"TrEMBL\" ";
+
+                        Feature *f = resFeats[k]->getFeature(0);
+
+                        if(f->getType() != "")
+                            out << "type=\"" << f->getType().c_str() << "\" ";
+                        if(f->getDescription() != "")
+                            out << "description=\"" << f->getDescription().c_str() << "\" ";
+                        if(f->getId() != "")
+                            out << "id=\"" << f->getId().c_str() << "\" ";
+                        out << ">\n";
+
+                        if(f->getOriginal() != "")
+                            out << "\t\t\t\t<original>" << f->getOriginal().c_str() << "</original>\n";
+                        if(f->getVariation() != "")
+                            out << "\t\t\t\t<variation>" << f->getVariation().c_str() << "</variation>\n";
+
+                        if(f->getBegin() != -1 || f->getPosition() != -1){
+                            out << "\t\t\t\t<location>\n";
+
+                            if(f->getPosition() != -1)
+                                out << "\t\t\t\t\t<position position=\"" << f->getPosition() << "\"/>\n";
+
+                            if(f->getBegin() != -1 && f->getEnd() != -1){
+                                out << "\t\t\t\t\t<begin position=\"" << f->getBegin() << "\"/>\n";
+                                out << "\t\t\t\t\t<end position=\"" << f->getEnd() << "\"/>\n";
+                            }
+
+                            out << "\t\t\t\t</location>\n";
+                        }
+
+                        out << "\t\t\t</feature>\n";
+                    }
+
+                    out << "\t\t</residue>\n";
+                }
+
+                out << "\t</community>\n";
+            }
+
+            //CONS
+            vector<string> residues = this->getConsRes();
+
+            out << "\t<community id=\"CONS\">\n";
+
+            for(int i = 0; i < residues.size(); i++){
+                out << "\t\t<residue alignN=\"" << residues[i].c_str() << "\">\n";
+
+                vector<Uniprot*> resFeats = this->getAllResidueFeatures(residues[i]);
+
+                for(int k = 0; k < resFeats.size(); k++){
+                    out << "\t\t\t<feature ";
+                    out << "protein=\"" << resFeats[k]->getName().c_str() << "\" ";
+
+                    if(resFeats[k]->getDataset() == 0) out << "dataset=\"Swiss-Prot\" ";
+                    else out << "dataset=\"TrEMBL\" ";
+
+                    Feature *f = resFeats[k]->getFeature(0);
+
+                    if(f->getType() != "")
+                        out << "type=\"" << f->getType().c_str() << "\" ";
+                    if(f->getDescription() != "")
+                        out << "description=\"" << f->getDescription().c_str() << "\" ";
+                    if(f->getId() != "")
+                        out << "id=\"" << f->getId().c_str() << "\" ";
+                    out << ">\n";
+
+                    if(f->getOriginal() != "")
+                        out << "\t\t\t\t<original>" << f->getOriginal().c_str() << "</original>\n";
+                    if(f->getVariation() != "")
+                        out << "\t\t\t\t<variation>" << f->getVariation().c_str() << "</variation>\n";
+
+                    if(f->getBegin() != -1 || f->getPosition() != -1){
+                        out << "\t\t\t\t<location>\n";
+
+                        if(f->getPosition() != -1)
+                            out << "\t\t\t\t\t<position position=\"" << f->getPosition() << "\"/>\n";
+
+                        if(f->getBegin() != -1 && f->getEnd() != -1){
+                            out << "\t\t\t\t\t<begin position=\"" << f->getBegin() << "\"/>\n";
+                            out << "\t\t\t\t\t<end position=\"" << f->getEnd() << "\"/>\n";
+                        }
+
+                        out << "\t\t\t\t</location>\n";
+                    }
+
+                    out << "\t\t\t</feature>\n";
+                }
+
+                out << "\t\t</residue>\n";
+            }
+
+            out << "\t</community>\n";
+            out << "</PFStats>";
+
+            f.close();
+            break;
+        }
+        case 3:
+        {
+            //COMM
+            for(int i = 0; i < comunidades.size(); i++){
+                for(int j = 0; j < comunidades[i].size(); j++){
+                    string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + ".html";
+
+                    //Salva em arquivo
+                    QFile f(path.c_str());
+                    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                        return;
+                    }
+
+                    QTextStream out(&f);
+
+                    out << "<html>\n<body>\n<table border=1>\n<center>\n";
+                    out << "<tr>\n";
+                    out << "<th>Protein</th>\n";
+                    out << "<th>Seq. Number</th>\n";
+                    out << "<th>Type</th>\n";
+                    out << "<th>Description</th>\n";
+                    out << "<th>Position</th>\n";
+                    out << "<th>Begin</th>\n";
+                    out << "<th>End</th>\n";
+                    out << "<th>Original</th>\n";
+                    out << "<th>Variation</th>\n";
+                    out << "</tr>\n";
+
+                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+
+                    for(int k = 0; k < resFeats.size(); k++){
+                        out << "<tr>\n";
+
+                        out << "<td>" << resFeats[k]->getName().c_str() << "</td>\n";
+
+                        Feature *f = resFeats[k]->getFeature(0);
+
+                        if(f->getResidueColigated() != "") out << "<td>" << f->getResidueColigated().c_str() << "</td>\n";
+                        else out << "<td>UNKNOWN</td>";
+
+                        if(f->getType() != "") out << "<td>" << f->getType().c_str() << "</td>\n";
+                        else out << "<td>NONE</td>";
+
+                        if(f->getDescription() != "") out << "<td>" << f->getDescription().c_str() << "</td>\n";
+                        else out << "<td>NONE</td>\n";
+
+                        if(f->getPosition() == -1) out << "<td>NONE</td>\n";
+                        else out << "<td>" << f->getPosition() << "</td>\n";
+
+                        if(f->getBegin() == -1) out << "<td>NONE</td>\n";
+                        else out << "<td>" << f->getBegin() << "</td>\n";
+
+                        if(f->getEnd() == -1) out << "<td>NONE</td>\n";
+                        else out << "<td>" << f->getEnd() << "</td>\n";
+
+                        if(f->getOriginal() == "") out << "<td>NONE</td>\n";
+                        else out << "<td>" << f->getOriginal().c_str() << "</td>\n";
+
+                        if(f->getVariation() == "") out << "<td>NONE</td>\n";
+                        else out << "<td>" << f->getVariation().c_str() << "</td>\n";
+
+                        out << "<tr>\n";
+
+                    }
+
+                    out << "</body>\n</html>";
+                    f.close();
+                }
+            }
+
+            //CONS
+            vector<string> residues = this->getConsRes();
+
+            for(int i = 0; i < residues.size(); i++){
+                string path = filename.toStdString() + "/cons_" + residues[i] + ".csv";
+
+                //Salva em arquivo
+                QFile f(path.c_str());
+                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    return;
+                }
+
+                QTextStream out(&f);
+
+                out << "<html>\n<body>\n<table border=1>\n<center>\n";
+                out << "<tr>\n";
+                out << "<th>Protein</th>\n";
+                out << "<th>Seq. Number</th>\n";
+                out << "<th>Type</th>\n";
+                out << "<th>Description</th>\n";
+                out << "<th>Position</th>\n";
+                out << "<th>Begin</th>\n";
+                out << "<th>End</th>\n";
+                out << "<th>Original</th>\n";
+                out << "<th>Variation</th>\n";
+                out << "</tr>\n";
+
+                vector<Uniprot*> resFeats = this->getAllResidueFeatures(residues[i]);
+
+                for(int k = 0; k < resFeats.size(); k++){
+                    out << "<tr>\n";
+
+                    out << "<td>" << resFeats[k]->getName().c_str() << "</td>\n";
+
+                    Feature *f = resFeats[k]->getFeature(0);
+
+                    if(f->getResidueColigated() != "") out << "<td>" << f->getResidueColigated().c_str() << "</td>\n";
+                    else out << "<td>UNKNOWN</td>";
+
+                    if(f->getType() != "") out << "<td>" << f->getType().c_str() << "</td>\n";
+                    else out << "<td>NONE</td>";
+
+                    if(f->getDescription() != "") out << "<td>" << f->getDescription().c_str() << "</td>\n";
+                    else out << "<td>NONE</td>\n";
+
+                    if(f->getPosition() == -1) out << "<td>NONE</td>\n";
+                    else out << "<td>" << f->getPosition() << "</td>\n";
+
+                    if(f->getBegin() == -1) out << "<td>NONE</td>\n";
+                    else out << "<td>" << f->getBegin() << "</td>\n";
+
+                    if(f->getEnd() == -1) out << "<td>NONE</td>\n";
+                    else out << "<td>" << f->getEnd() << "</td>\n";
+
+                    if(f->getOriginal() == "") out << "<td>NONE</td>\n";
+                    else out << "<td>" << f->getOriginal().c_str() << "</td>\n";
+
+                    if(f->getVariation() == "") out << "<td>NONE</td>\n";
+                    else out << "<td>" << f->getVariation().c_str() << "</td>\n";
+
+                    out << "<tr>\n";
+
+                }
+
+                out << "</body>\n</html>";
+                f.close();
+
+            }
+
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+
+    QMessageBox::information(NULL,"Exporting Data","Uniprot Mined data was exported succesfully.");
+}
+
+void Alignment::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<int> idproteins){
+    QProgressDialog progress("Reading data from Uniprot... (1/2)", "Abort", 0, proteins.size()+1);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    vector<Uniprot*> dataprot;
+
+    for(int i = 0; i < proteins.size(); i++){
+        Uniprot *unientry = new Uniprot();
+        progress.setValue(i+1);
+
+        if(progress.wasCanceled()) return;
+
+        //vector<string> vecSplit = this->split(sequencenames[i],'/');
+        //string protName = vecSplit[0];
+        QString url = "http://www.uniprot.org/uniprot/" + QString::fromStdString(proteins[i]) + ".xml";
+
+
+        //Faz a conexão
+        QUrl qurl = url;
+        QNetworkAccessManager manager;
+        QNetworkRequest request(qurl);
+        QNetworkReply *reply(manager.get(request));
+        QEventLoop loop;
+        QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+        //QObject::connect(reply, SIGNAL(urlChanged (const QUrl&)), &loop, SLOT(onRedirected(const QUrl&)));
+        loop.exec();
+        //qDebug(reply->readAll());
+        QString nurl = reply->readAll();
+
+
+        //Salvar arquivo
+        if(nurl == ""){
+            QNetworkAccessManager manager2;
+            qurl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+            QNetworkRequest request2(qurl);
+            QNetworkReply *reply2(manager2.get(request2));
+            QObject::connect(reply2, SIGNAL(finished()), &loop, SLOT(quit()));
+            loop.exec();
+            QByteArray xmlcontent = reply2->readAll();
+            //QMessageBox::information(NULL,"A",xmlcontent);
+
+            //LER MONTAR UNIPROT E ADD NA LISTA
+            //ERRO NA LEITURA
+            QXmlStreamReader reader(xmlcontent);
+
+            //reader.readNext();
+
+            while(!reader.atEnd()){//Esse while serve só para ler coisas que podem estar antes do entry
+                reader.readNext();
+                if(reader.isStartElement() && reader.name() == "entry"){
+
+                    QString dataset = reader.attributes().value("dataset").toString();
+
+                    if(dataset == "Swiss-Prot") unientry->setDataset(0);
+                    else unientry->setDataset(1);
+
+                    while(!reader.atEnd()){//Vai ler a entry toda
+                        reader.readNext();
+
+                        if(reader.isStartElement()){
+                            if(reader.name() == "accession"){
+                                //printf("ACCESSION: %s\n",reader.readElementText().toStdString().c_str());
+                                unientry->addAccession(reader.readElementText().toStdString());
+                            }
+                            else if(reader.name() == "protein") reader.skipCurrentElement();
+                            else if(reader.name() == "gene") reader.skipCurrentElement();
+                            else if(reader.name() == "organism") reader.skipCurrentElement();
+                            else if(reader.name() == "reference") reader.skipCurrentElement();
+                            else if(reader.name() == "comment") reader.skipCurrentElement();
+                            else if(reader.name() == "dbReference") reader.skipCurrentElement();
+                            else if(reader.name() == "proteinExistence") reader.skipCurrentElement();
+                            else if(reader.name() == "keyword") reader.skipCurrentElement();
+                            else if(reader.name() == "evidence") reader.skipCurrentElement();
+                            else if(reader.name() == "sequence") reader.skipCurrentElement();
+                            else if(reader.name() == "name"){
+                                //printf("NAME: %s\n",reader.readElementText().toStdString().c_str());
+                                unientry->setName(reader.readElementText().toStdString());
+                            }
+                            else if(reader.name() == "feature"){
+                                Feature *f = new Feature();
+
+                                if(reader.attributes().hasAttribute("type"))
+                                    f->setType(reader.attributes().value("type").toString().toStdString());
+                                if(reader.attributes().hasAttribute("description"))
+                                    f->setDescription(reader.attributes().value("description").toString().toStdString());
+                                if(reader.attributes().hasAttribute("id"))
+                                    f->setId(reader.attributes().value("id").toString().toStdString());
+
+                                while(!reader.atEnd()){ //Vai ler a feature toda
+                                    reader.readNext();
+
+                                    if(reader.isStartElement() && reader.name() == "original")
+                                        f->setOriginal(reader.readElementText().toStdString());
+                                    else if(reader.isStartElement() && reader.name() == "variation")
+                                        f->setVariation(reader.readElementText().toStdString());
+                                    else if(reader.isStartElement() && reader.name() == "location"){
+                                        while(!reader.atEnd()){//Vai ler o location todo
+                                            reader.readNext();
+
+                                            if(reader.isStartElement()){
+                                                if(reader.name() == "begin")
+                                                    f->setBegin(reader.attributes().value("position").toInt());
+                                                if(reader.name() == "end")
+                                                    f->setEnd(reader.attributes().value("position").toInt());
+                                                if(reader.name() == "position")
+                                                    f->setPosition(reader.attributes().value("position").toInt());
+                                            }else if(reader.isEndElement() && reader.name() == "location")
+                                                break;
+                                        }
+                                    }else if(reader.isEndElement() && reader.name() == "feature"){
+                                        //QMessageBox::information(NULL,"A",QString::fromStdString(f.toString()));
+                                        //printf("FEATURE:\n%s",f.toString().c_str());
+                                        unientry->addFeature(f);
+                                        break;
+                                    }
+                                }
+                            }
+                        }else if(reader.isEndElement() && reader.name() == "entry"){
+                            break;
+                        }
+                    }
+
+                }//TENHO QUE LER TUDO AI EM CIMA
+            }
+
+        }
+        //printf("\n%s\n",unientry->toString().c_str());
+        //printf("READING %s XML\n",unientry->getName().c_str());
+        dataprot.push_back(unientry);
+    }
+    //QMessageBox::information(NULL,"A","PRIMERA PARTE OK");
+    //SEGUNDA PARTE => TRABALHAR OS DADOS OBTIDOS
+
+
+    vector<vector<string> > residuesList;
+    vector<vector<string> > alignResiduesList;
+    QProgressDialog progress2("Working on data... (1/2)", "Abort", 0, dataprot.size() + 5);
+    progress2.setWindowModality(Qt::WindowModal);
+    progress.show();
+    progress2.setValue(1);
+
+    if(cons){
+        //Calculate Conserved Residues
+        vector<char> conservedaa;
+        vector<int> conservedpos;
+
+        this->CalculateFrequencies();
+
+        for(int i = 0; i < frequencies.size()-2; i++){
+            for(int j = 1; j <= 20; j++){
+                float freq = frequencies[i][j]/((float)sequences.size());
+                //printf("freq=%f / minCons=%f\n",freq,minCons);
+                if(freq >= minCons){
+                    conservedaa.push_back(num2aa(j));
+                    conservedpos.push_back(i);
+                }
+            }
+        }
+
+        for(int i = 0; i < idproteins.size(); i++){
+            vector<string> vec;
+            vector<string> vec2;
+            residuesList.push_back(vec);
+            alignResiduesList.push_back(vec2);
+            for(int j = 0; j < conservedaa.size(); j++){
+                if(sequences[idproteins[i]][conservedpos[j]]==conservedaa[j]){
+                    string res = conservedaa[j] + QString::number(AlignNumbering2Sequence(idproteins[i]+1,conservedpos[j]) + GetOffsetFromSeqName(sequencenames[idproteins[i]])).toStdString();
+                    residuesList[i].push_back(res);
+                    string res2 = conservedaa[j] + QString::number(conservedpos[j]).toStdString();
+                    alignResiduesList[i].push_back(res2);
+                }
+            }
+        }
+
+    }
+
+
+    progress2.setValue(5);
+    uniprotMined.clear();
+
+
+    for(int i = 0; i < dataprot.size(); i++){
+        Uniprot *entry = new Uniprot(*dataprot[i]);
+        Uniprot *out = new Uniprot();
+        out->setName(entry->getName());
+        out->setDataset(entry->getDataset());
+        printf("ENTRY: %s\nOUT:%s\n\n",entry->getName().c_str(),out->getName().c_str());
+
+        for(int j = 0; j < entry->countAccession(); j++)
+            out->addAccession(entry->getAcesssionAt(j));
+
+        progress2.setValue(i + 5);
+
+        if(progress.wasCanceled()) return;
+
+        //printf("%s\n",entry->toString().c_str());
+
+        for(int j = 0; j < entry->countFeatures(); j++){
+            Feature *f = entry->getFeature(j);
+            //printf("%s\n",f->toString().c_str());
+            if(f->getType() != "chain"){
+
+                if(cons){
+                    for(int k = 0; k < residuesList[i].size(); k++){
+                        string respos = residuesList[i][k];
+                        string resAlign = alignResiduesList[i][k];
+                        int pos = stoi(respos.substr(1));
+
+                        if(pos >= f->getBegin() && pos <= f->getEnd()){
+                            Feature *f1 = new Feature();
+                            f1->setAggregation(0);
+                            f1->setBegin(f->getBegin());
+                            f1->setDescription(f->getDescription());
+                            f1->setEnd(f->getEnd());
+                            f1->setId(f->getId());
+                            f1->setOriginal(f->getOriginal());
+                            f1->setPosition(f->getPosition());
+                            f1->setResidueColigated(respos);
+                            f1->setAlignResidue(resAlign);
+                            f1->setType(f->getType());
+                            f1->setVariation(f->getVariation());
+                            //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                            out->addFeature(f1);
+                        }else if(pos == f->getPosition()){
+                            Feature *f1 = new Feature();
+                            f1->setAggregation(0);
+                            f1->setBegin(f->getBegin());
+                            f1->setDescription(f->getDescription());
+                            f1->setEnd(f->getEnd());
+                            f1->setId(f->getId());
+                            f1->setOriginal(f->getOriginal());
+                            f1->setPosition(f->getPosition());
+                            f1->setResidueColigated(respos);
+                            f1->setAlignResidue(resAlign);
+                            f1->setType(f->getType());
+                            f1->setVariation(f->getVariation());
+                            //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                            out->addFeature(f1);
+                        }
+                    }
+                }
+
+                if(comm){
+                    for(int k = 0; k < comunidades.size(); k++){
+                        for(int l = 0; l < comunidades[k].size(); l++){
+                            string respos = comunidades[k][l];
+                            char aa = respos[0];
+                            int alignPos = stoi(respos.substr(1));
+                            int pos = AlignNumbering2Sequence(idproteins[i]+1,alignPos) + GetOffsetFromSeqName(sequencenames[idproteins[i]]);
+                            string newResPos = aa + QString::number(pos).toStdString();
+                            string newAlignPos = aa + QString::number(alignPos).toStdString();
+
+
+                            if(pos >= f->getBegin() && pos <= f->getEnd()){
+                                Feature *f1 = new Feature();
+                                f1->setAggregation(k+1);
+                                f1->setBegin(f->getBegin());
+                                f1->setDescription(f->getDescription());
+                                f1->setEnd(f->getEnd());
+                                f1->setId(f->getId());
+                                f1->setOriginal(f->getOriginal());
+                                f1->setPosition(f->getPosition());
+                                f1->setResidueColigated(newResPos);
+                                f1->setAlignResidue(newAlignPos);
+                                f1->setType(f->getType());
+                                f1->setVariation(f->getVariation());
+                                //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                                out->addFeature(f1);
+                            }else if(pos == f->getPosition()){
+                                Feature *f1 = new Feature();
+                                f1->setAggregation(k+1);
+                                f1->setBegin(f->getBegin());
+                                f1->setDescription(f->getDescription());
+                                f1->setEnd(f->getEnd());
+                                f1->setId(f->getId());
+                                f1->setOriginal(f->getOriginal());
+                                f1->setPosition(f->getPosition());
+                                f1->setResidueColigated(newResPos);
+                                f1->setAlignResidue(newAlignPos);
+                                f1->setType(f->getType());
+                                f1->setVariation(f->getVariation());
+                                //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                                out->addFeature(f1);
+                            }
+                        }
+                    }
+                }
+            }
+            f->kill();
+        }
+        entry->kill();
+        uniprotMined.push_back(out);
+    }
+
+/*
+    for(int i = 0; i < uniprotMined.size(); i++){
+        printf("%s\n",uniprotMined[i]->toString().c_str());
+    }
+*/
+
+    QMessageBox::information(NULL,"Uniprot Looking","Uniprot Looking has finished successfully");
+}
+
+vector<string> Alignment::getConsRes(){
+    vector<char> conservedaa;
+    vector<int> conservedpos;
+
+    this->CalculateFrequencies();
+
+    for(int i = 0; i < frequencies.size()-2; i++){
+        for(int j = 1; j <= 20; j++){
+            float freq = frequencies[i][j]/((float)sequences.size());
+            //printf("freq=%f / minCons=%f\n",freq,minCons);
+            if(freq >= minCons){
+                conservedaa.push_back(num2aa(j));
+                conservedpos.push_back(i);
+            }
+        }
+    }
+
+    vector<string> outVec;
+
+    for(int i = 0; i < conservedaa.size(); i++){
+        string res = conservedaa[i] + QString::number(conservedpos[i]).toStdString();
+        outVec.push_back(res);
+    }
+
+    return outVec;
+}
+
+vector<Uniprot *> Alignment::getAllResidueFeatures(string res){
+    vector<Uniprot*> outVec;
+
+    for(int i = 0; i < uniprotMined.size(); i++){
+        for(int j = 0; j < uniprotMined[i]->countFeatures(); j++){
+            Feature *f = uniprotMined[i]->getFeature(j);
+
+            if(f->getAlignResidue() == res){
+                //QMessageBox::information(NULL,"a","OK");
+                Uniprot *entry = new Uniprot();
+                entry->setDataset(uniprotMined[i]->getDataset());
+                entry->setName(uniprotMined[i]->getName());
+                entry->addFeature(f);
+                outVec.push_back(entry);
+            }
+        }
+    }
+
+    return outVec;
 }

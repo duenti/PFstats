@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>PFStats</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QStackedWidget" name="stackedWidget">
@@ -24,72 +24,60 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="page">
-     <widget class="QLabel" name="label">
-      <property name="geometry">
-       <rect>
-        <x>9</x>
-        <y>38</y>
-        <width>292</width>
-        <height>142</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>&lt;h1&gt;PFstats&lt;/h1&gt;
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>&lt;h1&gt;PFstats&lt;/h1&gt;
 &lt;p&gt;PFstats contains a set of functions that you can use to analyze correlation and conservation in protein sequences.&lt;/p&gt;
 &lt;p&gt;You can choose navigate through these functions in the menu bar or just start the wizard at the bottom of this window.&lt;/p&gt;</string>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>230</y>
-        <width>174</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="cmdStartWizard">
-         <property name="text">
-          <string>Start Wizard</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="cmdStartWizard">
+          <property name="text">
+           <string>Start Wizard</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
     <widget class="QWidget" name="page_2">
      <widget class="QLabel" name="label_2">
@@ -310,6 +298,9 @@
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_8">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>Dots (.)</string>
                 </property>
@@ -324,6 +315,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
                <widget class="QRadioButton" name="radioButton_9">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>Mixed (- or .)</string>
                 </property>
@@ -334,6 +328,9 @@
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_10">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>No gaps</string>
                 </property>
@@ -500,7 +497,7 @@
            <item>
             <widget class="QLabel" name="label_12">
              <property name="text">
-              <string>Minimu Identy:</string>
+              <string>Minimum Identy:</string>
              </property>
             </widget>
            </item>
@@ -835,7 +832,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>321</x>
@@ -1165,7 +1162,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>292</x>
@@ -1237,7 +1234,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>7</number>
+       <number>11</number>
       </property>
       <widget class="QWidget" name="page_8">
        <widget class="QGroupBox" name="groupBox_5">
@@ -1256,7 +1253,7 @@
          <property name="geometry">
           <rect>
            <x>480</x>
-           <y>310</y>
+           <y>430</y>
            <width>99</width>
            <height>27</height>
           </rect>
@@ -1268,10 +1265,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>10</x>
            <y>50</y>
-           <width>561</width>
-           <height>181</height>
+           <width>584</width>
+           <height>211</height>
           </rect>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_27">
@@ -1315,10 +1312,6 @@
               </property>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_13">
             <item>
              <widget class="QCheckBox" name="checkResults6">
               <property name="text">
@@ -1326,6 +1319,10 @@
               </property>
              </widget>
             </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
             <item>
              <widget class="QCheckBox" name="checkResults7">
               <property name="text">
@@ -1354,6 +1351,20 @@
               </property>
               <property name="text">
                <string>Residues of communities</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults11">
+              <property name="text">
+               <string>Uniprot Look Grouped By Proteins</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkResults12">
+              <property name="text">
+               <string>Uniprot Look Grouped By Communities</string>
               </property>
              </widget>
             </item>
@@ -2174,7 +2185,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Comunidade </string>
+         <string>Communitie</string>
         </property>
        </widget>
        <widget class="QTableWidget" name="tableComm1">
@@ -2286,7 +2297,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Comunidade </string>
+         <string>Communitie</string>
         </property>
        </widget>
        <widget class="QPushButton" name="cmdNextComm_2">
@@ -2461,7 +2472,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Comunidade </string>
+         <string>Communitie</string>
         </property>
        </widget>
        <widget class="QLabel" name="lblFilter_9">
@@ -2476,6 +2487,171 @@
         <property name="text">
          <string>Filter: </string>
         </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_20">
+       <widget class="QListWidget" name="lstProteinsMined">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>60</y>
+          <width>141</width>
+          <height>321</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="tableProteinsMined1">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>60</y>
+          <width>481</width>
+          <height>321</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Residue</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Comm</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Type</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Description</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Position</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Begin</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>End</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Original</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Variation</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QLabel" name="label_50">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>40</y>
+          <width>81</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Proteins:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_51">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>40</y>
+          <width>71</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Features:</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_21">
+       <widget class="QTreeWidget" name="treeMinerComms">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>60</y>
+          <width>141</width>
+          <height>321</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Communities</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QTableWidget" name="tableProteinsMined2">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>60</y>
+          <width>481</width>
+          <height>321</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Protein</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Sequence No</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Type</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Description</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Position</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Begin</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>End</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Original</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Variation</string>
+         </property>
+        </column>
        </widget>
       </widget>
      </widget>
@@ -2504,6 +2680,296 @@
       <property name="text">
        <string>Back Result</string>
       </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_19">
+     <widget class="QLabel" name="label_47">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>-10</y>
+        <width>491</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Uniprot Looking Tool&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>170</y>
+        <width>321</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Target Residues</string>
+      </property>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>40</y>
+         <width>295</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_29">
+        <item>
+         <widget class="QCheckBox" name="chkConserveds">
+          <property name="text">
+           <string>Conserved Residues</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="chkComm">
+          <property name="text">
+           <string>Communities</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="label_48">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>80</y>
+        <width>381</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#ff0000;&quot;&gt;This method requires internet connection.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cmdLook">
+      <property name="geometry">
+       <rect>
+        <x>530</x>
+        <y>450</y>
+        <width>99</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Search</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>140</y>
+        <width>258</width>
+        <height>291</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_20">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_31">
+         <item>
+          <widget class="QLabel" name="label_49">
+           <property name="text">
+            <string>Proteins to Look:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdLookNone">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdLookAll">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="lstLookingRefs">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_22">
+     <widget class="QLabel" name="label_52">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>-10</y>
+        <width>491</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Manage Communities&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>230</y>
+        <width>231</width>
+        <height>29</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_30">
+       <item>
+        <widget class="QLabel" name="label_53">
+         <property name="text">
+          <string>Select community:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="cmbComm"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>311</x>
+        <y>131</y>
+        <width>258</width>
+        <height>311</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_21">
+       <item>
+        <widget class="QLabel" name="label_54">
+         <property name="text">
+          <string>Residues of the community:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_32">
+         <item>
+          <widget class="QPushButton" name="cmdNewComm">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>New Community</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdDelResComm">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="cmdAddResComm">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="lstManageComms"/>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>
@@ -2689,19 +3155,24 @@
     <addaction name="actionOpen_XML"/>
     <addaction name="separator"/>
     <addaction name="actionInput_Alignment"/>
-    <addaction name="actionExport_Alignment"/>
-    <addaction name="actionFetch_From_PFAM"/>
     <addaction name="actionClose_Alignment"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Results"/>
    </widget>
    <widget class="QMenu" name="menuMethod">
     <property name="title">
      <string>Methods</string>
     </property>
+    <addaction name="actionStart_Wizard"/>
+    <addaction name="separator"/>
     <addaction name="actionFilter_Alignment"/>
-    <addaction name="actionCalculate_Minimum_Sub_Alignment_Size"/>
-    <addaction name="actionCalculate_Correlation_Scores"/>
-    <addaction name="actionDecompose_Network"/>
-    <addaction name="actionAnalyze_Conservation_Sets"/>
+    <addaction name="actionConservation"/>
+    <addaction name="actionMinss"/>
+    <addaction name="actionCorrelation"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_Communitie"/>
+    <addaction name="separator"/>
+    <addaction name="actionUniprotLooking"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -2711,12 +3182,38 @@
    </widget>
    <widget class="QMenu" name="menuShow">
     <property name="title">
-     <string>Visualize</string>
+     <string>Results</string>
     </property>
-    <addaction name="actionResults_Table"/>
-    <addaction name="actionConservation_Scatterplot"/>
-    <addaction name="actionConserved_Residues_in_Structure"/>
-    <addaction name="actionCommunities_Graph"/>
+    <widget class="QMenu" name="menuConservation_Table">
+     <property name="title">
+      <string>Conservation Table</string>
+     </property>
+     <addaction name="actionIn_Frequence"/>
+     <addaction name="actionIn_Percentage"/>
+    </widget>
+    <widget class="QMenu" name="menuCorrelation_Tables_2">
+     <property name="title">
+      <string>Correlation Tables</string>
+     </property>
+     <addaction name="actionIn_Percentage_2"/>
+     <addaction name="actionIn_Log_P"/>
+    </widget>
+    <widget class="QMenu" name="menuUniprot_Look_Results">
+     <property name="title">
+      <string>Uniprot Look Results</string>
+     </property>
+     <addaction name="actionGrouped_By_Proteins"/>
+     <addaction name="actionGrouped_By_Communities"/>
+    </widget>
+    <addaction name="actionList_Of_Sequences"/>
+    <addaction name="menuConservation_Table"/>
+    <addaction name="actionConserved_Residues"/>
+    <addaction name="actionCorrelation_List"/>
+    <addaction name="actionCommunities_List"/>
+    <addaction name="menuCorrelation_Tables_2"/>
+    <addaction name="actionAdherence_Matrix"/>
+    <addaction name="actionResidues_Of_Communities"/>
+    <addaction name="menuUniprot_Look_Results"/>
    </widget>
    <widget class="QMenu" name="menuExport">
     <property name="title">
@@ -2819,6 +3316,24 @@
      <addaction name="actionCorrRefsTXT"/>
      <addaction name="actionCorrRefsXML"/>
     </widget>
+    <widget class="QMenu" name="menuUniprot_Look_Grouped_By_Proteins">
+     <property name="title">
+      <string>Uniprot Look Grouped By Proteins</string>
+     </property>
+     <addaction name="actionLookProtTXT"/>
+     <addaction name="actionLookProtCSV"/>
+     <addaction name="actionLookProtXML"/>
+     <addaction name="actionLookProtHTML"/>
+    </widget>
+    <widget class="QMenu" name="menuUniprot_Look_Grouped_By_Communities">
+     <property name="title">
+      <string>Uniprot Look Grouped By Communities</string>
+     </property>
+     <addaction name="actionLookCommtTXT"/>
+     <addaction name="actionLookCommCSV"/>
+     <addaction name="actionLookCommXML"/>
+     <addaction name="actionLookCommHTML"/>
+    </widget>
     <addaction name="menuAlignment"/>
     <addaction name="separator"/>
     <addaction name="menuFrequence_Conservation"/>
@@ -2833,6 +3348,9 @@
     <addaction name="menuAdherence_Matrix"/>
     <addaction name="menuResidues_Of_Communities"/>
     <addaction name="menuCorrelation_Reference_Sequences"/>
+    <addaction name="separator"/>
+    <addaction name="menuUniprot_Look_Grouped_By_Proteins"/>
+    <addaction name="menuUniprot_Look_Grouped_By_Communities"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMethod"/>
@@ -2960,21 +3478,33 @@
    </property>
   </action>
   <action name="actionResults_Table">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Results Table</string>
    </property>
   </action>
   <action name="actionConservation_Scatterplot">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Conservation Scatterplot</string>
    </property>
   </action>
   <action name="actionCommunities_Graph">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Communities Graph</string>
    </property>
   </action>
   <action name="actionConserved_Residues_in_Structure">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Conserved Residues in Structure</string>
    </property>
@@ -3102,6 +3632,146 @@
   <action name="actionCorrRefsXML">
    <property name="text">
     <string>XML</string>
+   </property>
+  </action>
+  <action name="actionConservation">
+   <property name="text">
+    <string>Conservation</string>
+   </property>
+  </action>
+  <action name="actionMinss">
+   <property name="text">
+    <string>Minss</string>
+   </property>
+  </action>
+  <action name="actionCorrelation">
+   <property name="text">
+    <string>Correlation</string>
+   </property>
+  </action>
+  <action name="actionShow_Results">
+   <property name="text">
+    <string>Show Results</string>
+   </property>
+  </action>
+  <action name="actionSave_Results">
+   <property name="text">
+    <string>Save Results</string>
+   </property>
+  </action>
+  <action name="actionStart_Wizard">
+   <property name="text">
+    <string>Start Wizard</string>
+   </property>
+  </action>
+  <action name="actionUniprotLooking">
+   <property name="text">
+    <string>Uniprot Looking Tool</string>
+   </property>
+  </action>
+  <action name="actionLookProtTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionLookProtCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionLookProtXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionLookProtHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionLookCommtTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionLookCommCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionLookCommXML">
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="actionLookCommHTML">
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionCreate_Communitie">
+   <property name="text">
+    <string>Manage Communities</string>
+   </property>
+  </action>
+  <action name="actionList_Of_Sequences">
+   <property name="text">
+    <string>List Of Sequences</string>
+   </property>
+  </action>
+  <action name="actionIn_Frequence">
+   <property name="text">
+    <string>In Frequence</string>
+   </property>
+  </action>
+  <action name="actionIn_Percentage">
+   <property name="text">
+    <string>In Percentage</string>
+   </property>
+  </action>
+  <action name="actionConserved_Residues">
+   <property name="text">
+    <string>Conserved Residues</string>
+   </property>
+  </action>
+  <action name="actionCorrelation_List">
+   <property name="text">
+    <string>Correlation List</string>
+   </property>
+  </action>
+  <action name="actionCommunities_List">
+   <property name="text">
+    <string>Communities List</string>
+   </property>
+  </action>
+  <action name="actionIn_Percentage_2">
+   <property name="text">
+    <string>In Percentage</string>
+   </property>
+  </action>
+  <action name="actionIn_Log_P">
+   <property name="text">
+    <string>In Log P</string>
+   </property>
+  </action>
+  <action name="actionAdherence_Matrix">
+   <property name="text">
+    <string>Adherence Matrix</string>
+   </property>
+  </action>
+  <action name="actionResidues_Of_Communities">
+   <property name="text">
+    <string>Residues Of Communities</string>
+   </property>
+  </action>
+  <action name="actionGrouped_By_Proteins">
+   <property name="text">
+    <string>Grouped By Proteins</string>
+   </property>
+  </action>
+  <action name="actionGrouped_By_Communities">
+   <property name="text">
+    <string>Grouped By Communities</string>
    </property>
   </action>
  </widget>

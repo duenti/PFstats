@@ -22,10 +22,17 @@ LIBS += -fopenmp
 SOURCES += main.cpp\
         mainwindow.cpp \
     qcustomplot.cpp \
-    alignment.cpp
+    alignment.cpp \
+    about.cpp \
+    uniprot.cpp \
+    feature.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
-    alignment.h
+    alignment.h \
+    about.h \
+    uniprot.h \
+    feature.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    about.ui

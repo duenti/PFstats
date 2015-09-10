@@ -6,6 +6,7 @@
 #include <tuple>
 #include <QObject>
 #include <QProgressDialog>
+#include "uniprot.h"
 
 using namespace std;
 
@@ -16,6 +17,7 @@ class Alignment
 private:
     string filepath;
     string refSeqName;
+    float minCons;
     vector<int> subalignmentseqs;
     vector<int> referencevector; // Vector containing the positions for a reference sequence
     vector<int> SortOrder;
@@ -43,6 +45,7 @@ private:
     vector<vector<vector<float> > > communityX;//Resetando
     vector<vector<float> > communityXAll;//Resetando
     vector<vector<vector<int> > > communityXps;//Resetando
+    vector<Uniprot*> uniprotMined;//FALTA RESETAR
     vector<string> parameters;
     //function_tag,parameters.
 
@@ -74,6 +77,7 @@ public:
     Alignment();
     Alignment(string path);
     ~Alignment();
+    void setMinsCons(float v);
     void clear();
     vector<string> split(string text, char sep);
     string getFilepath();
@@ -104,6 +108,8 @@ public:
     void clearCorrRefSeq();
     int getCorrRefSeqsSize();
     void addCommunity(vector<string> comm);
+    void addItemToCommunity(string res, int commindex);
+    void removeItemOfCommunity(int comm, int item);
     void clearCommunity();
     void printCorrGraph();
     void printCommunity();
@@ -116,6 +122,12 @@ public:
     void addConsRef(string ref);
     int getConsRefsSize();
     string getConsref(int i);
+    int getUniprotMinedSize(); //UNIPROT MINE
+    void addUniprotEntry(Uniprot *entry);
+    string getUniprotEntryName(int i);
+    int getUniprotEntryNofFeatures(int i);
+    Feature* getUniprotFeature(int i, int j);
+    string uniprotEntryToString(int i);
     void setMinssVector(vector<float> minss);
     void addCorrGraphEdge(string v1, string v2, int e);
     void addResiduesComm(vector<string> comm);
@@ -239,6 +251,7 @@ public:
     void Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset); //[10%]
     void Cluster2PymolScript(string clusterfilename, string familyID, int seqnumber, int offset);
     void AlignmentWrite(string outputfilename); //[OK]
+    bool checkConsistency();
     vector<string> getSequencesName(); //[OK]
     string getSequence(string seqname);
     void exportAlignment(QString filename, string filter, int type); //TYPE: 0-PFAM, 1-TXT, 2-XML
@@ -250,6 +263,11 @@ public:
     void exportCorrTable(QString filename, int type, bool perc=true); //TYPE: 0-TXT, 1-XML, 2-HTML
     void exportAdh(QString filename, int type); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML
     void exportResComm(QString filename, int type, vector<int> refSeqs); //TYPE: 0-TXT, 1-XML, 2-HTML
+    void exportLookProt(QString filename, int type); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML
+    void exportLookComm(QString filename, int type); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML
+    void uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins);
+    vector<string> getConsRes();
+    vector<Uniprot*> getAllResidueFeatures(string res);
 };
 
 #endif // ALIGNMENT_H

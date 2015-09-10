@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>About</class>
+ <widget class="QDialog" name="About">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>463</width>
+    <height>333</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>20</y>
+     <width>411</width>
+     <height>281</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;PFStats v0.3&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Lucas Blecher and Néli Fonseca&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Programa de Pós Graduação em Bioinformática&lt;br/&gt;Instituto de Ciências Biológicas&lt;br/&gt;Universidade Federal de Minas Gerais&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you have any sugestion or find any bug, contact us:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;nelifonseca@ufmg.br&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

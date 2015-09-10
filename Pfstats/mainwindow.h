@@ -62,6 +62,37 @@ private slots:
     void exportConsRefsXML();
     void exportCorrRefsTXT();
     void exportCorrRefsXML();
+    void exportLookProtTXT();
+    void exportLookProtCSV();
+    void exportLookProtXML();
+    void exportLookProtHTML();
+    void exportLookCommTXT();
+    void exportLookCommCSV();
+    void exportLookCommXML();
+    void exportLookCommHTML();
+    void startWizard();
+    void changetoFilterStack();
+    void changeToConservationStack();
+    void changetoMinssStack();
+    void changetoCorrelationStack();
+    void changetoShowResultsStack();
+    void changeToUniprotLookingTool();
+    void saveResults();
+    void closeAlignment();
+    void showAbout();
+    void changeToCreateCommunity();
+    void changeToListOfSequences();
+    void changeToConservationFrequence();
+    void changeToConservationPercentage();
+    void changeToConservedResidues();
+    void changetoCorrelationList();
+    void changeToCommunitiesList();
+    void changeToCorrelationInPerc();
+    void changeToCorrelationInLogP();
+    void changeToAdherenceMatrix();
+    void changeToResiduesOfCommunities();
+    void changeToULGroupedByProteins();
+    void changeToULGroupedByComms();
 
     void on_cmdStartWizard_clicked();
     void on_cmdMain_clicked();
@@ -123,6 +154,24 @@ private slots:
 
     void on_cmdCorRefSeqs_clicked();
 
+    void on_cmdLook_clicked();
+
+    void on_cmdLookNone_clicked();
+
+    void on_cmdLookAll_clicked();
+
+    void on_lstProteinsMined_activated(const QModelIndex &index);
+
+    void on_treeMinerComms_clicked(const QModelIndex &index);
+
+    void on_cmbComm_currentIndexChanged(int index);
+
+    void on_cmdAddResComm_clicked();
+
+    void on_cmdDelResComm_clicked();
+
+    void on_cmdNewComm_clicked();
+
 private:
     Ui::MainWindow *ui;
     void changeWizardCmds(bool bl);
@@ -161,6 +210,11 @@ private:
     void adh(int ai);
     void showConservedResidues(int ai);
     void showResiduesComm(int ai);
+    void showUniprotGroupByProteins(int ai);
+    void showUniprotGroupByComms(int ai);
+    bool isaa(char c);
+    bool isInt(string v);
+    void updateResultsViews(int ai);
 };
 
 #endif // MAINWINDOW_H

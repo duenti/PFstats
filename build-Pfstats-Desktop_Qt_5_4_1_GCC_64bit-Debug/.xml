@@ -1,0 +1,557 @@
+<?xml version="1.0"?>
+<PFStats>
+	<protein name="A0A023EH02_AEDAL" dataset="TrEMBL">
+	</protein>
+	<protein name="A0A023I9C9_SPAAU" dataset="TrEMBL">
+	</protein>
+	<protein name="A0A024AXD2_MICIK" dataset="TrEMBL">
+	</protein>
+	<protein name="A5PJC6_BOVIN" dataset="TrEMBL">
+	</protein>
+	<protein name="PPAC_HUMAN" dataset="Swiss-Prot">
+		<feature agregate="1" type="active site" description="Proton donor" >
+			<location>
+				<position position="130"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="modified residue" description="Phosphotyrosine" >
+			<location>
+				<position position="132"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="modified residue" description="Phosphotyrosine" >
+			<location>
+				<position position="133"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="3" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="8" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="9" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="10" type="splice variant" description="In isoform 2." id="VSP_010087" >
+			<original>RVDSAATSGYEIGNPPDYRGQSCMKRHGIPMSHV</original>
+			<variation>VIDSGAVSDWNVGRSPDPRAVSCLRNHGIHTAHK</variation>
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="3" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="8" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="9" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="10" type="splice variant" description="In isoform 3." id="VSP_010088" >
+			<location>
+				<begin position="41"/>
+				<end position="74"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054074" >
+			<original>ITKEDFATFDYILCMDESNLRDLNRKSNQVKTCKA</original>
+			<variation>VPSLDLKLCVLCFSGSLTAVLFLTGTWAGPQTQEL</variation>
+			<location>
+				<begin position="78"/>
+				<end position="112"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054074" >
+			<original>ITKEDFATFDYILCMDESNLRDLNRKSNQVKTCKA</original>
+			<variation>VPSLDLKLCVLCFSGSLTAVLFLTGTWAGPQTQEL</variation>
+			<location>
+				<begin position="78"/>
+				<end position="112"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054074" >
+			<original>ITKEDFATFDYILCMDESNLRDLNRKSNQVKTCKA</original>
+			<variation>VPSLDLKLCVLCFSGSLTAVLFLTGTWAGPQTQEL</variation>
+			<location>
+				<begin position="78"/>
+				<end position="112"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054074" >
+			<original>ITKEDFATFDYILCMDESNLRDLNRKSNQVKTCKA</original>
+			<variation>VPSLDLKLCVLCFSGSLTAVLFLTGTWAGPQTQEL</variation>
+			<location>
+				<begin position="78"/>
+				<end position="112"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054074" >
+			<original>ITKEDFATFDYILCMDESNLRDLNRKSNQVKTCKA</original>
+			<variation>VPSLDLKLCVLCFSGSLTAVLFLTGTWAGPQTQEL</variation>
+			<location>
+				<begin position="78"/>
+				<end position="112"/>
+			</location>
+		</feature>
+		<feature agregate="1" type="splice variant" description="In isoform 4." id="VSP_054074" >
+			<original>ITKEDFATFDYILCMDESNLRDLNRKSNQVKTCKA</original>
+			<variation>VPSLDLKLCVLCFSGSLTAVLFLTGTWAGPQTQEL</variation>
+			<location>
+				<begin position="78"/>
+				<end position="112"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="splice variant" description="In isoform 4." id="VSP_054074" >
+			<original>ITKEDFATFDYILCMDESNLRDLNRKSNQVKTCKA</original>
+			<variation>VPSLDLKLCVLCFSGSLTAVLFLTGTWAGPQTQEL</variation>
+			<location>
+				<begin position="78"/>
+				<end position="112"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="1" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="1" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="4" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="5" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="15" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="16" type="splice variant" description="In isoform 4." id="VSP_054075" >
+			<location>
+				<begin position="113"/>
+				<end position="158"/>
+			</location>
+		</feature>
+		<feature agregate="4" type="sequence variant" description="In dbSNP:rs35569198." id="VAR_050527" >
+			<original>S</original>
+			<variation>F</variation>
+			<location>
+				<position position="137"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="mutagenesis site" description="Reduced phosphorylation and activity." >
+			<original>Y</original>
+			<variation>F</variation>
+			<location>
+				<position position="132"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="mutagenesis site" description="Reduced phosphorylation. No effect on activity." >
+			<original>Y</original>
+			<variation>F</variation>
+			<location>
+				<position position="133"/>
+			</location>
+		</feature>
+		<feature agregate="1" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="3" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="3" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="4" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="6" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="7" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="11" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="12" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="13" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="14" type="helix" >
+			<location>
+				<begin position="19"/>
+				<end position="33"/>
+			</location>
+		</feature>
+		<feature agregate="1" type="strand" >
+			<location>
+				<begin position="40"/>
+				<end position="49"/>
+			</location>
+		</feature>
+		<feature agregate="3" type="strand" >
+			<location>
+				<begin position="40"/>
+				<end position="49"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="turn" >
+			<location>
+				<begin position="50"/>
+				<end position="53"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="helix" >
+			<location>
+				<begin position="58"/>
+				<end position="66"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="helix" >
+			<location>
+				<begin position="58"/>
+				<end position="66"/>
+			</location>
+		</feature>
+		<feature agregate="2" type="helix" >
+			<location>
+				<begin position="58"/>
+				<end position="66"/>
+			</location>
+		</feature>
+		<feature agregate="8" type="helix" >
+			<location>
+				<begin position="58"/>
+				<end position="66"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="helix" >
+			<location>
+				<begin position="80"/>
+				<end position="85"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="strand" >
+			<location>
+				<begin position="87"/>
+				<end position="93"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="helix" >
+			<location>
+				<begin position="94"/>
+				<end position="104"/>
+			</location>
+		</feature>
+		<feature agregate="1" type="helix" >
+			<location>
+				<begin position="94"/>
+				<end position="104"/>
+			</location>
+		</feature>
+		<feature agregate="CONS" type="helix" >
+			<location>
+				<begin position="117"/>
+				<end position="120"/>
+			</location>
+		</feature>
+		<feature agregate="4" type="helix" >
+			<location>
+				<begin position="136"/>
+				<end position="155"/>
+			</location>
+		</feature>
+		<feature agregate="5" type="helix" >
+			<location>
+				<begin position="136"/>
+				<end position="155"/>
+			</location>
+		</feature>
+	</protein>
+</PFStats>

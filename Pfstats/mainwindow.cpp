@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "about.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QFile>
@@ -63,6 +64,37 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionConsRefsXML,SIGNAL(triggered()),this,SLOT(exportConsRefsXML()));
     connect(ui->actionCorrRefsTXT,SIGNAL(triggered()),this,SLOT(exportCorrRefsTXT()));
     connect(ui->actionCorrRefsXML,SIGNAL(triggered()),this,SLOT(exportCorrRefsXML()));
+    connect(ui->actionStart_Wizard,SIGNAL(triggered()),this,SLOT(startWizard()));
+    connect(ui->actionFilter_Alignment,SIGNAL(triggered()),this,SLOT(changetoFilterStack()));
+    connect(ui->actionConservation,SIGNAL(triggered()),this,SLOT(changeToConservationStack()));
+    connect(ui->actionMinss,SIGNAL(triggered()),this,SLOT(changetoMinssStack()));
+    connect(ui->actionCorrelation,SIGNAL(triggered()),this,SLOT(changetoCorrelationStack()));
+    connect(ui->actionShow_Results,SIGNAL(triggered()),this,SLOT(changetoShowResultsStack()));
+    connect(ui->actionUniprotLooking,SIGNAL(triggered()),this,SLOT(changeToUniprotLookingTool()));
+    connect(ui->actionSave_Results,SIGNAL(triggered()),this,SLOT(saveResults()));
+    connect(ui->actionClose_Alignment,SIGNAL(triggered()),this,SLOT(closeAlignment()));
+    connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(showAbout()));
+    connect(ui->actionLookProtTXT,SIGNAL(triggered()),this,SLOT(exportLookProtTXT()));
+    connect(ui->actionLookProtCSV,SIGNAL(triggered()),this,SLOT(exportLookProtCSV()));
+    connect(ui->actionLookProtXML,SIGNAL(triggered()),this,SLOT(exportLookProtXML()));
+    connect(ui->actionLookProtHTML,SIGNAL(triggered()),this,SLOT(exportLookProtHTML()));
+    connect(ui->actionLookCommtTXT,SIGNAL(triggered()),this,SLOT(exportLookCommTXT()));
+    connect(ui->actionLookCommCSV,SIGNAL(triggered()),this,SLOT(exportLookCommCSV()));
+    connect(ui->actionLookCommXML,SIGNAL(triggered()),this,SLOT(exportLookCommXML()));
+    connect(ui->actionLookCommHTML,SIGNAL(triggered()),this,SLOT(exportLookCommHTML()));
+    connect(ui->actionCreate_Communitie,SIGNAL(triggered()),this,SLOT(changeToCreateCommunity()));
+    connect(ui->actionList_Of_Sequences,SIGNAL(triggered()),this,SLOT(changeToListOfSequences()));
+    connect(ui->actionIn_Frequence,SIGNAL(triggered()),this,SLOT(changeToConservationFrequence()));
+    connect(ui->actionIn_Percentage,SIGNAL(triggered()),this,SLOT(changeToConservationPercentage()));
+    connect(ui->actionConserved_Residues,SIGNAL(triggered()),this,SLOT(changeToConservedResidues()));
+    connect(ui->actionCorrelation_List,SIGNAL(triggered()),this,SLOT(changetoCorrelationList()));
+    connect(ui->actionCommunities_List,SIGNAL(triggered()),this,SLOT(changeToCommunitiesList()));
+    connect(ui->actionIn_Percentage_2,SIGNAL(triggered()),this,SLOT(changeToCorrelationInPerc()));
+    connect(ui->actionIn_Log_P,SIGNAL(triggered()),this,SLOT(changeToCorrelationInLogP()));
+    connect(ui->actionAdherence_Matrix,SIGNAL(triggered()),SLOT(changeToAdherenceMatrix()));
+    connect(ui->actionResidues_Of_Communities,SIGNAL(triggered()),SLOT(changeToResiduesOfCommunities()));
+    connect(ui->actionGrouped_By_Proteins,SIGNAL(triggered()),this,SLOT(changeToULGroupedByProteins()));
+    connect(ui->actionGrouped_By_Communities,SIGNAL(triggered()),this,SLOT(changeToULGroupedByComms()));
 }
 
 MainWindow::~MainWindow()
@@ -351,7 +383,7 @@ void MainWindow::conservation(int ai, int refseq, int offset, char chain, float 
 }
 
 //Passar vetor de indices ->currentIndex
-void MainWindow::conservedresidues(int ai, vector<int> referencesequences, float minconservation){
+void MainWindow::conservedresidues(int ai, vector<int> referencesequences, float minconservation){ //OLD
     int c1, c2;
     float freq;
     vector<char> conservedaa;
@@ -738,7 +770,6 @@ void MainWindow::listSequences(int ai){
 
     //Parametros
     if(ui->listWidget2->currentItem() == NULL){
-        QMessageBox::information(this,"a","OK");
         ui->lblRefSeq1->setText(" Reference Sequence: Full Alignment");
         ui->lblOccupancy->setVisible(false);
         ui->lblMaxId->setVisible(false);
@@ -1049,6 +1080,7 @@ void MainWindow::adh(int ai){
 
     int nComm = alinhamentos[ai].getNumOfUtilComms();
     int nSequences = alinhamentos[ai].sequences.size()-1;
+    alinhamentos[ai].CalculateFrequencies();
 
     //alinhamentos[ai].printFrequencies();
 
@@ -1071,6 +1103,7 @@ void MainWindow::adh(int ai){
         ui->tableAdherence->setItem(i,0,protItem);
 
         for(int j = 0; j < nComm; j++){
+
             if(alinhamentos[ai].Communities[j].aa.size() > 1){
                 float psa = alinhamentos[ai].PSA(i,j);
 
@@ -1242,6 +1275,45 @@ void MainWindow::showResiduesComm(int ai){
     ui->tableResiduesComm->resizeColumnsToContents();
 }
 
+void MainWindow::showUniprotGroupByProteins(int ai){
+
+    ui->lstProteinsMined->clear();
+    for(int i = 0; i < alinhamentos[ai].getUniprotMinedSize(); i++){
+        ui->lstProteinsMined->addItem(alinhamentos[ai].getUniprotEntryName(i).c_str());
+    }
+}
+
+void MainWindow::showUniprotGroupByComms(int ai){
+    int nrows = alinhamentos[ai].getCommListSize();
+
+    ui->treeMinerComms->clear();
+
+    for(int i = 0; i < nrows; i++){
+        vector<string> residues = alinhamentos[ai].getCommunitie(i);
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeMinerComms);
+
+        string text = "Comm " + QString::number(i).toStdString();
+        item->setText(0,text.c_str());
+
+        for(int j = 0; j < residues.size(); j++){
+            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(residues[j].c_str()))));
+        }
+    }
+
+    //CONS RES
+    vector<string> consRes = alinhamentos[ai].getConsRes();
+    if(consRes.size() > 0){
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeMinerComms);
+
+        string text = "Conservation";
+        item->setText(0,text.c_str());
+
+        for(int j = 0; j < consRes.size(); j++){
+            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(consRes[j].c_str()))));
+        }
+    }
+}
+
 void MainWindow::addAlignment(string path){
     Alignment align;
     align.setFilepath(path);
@@ -1250,40 +1322,11 @@ void MainWindow::addAlignment(string path){
 }
 
 void MainWindow::changeWizardCmds(bool bl){
-    ui->cmdAdvance->setEnabled(bl);
-    ui->cmdBack->setEnabled(bl);
-    ui->cmdMain->setEnabled(bl);
-    ui->cmdSaveResults->setEnabled(bl);
-    ui->cmdShowResults->setEnabled(bl);
-}
-
-void MainWindow::inputAlignment_triggered(){
-    //Abre arquivo para leitura
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home",tr("TEXT Files (*.txt *.pfam)"));
-    QFile file(fileName);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        return;
-    }
-
-    //Limpa a textBrowser
-    //ui->textBrowser->clear();
-
-    //Add na Lista
-    bool same = false;
-    for(int i = 0; i < ui->listWidget->count(); i++){
-        if(fileName ==  ui->listWidget->item(i)->text()) same = true;
-    }
-    if(!same) ui->listWidget->addItem(fileName);
-
-    //lê arquivo
-   /*
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-         ui->textBrowser->append(in.readLine());
-    }
-    file.close();
-*/
+    ui->cmdAdvance->setVisible(bl);
+    ui->cmdBack->setVisible(bl);
+    ui->cmdMain->setVisible(bl);
+    ui->cmdSaveResults->setVisible(bl);
+    ui->cmdShowResults->setVisible(bl);
 }
 
 void MainWindow::fetchPFAM_triggered(){
@@ -1322,17 +1365,7 @@ void MainWindow::exportAlignment_triggered(){
 
 void MainWindow::on_cmdStartWizard_clicked()
 {
-    //Diz que usuario esta executando wizard
-    wizard = true;
-
-    //Ativa botões do Wizard
-    changeWizardCmds(true);
-
-    //Desativa botao voltar
-    ui->cmdBack->setEnabled(false);
-
-    //Muda para tela 1
-    ui->stackedWidget->setCurrentIndex(1);
+    this->startWizard();
 }
 
 void MainWindow::on_cmdMain_clicked()
@@ -1441,6 +1474,17 @@ void MainWindow::on_cmdOpen_clicked()
         return;
     }
 
+    //Cria Alinhamento
+    //addAlignment(fileName.toUtf8().constData());
+    Alignment align;
+    align.setFilepath(fileName.toUtf8().constData());
+    bool a = align.GetFromFile();
+    if(!a){
+        ui->cmdOpen->setEnabled(true);
+        QMessageBox::warning(this,"Warning","Ivalid input format.");
+        return;
+    }
+
     //Add na Lista
     for(int i = 0; i < ui->listWidget->count(); i++){
         if(fileName ==  ui->listWidget->item(i)->text()){
@@ -1450,11 +1494,6 @@ void MainWindow::on_cmdOpen_clicked()
     }
     ui->listWidget->addItem(fileName);
 
-    //Cria Alinhamento
-    //addAlignment(fileName.toUtf8().constData());
-    Alignment align;
-    align.setFilepath(fileName.toUtf8().constData());
-    align.GetFromFile();
 
     //Salva Full Alignment
     vector<string> filterSequence;
@@ -1479,6 +1518,9 @@ void MainWindow::on_cmdOpen_clicked()
     align.setLocalDir(fileName.toStdString());
 
     alinhamentos.push_back(align);
+
+    ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
+    emit ui->listWidget->activated(ui->listWidget->currentIndex());
 
     ui->cmdOpen->setEnabled(true);
 }
@@ -1576,6 +1618,9 @@ void MainWindow::on_cmdFetch_clicked()
         align.addFilterSequence(filterList,filterSequence);
 
         alinhamentos.push_back(align);
+
+        ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
+        emit ui->listWidget->activated(ui->listWidget->currentIndex());
     }
 
     ui->cmdFetch->setEnabled(true);
@@ -1778,6 +1823,7 @@ void MainWindow::on_cmdConservation_clicked()
             break;
         }
     }
+    alinhamentos[i].setMinsCons(minCons);
 
     QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
     alinhamentos[i].clearConsRefs();
@@ -1979,6 +2025,188 @@ void MainWindow::on_cmdCorrelation_clicked()
     ui->cmdCorrelation->setEnabled(true);
 }
 
+void MainWindow::updateResultsViews(int ai){
+    switch(ui->stackedWidget2->currentIndex()){
+    case 1:
+    {
+        //Resetar campos de resultado
+        ui->lstProteinsFiltered->clear();
+        ui->txtSequence->clear();
+
+        this->listSequences(ai);
+
+        break;
+    }
+    case 2:
+    {
+        if(alinhamentos[ai].getConsFreqSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run conservation method.");
+            ui->stackedWidget->setCurrentIndex(3);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->tableFreq->clearContents();
+
+        this->tableFreq(ai);
+
+        break;
+    }
+    case 3:
+    {
+        if(alinhamentos[ai].getConsFreqPercSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run conservation method.");
+            ui->stackedWidget->setCurrentIndex(3);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->tableFreqPerc->clearContents();
+
+        this->tableFreqPerc(ai);
+
+        break;
+    }
+    case 4:
+    {
+        if(alinhamentos[ai].getConsRefsSize() == 0){
+            QMessageBox::warning(this,"Warning","You must select some reference sequences when run conservation.");
+            ui->stackedWidget->setCurrentIndex(3);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->tableConsRes->clear();
+
+        this->showConservedResidues(ai);
+
+        break;
+    }
+    case 5:
+    {
+        if(alinhamentos[ai].getCorrGraphSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(5);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->treeCorrelation->clear();
+
+        this->correlationList(ai);
+
+        break;
+    }
+    case 6:
+    {
+        if(alinhamentos[ai].getCommListSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(5);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->treeCorrelationComm->clear();
+
+        this->communitiesList(ai);
+
+        break;
+    }
+    case 7:
+    {
+        if(alinhamentos[ai].getNumOfUtilComms() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(5);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->tableComm1->clear();
+
+        this->corrTable1(ai);
+
+        break;
+    }
+    case 8:
+    {
+        if(alinhamentos[ai].getNumOfUtilComms() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(5);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->tableComm2->clear();
+
+        this->corrTable2(ai);
+
+        break;
+    }
+    case 9:
+    {
+        if(alinhamentos[ai].getNumOfUtilComms() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(5);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->tableAdherence->clear();
+
+        this->adh(ai);
+
+        break;
+    }
+    case 10:
+    {
+        if(alinhamentos[ai].getCorrRefSeqsSize() == 0 || alinhamentos[ai].getNumOfUtilComms() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method with some reference sequences.");
+            ui->stackedWidget->setCurrentIndex(5);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->tableResiduesComm->clear();
+
+        this->showResiduesComm(ai);
+
+        break;
+    }
+    case 11:
+    {
+        if(alinhamentos[ai].getUniprotMinedSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+            ui->stackedWidget->setCurrentIndex(7);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->lstProteinsMined->clear();
+        ui->tableProteinsMined1->clearContents();
+
+        this->showUniprotGroupByProteins(ai);
+
+        break;
+    }
+    case 12:
+    {
+        if(alinhamentos[ai].getUniprotMinedSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+            ui->stackedWidget->setCurrentIndex(7);
+            return;
+        }
+
+        //Resetar campos de resultado
+        ui->treeMinerComms->clear();
+        ui->tableProteinsMined2->clearContents();
+
+        this->showUniprotGroupByComms(ai);
+
+        break;
+    }
+    }
+}
+
 void MainWindow::on_listWidget_activated(const QModelIndex &index)
 {
     string path = ui->listWidget->currentItem()->text().toUtf8().constData();
@@ -2005,6 +2233,9 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbRefSeq_3->addItem("");
     ui->lstRefSeqs->clear();
     ui->lstRefSeqs_2->clear();
+    ui->lstLookingRefs->clear();
+    ui->cmbComm->clear();
+    ui->lstManageComms->clear();
 
     //printf("SIZE: %d",sequences.size());
     vector<string> fullAlign = alinhamentos[i].getFullAlignment();
@@ -2014,6 +2245,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
         ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
         ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
         ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
+        ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
 
         for(int j = 0; j < alinhamentos[i].getConsRefsSize(); j++){
             string ref1 = alinhamentos[i].getConsref(j);
@@ -2030,6 +2262,15 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
                 break;
             }
         }
+    }
+
+    if(ui->stackedWidget->currentIndex() == 8){
+        int nOfComms = alinhamentos[i].getCommListSize();
+
+        for(int j = 1; j <= nOfComms; j++)
+            ui->cmbComm->addItem(QString::number(j));
+    }else if(ui->stackedWidget->currentIndex() == 6){
+        this->updateResultsViews(i);
     }
 
     ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(fullAlign.size()));
@@ -2072,6 +2313,9 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
     //ui->lstRefSeqs->clear();
     //ui->lstRefSeqs_2->clear();
     ui->lstProteinsFiltered->clear();
+    ui->lstLookingRefs->clear();
+    ui->cmbComm->clear();
+    ui->lstManageComms->clear();
 
     if(filterPars == "Full Alignment"){
         alinhamentos[i].loadFullAlignment();
@@ -2084,6 +2328,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
             ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
+            ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
             ui->lstProteinsFiltered->addItem(QString::fromStdString(splitVec[0]));
         }
     }else{
@@ -2098,6 +2343,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
                     ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
+                    ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
                     ui->lstProteinsFiltered->addItem(QString::fromStdString(splitVec[0]));
                     alinhamentos[i].sequencenames.push_back(filterList[j][k]);
                     alinhamentos[i].sequences.push_back(filterSeq[j][k]);
@@ -2105,6 +2351,15 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
                 break;
             }
         }
+    }
+
+    if(ui->stackedWidget->currentIndex() == 8){
+        int nOfComms = alinhamentos[i].getCommListSize();
+
+        for(int j = 1; j <= nOfComms; j++)
+            ui->cmbComm->addItem(QString::number(j));
+    }else if(ui->stackedWidget->currentIndex() == 6){
+        this->updateResultsViews(i);
     }
 
     alinhamentos[i].CalculateFrequencies();
@@ -2221,113 +2476,16 @@ void MainWindow::on_lstRefSeqs_2_itemSelectionChanged()
 
 void MainWindow::on_cmdSaveResults_clicked()
 {
-    ui->cmdSaveResults->setEnabled(false);
-
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Error","You must select an alignment");
-        ui->cmdApplyFilter->setEnabled(true);
-        return;
-    }
-
-    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
-
-    int i = 0;
-    for(i = 0; i < alinhamentos.size(); i++){
-        if(alignfilename == alinhamentos.at(i).getFilepath()){
-            break;
-        }
-    }
-
-    vector<string> vecPath = split(alinhamentos[i].getFilepath(),'.');
-    string path = "";
-
-    for(int i=0;i<vecPath.size()-1;i++){
-        path += vecPath[i];
-    }
-    path += ".xml";
-
-    alinhamentos[i].generateXML(path);
-
-    QMessageBox::information(this,"Save Results","XML generated successfully");
-
-    ui->cmdSaveResults->setEnabled(true);
+    this->saveResults();
 }
 
 void MainWindow::on_cmdShowResults_clicked()
 {
     ui->cmdShowResults->setEnabled(false);
-    this->resultsStackList.clear();
 
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select a alignment.");
-        ui->cmdShowResults->setEnabled(true);
-        return;
-    }
+    this->changetoShowResultsStack();
 
-    stackBeforeShowResults = ui->stackedWidget->currentIndex();
-
-    ui->stackedWidget2->setCurrentIndex(0);
-    ui->stackedWidget->setCurrentIndex(6);
-
-    ui->listWidget->setEnabled(false);
-    ui->listWidget2->setEnabled(false);
-
-    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
-    int i = 0;
-    for(i = 0; i < alinhamentos.size(); i++){
-        if(alignfilename == alinhamentos.at(i).getFilepath()){
-            //fullAlignment = alinhamentos[i];
-            break;
-        }
-    }
-
-    ui->lblHidden->setText(QString::number(i));
-
-    //Verificar resultados possiveis
-
-    //List Of Sequences after filter
-    ui->checkResults1->setEnabled(true);
-
-    //Table Of Frequence Conservation
-    if(alinhamentos[i].getConsFreqSize() > 0) ui->checkResults2->setEnabled(true);
-    else ui->checkResults2->setEnabled(false);
-
-    //Table Of Percentage Conservation
-    if(alinhamentos[i].getConsFreqPercSize() > 0) ui->checkResults3->setEnabled(true);
-    else ui->checkResults3->setEnabled(false);
-
-    //Conserved Residues
-    if(alinhamentos[i].getConsRefsSize() > 0) ui->checkResults4->setEnabled(true);
-    else ui->checkResults4->setEnabled(false);
-
-    //Correlation and Anti-Correlation List
-    if(alinhamentos[i].getCorrGraphSize() > 0) ui->checkResults5->setEnabled(true);
-    else ui->checkResults5->setEnabled(false);
-
-    //List Of Communities
-    if(alinhamentos[i].getCommListSize() > 0) ui->checkResults6->setEnabled(true);
-    else ui->checkResults6->setEnabled(false);
-
-    //Correlation Tables
-    if(alinhamentos[i].getNumOfUtilComms() > 0){
-        ui->checkResults7->setEnabled(true);
-        ui->checkResults8->setEnabled(true);
-        ui->checkResults9->setEnabled(true);
-    }else{
-        ui->checkResults7->setEnabled(false);
-        ui->checkResults8->setEnabled(false);
-        ui->checkResults9->setEnabled(false);
-    }
-
-    //Residues Of Communities CONTINUAR
-    if(alinhamentos[i].getCorrRefSeqsSize() > 0 && alinhamentos[i].getNumOfUtilComms() > 0) ui->checkResults10->setEnabled(true);
-    else ui->checkResults10->setEnabled(false);
-
-    ui->cmdMain->setEnabled(true);
-    ui->cmdBack->setEnabled(true);
-    ui->cmdAdvance->setEnabled(false);
-    ui->cmdSaveResults->setEnabled(true);
+    ui->cmdShowResults->setEnabled(true);
 }
 
 void MainWindow::on_cmdShow_clicked()
@@ -2364,6 +2522,10 @@ void MainWindow::on_cmdShow_clicked()
     ui->tableComm1->clear();
     ui->tableComm2->clear();
     ui->tableAdherence->clear();
+    ui->lstProteinsMined->clear();
+    ui->tableProteinsMined1->clearContents();
+    ui->treeMinerComms->clear();
+    ui->tableProteinsMined2->clearContents();
 
 
     //Controle do Stack2
@@ -2377,6 +2539,8 @@ void MainWindow::on_cmdShow_clicked()
     if(ui->checkResults8->isChecked()){ this->resultsStackList.push_back(8); this->corrTable2(i); }
     if(ui->checkResults9->isChecked()){ this->resultsStackList.push_back(9); this->adh(i); }
     if(ui->checkResults10->isChecked()){ this->resultsStackList.push_back(10); this->showResiduesComm(i); }
+    if(ui->checkResults11->isChecked()){ this->resultsStackList.push_back(11); this->showUniprotGroupByProteins(i); }
+    if(ui->checkResults12->isChecked()){ this->resultsStackList.push_back(12); this->showUniprotGroupByComms(i); }
 
     if(this->resultsStackList.size() == 0){
         QMessageBox::warning(this,"Warning","You must check at least one visualization.");
@@ -2387,7 +2551,10 @@ void MainWindow::on_cmdShow_clicked()
     int firstResult = this->resultsStackList[0];
     this->currentStackPos = 0;
 
-    switch(firstResult){
+    ui->stackedWidget2->setCurrentIndex(firstResult);
+
+    /*
+    switch(firstResult){//ADD 11 e 12
     case 1://List of sequences after filter
         ui->stackedWidget2->setCurrentIndex(1);
         break;
@@ -2422,7 +2589,7 @@ void MainWindow::on_cmdShow_clicked()
         break;
     default://Error
         QMessageBox::critical(this,"Error","Cant find the results.");
-    }
+    }*/
 
     ui->cmdShow->setEnabled(true);
 }
@@ -2696,52 +2863,9 @@ void MainWindow::on_cmdNextResult_clicked()
     else this->currentStackPos++;
 
     int result = this->resultsStackList[currentStackPos];
-    int i = ui->lblHidden->text().toInt();
+    //int i = ui->lblHidden->text().toInt();
 
-    switch(result){
-    case 1://List of sequences after filter
-        ui->stackedWidget2->setCurrentIndex(1);
-        //this->listSequences(i);
-        break;
-    case 2://Table Of Frequence Conservation
-        ui->stackedWidget2->setCurrentIndex(2);
-        //this->tableFreq(i);
-        break;
-    case 3://Table Of Frequence Conservation in Percentage
-        ui->stackedWidget2->setCurrentIndex(3);
-        //this->tableFreqPerc(i);
-        break;
-    case 4://Conserved Residues
-        ui->stackedWidget2->setCurrentIndex(4);
-        break;
-    case 5://Correlations
-        ui->stackedWidget2->setCurrentIndex(5);
-        //this->correlationList(i);
-        break;
-    case 6://Communities List
-        ui->stackedWidget2->setCurrentIndex(6);
-        //this->communitiesList(i);
-        break;
-    case 7://Correlation Tables Percentage
-        ui->stackedWidget2->setCurrentIndex(7);
-        //ui->lblHidden1->setText(QString::number(i)); //Salva posição do alinhamento num label escondido
-        //this->corrTable1(i);
-        break;
-    case 8://Correlation Tables Log P
-        ui->stackedWidget2->setCurrentIndex(8);
-        //ui->lblHidden2->setText(QString::number(i));
-        //this->corrTable2(i);
-        break;
-    case 9://Adherence
-        ui->stackedWidget2->setCurrentIndex(9);
-        //this->adh(i);
-        break;
-    case 10://Residues Of Communities
-        ui->stackedWidget2->setCurrentIndex(10);
-        break;
-    default://Error
-        QMessageBox::critical(this,"Error","Cant find the results.");
-    }
+    ui->stackedWidget2->setCurrentIndex(result);
 
     ui->cmdNextResult->setEnabled(true);
 }
@@ -2754,52 +2878,9 @@ void MainWindow::on_cmdBackResult_clicked()
     else this->currentStackPos--;
 
     int result = this->resultsStackList[currentStackPos];
-    int i = ui->lblHidden->text().toInt();
+    //int i = ui->lblHidden->text().toInt();
 
-    switch(result){
-    case 1://List of sequences after filter
-        ui->stackedWidget2->setCurrentIndex(1);
-        //this->listSequences(i);
-        break;
-    case 2://Table Of Frequence Conservation
-        ui->stackedWidget2->setCurrentIndex(2);
-        //this->tableFreq(i);
-        break;
-    case 3://Table Of Frequence Conservation in Percentage
-        ui->stackedWidget2->setCurrentIndex(3);
-        //this->tableFreqPerc(i);
-        break;
-    case 4://Conserved Residues
-        ui->stackedWidget2->setCurrentIndex(4);
-        break;
-    case 5://Correlations
-        ui->stackedWidget2->setCurrentIndex(5);
-        //this->correlationList(i);
-        break;
-    case 6://Communities List
-        ui->stackedWidget2->setCurrentIndex(6);
-        //this->communitiesList(i);
-        break;
-    case 7://Correlation Tables Percentage
-        ui->stackedWidget2->setCurrentIndex(7);
-        //ui->lblHidden1->setText(QString::number(i)); //Salva posição do alinhamento num label escondido
-        //this->corrTable1(i);
-        break;
-    case 8://Correlation Tables Log P
-        ui->stackedWidget2->setCurrentIndex(8);
-        //ui->lblHidden2->setText(QString::number(i));
-        //this->corrTable2(i);
-        break;
-    case 9://Adherence
-        ui->stackedWidget2->setCurrentIndex(9);
-        //this->adh(i);
-        break;
-    case 10://Residues Of Communities
-        ui->stackedWidget2->setCurrentIndex(10);
-        break;
-    default://Error
-        QMessageBox::critical(this,"Error","Cant find the results.");
-    }
+    ui->stackedWidget2->setCurrentIndex(result);
 
     ui->cmdBackResult->setEnabled(true);
 }
@@ -3330,6 +3411,106 @@ void MainWindow::Open_XML_triggered(){
                             }
                         }
                     }
+                }else if(reader.isEndElement() && reader.name() == "correlation")
+                    break;
+            }
+        }
+        //UNIPROT LOOK
+        if(reader.isStartElement() && reader.name() == "uniprot"){
+            while(!reader.atEnd()){
+                reader.readNext();
+
+                if(reader.isStartElement() && reader.name() == "protein"){
+                    Uniprot *entry = new Uniprot();
+                    string name = reader.attributes().value("name").toString().toStdString();
+                    entry->setName(name);
+                    string dataset = reader.attributes().value("dataset").toString().toStdString();
+                    if(dataset == "Swiss-Prot") entry->setDataset(0);
+                    else entry->setDataset(1);
+
+                    while(!reader.atEnd()){
+                        reader.readNext();
+
+                        if(reader.isStartElement() && reader.name() == "feature"){
+                            Feature *f = new Feature();
+
+                            string type, desc, id, residue, aresidue;
+                            string aggregate = reader.attributes().value("agregate").toString().toStdString();
+
+                            if(aggregate == "CONS") f->setAggregation(0);
+                            else f->setAggregation(reader.attributes().value("agregate").toInt());
+
+                            if(reader.attributes().hasAttribute("seqResidue")){
+                                residue = reader.attributes().value("seqResidue").toString().toStdString();
+                                f->setResidueColigated(residue);
+                            }
+
+                            if(reader.attributes().hasAttribute("alignResidue")){
+                                aresidue = reader.attributes().value("alignResidue").toString().toStdString();
+                                f->setAlignResidue(aresidue);
+                            }
+
+                            if(reader.attributes().hasAttribute("type")){
+                                type = reader.attributes().value("type").toString().toStdString();
+                                f->setType(type);
+                            }
+
+                            if(reader.attributes().hasAttribute("description")){
+                                desc = reader.attributes().value("description").toString().toStdString();
+                                f->setDescription(desc);
+                            }
+
+                            if(reader.attributes().hasAttribute("id")){
+                                id = reader.attributes().value("id").toString().toStdString();
+                                f->setId(id);
+                            }
+
+                            while(!reader.atEnd()){
+                                reader.readNext();
+
+                                if(reader.isStartElement()){
+                                    if(reader.name() == "original"){
+                                        string original = reader.readElementText().toStdString();
+                                        f->setOriginal(original);
+                                    }else if(reader.name() == "variation"){
+                                        string variation = reader.readElementText().toStdString();
+                                        f->setVariation(variation);
+                                    }else if(reader.name() == "location"){
+                                        while(!reader.atEnd()){
+                                            reader.readNext();
+
+                                            if(reader.isStartElement()){
+                                                if(reader.name() == "position"){
+                                                    int position = reader.attributes().value("position").toInt();
+                                                    f->setPosition(position);
+                                                }else if(reader.name() == "begin"){
+                                                    int begin = reader.attributes().value("position").toInt();
+                                                    f->setBegin(begin);
+                                                }else if(reader.name() == "end"){
+                                                    int end = reader.attributes().value("position").toInt();
+                                                    f->setEnd(end);
+                                                }
+                                            }else if(reader.isEndElement() && reader.name() == "location"){
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }else if(reader.isEndElement() && reader.name() == "feature"){
+                                    entry->addFeature(f);
+                                    break;
+                                }
+                            }
+
+
+                        }else if(reader.isEndElement() && reader.name() == "protein"){
+                            align.addUniprotEntry(entry);
+                            //printf("\n%s\n",entry->toString().c_str());
+                            break;
+                        }
+                    }
+
+                }else if(reader.isEndElement() && reader.name() == "uniprot"){
+                    break;
                 }
             }
         }
@@ -3338,22 +3519,31 @@ void MainWindow::Open_XML_triggered(){
     }
 
     //QMessageBox::information(this,"a","ACABOU");
+    if(align.getFilterSize() == 0){
+        QMessageBox::warning(this,"Warning","Invalid input file.");
+        return;
+    }
     align.updateFullAlignment();
     align.getCommunitiesFromRAM();
+    align.checkConsistency();
     //align.CalculateFrequencies();
     align.printFrequencies();
     ui->listWidget->addItem(fileName);
     alinhamentos.push_back(align);
 
     if(ui->stackedWidget->currentIndex() == 0){
-        //Ativa botões do Wizard
-        changeWizardCmds(true);
+        //Desativa botões do Wizard
+        changeWizardCmds(false);
+        wizard = false;
 
         //Desativa botao voltar
         ui->cmdBack->setEnabled(false);
 
         ui->stackedWidget->setCurrentIndex(1);
     }
+
+    ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
+    emit ui->listWidget->activated(ui->listWidget->currentIndex());
 }
 
 void MainWindow::on_cmdRemoveFilter_clicked()
@@ -3387,26 +3577,7 @@ void MainWindow::on_cmdRemoveFilter_clicked()
 
 void MainWindow::on_cmdRemoveAlignment_clicked()
 {
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to remove.");
-        return;
-    }
-
-    //Acha qual alinhamento está trabalhando
-    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
-
-    int i = 0;
-    for(i = 0; i < alinhamentos.size(); i++){
-        if(path == alinhamentos.at(i).getFilepath()){
-            //alinhamentos[i].clear();
-            //alinhamentos[i].shrink_to_fit();
-            break;
-        }
-    }
-
-    alinhamentos.erase(alinhamentos.begin() + i);
-    delete ui->listWidget->item(i);
-    ui->listWidget2->clear();
+    this->closeAlignment();
 }
 
 void MainWindow::exportAlignment_PFAM(){
@@ -4364,7 +4535,6 @@ void MainWindow::exportResCommXML(){
 
     QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
 
-    //CONTINUAR, BUG-CRASH
     alinhamentos[i].exportResComm(filename,1,refSeqs);
 }
 
@@ -4564,4 +4734,1266 @@ void MainWindow::on_cmdCorRefSeqs_clicked()
     QMessageBox::information(this,"Upload Reference Sequences",msge.c_str());
 
     file.close();
+}
+
+void MainWindow::startWizard(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    //Diz que usuario esta executando wizard
+    wizard = true;
+
+    //Ativa botões do Wizard
+    changeWizardCmds(true);
+
+    //Desativa botao voltar
+    ui->cmdBack->setEnabled(false);
+
+    //Muda para tela 1
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
+void MainWindow::inputAlignment_triggered(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
+void MainWindow::changetoFilterStack(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
+void MainWindow::changeToConservationStack(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(3);
+}
+
+void MainWindow::changetoMinssStack(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(4);
+}
+
+void MainWindow::changetoCorrelationStack(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(5);
+}
+
+void MainWindow::changetoShowResultsStack(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    this->resultsStackList.clear();
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select a alignment.");
+        ui->cmdShowResults->setEnabled(true);
+        return;
+    }
+
+    stackBeforeShowResults = ui->stackedWidget->currentIndex();
+
+    ui->stackedWidget2->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(6);
+
+    ui->listWidget->setEnabled(false);
+    ui->listWidget2->setEnabled(false);
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    ui->lblHidden->setText(QString::number(i));
+
+    //Verificar resultados possiveis
+
+    //List Of Sequences after filter
+    ui->checkResults1->setEnabled(true);
+
+    //Table Of Frequence Conservation
+    if(alinhamentos[i].getConsFreqSize() > 0) ui->checkResults2->setEnabled(true);
+    else ui->checkResults2->setEnabled(false);
+
+    //Table Of Percentage Conservation
+    if(alinhamentos[i].getConsFreqPercSize() > 0) ui->checkResults3->setEnabled(true);
+    else ui->checkResults3->setEnabled(false);
+
+    //Conserved Residues
+    if(alinhamentos[i].getConsRefsSize() > 0) ui->checkResults4->setEnabled(true);
+    else ui->checkResults4->setEnabled(false);
+
+    //Correlation and Anti-Correlation List
+    if(alinhamentos[i].getCorrGraphSize() > 0) ui->checkResults5->setEnabled(true);
+    else ui->checkResults5->setEnabled(false);
+
+    //List Of Communities
+    if(alinhamentos[i].getCommListSize() > 0) ui->checkResults6->setEnabled(true);
+    else ui->checkResults6->setEnabled(false);
+
+    //Correlation Tables
+    if(alinhamentos[i].getNumOfUtilComms() > 0){
+        ui->checkResults7->setEnabled(true);
+        ui->checkResults8->setEnabled(true);
+        ui->checkResults9->setEnabled(true);
+    }else{
+        ui->checkResults7->setEnabled(false);
+        ui->checkResults8->setEnabled(false);
+        ui->checkResults9->setEnabled(false);
+    }
+
+    //Residues Of Communities
+    if(alinhamentos[i].getCorrRefSeqsSize() > 0 && alinhamentos[i].getNumOfUtilComms() > 0) ui->checkResults10->setEnabled(true);
+    else ui->checkResults10->setEnabled(false);
+
+    //Uniprot Looking
+    if(alinhamentos[i].getUniprotMinedSize() > 0){
+        ui->checkResults11->setEnabled(true);
+        ui->checkResults12->setEnabled(true);
+    }else{
+        ui->checkResults11->setEnabled(false);
+        ui->checkResults12->setEnabled(false);
+    }
+
+    if(wizard) changeWizardCmds(true);
+    else changeWizardCmds(false);
+
+    ui->cmdMain->setEnabled(true);
+    ui->cmdBack->setEnabled(true);
+    ui->cmdAdvance->setEnabled(false);
+}
+
+void MainWindow::changeToUniprotLookingTool(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select a alignment.");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getConsFreqSize() > 0){
+        ui->chkConserveds->setCheckable(true);
+        ui->chkConserveds->setChecked(true);
+    }else ui->chkConserveds->setCheckable(false);
+
+    if(alinhamentos[i].getCommListSize() > 0){
+        ui->chkComm->setCheckable(true);
+        ui->chkComm->setChecked(true);
+    }else ui->chkComm->setCheckable(false);
+
+    if(alinhamentos[i].getConsFreqSize() == 0 && alinhamentos[i].getCommListSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run at least Conservation or Correlation programs before use this.");
+        return;
+    }
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(7);
+}
+
+void MainWindow::saveResults(){
+    ui->cmdSaveResults->setEnabled(false);
+
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Error","You must select an alignment");
+        ui->cmdApplyFilter->setEnabled(true);
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    vector<string> vecPath = split(alinhamentos[i].getFilepath(),'.');
+    string path = "";
+
+    for(int i=0;i<vecPath.size()-1;i++){
+        path += vecPath[i];
+    }
+    path += ".xml";
+
+    alinhamentos[i].generateXML(path);
+
+    QMessageBox::information(this,"Save Results","XML generated successfully");
+
+    ui->cmdSaveResults->setEnabled(true);
+}
+
+void MainWindow::closeAlignment(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to remove.");
+        return;
+    }
+
+    //Acha qual alinhamento está trabalhando
+    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            //alinhamentos[i].clear();
+            //alinhamentos[i].shrink_to_fit();
+            break;
+        }
+    }
+
+    alinhamentos.erase(alinhamentos.begin() + i);
+    delete ui->listWidget->item(i);
+    ui->listWidget2->clear();
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::showAbout(){
+    About* about = new About(this);
+
+    about->show();
+}
+
+
+void MainWindow::on_cmdLook_clicked()
+{
+    ui->cmdLook->setEnabled(false);
+
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment.");
+        return;
+    }
+
+    if(!ui->chkConserveds->isChecked() && !ui->chkComm->isChecked()){
+        QMessageBox::warning(this,"Error","You must select at least one kind of targets.");
+        return;
+    }
+
+    if(ui->lstLookingRefs->selectedItems().size() == 0){
+        QMessageBox::warning(this,"Error","You must select at least one protein of the list.");
+        return;
+    }
+
+    //Acha qual alinhamento está trabalhando
+    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            //alinhamentos[i].clear();
+            //alinhamentos[i].shrink_to_fit();
+            break;
+        }
+    }
+
+    vector<string> proteins;
+    vector<int> idproteins;
+    for(int j = 0; j < ui->lstLookingRefs->count(); j++){
+        if(ui->lstLookingRefs->item(j)->isSelected()){
+            proteins.push_back(ui->lstLookingRefs->item(j)->text().toStdString());
+            idproteins.push_back(j);
+        }
+    }
+
+    /*
+    QList<QListWidgetItem*> selecteds =  ui->lstLookingRefs->selectedItems();
+    for(int j = 0; j < selecteds.size(); j++){
+        proteins.push_back(selecteds.at(j)->text().toStdString());
+        idproteins.push_back(selecteds.at(j)->textAlignment());
+    }*/
+
+    //EXEC CONSERTAR
+    alinhamentos[i].uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins);
+
+    ui->cmdLook->setEnabled(true);
+}
+
+void MainWindow::on_cmdLookNone_clicked()
+{
+    ui->lstLookingRefs->clearSelection();
+}
+
+void MainWindow::on_cmdLookAll_clicked()
+{
+    ui->lstLookingRefs->selectAll();
+}
+
+void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
+{
+    ui->tableProteinsMined1->clearContents();
+    string name = ui->lstProteinsMined->currentItem()->text().toStdString();
+
+    //Acha qual alinhamento está trabalhando
+    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    //Acha a entrada uniprot selecionada
+    int j = 0;
+    for(j = 0; j < alinhamentos[i].getUniprotMinedSize(); j++){
+        if(alinhamentos[i].getUniprotEntryName(j) == name){
+            break;
+        }
+    }
+
+    ui->tableProteinsMined1->setRowCount(alinhamentos[i].getUniprotEntryNofFeatures(j));
+    for(int k = 0; k < alinhamentos[i].getUniprotEntryNofFeatures(j); k++){
+        Feature *f = alinhamentos[i].getUniprotFeature(j,k);
+
+        printf("\nRES: %s\nAGREG:%d\n",f->getResidueColigated().c_str(),f->getAgregate());
+
+        if(f->getResidueColigated() != "" && f->getAgregate() != -1){
+            QTableWidgetItem *item = new QTableWidgetItem();
+            item->setText(f->getResidueColigated().c_str());
+            ui->tableProteinsMined1->setItem(k,0,item);
+
+            QTableWidgetItem *item2 = new QTableWidgetItem();
+            if(f->getAgregate() == 0) item2->setText("CONS");
+            else item2->setText(QString::number(f->getAgregate()));
+            ui->tableProteinsMined1->setItem(k,1,item2);
+
+            QTableWidgetItem *item3 = new QTableWidgetItem();
+            item3->setText(f->getType().c_str());
+            ui->tableProteinsMined1->setItem(k,2,item3);
+
+            QTableWidgetItem *item4 = new QTableWidgetItem();
+            item4->setText(f->getDescription().c_str());
+            ui->tableProteinsMined1->setItem(k,3,item4);
+
+            if(f->getPosition() != -1){
+                QTableWidgetItem *item5 = new QTableWidgetItem();
+                item5->setText(QString::number(f->getPosition()));
+                ui->tableProteinsMined1->setItem(k,4,item5);
+            }
+
+            if(f->getBegin() != -1){
+                QTableWidgetItem *item6 = new QTableWidgetItem();
+                item6->setText(QString::number(f->getBegin()));
+                ui->tableProteinsMined1->setItem(k,5,item6);
+            }
+
+            if(f->getEnd() != -1){
+                QTableWidgetItem *item7 = new QTableWidgetItem();
+                item7->setText(QString::number(f->getEnd()));
+                ui->tableProteinsMined1->setItem(k,6,item7);
+            }
+
+            if(f->getOriginal() != ""){
+                QTableWidgetItem *item8 = new QTableWidgetItem();
+                item8->setText(f->getOriginal().c_str());
+                ui->tableProteinsMined1->setItem(k,7,item8);
+
+                QTableWidgetItem *item9 = new QTableWidgetItem();
+                item9->setText(f->getVariation().c_str());
+                ui->tableProteinsMined1->setItem(k,8,item9);
+            }
+        }
+    }
+    //Ajusta tamanho das colunas
+    ui->tableProteinsMined1->resizeColumnsToContents();
+}
+
+void MainWindow::on_treeMinerComms_clicked(const QModelIndex &index)
+{
+    ui->tableProteinsMined2->clearContents();
+
+    //Acha qual alinhamento está trabalhando
+    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    QString item = ui->treeMinerComms->currentItem()->text(0);
+
+    if(!item.startsWith("Comm") && !item.startsWith("Conservation")){
+        vector<Uniprot*> features = alinhamentos[i].getAllResidueFeatures(item.toStdString());
+
+        ui->tableProteinsMined2->setRowCount(features.size());
+        for(int j = 0; j < features.size(); j++){
+            QTableWidgetItem *itemName = new QTableWidgetItem();
+            itemName->setText(features[j]->getName().c_str());
+            ui->tableProteinsMined2->setItem(j,0,itemName);
+
+            Feature *f = features[j]->getFeature(0);
+
+            QTableWidgetItem *item1 = new QTableWidgetItem();
+            item1->setText(f->getResidueColigated().c_str());
+            ui->tableProteinsMined2->setItem(j,1,item1);
+
+            QTableWidgetItem *item2 = new QTableWidgetItem();
+            item2->setText(f->getType().c_str());
+            ui->tableProteinsMined2->setItem(j,2,item2);
+
+            QTableWidgetItem *item3 = new QTableWidgetItem();
+            item3->setText(f->getDescription().c_str());
+            ui->tableProteinsMined2->setItem(j,3,item3);
+
+            if(f->getPosition() != -1){
+                QTableWidgetItem *item4 = new QTableWidgetItem();
+                item4->setText(QString::number(f->getPosition()));
+                ui->tableProteinsMined2->setItem(j,4,item4);
+            }
+
+            if(f->getBegin() != -1){
+                QTableWidgetItem *item5 = new QTableWidgetItem();
+                item5->setText(QString::number(f->getBegin()));
+                ui->tableProteinsMined2->setItem(j,5,item5);
+
+                QTableWidgetItem *item6 = new QTableWidgetItem();
+                item6->setText(QString::number(f->getEnd()));
+                ui->tableProteinsMined2->setItem(j,6,item6);
+            }
+
+            if(f->getOriginal() != ""){
+                QTableWidgetItem *item7 = new QTableWidgetItem();
+                item7->setText(f->getOriginal().c_str());
+                ui->tableProteinsMined2->setItem(j,7,item7);
+
+                QTableWidgetItem *item8 = new QTableWidgetItem();
+                item8->setText(f->getVariation().c_str());
+                ui->tableProteinsMined2->setItem(j,8,item8);
+            }
+        }
+    }
+
+    //Ajusta tamanho das colunas
+    ui->tableProteinsMined2->resizeColumnsToContents();
+}
+
+void MainWindow::exportLookProtTXT(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "/home",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+
+
+    alinhamentos[i].exportLookProt(filename,0);
+}
+
+void MainWindow::exportLookProtCSV(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "/home",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+
+    alinhamentos[i].exportLookProt(filename,1);
+}
+
+void MainWindow::exportLookProtXML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+
+    alinhamentos[i].exportLookProt(filename,2);
+}
+
+void MainWindow::exportLookProtHTML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "/home",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+
+    alinhamentos[i].exportLookProt(filename,3);
+}
+
+void MainWindow::exportLookCommTXT(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "/home",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+
+    alinhamentos[i].exportLookComm(filename,0);
+}
+
+void MainWindow::exportLookCommCSV(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "/home",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+
+    alinhamentos[i].exportLookComm(filename,1);
+}
+
+void MainWindow::exportLookCommXML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+
+    alinhamentos[i].exportLookComm(filename,2);
+}
+
+void MainWindow::exportLookCommHTML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "/home",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+
+    alinhamentos[i].exportLookComm(filename,3);
+}
+
+void MainWindow::changeToCreateCommunity(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+    ui->cmbComm->clear();
+    ui->lstManageComms->clear();
+
+    this->changeWizardCmds(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    int nOfComms = alinhamentos[i].getCommListSize();
+
+    for(int j = 1; j <= nOfComms; j++)
+        ui->cmbComm->addItem(QString::number(j));
+
+    ui->stackedWidget->setCurrentIndex(8);
+}
+
+
+void MainWindow::on_cmbComm_currentIndexChanged(int index)
+{
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    vector<string> comms = alinhamentos[i].getCommunitie(index);
+
+    ui->lstManageComms->clear();
+
+    for(int j = 0; j < comms.size(); j++){
+        ui->lstManageComms->addItem(comms[j].c_str());
+    }
+}
+
+bool MainWindow::isaa(char c){
+    if((c=='A')||(c=='C')||(c=='D')||(c=='E')||(c=='F')||(c=='G')||(c=='H')||(c=='I')||(c=='K')||(c=='L')||
+       (c=='M')||(c=='N')||(c=='P')||(c=='Q')||(c=='R')||(c=='S')||(c=='T')||(c=='V')||(c=='W')||(c=='Y')||
+       (c=='a')||(c=='c')||(c=='d')||(c=='e')||(c=='f')||(c=='g')||(c=='h')||(c=='i')||(c=='k')||(c=='l')||
+       (c=='m')||(c=='n')||(c=='p')||(c=='q')||(c=='r')||(c=='s')||(c=='t')||(c=='v')||(c=='w')||(c=='y'))
+            return (true);
+    else return false;
+}
+
+bool MainWindow::isInt(string v){
+    for(int i = 0; i < v.size(); i++){
+        if(v[i] != '0' && v[i] != '1' && v[i] != '2' && v[i] != '3' && v[i] != '4' && v[i] != '5' && v[i] != '6' && v[i] != '7' && v[i] != '8' && v[i] != '9' )
+            return false;
+    }
+    return true;
+}
+
+void MainWindow::on_cmdAddResComm_clicked()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Adding residue to community"),
+                                         tr("Type the new amino acid/position pair (Ex: G124, A32):"), QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !text.isEmpty()){
+        QChar aa = text.at(0);
+        string pos = text.toStdString().substr(1);
+
+        if(!this->isaa(aa.toLatin1())){
+            QMessageBox::warning(this,"Warning","Invalid pair amino acid/position.");
+            return;
+        }
+
+        if(!this->isInt(pos)){
+            QMessageBox::warning(this,"Warning","Invalid pair amino acid/position.");
+            return;
+        }
+
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    int nc = ui->cmbComm->currentIndex();
+
+    alinhamentos[i].addItemToCommunity(text.toStdString(),nc);
+
+    //Atualizar campo
+    vector<string> comms = alinhamentos[i].getCommunitie(nc);
+
+    ui->lstManageComms->clear();
+
+    for(int j = 0; j < comms.size(); j++){
+        ui->lstManageComms->addItem(comms[j].c_str());
+    }
+}
+
+void MainWindow::on_cmdDelResComm_clicked()
+{
+    if(ui->lstManageComms->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must selec a residue to remove.");
+        return;
+    }
+
+    int residueIndex = ui->lstManageComms->currentIndex().row();
+    int nc = ui->cmbComm->currentIndex();
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+
+    alinhamentos[i].removeItemOfCommunity(nc,residueIndex);
+
+    //Atualizar campo
+    vector<string> comms = alinhamentos[i].getCommunitie(nc);
+
+    ui->lstManageComms->clear();
+
+    for(int j = 0; j < comms.size(); j++){
+        ui->lstManageComms->addItem(comms[j].c_str());
+    }
+}
+
+void MainWindow::on_cmdNewComm_clicked()
+{
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    vector<string> newComm;
+    alinhamentos[i].addCommunity(newComm);
+
+    //Atualizar campos
+    int nOfComms = alinhamentos[i].getCommListSize();
+
+    ui->cmbComm->addItem(QString::number(nOfComms));
+
+    ui->cmbComm->setCurrentIndex(nOfComms-1);
+}
+
+void MainWindow::changeToListOfSequences(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Error","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    //Resetar campos de resultado
+    ui->lstProteinsFiltered->clear();
+    ui->txtSequence->clear();
+
+    this->listSequences(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(1);
+}
+
+void MainWindow::changeToConservationFrequence(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Error","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getConsFreqSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run conservation method.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->tableFreq->clearContents();
+
+    this->tableFreq(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(2);
+}
+
+void MainWindow::changeToConservationPercentage(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Error","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getConsFreqPercSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run conservation method.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->tableFreqPerc->clearContents();
+
+    this->tableFreqPerc(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(3);
+}
+
+void MainWindow::changeToConservedResidues(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getConsRefsSize() == 0){
+        QMessageBox::warning(this,"Warning","You must select some reference sequences when run conservation.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->tableConsRes->clear();
+
+    this->showConservedResidues(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(4);
+}
+
+void MainWindow::changetoCorrelationList(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getCorrGraphSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->treeCorrelation->clear();
+
+    this->correlationList(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(5);
+}
+
+void MainWindow::changeToCommunitiesList(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getCommListSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->treeCorrelationComm->clear();
+
+    this->communitiesList(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(6);
+}
+
+void MainWindow::changeToCorrelationInPerc(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getNumOfUtilComms() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->tableComm1->clear();
+
+    this->corrTable1(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(7);
+}
+
+void MainWindow::changeToCorrelationInLogP(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getNumOfUtilComms() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->tableComm2->clear();
+
+    this->corrTable2(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(8);
+}
+
+void MainWindow::changeToAdherenceMatrix(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getNumOfUtilComms() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->tableAdherence->clear();
+
+    this->adh(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(9);
+}
+
+void MainWindow::changeToResiduesOfCommunities(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getCorrRefSeqsSize() == 0 || alinhamentos[i].getNumOfUtilComms() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method with some reference sequences.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->tableResiduesComm->clear();
+
+    this->showResiduesComm(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(10);
+}
+
+void MainWindow::changeToULGroupedByProteins(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->lstProteinsMined->clear();
+    ui->tableProteinsMined1->clearContents();
+
+    this->showUniprotGroupByProteins(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(11);
+}
+
+void MainWindow::changeToULGroupedByComms(){
+    ui->cmdNextResult->setVisible(false);
+    ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        return;
+    }
+
+    //Resetar campos de resultado
+    ui->treeMinerComms->clear();
+    ui->tableProteinsMined2->clearContents();
+
+    this->showUniprotGroupByComms(i);
+
+    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget2->setCurrentIndex(12);
 }

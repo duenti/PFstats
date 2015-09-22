@@ -8,6 +8,7 @@
 #include <QInputDialog>
 #include <QtNetwork>
 #include <QString>
+#include "qcustomplot.h"
 #include <sstream>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -23,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     changeWizardCmds(false);
     ui->graficMinss->setVisible(false);
 
+    //Configura label do grafico Minss
+    minssLabel = new QCPItemText(ui->graficMinss);
+
     //Conecta Slots
     connect(ui->actionInput_Alignment,SIGNAL(triggered()),this,SLOT(inputAlignment_triggered()));
     connect(ui->actionFetch_From_PFAM,SIGNAL(triggered()),this,SLOT(fetchPFAM_triggered()));
@@ -31,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAlignmentPFAM,SIGNAL(triggered()),this,SLOT(exportAlignment_PFAM()));
     connect(ui->actionAlignmentTXT,SIGNAL(triggered()),this,SLOT(exportAlignment_TXT()));
     connect(ui->actionAlignmentXML,SIGNAL(triggered()),this,SLOT(exportAlignment_XML()));
+    connect(ui->actionRefSeqTXT,SIGNAL(triggered()),this,SLOT(exportRefSeqTXT()));
+    connect(ui->actionRefSeqXML,SIGNAL(triggered()),this,SLOT(exportRefSeqXML()));
     connect(ui->actionFreqTXT,SIGNAL(triggered()),this,SLOT(exportFreqTXT()));
     connect(ui->actionFreqCSV,SIGNAL(triggered()),this,SLOT(exportFreqCSV()));
     connect(ui->actionFreqXML,SIGNAL(triggered()),this,SLOT(exportFreqXML()));
@@ -60,12 +66,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionResCommTXT,SIGNAL(triggered()),this,SLOT(exportResCommTXT()));
     connect(ui->actionResCommXML,SIGNAL(triggered()),this,SLOT(exportResCommXML()));
     connect(ui->actionResCommHTML,SIGNAL(triggered()),this,SLOT(exportResCommHTML()));
-    connect(ui->actionConsRefsTXT,SIGNAL(triggered()),this,SLOT(exportConsRefsTXT()));
-    connect(ui->actionConsRefsXML,SIGNAL(triggered()),this,SLOT(exportConsRefsXML()));
-    connect(ui->actionCorrRefsTXT,SIGNAL(triggered()),this,SLOT(exportCorrRefsTXT()));
-    connect(ui->actionCorrRefsXML,SIGNAL(triggered()),this,SLOT(exportCorrRefsXML()));
     connect(ui->actionStart_Wizard,SIGNAL(triggered()),this,SLOT(startWizard()));
     connect(ui->actionFilter_Alignment,SIGNAL(triggered()),this,SLOT(changetoFilterStack()));
+    connect(ui->actionReference_Sequences,SIGNAL(triggered()),this,SLOT(changeToRefSeqs()));
     connect(ui->actionConservation,SIGNAL(triggered()),this,SLOT(changeToConservationStack()));
     connect(ui->actionMinss,SIGNAL(triggered()),this,SLOT(changetoMinssStack()));
     connect(ui->actionCorrelation,SIGNAL(triggered()),this,SLOT(changetoCorrelationStack()));
@@ -95,11 +98,23 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionResidues_Of_Communities,SIGNAL(triggered()),SLOT(changeToResiduesOfCommunities()));
     connect(ui->actionGrouped_By_Proteins,SIGNAL(triggered()),this,SLOT(changeToULGroupedByProteins()));
     connect(ui->actionGrouped_By_Communities,SIGNAL(triggered()),this,SLOT(changeToULGroupedByComms()));
+    connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
+
+    //Configura parametros
+    //ui->cmbRefSeq->setCompleter(ui->cmbRefSeq->completer());
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+bool MainWindow::isFloat( string myString ) {
+    std::istringstream iss(myString);
+    float f;
+    iss >> noskipws >> f; // noskipws considers leading whitespace invalid
+    // Check the entire string was consumed and if either failbit or badbit is set
+    return iss.eof() && !iss.fail();
 }
 
 void MainWindow::startStacked(){
@@ -126,11 +141,10 @@ void MainWindow::resetObjects(){
     ui->graficMinss->setVisible(false);
     ui->txtNoAlignments->setValue(100);
     ui->txtMinScore->setValue(10);
-    ui->txtMinssFraction->setValue(0.2);
+    ui->txtMinssFraction->clear();
     ui->txtMinDeltaFreq->setValue(0.3);
     ui->txtOffset_2->setText("0");
     ui->cmbRefSeq_3->clear();
-    ui->lstRefSeqs_2->clear();
     ui->checkResults1->setChecked(false);
     ui->checkResults2->setChecked(false);
     ui->checkResults3->setChecked(false);
@@ -263,39 +277,9 @@ bool MainWindow::checkfile(const string &name){
 }
 
 void MainWindow::alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName, bool intermediate){
-    /*
-    string outputlogfilename = ui->cmbRefSeq->currentText().toStdString() + "_alignfilter.log";
-    FILE *outputlog;
-
-    outputlog=fopen(outputlogfilename.c_str(),"w+");
-
-    fprintf(outputlog,"======================================\n");
-    fprintf(outputlog,"=                                    =\n");
-    fprintf(outputlog,"=     PROTEIN FAMILY STATISTICS      =\n");
-    fprintf(outputlog,"=         Alignment filtering        =\n");
-    fprintf(outputlog,"=                                    =\n");
-    fprintf(outputlog,"======================================\n");
-    fprintf(outputlog,"=                                    =\n");
-    fprintf(outputlog,"= Lucas Bleicher, Richard C. Garratt =\n");
-    fprintf(outputlog,"=       lbleicher@icb.ufmg.br        =\n");
-    fprintf(outputlog,"=        richard@if.sc.usp.br        =\n");
-    fprintf(outputlog,"=                                    =\n");
-    fprintf(outputlog,"=   Bleicher, Lemke, Garratt (2011)  =\n");
-    fprintf(outputlog,"=  Using amino acid correlation and  =\n");
-    fprintf(outputlog,"=  community detection algorithms to =\n");
-    fprintf(outputlog,"=  identify functional determinants  =\n");
-    fprintf(outputlog,"=        in protein families         =\n");
-    fprintf(outputlog,"=   PLoS One 6(12): e27786 (2011)    =\n");
-    fprintf(outputlog,"=                                    =\n");
-    fprintf(outputlog,"======================================\n");
-    fprintf(outputlog,"\n\nParameters:\n   minimum occupancy: %f\n   minimum identity: %f\n   maximum identity: %f\n",occupancy,minId,maxId);
-
-    ostringstream buffer;
-    buffer << "occ" << (int)(occupancy*100) << "min" << (int)(minId*100) << "max" << (int)(maxId*100);*/
-
-    //string path = this->makeNewPath(ui->listWidget->currentItem()->text().toStdString(),buffer.str());
-
-    //QMessageBox::information(this,"DEBUG",QString::number(refseq));
+    QString msg = "The filters were successfully applied\n";
+    int seqSize;
+    int seqCut;
 
     int i = 0;
     string alignfilename = ui->listWidget->currentItem()->text().toStdString();
@@ -314,21 +298,26 @@ void MainWindow::alignfilter(string alignPath, float occupancy, float minId, flo
     //printf("%s: %s\n",firstrefseq.c_str(),firstrefseqname.c_str());
     alinhamentos[i].sequences.insert(alinhamentos[i].sequences.begin(),firstrefseq);
     alinhamentos[i].sequencenames.insert(alinhamentos[i].sequencenames.begin(),firstrefseqname);
-//QMessageBox::information(this,"test","1");
-    alinhamentos[i].AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
-//QMessageBox::information(this,"test","2");
-    alinhamentos[i].IdentityMinimum(minId,0,occupancy,firstrefseqname,firstrefseq,inter);
-//QMessageBox::information(this,"test","3");
-    alinhamentos[i].IdentityTrimming(maxId,occupancy,minId,0,firstrefseqname,firstrefseq);
-//QMessageBox::information(this,"test","4");
 
-    //printf("\nFirstRefSeqName: %s\n",firstrefseqname.c_str()); FILTERPARS EM VEZ DE SEQUENCES E SEQUENCESNAMES
-/*
-    if ((string)(alinhamentos[i].sequencenames[0])!=firstrefseqname){
-        alinhamentos[i].sequences.insert(alinhamentos[i].sequences.begin(),firstrefseq);
-        alinhamentos[i].sequencenames.insert(alinhamentos[i].sequencenames.begin(),firstrefseqname);
-    }
-*/
+    seqSize = alinhamentos[i].getSequencesSize();
+    msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
+    alinhamentos[i].AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
+
+    seqCut = seqSize - alinhamentos[i].getSequencesSize();
+    seqSize = alinhamentos[i].getSequencesSize();
+    msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
+    alinhamentos[i].IdentityMinimum(minId,0,occupancy,firstrefseqname,firstrefseq,inter);
+
+    seqCut = seqSize - alinhamentos[i].getSequencesSize();
+    seqSize = alinhamentos[i].getSequencesSize();
+    msg += "Minimum identity filter removed " + QString::number(seqCut) + " sequences.\n";
+    alinhamentos[i].IdentityTrimming(maxId,occupancy,minId,0,firstrefseqname,firstrefseq);
+
+    seqCut = seqSize - alinhamentos[i].getSequencesSize();
+    seqSize = alinhamentos[i].getSequencesSize();
+    msg += "Maximum identity filter removed " + QString::number(seqCut) + " sequences.\n\n";
+    msg += "Remaining sequences: " + QString::number(seqSize) + ".";
+
     vector<vector<string> > filterList = alinhamentos.at(i).getAllFilters();
     ui->listWidget2->clear();
 
@@ -339,19 +328,7 @@ void MainWindow::alignfilter(string alignPath, float occupancy, float minId, flo
 
     ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
 
-    //alinhamentos[i].setFilepath(path);
-    //QMessageBox::information(this,"a",fullAlignment.getFilepath().c_str());
-    //alignPath.AlignmentWrite(path);
-/*
-    //Add na Lista
-    bool same = false;
-    for(int i = 0; i < ui->listWidget->count(); i++){
-        if(path.c_str() ==  ui->listWidget->item(i)->text()) same = true;
-    }
-    if(!same) ui->listWidget->addItem(path.c_str());
-
-    alinhamentos.push_back(alignPath);
-*/
+    QMessageBox::information(this,"Alignment filters",msg);
 }
 
 void MainWindow::conservation(int ai, int refseq, int offset, char chain, float minCons, string pdbfile){
@@ -360,9 +337,10 @@ void MainWindow::conservation(int ai, int refseq, int offset, char chain, float 
     alinhamentos[ai].dGWrite();
     alinhamentos[ai].FreqWrite();
 
+    string path = "";
+
     if(pdbfile != ""){
         vector<string> vecPath = split(alinhamentos[ai].getFilepath(),'.');
-        string path = "";
 
         for(int i=0;i<vecPath.size()-1;i++){
             path += vecPath[i];
@@ -379,7 +357,8 @@ void MainWindow::conservation(int ai, int refseq, int offset, char chain, float 
     else
         alinhamentos[ai].addParameter("conservation", ui->listWidget2->currentItem()->text().toStdString(), refseq, offset, chain, minCons);
 
-    QMessageBox::information(this,"Files Created","The files has been successfully created.");
+    if(pdbfile != "") QMessageBox::information(this,"Conservation","Conservation has been calculated and the structure file has been successfully created at the above path:\n\n" + QString::fromStdString(path));
+    else QMessageBox::information(this,"Conservation","Conservation has been calculated.");
 }
 
 //Passar vetor de indices ->currentIndex
@@ -1140,16 +1119,10 @@ void MainWindow::showConservedResidues(int ai){
         refSeqs.push_back(indexList.at(j).row());
     }
 */
-    for(int i = 0; i < alinhamentos[ai].getConsRefsSize(); i++){
-        string ref1 = alinhamentos[ai].getConsref(i);
+    for(int i = 0; i < alinhamentos[ai].getRefSeqsSize(); i++){
+        string ref1 = alinhamentos[ai].getRefSeq(i);
 
-        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
-            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint(ref1));
     }
 
 
@@ -1217,16 +1190,11 @@ void MainWindow::showResiduesComm(int ai){
         refSeqs.push_back(indexList.at(j).row());
     }*/
 
-    for(int i = 0; i < alinhamentos[ai].getCorrRefSeqsSize(); i++){
-        string ref1 = alinhamentos[ai].getCorrRefSeq(i);
+    for(int i = 0; i < alinhamentos[ai].getRefSeqsSize(); i++){
+        string ref1 = alinhamentos[ai].getRefSeq(i);
 
-        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
-            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint(ref1));
+
     }
 
     //Parâmetros
@@ -1326,7 +1294,6 @@ void MainWindow::changeWizardCmds(bool bl){
     ui->cmdBack->setVisible(bl);
     ui->cmdMain->setVisible(bl);
     ui->cmdSaveResults->setVisible(bl);
-    ui->cmdShowResults->setVisible(bl);
 }
 
 void MainWindow::fetchPFAM_triggered(){
@@ -1344,7 +1311,7 @@ void MainWindow::fetchPFAM_triggered(){
 
 void MainWindow::exportAlignment_triggered(){
     //Abre janela para salvar arquivo atualmente aberto
-    QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),"/home",tr("TEXT Files (*.txt *.pfam)"));
+    QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),"",tr("TEXT Files (*.txt *.pfam)"));
 
     //Add na Lista
     bool same = false;
@@ -1415,8 +1382,8 @@ void MainWindow::on_cmdBack_clicked()
         changeWizardCmds(false);
     }
     else if(ctIx == 2) ui->cmdBack->setEnabled(false);
-    else if(ctIx == 5) ui->cmdAdvance->setEnabled(true);
-    else if(ctIx == 6){
+    else if(ctIx == 6) ui->cmdAdvance->setEnabled(true);
+    else if(ctIx == 7){
         ui->checkResults1->setChecked(false);
         ui->checkResults2->setChecked(false);
         ui->checkResults3->setChecked(false);
@@ -1434,7 +1401,7 @@ void MainWindow::on_cmdBack_clicked()
 
         if(newctIx == 0) changeWizardCmds(false);
         else if(newctIx == 1) ui->cmdBack->setEnabled(false);
-        else if(newctIx == 5) ui->cmdAdvance->setEnabled(false);
+        else if(newctIx == 6) ui->cmdAdvance->setEnabled(false);
 
         ui->stackedWidget->setCurrentIndex(newctIx);
         return;
@@ -1453,7 +1420,7 @@ void MainWindow::on_cmdAdvance_clicked()
     int ctIx = ui->stackedWidget->currentIndex();
 
     if(ctIx == 1) ui->cmdBack->setEnabled(true);
-    if(ctIx == 4) ui->cmdAdvance->setEnabled(false);
+    if(ctIx == 5) ui->cmdAdvance->setEnabled(false);
 
     ui->stackedWidget->setCurrentIndex(ctIx+1);
 
@@ -1466,7 +1433,7 @@ void MainWindow::on_cmdOpen_clicked()
     ui->cmdOpen->setEnabled(false);
 
     //Abre arquivo
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home",tr("TEXT Files (*.txt *.pfam)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pfam)"));
     QFile file(fileName);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -1522,6 +1489,9 @@ void MainWindow::on_cmdOpen_clicked()
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     emit ui->listWidget->activated(ui->listWidget->currentIndex());
 
+    QString msg = "Alignment loaded with " + QString::number(align.getSequencesSize()) + " sequences.";
+    QMessageBox::information(this,"Alignment loaded",msg);
+
     ui->cmdOpen->setEnabled(true);
 }
 
@@ -1571,7 +1541,13 @@ void MainWindow::on_cmdFetch_clicked()
         return ;
     }else{
         //Abre janela para salvar arquivo atualmente aberto
-        QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),"/home",tr("TEXT Files (*.txt *.pfam)"));
+        QString finalName = ui->txtAccession->text() + ".pfam";
+        QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pfam)"));
+
+        if(filename == ""){
+            ui->cmdFetch->setEnabled(true);
+            return;
+        }
 
         //Add na Lista
         bool same = false;
@@ -1581,6 +1557,10 @@ void MainWindow::on_cmdFetch_clicked()
         if(!same) ui->listWidget->addItem(filename);
 
         //Salva em arquivo
+        vector<string> tempFN = split(filename.toStdString(),'.');
+        if(tempFN[tempFN.size()-1] != "pfam" && tempFN[tempFN.size()-1] != "PFAM")
+            filename += ".pfam";
+
         QFile f(filename);
         if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
             ui->cmdFetch->setEnabled(true);
@@ -1621,6 +1601,9 @@ void MainWindow::on_cmdFetch_clicked()
 
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
         emit ui->listWidget->activated(ui->listWidget->currentIndex());
+
+        QString msg = "Alignment loaded with " + QString::number(align.getSequencesSize()) + " sequences.";
+        QMessageBox::information(this,"Alignment loaded",msg);
     }
 
     ui->cmdFetch->setEnabled(true);
@@ -1631,11 +1614,23 @@ void MainWindow::on_cmdApplyFilter_clicked()
     ui->cmdApplyFilter->setEnabled(false);
 
     //Validação
-    //bool ok;
+    bool exists = false;
+    for(int i = 0; i < ui->cmbRefSeq->count(); i++){
+        if(ui->cmbRefSeq->currentText() == ui->cmbRefSeq->itemText(i)){
+            exists = true;
+            break;
+        }
+    }
+    if(!exists){
+        QMessageBox::warning(this,"Unknown protein","Choose one of the proteins in the family to be the reference sequence");
+        ui->cmdApplyFilter->setEnabled(true);
+        return;
+    }
 
     if(ui->cmbRefSeq->currentText() == "" || ui->txtMinCover->text() == "" || ui->txtMinId->text() == "" || ui->txtMaxId->text() == ""){
         ui->cmdApplyFilter->setEnabled(true);
         QMessageBox::warning(this,"Error","All fields must be filled");
+        ui->cmdApplyFilter->setEnabled(true);
         return ;
     }
 
@@ -1701,6 +1696,8 @@ void MainWindow::on_cmdApplyFilter_clicked()
     else
         this->alignfilter(fullAlignment.getFilepath(),occupancy,minId,maxId,refseq,refseqName,false);
 
+    ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     ui->cmdApplyFilter->setEnabled(true);
 }
@@ -1738,7 +1735,17 @@ void MainWindow::on_cmdFetchPDB_clicked()
         return ;
     }else{
         //Abre janela para salvar arquivo atualmente aberto
-        QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),"/home",tr("TEXT Files (*.txt *.pdb)"));
+        QString finalName = ui->txtPDBName->text() + ".pdb";
+        QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pdb)"));
+
+        if(filename == ""){
+            ui->cmdFetchPDB->setEnabled(true);
+            return;
+        }
+
+        vector<string> tempFN = split(filename.toStdString(),'.');
+        if(tempFN[tempFN.size()-1] != "pdb" && tempFN[tempFN.size()-1] != "PDB")
+            filename += ".pdb";
 
         //Salva em arquivo
         QFile f(filename);
@@ -1764,7 +1771,7 @@ void MainWindow::on_cmdPDBfromFile_clicked()
     ui->cmdPDBfromFile->setEnabled(false);
 
     //Abre arquivo
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home",tr("TEXT Files (*.txt *.pdb)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pdb)"));
     QFile file(fileName);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -1826,11 +1833,13 @@ void MainWindow::on_cmdConservation_clicked()
     alinhamentos[i].setMinsCons(minCons);
 
     QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
+
+    /*REMOVED IN NEW REFSEQ
     alinhamentos[i].clearConsRefs();
     for(int j = 0; j < indexList.size(); j++){
         alinhamentos[i].addConsRef(ui->lstRefSeqs->item(indexList.at(j).row())->text().toStdString());
     }
-
+    */
 
     if(ui->txtPDBfilepath->text() != ""){
         alinhamentos[i].setLocalPDBDir(ui->txtPDBfilepath->text().toStdString());
@@ -1840,27 +1849,8 @@ void MainWindow::on_cmdConservation_clicked()
         alinhamentos[i].setWebPDBDir(pdbweb);
 
     this->conservation(i,refseq,offset,chain,minCons,pdbfilename);
-/*
-    //CONSERVED RESIDUES
-    vector<int> refSeqs;
-    float minCons = (float)ui->txtMinConserv->value();
-    QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
-    for(int j = 0; j < indexList.size(); j++){
-        refSeqs.push_back(indexList.at(j).row());
-    }
-/*
-    vector<string> vecPath = split(fullAlignment.getFilepath(),'.');
-    string path = "";
-
-    for(int i=0;i<vecPath.size()-1;i++){
-        path += vecPath[i];
-    }
-    path += "_CONSERVEDRESIDUES.html";
-*/
-    //this->conservedresidues(i,refSeqs,minCons);
 
     ui->cmdConservation->setEnabled(true);
-
 }
 
 void MainWindow::on_cmdMinss_clicked()
@@ -1881,15 +1871,7 @@ void MainWindow::on_cmdMinss_clicked()
             break;
         }
     }
-/*
-    vector<string> vecPath = split(alinhamentos[i].getFilepath(),'.');
-    string path = "";
 
-    for(int i=0;i<vecPath.size()-1;i++){
-        path += vecPath[i];
-    }
-    path += "_MINSS.dat";
-*/
     int repetitions = ui->txtNoAlignments->value();
 
     vector<float> minssData;
@@ -1909,9 +1891,9 @@ void MainWindow::on_cmdMinss_clicked()
 
     ui->graficMinss->addGraph();
     ui->graficMinss->graph(0)->setData(x,y);
-    ui->graficMinss->yAxis->setLabel("y");
-    ui->graficMinss->xAxis->setLabel("x");
-    ui->graficMinss->yAxis->setRange(0,y[99]+0.2); //DGDT
+    ui->graficMinss->yAxis->setLabel("Shenkin entropy value for each SA");
+    ui->graficMinss->xAxis->setLabel("Size of minimum sub-alignment(SA)");
+    ui->graficMinss->yAxis->setRange(y[0]-0.15,y[99]+0.15); //DGDT
     //ui->graficMinss->yAxis->setRange(y[99] - 50,0);
     ui->graficMinss->xAxis->setRange(1,100);
     ui->graficMinss->replot();
@@ -1926,7 +1908,7 @@ void MainWindow::on_cmdGraphPath_clicked()
 {
     ui->cmdGraphPath->setEnabled(false);
     //Abre arquivo
-    QString fileName = QFileDialog::getSaveFileName(this,tr("Export File"),"/home",tr("Graph Files (*.txt *.cmm .csv)"));
+    QString fileName = QFileDialog::getSaveFileName(this,tr("Export File"),"",tr("Graph Files (*.txt *.cmm .csv)"));
 
     //Salva em arquivo
     QFile f(fileName);
@@ -1953,22 +1935,30 @@ void MainWindow::on_cmdCorrelation_clicked()
         return;
     }
 
-    /*
-    if(ui->txtGraphPath->text() == ""){
-        QMessageBox::warning(this,"Error","You must select a output file.");
+    if(ui->txtMinssFraction->text() == ""){
+        QMessageBox::warning(this,"Error","You must set a minss fraction value to run correlation.");
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
-    */
+
+    if(!isFloat(ui->txtMinssFraction->text().toStdString())){
+        QMessageBox::warning(this,"Parse Error","Minss fraction must be a float number.");
+        ui->cmdCorrelation->setEnabled(true);
+        return;
+    }
+    float minssfraction = ui->txtMinssFraction->text().toFloat();
+    if(minssfraction < 0 || minssfraction > 1){
+        QMessageBox::warning(this,"Error","Minss fraction must be in the 0.1 - 1.0 interval.");
+        ui->cmdCorrelation->setEnabled(true);
+        return;
+    }
 
     //Chamar PCalc
     //string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
     int minlogp = ui->txtMinScore->value();
-    float minssfraction = ui->txtMinssFraction->value();
     float mindeltafreq = ui->txtMinDeltaFreq->value();
 
     string alignfilename = ui->listWidget->currentItem()->text().toStdString();
-
 
     int i = 0;
     for(i = 0; i < alinhamentos.size(); i++){
@@ -1987,39 +1977,9 @@ void MainWindow::on_cmdCorrelation_clicked()
     //Chamar Trivcomm
     this->trivcomm(i);
 
-    //Salvar Refs Seqs
-    // get selected ids
-    QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
-    QList<int> ids;
-    for(int j = 0; j < indexList.size(); j++){
-        ids += indexList.at(j).row();
-    }
-
-    alinhamentos[i].clearCorrRefSeq();
-    for(int j = 0; j < ids.size(); j++){
-        //QMessageBox::information(this,"ok",QString::number(ids[j]));
-        alinhamentos[i].addCorrRefSeq(ui->lstRefSeqs_2->item(ids[j])->text().toStdString());
-    }
-
-
     //Chamar Output
     this->output(i,1,ui->txtOffset_2->text().toInt());
 
-    /*
-    //Chamar Adherence
-    string adhout = alinhamentos[i].getDir() + "ADH.txt";
-    this->adherence(alinhamentos[i],trivpath,adhout);
-
-    //Chamar comm2seqrenumbering
-    vector<int> refSeqs;
-
-    QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
-    for(int j = 0; j < indexList.size(); j++){
-        refSeqs.push_back(indexList.at(j).row());
-    }
-
-    this->comm2seqrenumbering(alinhamentos[i],trivpath,refSeqs,alinhamentos[i].getDir());
-*/
 
     QMessageBox::information(this,"Correlation","All correlations were calculated.");
     ui->cmdCorrelation->setEnabled(true);
@@ -2069,8 +2029,8 @@ void MainWindow::updateResultsViews(int ai){
     }
     case 4:
     {
-        if(alinhamentos[ai].getConsRefsSize() == 0){
-            QMessageBox::warning(this,"Warning","You must select some reference sequences when run conservation.");
+        if(alinhamentos[ai].getRefSeqsSize() == 0){
+            QMessageBox::warning(this,"Warning","You must select some reference sequences.");
             ui->stackedWidget->setCurrentIndex(3);
             return;
         }
@@ -2159,8 +2119,8 @@ void MainWindow::updateResultsViews(int ai){
     }
     case 10:
     {
-        if(alinhamentos[ai].getCorrRefSeqsSize() == 0 || alinhamentos[ai].getNumOfUtilComms() == 0){
-            QMessageBox::warning(this,"Warning","You must run correlation method with some reference sequences.");
+        if(alinhamentos[ai].getRefSeqsSize() == 0 || alinhamentos[ai].getNumOfUtilComms() == 0){
+            QMessageBox::warning(this,"Warning","You must have some reference sequences selected.");
             ui->stackedWidget->setCurrentIndex(5);
             return;
         }
@@ -2232,7 +2192,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbRefSeq_3->clear();
     ui->cmbRefSeq_3->addItem("");
     ui->lstRefSeqs->clear();
-    ui->lstRefSeqs_2->clear();
+    ui->lstRefSeqSelected->clear();
     ui->lstLookingRefs->clear();
     ui->cmbComm->clear();
     ui->lstManageComms->clear();
@@ -2243,24 +2203,24 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     for(int i1 = 0; i1 < fullAlign.size(); i1++){
         vector<string> splitVec = this->split(fullAlign[i1],'/');
         ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
-        ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
-        ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
+        //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
 
-        for(int j = 0; j < alinhamentos[i].getConsRefsSize(); j++){
-            string ref1 = alinhamentos[i].getConsref(j);
+        string prot = splitVec[0];
+        bool contains = false;
+
+        for(int j = 0; j < alinhamentos[i].getRefSeqsSize(); j++){
+            string ref1 = alinhamentos[i].getRefSeq(j);
             if(splitVec[0] == ref1){
-                ui->lstRefSeqs->item(i1)->setSelected(true);
+                contains = true;
                 break;
             }
         }
 
-        for(int j = 0; j < alinhamentos[i].getCorrRefSeqsSize(); j++){
-            string ref1 = alinhamentos[i].getCorrRefSeq(j);
-            if(splitVec[0] == ref1){
-                ui->lstRefSeqs_2->item(i1)->setSelected(true);
-                break;
-            }
+        if(contains){
+            ui->lstRefSeqSelected->addItem(prot.c_str());
+        }else{
+            ui->lstRefSeqs->addItem(prot.c_str());
         }
     }
 
@@ -2283,6 +2243,9 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
         if(filterList[j][0] == "0 0 0 0") ui->listWidget2->addItem("Full Alignment");
         else ui->listWidget2->addItem(filterList[j][0].c_str());
     }
+
+    ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     //ui->cmbRefSeq_2->setCurrentIndex(1);
     //ui->cmbRefSeq_3->setCurrentIndex(1);
@@ -2479,6 +2442,7 @@ void MainWindow::on_cmdSaveResults_clicked()
     this->saveResults();
 }
 
+/*
 void MainWindow::on_cmdShowResults_clicked()
 {
     ui->cmdShowResults->setEnabled(false);
@@ -2487,6 +2451,7 @@ void MainWindow::on_cmdShowResults_clicked()
 
     ui->cmdShowResults->setEnabled(true);
 }
+*/
 
 void MainWindow::on_cmdShow_clicked()
 {
@@ -2915,9 +2880,8 @@ void MainWindow::on_cmdNextResComm_clicked()
 
     vector<int> refSeqs;
 
-    QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
-    for(int j = 0; j < indexList.size(); j++){
-        refSeqs.push_back(indexList.at(j).row());
+    for(int j = 0; j < alinhamentos[ai].getRefSeqsSize(); j++){
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint(alinhamentos[ai].getRefSeq(j)));
     }
 
     //Cabeçalho
@@ -2989,9 +2953,8 @@ void MainWindow::on_cmdBackResComm_clicked()
 
     vector<int> refSeqs;
 
-    QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
-    for(int j = 0; j < indexList.size(); j++){
-        refSeqs.push_back(indexList.at(j).row());
+    for(int j = 0; j < alinhamentos[ai].getRefSeqsSize(); j++){
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint(alinhamentos[ai].getRefSeq(j)));
     }
 
     //Cabeçalho
@@ -3037,7 +3000,7 @@ void MainWindow::Open_XML_triggered(){
     QXmlStreamReader reader;
 
     //Abre arquivo
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home",tr("XML Files (*.xml)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("XML Files (*.xml)"));
     QFile file(fileName);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -3123,10 +3086,23 @@ void MainWindow::Open_XML_triggered(){
                     break;
             }
         }
+        //REFERENCES
+        if(reader.isStartElement() && reader.name() == "references"){
+            while(!reader.atEnd()){
+                reader.readNext();
+
+                if(reader.isStartElement() && reader.name() == "protein"){
+                    string protein = reader.readElementText().toStdString();
+                    align.addRefSeq(protein);
+                }else if(reader.isEndElement() && reader.name() == "references")
+                    break;
+            }
+        }
 
         //CONSERVATION
         vector<float> dg;
         if(reader.isStartElement() && reader.name() == "conservation"){
+            //QMessageBox::information(this,"a","OK");
             while(!reader.atEnd()){
                 reader.readNext();
 
@@ -3188,19 +3164,6 @@ void MainWindow::Open_XML_triggered(){
                                            freqPerc.push_back(reader.readElementText().toFloat());
                                    }
                                }
-                            }
-                        }
-                    }else if(reader.name() == "references"){
-                        string prot;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "references"){
-                                 break;
-                            }else if(reader.isStartElement() && reader.name() == "protein"){
-                                prot = reader.readElementText().toStdString();
-                                align.addConsRef(prot);
                             }
                         }
                     }
@@ -3328,20 +3291,6 @@ void MainWindow::Open_XML_triggered(){
                                         }
                                     }
                                 }
-                            }
-                        }
-                    }else if(reader.name() == "references"){
-                        string prot;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "references"){
-                                //align.printCorrRefSeqs();
-                                break;
-                            }else if(reader.isStartElement() && reader.name() == "protein"){
-                                prot = reader.readElementText().toStdString();
-                                align.addCorrRefSeq(prot);
                             }
                         }
                     }else if(reader.name() == "output"){
@@ -3528,6 +3477,7 @@ void MainWindow::Open_XML_triggered(){
     align.checkConsistency();
     //align.CalculateFrequencies();
     align.printFrequencies();
+    //align.debugSequencesNames();
     ui->listWidget->addItem(fileName);
     alinhamentos.push_back(align);
 
@@ -3544,6 +3494,9 @@ void MainWindow::Open_XML_triggered(){
 
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     emit ui->listWidget->activated(ui->listWidget->currentIndex());
+
+    QString msg = "Alignment loaded with " + QString::number(align.getSequencesSize()) + " sequences.";
+    QMessageBox::information(this,"Alignment loaded",msg);
 }
 
 void MainWindow::on_cmdRemoveFilter_clicked()
@@ -3603,7 +3556,7 @@ void MainWindow::exportAlignment_PFAM(){
     else
         filter = ui->listWidget2->currentItem()->text().toStdString();
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt *.pfam *.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.pfam *.xml)"));
 
     alinhamentos[i].exportAlignment(filename,filter,0);
 
@@ -3632,7 +3585,7 @@ void MainWindow::exportAlignment_TXT(){
     else
         filter = ui->listWidget2->currentItem()->text().toStdString();
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt *.pfam)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.pfam)"));
 
     alinhamentos[i].exportAlignment(filename,filter,1);
 
@@ -3661,10 +3614,60 @@ void MainWindow::exportAlignment_XML(){
     else
         filter = ui->listWidget2->currentItem()->text().toStdString();
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportAlignment(filename,filter,2);
 
+}
+
+void MainWindow::exportRefSeqTXT(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+
+    alinhamentos[i].exportRefs(filename,0);
+}
+
+void MainWindow::exportRefSeqXML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(align == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+
+    alinhamentos[i].exportRefs(filename,1);
 }
 
 void MainWindow::exportFreqTXT(){
@@ -3687,7 +3690,7 @@ void MainWindow::exportFreqTXT(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     alinhamentos[i].exportFreq(filename,0);
 }
@@ -3712,7 +3715,7 @@ void MainWindow::exportFreqCSV(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("CSV Files (*.txt *.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("CSV Files (*.txt *.csv)"));
 
     alinhamentos[i].exportFreq(filename,1);
 }
@@ -3737,7 +3740,7 @@ void MainWindow::exportFreqXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportFreq(filename,2);
 }
@@ -3762,7 +3765,7 @@ void MainWindow::exportFreqHTML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
 
     alinhamentos[i].exportFreq(filename,3);
 
@@ -3788,7 +3791,7 @@ void MainWindow::exportFreqPercTXT(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     alinhamentos[i].exportFreq(filename,0,true);
 }
@@ -3813,7 +3816,7 @@ void MainWindow::exportFreqPercCSV(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt *.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.csv)"));
 
     alinhamentos[i].exportFreq(filename,1,true);
 }
@@ -3838,7 +3841,7 @@ void MainWindow::exportFreqPercXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportFreq(filename,2,true);
 }
@@ -3863,7 +3866,7 @@ void MainWindow::exportFreqPercHTML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
 
     alinhamentos[i].exportFreq(filename,3,true);
 }
@@ -3888,16 +3891,16 @@ void MainWindow::exportConsResTXT(){
         return;
     }
 
-    if(alinhamentos[i].getConsRefsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize.");
+    if(alinhamentos[i].getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some reference sequences to visualize.");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     vector<int> refSeqs;
-    for(int i2 = 0; i2 < alinhamentos[i].getConsRefsSize(); i2++){
-        string ref1 = alinhamentos[i].getConsref(i2);
+    for(int i2 = 0; i2 < alinhamentos[i].getRefSeqsSize(); i2++){
+        string ref1 = alinhamentos[i].getRefSeq(i2);
         printf("%s\n",ref1.c_str());
         for(int j = 0; j < ui->lstRefSeqs->count(); j++){
             string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
@@ -3933,16 +3936,16 @@ void MainWindow::exportConsResXML(){
         return;
     }
 
-    if(alinhamentos[i].getConsRefsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize.");
+    if(alinhamentos[i].getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some reference sequences to visualize.");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     vector<int> refSeqs;
-    for(int i2 = 0; i2 < alinhamentos[i].getConsRefsSize(); i2++){
-        string ref1 = alinhamentos[i].getConsref(i2);
+    for(int i2 = 0; i2 < alinhamentos[i].getRefSeqsSize(); i2++){
+        string ref1 = alinhamentos[i].getRefSeq(i2);
         printf("%s\n",ref1.c_str());
         for(int j = 0; j < ui->lstRefSeqs->count(); j++){
             string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
@@ -3978,16 +3981,16 @@ void MainWindow::exportConsResHTML(){
         return;
     }
 
-    if(alinhamentos[i].getConsRefsSize() == 0){
+    if(alinhamentos[i].getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize.");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
 
     vector<int> refSeqs;
-    for(int i2 = 0; i2 < alinhamentos[i].getConsRefsSize(); i2++){
-        string ref1 = alinhamentos[i].getConsref(i2);
+    for(int i2 = 0; i2 < alinhamentos[i].getRefSeqsSize(); i2++){
+        string ref1 = alinhamentos[i].getRefSeq(i2);
         printf("%s\n",ref1.c_str());
         for(int j = 0; j < ui->lstRefSeqs->count(); j++){
             string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
@@ -4003,81 +4006,6 @@ void MainWindow::exportConsResHTML(){
     alinhamentos[i].exportConsRes(filename,2,ui->txtMinConserv->value(),refSeqs);
 }
 
-void MainWindow::exportConsRefsTXT(){
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to export.");
-        return;
-    }
-
-    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
-
-    int i = 0;
-    for(i = 0; i < alinhamentos.size(); i++){
-        if(align == alinhamentos.at(i).getFilepath()){
-            break;
-        }
-    }
-
-    if(alinhamentos[i].getConsRefsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
-        return;
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
-
-    vector<string> refSeqs;
-    for(int i2 = 0; i2 < alinhamentos[i].getConsRefsSize(); i2++){
-        string ref1 = alinhamentos[i].getConsref(i2);
-        printf("%s\n",ref1.c_str());
-        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
-            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(ref1);
-                break;
-            }
-        }
-    }
-
-    alinhamentos[i].exportRefs(filename,0,refSeqs);
-}
-
-void MainWindow::exportConsRefsXML(){
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to export.");
-        return;
-    }
-
-    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
-
-    int i = 0;
-    for(i = 0; i < alinhamentos.size(); i++){
-        if(align == alinhamentos.at(i).getFilepath()){
-            break;
-        }
-    }
-
-    if(alinhamentos[i].getConsRefsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
-        return;
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
-
-    vector<string> refSeqs;
-    for(int i2 = 0; i2 < alinhamentos[i].getConsRefsSize(); i2++){
-        string ref1 = alinhamentos[i].getConsref(i2);
-        printf("%s\n",ref1.c_str());
-        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
-            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(ref1);
-                break;
-            }
-        }
-    }
-
-    alinhamentos[i].exportRefs(filename,1,refSeqs);
-}
 
 void MainWindow::exportCorrListTXT(){
     if(ui->listWidget->currentItem() == NULL){
@@ -4099,7 +4027,7 @@ void MainWindow::exportCorrListTXT(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     alinhamentos[i].exportCorrGraph(filename,0);
 }
@@ -4124,7 +4052,7 @@ void MainWindow::exportCorrListCSV(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt *.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.csv)"));
 
     alinhamentos[i].exportCorrGraph(filename,1);
 }
@@ -4149,7 +4077,7 @@ void MainWindow::exportCorrListXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportCorrGraph(filename,2);
 }
@@ -4174,7 +4102,7 @@ void MainWindow::exportCommsTXT(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     alinhamentos[i].exportCommList(filename,0);
 }
@@ -4199,7 +4127,7 @@ void MainWindow::exportCommsXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportCommList(filename,1);
 }
@@ -4224,7 +4152,7 @@ void MainWindow::exportCorrTablePercTXT(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     alinhamentos[i].exportCorrTable(filename,0);
 }
@@ -4249,7 +4177,7 @@ void MainWindow::exportCorrTablePercXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportCorrTable(filename,1);
 }
@@ -4274,7 +4202,7 @@ void MainWindow::exportCorrTablePercHTML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
 
     alinhamentos[i].exportCorrTable(filename,2);
 }
@@ -4299,7 +4227,7 @@ void MainWindow::exportCorrTableTXT(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     alinhamentos[i].exportCorrTable(filename,0,false);
 }
@@ -4324,7 +4252,7 @@ void MainWindow::exportCorrTableXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportCorrTable(filename,1,false);
 }
@@ -4349,7 +4277,7 @@ void MainWindow::exportCorrTableHTML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
 
     alinhamentos[i].exportCorrTable(filename,2,false);
 }
@@ -4374,7 +4302,7 @@ void MainWindow::exportAdhTXT(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
     alinhamentos[i].exportAdh(filename,0);
 }
@@ -4399,7 +4327,7 @@ void MainWindow::exportAdhCSV(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.csv)"));
 
     alinhamentos[i].exportAdh(filename,1);
 }
@@ -4424,7 +4352,7 @@ void MainWindow::exportAdhXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportAdh(filename,2);
 }
@@ -4449,13 +4377,12 @@ void MainWindow::exportAdhHTML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
 
     alinhamentos[i].exportAdh(filename,3);
 }
 
 void MainWindow::exportResCommTXT(){
-    vector<int> refSeqs;
 
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
@@ -4478,26 +4405,12 @@ void MainWindow::exportResCommTXT(){
 
     alinhamentos[i].CalculateFrequencies();
 
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
 
-    for(int i1 = 0; i1 < alinhamentos[i].getCorrRefSeqsSize(); i1++){
-        string ref1 = alinhamentos[i].getCorrRefSeq(i1);
-
-        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
-            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
-
-    alinhamentos[i].exportResComm(filename,0,refSeqs);
+    alinhamentos[i].exportResComm(filename,0);
 }
 
 void MainWindow::exportResCommXML(){
-    vector<int> refSeqs;
 
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
@@ -4520,26 +4433,12 @@ void MainWindow::exportResCommXML(){
 
     alinhamentos[i].CalculateFrequencies();
 
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
-    for(int i1 = 0; i1 < alinhamentos[i].getCorrRefSeqsSize(); i1++){
-        string ref1 = alinhamentos[i].getCorrRefSeq(i1);
-
-        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
-            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
-
-    alinhamentos[i].exportResComm(filename,1,refSeqs);
+    alinhamentos[i].exportResComm(filename,1);
 }
 
 void MainWindow::exportResCommHTML(){
-    vector<int> refSeqs;
 
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
@@ -4562,178 +4461,16 @@ void MainWindow::exportResCommHTML(){
 
     alinhamentos[i].CalculateFrequencies();
 
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
 
-    for(int i1 = 0; i1 < alinhamentos[i].getCorrRefSeqsSize(); i1++){
-        string ref1 = alinhamentos[i].getCorrRefSeq(i1);
-
-        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
-            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("HTML Files (*.html)"));
-
-    alinhamentos[i].exportResComm(filename,2,refSeqs);
+    alinhamentos[i].exportResComm(filename,2);
 }
 
-void MainWindow::exportCorrRefsTXT(){
-    vector<string> refSeqs;
 
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to export.");
-        return;
-    }
-
-    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
-
-    int i = 0;
-    for(i = 0; i < alinhamentos.size(); i++){
-        if(align == alinhamentos.at(i).getFilepath()){
-            break;
-        }
-    }
-
-    if(alinhamentos[i].getCorrRefSeqsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run correlation.");
-        return;
-    }
-
-    for(int i1 = 0; i1 < alinhamentos[i].getCorrRefSeqsSize(); i1++){
-        string ref1 = alinhamentos[i].getCorrRefSeq(i1);
-
-        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
-            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(ref1);
-                break;
-            }
-        }
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
-
-    alinhamentos[i].exportRefs(filename,0,refSeqs);
-}
-
-void MainWindow::exportCorrRefsXML(){
-    vector<string> refSeqs;
-
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to export.");
-        return;
-    }
-
-    string align = ui->listWidget->currentItem()->text().toUtf8().constData();
-
-    int i = 0;
-    for(i = 0; i < alinhamentos.size(); i++){
-        if(align == alinhamentos.at(i).getFilepath()){
-            break;
-        }
-    }
-
-    if(alinhamentos[i].getCorrRefSeqsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run correlation.");
-        return;
-    }
-
-    for(int i1 = 0; i1 < alinhamentos[i].getCorrRefSeqsSize(); i1++){
-        string ref1 = alinhamentos[i].getCorrRefSeq(i1);
-
-        for(int j = 0; j < ui->lstRefSeqs_2->count(); j++){
-            string ref2 = ui->lstRefSeqs_2->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(ref1);
-                break;
-            }
-        }
-    }
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
-
-    alinhamentos[i].exportRefs(filename,1,refSeqs);
-}
 
 void MainWindow::on_cmdUploadConsRefsSeqs_clicked()
 {
-    int total = 0;
-    int selecteds = 0;
-
-    QString filename = QFileDialog::getOpenFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
-
-    QFile file(filename);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        QMessageBox::warning(this,"Warning","File not found.");
-        return;
-    }
-
-    QTextStream in(&file);
-
-    QString prot = in.readLine();
-    ui->lstRefSeqs->clearSelection();
-    while (!prot.isNull())
-    {
-        total++;
-        printf("%s\n",prot.toStdString().c_str());
-
-        for(int i = 0; i < ui->lstRefSeqs->count(); i++){
-            if(prot == ui->lstRefSeqs->item(i)->text()){
-                ui->lstRefSeqs->item(i)->setSelected(true);
-                selecteds++;
-                break;
-            }
-        }
-        prot = in.readLine();
-    }
-
-    string msge = QString::number(selecteds).toStdString() + " of " + QString::number(total).toStdString() + " sequences have been found and selected.";
-    QMessageBox::information(this,"Upload Reference Sequences",msge.c_str());
-
-    file.close();
-}
-
-void MainWindow::on_cmdCorRefSeqs_clicked()
-{
-    int total = 0;
-    int selecteds = 0;
-
-    QString filename = QFileDialog::getOpenFileName(this,QObject::tr("Export File"),"/home",QObject::tr("TEXT Files (*.txt)"));
-
-    QFile file(filename);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        QMessageBox::warning(this,"Warning","File not found.");
-        return;
-    }
-
-    QTextStream in(&file);
-
-    QString prot = in.readLine();
-    ui->lstRefSeqs_2->clearSelection();
-    while (!prot.isNull())
-    {
-        total++;
-        printf("%s\n",prot.toStdString().c_str());
-
-        for(int i = 0; i < ui->lstRefSeqs_2->count(); i++){
-            if(prot == ui->lstRefSeqs_2->item(i)->text()){
-                ui->lstRefSeqs_2->item(i)->setSelected(true);
-                selecteds++;
-                break;
-            }
-        }
-        prot = in.readLine();
-    }
-
-    string msge = QString::number(selecteds).toStdString() + " of " + QString::number(total).toStdString() + " sequences have been found and selected.";
-    QMessageBox::information(this,"Upload Reference Sequences",msge.c_str());
-
-    file.close();
+    //OLD
 }
 
 void MainWindow::startWizard(){
@@ -4775,7 +4512,7 @@ void MainWindow::changetoFilterStack(){
     ui->stackedWidget->setCurrentIndex(2);
 }
 
-void MainWindow::changeToConservationStack(){
+void MainWindow::changeToRefSeqs(){
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
 
@@ -4786,7 +4523,7 @@ void MainWindow::changeToConservationStack(){
     ui->stackedWidget->setCurrentIndex(3);
 }
 
-void MainWindow::changetoMinssStack(){
+void MainWindow::changeToConservationStack(){
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
 
@@ -4797,7 +4534,7 @@ void MainWindow::changetoMinssStack(){
     ui->stackedWidget->setCurrentIndex(4);
 }
 
-void MainWindow::changetoCorrelationStack(){
+void MainWindow::changetoMinssStack(){
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
 
@@ -4806,6 +4543,17 @@ void MainWindow::changetoCorrelationStack(){
     this->changeWizardCmds(false);
 
     ui->stackedWidget->setCurrentIndex(5);
+}
+
+void MainWindow::changetoCorrelationStack(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(6);
 }
 
 void MainWindow::changetoShowResultsStack(){
@@ -4817,14 +4565,13 @@ void MainWindow::changetoShowResultsStack(){
     //Validação
     if(!ui->listWidget->currentItem()){
         QMessageBox::warning(this,"Warning","You must select a alignment.");
-        ui->cmdShowResults->setEnabled(true);
         return;
     }
 
     stackBeforeShowResults = ui->stackedWidget->currentIndex();
 
     ui->stackedWidget2->setCurrentIndex(0);
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
 
     ui->listWidget->setEnabled(false);
     ui->listWidget2->setEnabled(false);
@@ -4854,7 +4601,7 @@ void MainWindow::changetoShowResultsStack(){
     else ui->checkResults3->setEnabled(false);
 
     //Conserved Residues
-    if(alinhamentos[i].getConsRefsSize() > 0) ui->checkResults4->setEnabled(true);
+    if(alinhamentos[i].getRefSeqsSize() > 0) ui->checkResults4->setEnabled(true);
     else ui->checkResults4->setEnabled(false);
 
     //Correlation and Anti-Correlation List
@@ -4877,7 +4624,7 @@ void MainWindow::changetoShowResultsStack(){
     }
 
     //Residues Of Communities
-    if(alinhamentos[i].getCorrRefSeqsSize() > 0 && alinhamentos[i].getNumOfUtilComms() > 0) ui->checkResults10->setEnabled(true);
+    if(alinhamentos[i].getRefSeqsSize() > 0 && alinhamentos[i].getNumOfUtilComms() > 0) ui->checkResults10->setEnabled(true);
     else ui->checkResults10->setEnabled(false);
 
     //Uniprot Looking
@@ -4935,7 +4682,23 @@ void MainWindow::changeToUniprotLookingTool(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
+}
+
+void MainWindow::graphClicked(QCPAbstractPlottable *plot, QMouseEvent *mouse){
+    float xValue = plot->keyAxis()->pixelToCoord(mouse->pos().x());
+    float yValue = ui->graficMinss->yAxis->pixelToCoord(mouse->pos().y());
+    vector<string> temp = this->split(ui->lblNseq->text().toStdString(),' ');
+    string strNSeq = temp[temp.size() -1];
+    int nSeq = stoi(strNSeq);
+    float seqs = nSeq*(xValue/100);
+    nSeq = (int)seqs;
+
+    minssLabel->setText(QString::number(nSeq) + " sequences");
+    minssLabel->position->setCoords(xValue,yValue);
+    ui->graficMinss->addItem(minssLabel);
+
+    //QMessageBox::information(this,"a",QString::number(nSeq));
 }
 
 void MainWindow::saveResults(){
@@ -4966,7 +4729,8 @@ void MainWindow::saveResults(){
 
     alinhamentos[i].generateXML(path);
 
-    QMessageBox::information(this,"Save Results","XML generated successfully");
+    string msg = "XML file was generated in the above path:\n" + path;
+    QMessageBox::information(this,"Save Results",msg.c_str());
 
     ui->cmdSaveResults->setEnabled(true);
 }
@@ -5237,7 +5001,7 @@ void MainWindow::exportLookProtTXT(){
     }
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
-                                                 "/home",
+                                                 "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
@@ -5266,7 +5030,7 @@ void MainWindow::exportLookProtCSV(){
     }
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
-                                                 "/home",
+                                                 "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
@@ -5293,7 +5057,7 @@ void MainWindow::exportLookProtXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportLookProt(filename,2);
 }
@@ -5319,7 +5083,7 @@ void MainWindow::exportLookProtHTML(){
     }
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
-                                                 "/home",
+                                                 "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
@@ -5347,7 +5111,7 @@ void MainWindow::exportLookCommTXT(){
     }
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
-                                                 "/home",
+                                                 "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
@@ -5375,7 +5139,7 @@ void MainWindow::exportLookCommCSV(){
     }
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
-                                                 "/home",
+                                                 "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
@@ -5402,7 +5166,7 @@ void MainWindow::exportLookCommXML(){
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"/home",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
 
     alinhamentos[i].exportLookComm(filename,2);
 }
@@ -5428,7 +5192,7 @@ void MainWindow::exportLookCommHTML(){
     }
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
-                                                 "/home",
+                                                 "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
@@ -5464,7 +5228,7 @@ void MainWindow::changeToCreateCommunity(){
     for(int j = 1; j <= nOfComms; j++)
         ui->cmbComm->addItem(QString::number(j));
 
-    ui->stackedWidget->setCurrentIndex(8);
+    ui->stackedWidget->setCurrentIndex(9);
 }
 
 
@@ -5629,7 +5393,7 @@ void MainWindow::changeToListOfSequences(){
 
     this->listSequences(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(1);
 }
 
@@ -5662,7 +5426,7 @@ void MainWindow::changeToConservationFrequence(){
 
     this->tableFreq(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(2);
 }
 
@@ -5695,7 +5459,7 @@ void MainWindow::changeToConservationPercentage(){
 
     this->tableFreqPerc(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(3);
 }
 
@@ -5718,8 +5482,8 @@ void MainWindow::changeToConservedResidues(){
         }
     }
 
-    if(alinhamentos[i].getConsRefsSize() == 0){
-        QMessageBox::warning(this,"Warning","You must select some reference sequences when run conservation.");
+    if(alinhamentos[i].getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You must select some reference sequences.");
         return;
     }
 
@@ -5728,7 +5492,7 @@ void MainWindow::changeToConservedResidues(){
 
     this->showConservedResidues(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(4);
 }
 
@@ -5761,7 +5525,7 @@ void MainWindow::changetoCorrelationList(){
 
     this->correlationList(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(5);
 }
 
@@ -5794,7 +5558,7 @@ void MainWindow::changeToCommunitiesList(){
 
     this->communitiesList(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(6);
 }
 
@@ -5827,7 +5591,7 @@ void MainWindow::changeToCorrelationInPerc(){
 
     this->corrTable1(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(7);
 }
 
@@ -5860,7 +5624,7 @@ void MainWindow::changeToCorrelationInLogP(){
 
     this->corrTable2(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(8);
 }
 
@@ -5893,7 +5657,7 @@ void MainWindow::changeToAdherenceMatrix(){
 
     this->adh(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(9);
 }
 
@@ -5916,8 +5680,8 @@ void MainWindow::changeToResiduesOfCommunities(){
         }
     }
 
-    if(alinhamentos[i].getCorrRefSeqsSize() == 0 || alinhamentos[i].getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation method with some reference sequences.");
+    if(alinhamentos[i].getRefSeqsSize() == 0 || alinhamentos[i].getNumOfUtilComms() == 0){
+        QMessageBox::warning(this,"Warning","You must have some reference sequences.");
         return;
     }
 
@@ -5926,7 +5690,7 @@ void MainWindow::changeToResiduesOfCommunities(){
 
     this->showResiduesComm(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(10);
 }
 
@@ -5960,7 +5724,7 @@ void MainWindow::changeToULGroupedByProteins(){
 
     this->showUniprotGroupByProteins(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(11);
 }
 
@@ -5994,6 +5758,154 @@ void MainWindow::changeToULGroupedByComms(){
 
     this->showUniprotGroupByComms(i);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(7);
     ui->stackedWidget2->setCurrentIndex(12);
+}
+
+void MainWindow::on_cmdAddFileRefSeq_clicked()
+{
+    ui->cmdAddFileRefSeq->setEnabled(false);
+
+    int total = 0;
+    int selecteds = 0;
+
+    QString filename = QFileDialog::getOpenFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+
+    if(filename == NULL){
+        ui->cmdAddFileRefSeq->setEnabled(true);
+        return;
+    }
+
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QMessageBox::warning(this,"Warning","File not found.");
+        ui->cmdAddFileRefSeq->setEnabled(true);
+        return;
+    }
+
+    QTextStream in(&file);
+
+    QString prot = in.readLine();
+    while (!prot.isNull())
+    {
+        total++;
+        //printf("%s\n",prot.toStdString().c_str());
+
+        for(int i = 0; i < ui->lstRefSeqs->count(); i++){
+            if(prot == ui->lstRefSeqs->item(i)->text()){
+                delete ui->lstRefSeqs->item(i);
+                ui->lstRefSeqSelected->addItem(prot);
+                selecteds++;
+                break;
+            }
+        }
+        prot = in.readLine();
+    }
+
+    string msge = QString::number(selecteds).toStdString() + " of " + QString::number(total).toStdString() + " sequences have been found and selected.";
+    QMessageBox::information(this,"Upload Reference Sequences",msge.c_str());
+
+    file.close();
+
+    ui->cmdAddFileRefSeq->setEnabled(true);
+}
+
+void MainWindow::on_cmdAddAllRefSeq_clicked()
+{
+    ui->cmdAddAllRefSeq->setEnabled(false);
+    for(int i = 0; i < ui->lstRefSeqs->count(); i++){
+        QString prot = ui->lstRefSeqs->item(i)->text();
+        ui->lstRefSeqSelected->addItem(prot);
+    }
+    ui->lstRefSeqs->clear();
+    ui->cmdAddAllRefSeq->setEnabled(true);
+}
+
+void MainWindow::on_cmdRemoveAllRefSeq_clicked()
+{
+    ui->cmdRemoveAllRefSeq->setEnabled(false);
+    for(int i = 0; i < ui->lstRefSeqSelected->count(); i++){
+        QString prot = ui->lstRefSeqSelected->item(i)->text();
+        ui->lstRefSeqs->addItem(prot);
+    }
+    ui->lstRefSeqSelected->clear();
+    ui->cmdRemoveAllRefSeq->setEnabled(true);
+}
+
+void MainWindow::on_cmdAddOneRefSeq_clicked()
+{
+    ui->cmdAddOneRefSeq->setEnabled(false);
+
+    if(ui->lstRefSeqs->currentItem() == NULL){
+        ui->cmdAddOneRefSeq->setEnabled(true);
+        return;
+    }
+
+    QString item = ui->lstRefSeqs->currentItem()->text();
+    delete ui->lstRefSeqs->currentItem();
+    ui->lstRefSeqSelected->addItem(item);
+    ui->cmdAddOneRefSeq->setEnabled(true);
+}
+
+void MainWindow::on_cmdRemoveOneRefSeq_clicked()
+{
+    ui->cmdRemoveOneRefSeq->setEnabled(false);
+
+    if(ui->lstRefSeqSelected->currentItem() == NULL){
+        ui->cmdRemoveOneRefSeq->setEnabled(true);
+        return;
+    }
+
+    QString item = ui->lstRefSeqSelected->currentItem()->text();
+    delete ui->lstRefSeqSelected->currentItem();
+    ui->lstRefSeqs->addItem(item);
+    ui->cmdRemoveOneRefSeq->setEnabled(true);
+}
+
+void MainWindow::on_cmdSaveRefSeqs_clicked()
+{
+    ui->cmdSaveRefSeqs->setEnabled(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        ui->cmdSaveRefSeqs->setEnabled(true);
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    alinhamentos[i].clearRefSeq();
+
+    for(int j = 0; j < ui->lstRefSeqSelected->count(); j++)
+        alinhamentos[i].addRefSeq(ui->lstRefSeqSelected->item(j)->text().toStdString());
+
+    QMessageBox::information(this,"Reference sequences","The reference sequences are stored.");
+
+    ui->cmdSaveRefSeqs->setEnabled(true);
+}
+
+void MainWindow::on_cmdUpdateComms_clicked()
+{
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    //Chamar Output
+    this->output(i,1,alinhamentos[i].getRefSeqOffset());
+
+    QMessageBox::information(this,"Update Communities","The communtities have been updated.");
 }

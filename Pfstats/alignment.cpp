@@ -97,8 +97,8 @@ void Alignment::clear(){
     comunidades.clear();
     comunidades.shrink_to_fit();
 
-    corrRefSeqs.clear();
-    corrRefSeqs.shrink_to_fit();
+    refSeqs.clear();
+    refSeqs.shrink_to_fit();
 
     for(int i = 0; i < residuesComm.size(); i++){
         residuesComm[i].clear();
@@ -270,20 +270,20 @@ vector<tuple<string,string,int> > Alignment::getCorrelationGraph(){
     return this->corrGraph;
 }
 
-void Alignment::addCorrRefSeq(string seq){
-    this->corrRefSeqs.push_back(seq);
+void Alignment::addRefSeq(string seq){
+    this->refSeqs.push_back(seq);
 }
 
-string Alignment::getCorrRefSeq(int i){
-    return corrRefSeqs[i];
+string Alignment::getRefSeq(int i){
+    return refSeqs[i];
 }
 
-void Alignment::clearCorrRefSeq(){
-    this->corrRefSeqs.clear();
+void Alignment::clearRefSeq(){
+    this->refSeqs.clear();
 }
 
-int Alignment::getCorrRefSeqsSize(){
-    return corrRefSeqs.size();
+int Alignment::getRefSeqsSize(){
+    return refSeqs.size();
 }
 
 tuple<string,string,int> Alignment::getCorrelationEdge(int i){
@@ -339,6 +339,10 @@ vector<string> Alignment::getFullAlignment(){
 
 vector<string> Alignment::getFullSequences(){
     return this->fullSequences;
+}
+
+int Alignment::getSequencesSize(){
+    return sequences.size();
 }
 
 int Alignment::getConsFreqSize(){
@@ -424,22 +428,6 @@ void Alignment::addConsFreqRow(vector<int> consfreq){
 
 void Alignment::addConsFreqPercRow(vector<float> cfreqperc){
     this->consfreqPerc.push_back(cfreqperc);
-}
-
-void Alignment::clearConsRefs(){
-    this->consRefSeqs.clear();
-}
-
-void Alignment::addConsRef(string ref){
-    this->consRefSeqs.push_back(ref);
-}
-
-int Alignment::getConsRefsSize(){
-    return consRefSeqs.size();
-}
-
-string Alignment::getConsref(int i){
-    return consRefSeqs[i];
 }
 
 int Alignment::getUniprotMinedSize(){
@@ -542,9 +530,9 @@ void Alignment::printConsFreqPerc(){
     }
 }
 
-void Alignment::printCorrRefSeqs(){
-    for(int i = 0; i < corrRefSeqs.size(); i++){
-        printf("%s\n",corrRefSeqs[i].c_str());
+void Alignment::printRefSeqs(){
+    for(int i = 0; i < refSeqs.size(); i++){
+        printf("%s\n",refSeqs[i].c_str());
     }
 }
 
@@ -967,6 +955,16 @@ void Alignment::generateXML(string outputXML){
         out << "</filters>\n";
     }
 
+    if(refSeqs.size() > 0){
+        out << "<references>\n";
+
+        for(int i = 0; i < refSeqs.size(); i++){
+            out << "   <protein>" << refSeqs[i].c_str() << "</protein>\n";
+        }
+
+        out << "</references>\n";
+    }
+
     if(consDG.size() > 0){
         out << "<conservation>\n";
 
@@ -1074,16 +1072,6 @@ void Alignment::generateXML(string outputXML){
         }
         out << "   </positions>\n";
 
-        if(consRefSeqs.size() > 0){
-            out << "   <references>\n";
-
-            for(int i = 0; i < consRefSeqs.size(); i++){
-                out << "      <protein>" << consRefSeqs[i].c_str() << "</protein>\n";
-            }
-
-            out << "   </references>\n";
-        }
-
         out << "</conservation>\n";
     }
 
@@ -1159,15 +1147,6 @@ void Alignment::generateXML(string outputXML){
             out << "   </communities>\n";
         }
 
-        if(corrRefSeqs.size() > 0){
-
-            out << "   <references>\n";
-
-            for(int i = 0; i < corrRefSeqs.size(); i++)
-                out << "      <protein>" << corrRefSeqs[i].c_str() << "</protein>\n";
-
-            out << "   </references>\n";
-        }
 
         if(communityX.size() > 0 || communityXps.size() > 0){
 
@@ -1558,6 +1537,14 @@ int Alignment::seqcode2seqint(string refseqcode){
         if (seqfound) return c1;
     }
     return -1;
+}
+
+int Alignment::seqname2seqint(string refseqcode){
+    for(int i = 0; i < sequencenames.size(); i++){
+        vector<string> vecSplit = this->split(sequencenames[i],'/');
+        if(vecSplit[0] == refseqcode) return i;
+    }
+    return 0;
 }
 
 void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
@@ -2075,7 +2062,7 @@ vector<float> Alignment::ShenkinEntropy(int repetitions, int gapFilter){
     int currentsize = sequences.size();
     for(int i = 0; i < frequencies[0].size(); i++)
         tamanhoSeq += frequencies[0][i];
-    QMessageBox::information(NULL,"a",QString::number(subsetfrequencies.size()));
+
     //Filtro por GAP
     populatedpos.clear();
     for(int i = 0; i < frequencies.size(); i++){
@@ -3455,7 +3442,7 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
     QMessageBox::information(NULL,"Exporting Data","Conserved residues data was exported.");
 }
 
-void Alignment::exportRefs(QString filename, int type, vector<string> refSeqs){
+void Alignment::exportRefs(QString filename, int type){
     switch(type){
     case 0:
     {
@@ -4189,7 +4176,17 @@ void Alignment::exportAdh(QString filename, int type){
     QMessageBox::information(NULL,"Exporting Data","Adherence data was exported.");
 }
 
-void Alignment::exportResComm(QString filename, int type, vector<int> refSeqs){
+vector<int> Alignment::getRefSeqCodes(){
+    vector<int> codes;
+    for(int i = 0; i < refSeqs.size(); i++){
+        codes.push_back(seqname2seqint(refSeqs[i]));
+    }
+
+    return codes;
+}
+
+void Alignment::exportResComm(QString filename, int type){
+    vector<int> refCodes = getRefSeqCodes();
 
     switch(type){
         case 0:
@@ -4223,18 +4220,18 @@ void Alignment::exportResComm(QString filename, int type, vector<int> refSeqs){
                 out << "\n";
 
                 for(int j = 0; j < refSeqs.size(); j++){
-                    out << sequencenames[refSeqs[j]].c_str();
+                    out << sequencenames[refCodes[j]].c_str();
 
                     for(int k = 0; k < Communities[i].pos.size(); k++){
-                        if(sequences[refSeqs[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
-                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+                        if(sequences[refCodes[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
+                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
 
                             out << "\t" << textItem.c_str();
                         }else{
-                            if(sequences[refSeqs[j]][Communities[i].pos[k]] == '-')
+                            if(sequences[refCodes[j]][Communities[i].pos[k]] == '-')
                                 out << "\t - ";
                             else{
-                                string textItem = sequences[refSeqs[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+                                string textItem = sequences[refCodes[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
 
                                 out << "\t" << textItem.c_str();
                             }
@@ -4274,14 +4271,14 @@ void Alignment::exportResComm(QString filename, int type, vector<int> refSeqs){
 
 
                     for(int k = 0; k < refSeqs.size(); k++){
-                        if(sequences[refSeqs[k]][Communities[i].pos[j]] == Communities[i].aa[j]){
-                            string textItem = Communities[i].aa[j] + QString::number(AlignNumbering2Sequence(refSeqs[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refSeqs[k]])).toStdString();
+                        if(sequences[refCodes[k]][Communities[i].pos[j]] == Communities[i].aa[j]){
+                            string textItem = Communities[i].aa[j] + QString::number(AlignNumbering2Sequence(refCodes[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refCodes[k]])).toStdString();
 
-                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"true\">" << sequencenames[refSeqs[k]].c_str() << "</sequence>\n";
-                        }else if(sequences[refSeqs[k]][Communities[i].pos[j]] != '-'){
-                            string textItem = sequences[refSeqs[k]][Communities[i].pos[j]] + QString::number(AlignNumbering2Sequence(refSeqs[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refSeqs[k]])).toStdString();
+                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"true\">" << sequencenames[refCodes[k]].c_str() << "</sequence>\n";
+                        }else if(sequences[refCodes[k]][Communities[i].pos[j]] != '-'){
+                            string textItem = sequences[refCodes[k]][Communities[i].pos[j]] + QString::number(AlignNumbering2Sequence(refCodes[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refCodes[k]])).toStdString();
 
-                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"false\">" << sequencenames[refSeqs[k]].c_str() << "</sequence>\n";
+                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"false\">" << sequencenames[refCodes[k]].c_str() << "</sequence>\n";
                         }
                     }
 
@@ -4334,18 +4331,18 @@ void Alignment::exportResComm(QString filename, int type, vector<int> refSeqs){
                 out << "</tr>\n";
 
                 for(int j = 0; j < refSeqs.size(); j++){
-                    out << "<tr>\n<td><b>" << sequencenames[refSeqs[j]].c_str() << "</b></td>\n";
+                    out << "<tr>\n<td><b>" << sequencenames[refCodes[j]].c_str() << "</b></td>\n";
 
                     for(int k = 0; k < Communities[i].pos.size(); k++){
-                        if(sequences[refSeqs[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
-                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+                        if(sequences[refCodes[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
+                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
 
                             out << "<td><b><font color=#00FF00>" << textItem.c_str() << "</font></b></td>\n";
                         }else{
-                            if(sequences[refSeqs[j]][Communities[i].pos[k]] == '-')
+                            if(sequences[refCodes[j]][Communities[i].pos[k]] == '-')
                                 out << "<td><center>-</center></td>\n";
                             else{
-                                string textItem = sequences[refSeqs[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refSeqs[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refSeqs[j]])).toStdString();
+                                string textItem = sequences[refCodes[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
 
                                 out << "<td>" << textItem.c_str() << "</td>\n";
                             }

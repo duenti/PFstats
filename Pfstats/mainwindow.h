@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include "alignment.h"
+#include "qcustomplot.h"
 
 using namespace std;
 
@@ -29,6 +30,8 @@ private slots:
     void exportAlignment_PFAM();
     void exportAlignment_TXT();
     void exportAlignment_XML();
+    void exportRefSeqTXT();
+    void exportRefSeqXML();
     void exportFreqTXT();
     void exportFreqCSV();
     void exportFreqXML();
@@ -58,10 +61,6 @@ private slots:
     void exportResCommTXT();
     void exportResCommXML();
     void exportResCommHTML();
-    void exportConsRefsTXT();
-    void exportConsRefsXML();
-    void exportCorrRefsTXT();
-    void exportCorrRefsXML();
     void exportLookProtTXT();
     void exportLookProtCSV();
     void exportLookProtXML();
@@ -72,6 +71,7 @@ private slots:
     void exportLookCommHTML();
     void startWizard();
     void changetoFilterStack();
+    void changeToRefSeqs();
     void changeToConservationStack();
     void changetoMinssStack();
     void changetoCorrelationStack();
@@ -93,6 +93,7 @@ private slots:
     void changeToResiduesOfCommunities();
     void changeToULGroupedByProteins();
     void changeToULGroupedByComms();
+    void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
 
     void on_cmdStartWizard_clicked();
     void on_cmdMain_clicked();
@@ -124,8 +125,6 @@ private slots:
 
     void on_listWidget2_activated(const QModelIndex &index);
 
-    void on_cmdShowResults_clicked();
-
     void on_cmdShow_clicked();
 
     void on_lstProteinsFiltered_activated(const QModelIndex &index);
@@ -152,8 +151,6 @@ private slots:
 
     void on_cmdUploadConsRefsSeqs_clicked();
 
-    void on_cmdCorRefSeqs_clicked();
-
     void on_cmdLook_clicked();
 
     void on_cmdLookNone_clicked();
@@ -172,6 +169,20 @@ private slots:
 
     void on_cmdNewComm_clicked();
 
+    void on_cmdAddFileRefSeq_clicked();
+
+    void on_cmdAddAllRefSeq_clicked();
+
+    void on_cmdRemoveAllRefSeq_clicked();
+
+    void on_cmdAddOneRefSeq_clicked();
+
+    void on_cmdRemoveOneRefSeq_clicked();
+
+    void on_cmdSaveRefSeqs_clicked();
+
+    void on_cmdUpdateComms_clicked();
+
 private:
     Ui::MainWindow *ui;
     void changeWizardCmds(bool bl);
@@ -181,6 +192,7 @@ private:
     int stackBeforeShowResults = 0;
     int currentStackPos = 0;
     vector<int> resultsStackList;
+    QCPItemText *minssLabel;
     bool compareLocalWebPDB(string local, string web);
     vector<Alignment> alinhamentos;
     void addAlignment(string path);
@@ -215,6 +227,7 @@ private:
     bool isaa(char c);
     bool isInt(string v);
     void updateResultsViews(int ai);
+    bool isFloat(string myString);
 };
 
 #endif // MAINWINDOW_H

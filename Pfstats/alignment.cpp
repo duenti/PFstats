@@ -4,6 +4,7 @@
 #include <math.h>
 #include "uniprot.h"
 #include <cstdlib>
+#include <ctype.h>
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
@@ -15,23 +16,43 @@
 Alignment::Alignment()
 {
     refSeqName = "";
+    conservedPDBpath = "";
     minCons = 0.8;
+    type = -1;
 }
 
 Alignment::Alignment(string path){
     this->filepath = path;
+    conservedPDBpath = "";
     this->GetFromFile();
     refSeqName = "";
     minCons = 0.8;
+    type = -1;
 }
 
 Alignment::~Alignment()
 {
+    this->clear();
+}
 
+void Alignment::setConsPDBPath(string path){
+    this->conservedPDBpath = path;
+}
+
+string Alignment::getConsPDBPath(){
+    return this->conservedPDBpath;
 }
 
 void Alignment::setMinsCons(float v){
     minCons = v;
+}
+
+int Alignment::getType(){
+    return type;
+}
+
+void Alignment::setType(int t){
+    type = t;
 }
 
 void Alignment::clear(){
@@ -57,6 +78,8 @@ void Alignment::clear(){
     localpdbdir.shrink_to_fit();
     webpdbdir = "";
     webpdbdir.shrink_to_fit();
+    conservedPDBpath = "";
+    conservedPDBpath.shrink_to_fit();
 
     for(int i = 0; i < filtersList.size(); i++){
         filtersList[i].clear();
@@ -134,6 +157,12 @@ void Alignment::clear(){
     communityX.shrink_to_fit();
     communityXps.clear();
     communityXps.shrink_to_fit();
+
+    uniprotMined.clear();
+    uniprotMined.shrink_to_fit();
+
+    recommendPdbs.clear();
+    recommendPdbs.shrink_to_fit();
 
     parameters.clear();
     parameters.shrink_to_fit();
@@ -294,6 +323,34 @@ int Alignment::getCorrelationGraphSize(){
     return corrGraph.size();
 }
 
+set<string> Alignment::getCorrelationNodes(){
+    set<string> nodes;
+
+    for(int i = 0; i < corrGraph.size(); i++){
+        tuple<string,string,int> tupCorr = corrGraph[i];
+
+        nodes.insert(std::get<0>(tupCorr).c_str());
+        nodes.insert(std::get<1>(tupCorr).c_str());
+    }
+
+    return nodes;
+}
+
+set<string> Alignment::getPositiveCorrelationNodes(){
+    set<string> nodes;
+
+    for(int i = 0; i < corrGraph.size(); i++){
+        tuple<string,string,int> tupCorr = corrGraph[i];
+
+        if(std::get<2>(tupCorr) > 0){
+            nodes.insert(std::get<0>(tupCorr).c_str());
+            nodes.insert(std::get<1>(tupCorr).c_str());
+        }
+    }
+
+    return nodes;
+}
+
 void Alignment::addCommunity(vector<string> comm){
     comunidades.push_back(comm);
 }
@@ -375,6 +432,77 @@ vector<float> Alignment::getConsFreqPercRow(int i){
 
 tuple<string,string,int> Alignment::getCorrGraphTuple(int i){
     return this->corrGraph[i];
+}
+
+vector<tuple<string,string,int> > Alignment::getEdgesByComm(int comm){
+    vector<tuple<string,string,int> > graph;
+    vector<string> residues = comunidades[comm];
+
+    for(int i = 0; i < corrGraph.size(); i++){
+        tuple<string,string,int> edge = corrGraph[i];
+        bool ok = false;
+
+        for(int j = 0; j < residues.size(); j++){
+            if(std::get<0>(edge) == residues[j]){
+                for(int k = 0; k < residues.size(); k++){
+                    if(std::get<1>(edge) == residues[k])
+                        ok = true;
+                }
+            }
+        }
+
+        if(ok) graph.push_back(edge);
+    }
+
+    return graph;
+}
+
+vector<tuple<string,string,float> > Alignment::getDeltasEdges(float cutoff){
+    vector<tuple<string,string,float> > graph;
+
+    for(int i = 0; i < this->getNumOfUtilComms(); i++){
+        for(int j = 0; j < this->getNumOfUtilComms(); j++){
+            if(i!=j){
+                if((Deltas[i][j] > 0 && Deltas[i][j] > cutoff && Deltas[i][j] < 100) || (Deltas[i][j] < 0 && Deltas[i][j] < (-1*cutoff) && Deltas[i][j] > -100)){
+                    string c1 = "C" + std::to_string(i+1);
+                    string c2 = "C" + std::to_string(j+1);
+                    tuple<string,string,float> edge (c1,c2,Deltas[i][j]);
+                    graph.push_back(edge);
+                    //printf("%s\t%s\t%f\n",c1.c_str(),c2.c_str(),Deltas[i][j]);
+                }
+            }
+        }
+    }
+
+    //Verifica as correlaçoes inversas e mantem a maior
+    for(int i = 0; i < graph.size(); i++){
+        tuple<string,string,float> edge = graph[i];
+        string c1 = std::get<0>(edge);
+        string c2 = std::get<1>(edge);
+        float weight1 = std::get<2>(edge);
+        float weight2 = 0;
+        bool ok = false;
+        int j;
+
+        for(j = 0; j < graph.size(); j++){
+            tuple<string,string,float> edge2 = graph[j];
+            if(c1 == std::get<1>(edge2) && std::get<0>(edge2) == c2){
+                ok = true;
+                weight2 = std::get<2>(edge2);
+                break;
+            }
+        }
+
+        if(ok){
+            if(fabs(weight1) >= fabs(weight2)){
+                graph.erase(graph.begin()+j);
+
+                if(i > 0) i--;
+            }
+        }
+    }
+
+    return graph;
 }
 
 vector<string> Alignment::getCommunitie(int i){
@@ -746,6 +874,25 @@ bool Alignment::isaa(char c){
     else return false;
 }
 
+bool Alignment::isaa(char c, bool casesensitive){
+    if (!casesensitive)
+        {
+        if((c=='A')||(c=='C')||(c=='D')||(c=='E')||(c=='F')||(c=='G')||(c=='H')||(c=='I')||(c=='K')||(c=='L')||
+        (c=='M')||(c=='N')||(c=='P')||(c=='Q')||(c=='R')||(c=='S')||(c=='T')||(c=='V')||(c=='W')||(c=='Y')||
+        (c=='a')||(c=='c')||(c=='d')||(c=='e')||(c=='f')||(c=='g')||(c=='h')||(c=='i')||(c=='k')||(c=='l')||
+        (c=='m')||(c=='n')||(c=='p')||(c=='q')||(c=='r')||(c=='s')||(c=='t')||(c=='v')||(c=='w')||(c=='y'))
+            return true;
+            else return false;
+        }
+     else
+     {
+        if((c=='A')||(c=='C')||(c=='D')||(c=='E')||(c=='F')||(c=='G')||(c=='H')||(c=='I')||(c=='K')||(c=='L')||
+        (c=='M')||(c=='N')||(c=='P')||(c=='Q')||(c=='R')||(c=='S')||(c=='T')||(c=='V')||(c=='W')||(c=='Y'))
+         return true;
+     }
+    return false;
+}
+
 bool Alignment::isaax(char c){
     if((c=='A')||(c=='C')||(c=='D')||(c=='E')||(c=='F')||(c=='G')||(c=='H')||(c=='I')||(c=='K')||(c=='L')||
         (c=='M')||(c=='N')||(c=='P')||(c=='Q')||(c=='R')||(c=='S')||(c=='T')||(c=='V')||(c=='W')||(c=='Y')||
@@ -922,10 +1069,7 @@ void Alignment::generateXML(string outputXML){
     out << "<?xml version=\"1.0\"?>\n\n";
     out << "<PFStats>\n";
     out << "<file>\n";
-    if(this->localdir != "")
-        out << "   <local>" << this->localdir.c_str() << "</local>\n";
-    if(this->webdir != "")
-        out << "   <web>" << this->webdir.c_str() << "</web>\n";
+    out << "   <type>" << QString::number(this->type) << "</type>\n";
     if(this->localpdbdir != "")
         out << "   <pdb>" << this->localpdbdir.c_str() << "</pdb>\n";
     out << "</file>\n";
@@ -1210,7 +1354,26 @@ void Alignment::generateXML(string outputXML){
                 out << "      </logP>\n";
             }
 
+
+
             out << "   </output>\n";
+        }
+
+        if(Deltas.size() > 0){
+            out << "   <deltas>\n";
+
+            for(int i = 0; i < Deltas.size(); i++){
+                out << "      <row comm='" << i+1 << "' ";
+                for(int j = 0; j < Deltas.size(); j++){
+                    if(i == j) out << "val" << j+1 << "='0.00' ";
+                    else{
+                        out << "val" << j+1 << "='" << Deltas[i][j] << "' ";
+                    }
+                }
+                out << "/>\n";
+            }
+
+            out << "   </deltas>\n";
         }
 
         out << "</correlation>\n";
@@ -1298,20 +1461,83 @@ void Alignment::generateXML(string outputXML){
     f.close();
 }
 
-bool Alignment::GetFromFile(){
+void Alignment::readSTO(){
+    fstream alignmentfile;
+    string line;
+
+    alignmentfile.open(this->filepath.c_str());
+
+    while(!alignmentfile.eof()){
+        getline(alignmentfile,line);
+
+        if(line[0] == '#'){
+            if(line.length() > 30){
+                if(line.substr(31,2) == "DR" && line.substr(34,3) == "PDB"){
+                    string temp = line.substr(5,25);
+                    string protein = split(temp,' ')[0];
+                    string pdb = line.substr(39,4);
+                    char chain = line[44];
+                    string interval = line.substr(47);
+                    tuple<string,string,char,string> tup(protein,pdb,chain,interval.substr(0,interval.length()-1));
+                    recommendPdbs.push_back(tup);
+                    //printf("%s - %s - %c - %s\n",protein.c_str(),pdb.c_str(),chain,interval.substr(0,interval.length()-1).c_str());
+                }
+            }
+        }else if(line.length() > 30){
+            string temp = line.substr(0,36);
+            string protein = split(temp,' ')[0];
+            string sequence = line.substr(36);
+
+            //printf("%s\t%s\n",protein.c_str(),sequence.c_str());
+
+            sequencenames.push_back(protein);
+            sequences.push_back(sequence);
+        }
+    }
+
+    alignmentfile.close();
+}
+
+void Alignment::readSTO(vector<string> pfam){
+    string line;
+
+    for(int i = 0; i < pfam.size(); i++){
+        line = pfam[i];
+
+        if(line[0] == '#'){
+            if(line.length() > 30){
+                if(line.substr(31,2) == "DR" && line.substr(34,3) == "PDB"){
+                    string temp = line.substr(5,25);
+                    string protein = split(temp,' ')[0];
+                    string pdb = line.substr(39,4);
+                    char chain = line[44];
+                    string interval = line.substr(47);
+                    tuple<string,string,char,string> tup(protein,pdb,chain,interval.substr(0,interval.length()-1));
+                    recommendPdbs.push_back(tup);
+                    printf("%s - %s - %c - %s\n",protein.c_str(),pdb.c_str(),chain,interval.substr(0,interval.length()-1).c_str());
+                }
+            }
+        }else if(line.length() > 30){
+            string temp = line.substr(0,36);
+            string protein = split(temp,' ')[0];
+            string sequence = line.substr(36);
+
+            //printf("%s\t%s\n",protein.c_str(),sequence.c_str());
+
+            sequencenames.push_back(protein);
+            sequences.push_back(sequence);
+        }
+    }
+}
+
+void Alignment::readPFAM(){
     fstream alignmentfile;
     string line;
     bool flag1;      // 0 when still in sequence name
     bool flag2;      // 0 when still before sequence start
-    int c1,c2;
-    //string fseqname; // temporary sequence name from file
-
-    if (sequences.size()>0) for(c1=0;c1<=sequences.size()-1;c1++) sequences[c1]="";
-    sequences.clear();
-    if (sequencenames.size()>0) for(c1=0;c1<=sequencenames.size()-1;c1++) sequencenames[c1]="";
-    sequencenames.clear();
 
     alignmentfile.open(this->filepath.c_str());
+
     while(!alignmentfile.eof()){
         getline(alignmentfile,line);
         //printf("%s\n",line.c_str());
@@ -1339,6 +1565,55 @@ bool Alignment::GetFromFile(){
         }
     }
     alignmentfile.close();
+}
+
+void Alignment::readPFAM(vector<string> pfam){
+    string line;
+    bool flag1, flag2;
+
+    for(int i = 0; i < pfam.size(); i++){
+        line = pfam[i];
+        flag1 = 0;
+        flag2 = 0;
+
+        if(validstartcharacter(line[0])){
+            //printf("%s\n",line.c_str());
+            sequencenames.push_back("");
+            sequences.push_back("");
+            for (int c1=0;c1<=line.size()-1;c1++){
+                 if(flag2) sequences[sequences.size()-1]+=line.substr(c1,1);
+                 if((flag1)&&(!flag2)){
+                    if (validposition(line[c1])){
+                        sequences[sequences.size()-1]+=line.substr(c1,1);
+                        flag2=true;
+                    }
+                 }
+                 if((!flag1)&&(!flag2)){
+                    //c=line.c_str()[i];
+                    if (((char)line.c_str()[c1]==' ')||((char)line.c_str()[c1]=='\t')) flag1=true;
+                    else sequencenames[sequencenames.size()-1]+=line.substr(c1,1);
+                 }
+            }
+        }
+    }
+}
+
+bool Alignment::GetFromFile(){
+    fstream alignmentfile;
+    string line;
+    int c1,c2;
+    //string fseqname; // temporary sequence name from file
+
+    if (sequences.size()>0) for(c1=0;c1<=sequences.size()-1;c1++) sequences[c1]="";
+    sequences.clear();
+    if (sequencenames.size()>0) for(c1=0;c1<=sequencenames.size()-1;c1++) sequencenames[c1]="";
+    sequencenames.clear();
+
+    alignmentfile.open(this->filepath.c_str());
+    getline(alignmentfile,line);
+    if(line[0] == '#') readSTO();
+    else readPFAM();
+
     // CHECKS ALIGNMENT CONSISTENCY
     SortOrder.clear();
     if (subsetfrequencies.size()>0) for(c1=0;c1<=subsetfrequencies.size()-1;c1++)
@@ -1366,6 +1641,72 @@ bool Alignment::GetFromFile(){
         return true;
     }
 
+    return false;
+}
+
+bool Alignment::getFromStd(string text){
+    vector<string> pfam = split(text,'\n');
+
+    if(sequences.size() > 0){
+        for(int i = 0; i < sequences.size(); i++){
+            sequences[i].clear();
+            sequences[i].shrink_to_fit();
+        }
+        sequences.clear();
+        sequences.shrink_to_fit();
+    }
+
+    if(sequencenames.size() > 0){
+        for(int i = 0; i < sequencenames.size(); i++){
+            sequencenames[i].clear();
+            sequencenames[i].shrink_to_fit();
+        }
+        sequencenames.clear();
+        sequencenames.shrink_to_fit();
+    }
+
+    string line = pfam[0];
+    if(line[0] == '#') readSTO(pfam);
+    else readPFAM(pfam);
+
+    // CHECKS ALIGNMENT CONSISTENCY
+    SortOrder.clear();
+    if(subsetfrequencies.size() > 0){
+        for(int i = 0; i < subsetfrequencies.size(); i++){
+            subsetfrequencies[i].clear();
+            subsetfrequencies.shrink_to_fit();
+        }
+        subsetfrequencies.clear();
+        subsetfrequencies.shrink_to_fit();
+    }
+
+    if(sequences.size() > 0){
+        for(int i = 0; i < sequences.size(); i++){
+            if(sequences[0].size()!=sequences[i].size() || sequences[i].size() == 0){
+                QString msg = "Sequence #" + QString::number(i+1) + " (" + sequencenames[i].c_str() +
+                        ") does not has the same size of the first sequence. Please check your alignment file";
+                QMessageBox::critical(NULL,"Error while parsing the alignment",msg);
+                return false;
+            }
+        }
+
+        for(int i = 0; i < sequences.size(); i++)
+            SortOrder.push_back(i);
+
+        for(int i = 0; i <= sequences[0].size(); i++){
+            subsetfrequencies.push_back(vector<int>(21));
+            for(int j = 0; j <= 20; j++)
+                subsetfrequencies[i].push_back(0);
+        }
+
+        for(int i = 0; i < sequencenames.size(); i++){
+            this->fullAlignment.push_back(sequencenames[i]);
+            this->fullSequences.push_back(sequences[i]);
+        }
+
+        return true;
+    }
+    QMessageBox::critical(NULL,"Alignment loading error","Couldn't parse this alignment");
     return false;
 }
 
@@ -1408,10 +1749,6 @@ void Alignment::updateFullAlignment(){
         //printf("%s\n",filtersList[0][i].c_str());
         sequencenames.push_back(this->filtersList[0][i]);
     }
-}
-
-bool Alignment::getFromStd(string text){
-    //Implementar
 }
 
 vector<string> Alignment::getSequencesName(){
@@ -1491,6 +1828,16 @@ int Alignment::SeqSize(int seq){
     return size;
 }
 
+void Alignment::alignment2UpperCase(){
+    for(int i = 0; i < sequences.size(); i++){
+        string sequenceI = sequences[i];
+        std::transform(sequenceI.begin(),sequenceI.end(),sequenceI.begin(),::toupper);
+        sequences[i] = sequenceI;
+        //printf("%s - %s\n",sequenceI.c_str(),sequences[i].c_str());
+    }
+    //QMessageBox::information(NULL,"OK","OK");
+}
+
 float Alignment::Identity(int seq1, int seq2){
     int identcount=0;
     int seqbegin=0,seqend=sequences[0].size()-1,c3;
@@ -1547,14 +1894,91 @@ int Alignment::seqname2seqint(string refseqcode){
     return 0;
 }
 
+int Alignment::seqname2seqint2(string refseqcode){
+    for(int i = 0; i < this->fullAlignment.size(); i++){
+        vector<string> vecSplit = this->split(fullAlignment[i],'/');
+        if(vecSplit[0] == refseqcode) return i;
+    }
+    return 0;
+}
+
+void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, string refseqName, bool casesensitive, bool intermediate){
+    int c1,c2,totalseq,totalaln;
+    string referencesequence=sequences[refseq];
+    vector<int> seqstoremove;
+
+    QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size());
+    progress.show();
+
+    for(c1 = sequences.size()-1; c1 > 0; c1--){
+        progress.setValue(sequences.size() - c1);
+
+        if(progress.wasCanceled()) break;
+        if(c1!=refseq){
+            totalseq = 0;
+            totalaln = 0;
+            for (c2=0;c2<=sequences[c1].size()-1;c2++){
+                if(isaa(referencesequence[c2],casesensitive)){
+                    totalseq++;
+                    if(isaa(sequences[c1][c2],casesensitive)){
+                        totalaln++;
+                    }
+                }
+            }
+            if (((float)totalaln)/((float)totalseq)<minocc)
+                seqstoremove.push_back(c1);
+        }
+    }
+
+    for (c1=0;c1<=seqstoremove.size()-1;c1++)
+    {
+        sequences[c1].clear();
+        sequencenames[c1].clear();
+        sequences.erase(sequences.begin()+c1);
+        sequencenames.erase(sequencenames.begin()+c1);
+    }
+
+    if(sequencenames[0] != refseqName){
+        sequences.insert(sequences.begin(),refSeq);
+        sequencenames.insert(sequencenames.begin(),refseqName);
+    }
+
+    if(intermediate){
+        vector<string> filterVec;
+        string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        filterVec.push_back(parameters);
+        filterVec.push_back(refseqName);
+        for(int i = 0; i < sequencenames.size(); i++){
+            if(sequencenames[i] != refseqName)
+                filterVec.push_back(sequencenames[i]);
+        }
+
+        vector<string> sequenceVec;
+        sequenceVec.push_back(parameters);
+        sequenceVec.push_back(refSeq);
+        for(int i = 0; i < sequences.size(); i++){
+            if(sequencenames[i] != refseqName)
+                sequenceVec.push_back(sequences[i]);
+        }
+
+        filtersList.push_back(filterVec);
+        filterSequences.push_back(sequenceVec);
+    }
+
+    progress.setValue(sequences.size());
+}
+
 void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
     int c1,c2,totalseq,totalaln;
 
-    for(c1=0; c1<sequences.size()-1;c1++){
+    //QMessageBox::information(NULL,"ok","CERTO");
+
+    for(c1=0; c1<=sequences.size()-1;c1++){
         progress.setValue(c1);
+        progress.setMaximum(sequences.size()-1);
 
         if(progress.wasCanceled()) break;
 
@@ -1610,6 +2034,8 @@ void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string re
     progress.setWindowModality(Qt::WindowModal);
     int c1;
 
+    //QMessageBox::information(NULL,"a",sequencenames[0].c_str());
+
     for (c1=0;c1<=sequences.size()-1;c1++){
         //printf("%d\n",c1);
         progress.setValue(c1);
@@ -1657,9 +2083,9 @@ void Alignment::IdentityTrimming(float maxid, float minocc, float minid, int ref
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
-    int seq1,seq2,c1,c2;
+    int seq1,seq2;
     seq1=0;
-    printf("%d",sequences.size());
+    //printf("%d",sequences.size());
     while(true){ //for(seq1=0;seq1<=sequences.size()-2;seq1++)
         progress.setValue(seq1);
         progress.setMaximum(sequences.size());
@@ -1883,8 +2309,24 @@ void Alignment::CalculateReferenceVector(int seqnumber){
         if(isaax(sequences[seqnumber-1][c1])) referencevector.push_back(c1);
 }
 
+void Alignment::CalculateReferenceVector2(int seqnumber){
+    int c1;
+    //QMessageBox::information(NULL,"ok",QString::number(seqnumber));
+    referencesequence=seqnumber;
+    if(referencevector.size()>0) referencevector.clear();
+    for(c1=0;c1<=fullSequences[0].size()-1;c1++)
+        if(isaax(fullSequences[seqnumber-1][c1])) referencevector.push_back(c1);
+}
+
 int Alignment::AlignNumbering2Sequence(int seqnumber, int position){
     this->CalculateReferenceVector(seqnumber);
+    for(int c1=0;c1<=referencevector.size()-1;c1++)
+        if (referencevector[c1]==position) return(c1+1);
+    return 0;
+}
+
+int Alignment::AlignNumbering2Sequence2(int seqnumber, int position){
+    this->CalculateReferenceVector2(seqnumber);
     for(int c1=0;c1<=referencevector.size()-1;c1++)
         if (referencevector[c1]==position) return(c1+1);
     return 0;
@@ -1921,7 +2363,7 @@ void Alignment::writedGtoPDB(string PDBfilename, string dgPDBfilename, int initr
     QTextStream out(&dgpdbfile);
 
     while(!pdbfile.atEnd()){
-        line = pdbfile.readLine().toStdString();
+        line = pdbfile.readLine().data();
         if((line.substr(0,4).compare((string)"ATOM")==0)&&(line.substr(21,1).c_str()[0]==chain)){
             if((getresn(line)<initres)||(getresn(line)>initres+referencevector.size()-1)) newline=outputBfactor(line,0);
             else newline=outputBfactor(line,normalizeddG[referencevector[getresn(line)-initres]]);
@@ -2372,6 +2814,16 @@ void Alignment::DeltaCommunitiesCalculation(){
             }
         }
     }
+
+    /*
+    printf("DELTAS\n");
+    for(int i = 0; i < Deltas.size(); i++){
+        for(int j = 0; j< Deltas.size(); j++){
+            printf("%f ",Deltas[i][j]);
+        }
+        printf("\n");
+    }
+    */
 }
 
 void Alignment::DeltaCommunitiesOutput(string deltaoutputfilename){
@@ -3310,7 +3762,6 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
         }
     }
 
-
     switch(type){
         case 0:
         {
@@ -3332,14 +3783,14 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
             out << "\n";
 
             for(int i = 0; i < refSeqs.size(); i++){
-                out << sequencenames[refSeqs[i]].c_str() << " ";
+                out << fullAlignment[refSeqs[i]].c_str() << " ";
                 for(int j = 0; j < conservedaa.size(); j++){
-                    if(AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) == 0) out << "- ";
+                    if(AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) == 0) out << "- ";
                     else{
-                        if(sequences[refSeqs[i]][conservedpos[j]]==conservedaa[j])
-                            out << conservedaa[j] << AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(sequencenames[refSeqs[i]]) << " ";
+                        if(fullSequences[refSeqs[i]][conservedpos[j]]==conservedaa[j])
+                            out << conservedaa[j] << AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]]) << " ";
                         else
-                            out << sequences[refSeqs[i]][conservedpos[j]] << AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(sequencenames[refSeqs[i]]) << " ";
+                            out << fullSequences[refSeqs[i]][conservedpos[j]] << AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]]) << " ";
                     }
                 }
                 out << "\n";
@@ -3370,15 +3821,15 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
                 out << "\t\t<residue alignN=\"" << conservedaa[i] << conservedpos[i]+1 << "\" freq=\"" << QString::number(conservedfreq[i],'f',1) << "\">\n";
 
                 for(int j = 0; j < refSeqs.size(); j++){
-                    out << "\t\t\t<entry protein=\"" << sequencenames[refSeqs[j]].c_str() << "\" ";
-                    if(AlignNumbering2Sequence(refSeqs[j]+1,conservedpos[i]) == 0)
+                    out << "\t\t\t<entry protein=\"" << fullAlignment[refSeqs[j]].c_str() << "\" ";
+                    if(AlignNumbering2Sequence2(refSeqs[j]+1,conservedpos[i]) == 0)
                         out << "seqN=\"-\" conserv=\"false\"/>\n";
                     else{
-                        if(sequences[refSeqs[j]][conservedpos[i]]==conservedaa[i]){
-                            out << "seqN=\"" << conservedaa[i] << AlignNumbering2Sequence(refSeqs[j]+1,conservedpos[i]) + GetOffsetFromSeqName(sequencenames[refSeqs[j]]);
+                        if(fullSequences[refSeqs[j]][conservedpos[i]]==conservedaa[i]){
+                            out << "seqN=\"" << conservedaa[i] << AlignNumbering2Sequence2(refSeqs[j]+1,conservedpos[i]) + GetOffsetFromSeqName(fullAlignment[refSeqs[j]]);
                             out << "\" conserv=\"true\"/>\n";
                         }else{
-                            out << "seqN=\"" << sequences[refSeqs[j]][conservedpos[i]] << AlignNumbering2Sequence(refSeqs[j]+1,conservedpos[i]) + GetOffsetFromSeqName(sequencenames[refSeqs[j]]);
+                            out << "seqN=\"" << fullSequences[refSeqs[j]][conservedpos[i]] << AlignNumbering2Sequence2(refSeqs[j]+1,conservedpos[i]) + GetOffsetFromSeqName(fullAlignment[refSeqs[j]]);
                             out << "\" conserv=\"false\"/>\n";
                         }
                     }
@@ -3416,15 +3867,15 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
             }
             out << "</tr>\n";
             for (int c1=0;c1<=refSeqs.size()-1;c1++){
-                out << "<tr><th><b>" << sequencenames[refSeqs[c1]].c_str();
+                out << "<tr><th><b>" << fullAlignment[refSeqs[c1]].c_str();
                 for (int c2=0;c2<=conservedaa.size()-1;c2++){
-                    if(AlignNumbering2Sequence(refSeqs[c1]+1,conservedpos[c2]) ==0){
+                    if(AlignNumbering2Sequence2(refSeqs[c1]+1,conservedpos[c2]) ==0){
                         out << "<th><font color=#FF0000>-</font></th>";
                     }else{
-                        if (sequences[refSeqs[c1]][conservedpos[c2]]==conservedaa[c2])
-                            out << "<th>" << conservedaa[c2] << AlignNumbering2Sequence(refSeqs[c1]+1,conservedpos[c2]) + GetOffsetFromSeqName(sequencenames[refSeqs[c1]]) << "</th>";
+                        if (fullSequences[refSeqs[c1]][conservedpos[c2]]==conservedaa[c2])
+                            out << "<th>" << conservedaa[c2] << AlignNumbering2Sequence2(refSeqs[c1]+1,conservedpos[c2]) + GetOffsetFromSeqName(fullAlignment[refSeqs[c1]]) << "</th>";
                         else
-                            out << "<th><font color=#FF0000>" << sequences[refSeqs[c1]][conservedpos[c2]] << AlignNumbering2Sequence(refSeqs[c1]+1,conservedpos[c2])+GetOffsetFromSeqName(sequencenames[refSeqs[c1]]) << "</font></th>";
+                            out << "<th><font color=#FF0000>" << fullSequences[refSeqs[c1]][conservedpos[c2]] << AlignNumbering2Sequence2(refSeqs[c1]+1,conservedpos[c2])+GetOffsetFromSeqName(fullAlignment[refSeqs[c1]]) << "</font></th>";
                     }
                 }
                 out << "</tr>\n";
@@ -3439,6 +3890,7 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
             return;
         }
     }
+
     QMessageBox::information(NULL,"Exporting Data","Conserved residues data was exported.");
 }
 
@@ -4179,7 +4631,7 @@ void Alignment::exportAdh(QString filename, int type){
 vector<int> Alignment::getRefSeqCodes(){
     vector<int> codes;
     for(int i = 0; i < refSeqs.size(); i++){
-        codes.push_back(seqname2seqint(refSeqs[i]));
+        codes.push_back(seqname2seqint2(refSeqs[i]));
     }
 
     return codes;
@@ -4220,18 +4672,18 @@ void Alignment::exportResComm(QString filename, int type){
                 out << "\n";
 
                 for(int j = 0; j < refSeqs.size(); j++){
-                    out << sequencenames[refCodes[j]].c_str();
+                    out << fullAlignment[refCodes[j]].c_str();
 
                     for(int k = 0; k < Communities[i].pos.size(); k++){
-                        if(sequences[refCodes[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
-                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
+                        if(fullSequences[refCodes[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
+                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence2(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(fullAlignment[refCodes[j]])).toStdString();
 
                             out << "\t" << textItem.c_str();
                         }else{
-                            if(sequences[refCodes[j]][Communities[i].pos[k]] == '-')
+                            if(fullSequences[refCodes[j]][Communities[i].pos[k]] == '-')
                                 out << "\t - ";
                             else{
-                                string textItem = sequences[refCodes[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
+                                string textItem = fullSequences[refCodes[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence2(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(fullAlignment[refCodes[j]])).toStdString();
 
                                 out << "\t" << textItem.c_str();
                             }
@@ -4271,14 +4723,14 @@ void Alignment::exportResComm(QString filename, int type){
 
 
                     for(int k = 0; k < refSeqs.size(); k++){
-                        if(sequences[refCodes[k]][Communities[i].pos[j]] == Communities[i].aa[j]){
-                            string textItem = Communities[i].aa[j] + QString::number(AlignNumbering2Sequence(refCodes[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refCodes[k]])).toStdString();
+                        if(fullSequences[refCodes[k]][Communities[i].pos[j]] == Communities[i].aa[j]){
+                            string textItem = Communities[i].aa[j] + QString::number(AlignNumbering2Sequence2(refCodes[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(fullAlignment[refCodes[k]])).toStdString();
 
-                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"true\">" << sequencenames[refCodes[k]].c_str() << "</sequence>\n";
-                        }else if(sequences[refCodes[k]][Communities[i].pos[j]] != '-'){
-                            string textItem = sequences[refCodes[k]][Communities[i].pos[j]] + QString::number(AlignNumbering2Sequence(refCodes[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(sequencenames[refCodes[k]])).toStdString();
+                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"true\">" << fullAlignment[refCodes[k]].c_str() << "</sequence>\n";
+                        }else if(fullSequences[refCodes[k]][Communities[i].pos[j]] != '-'){
+                            string textItem = fullSequences[refCodes[k]][Communities[i].pos[j]] + QString::number(AlignNumbering2Sequence2(refCodes[k]+1,Communities[i].pos[j])+GetOffsetFromSeqName(fullAlignment[refCodes[k]])).toStdString();
 
-                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"false\">" << sequencenames[refCodes[k]].c_str() << "</sequence>\n";
+                            out << "\t\t\t<sequence seqNumber=\"" << textItem.c_str() << "\" match=\"false\">" << fullAlignment[refCodes[k]].c_str() << "</sequence>\n";
                         }
                     }
 
@@ -4331,18 +4783,18 @@ void Alignment::exportResComm(QString filename, int type){
                 out << "</tr>\n";
 
                 for(int j = 0; j < refSeqs.size(); j++){
-                    out << "<tr>\n<td><b>" << sequencenames[refCodes[j]].c_str() << "</b></td>\n";
+                    out << "<tr>\n<td><b>" << fullAlignment[refCodes[j]].c_str() << "</b></td>\n";
 
                     for(int k = 0; k < Communities[i].pos.size(); k++){
-                        if(sequences[refCodes[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
-                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
+                        if(fullSequences[refCodes[j]][Communities[i].pos[k]] == Communities[i].aa[k]){
+                            string textItem = Communities[i].aa[k] + QString::number(AlignNumbering2Sequence2(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(fullAlignment[refCodes[j]])).toStdString();
 
                             out << "<td><b><font color=#00FF00>" << textItem.c_str() << "</font></b></td>\n";
                         }else{
-                            if(sequences[refCodes[j]][Communities[i].pos[k]] == '-')
+                            if(fullSequences[refCodes[j]][Communities[i].pos[k]] == '-')
                                 out << "<td><center>-</center></td>\n";
                             else{
-                                string textItem = sequences[refCodes[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(sequencenames[refCodes[j]])).toStdString();
+                                string textItem = fullSequences[refCodes[j]][Communities[i].pos[k]] + QString::number(AlignNumbering2Sequence2(refCodes[j]+1,Communities[i].pos[k])+GetOffsetFromSeqName(fullAlignment[refCodes[j]])).toStdString();
 
                                 out << "<td>" << textItem.c_str() << "</td>\n";
                             }
@@ -5525,4 +5977,91 @@ vector<Uniprot *> Alignment::getAllResidueFeatures(string res){
     }
 
     return outVec;
+}
+
+int Alignment::getDeltasSize(){
+    return Deltas.size();
+}
+
+vector<float> Alignment::getDeltasList(int c){
+    return Deltas[c];
+}
+
+void Alignment::clearDeltaMatrix(){
+    for(int i = 0; i < Deltas.size(); i++){
+        Deltas[i].clear();
+        Deltas[i].shrink_to_fit();
+    }
+    Deltas.clear();
+    Deltas.shrink_to_fit();
+}
+
+void Alignment::addDeltaLine(vector<float> line){
+    Deltas.push_back(line);
+}
+
+void Alignment::applyAlphabetReduction(string name, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter){
+    vector<string> newFilterList;
+    vector<string> newFilterSeq;
+    string params = filterSequences[filterIndex][0] + " " + name;
+
+    newFilterSeq.push_back(params);
+    newFilterList.push_back(params);
+
+    if(newFilter){
+        for(int i = 0; i < sequences.size(); i++){
+            string newSeq = "";
+            for(int j = 0; j < sequences[i].size(); j++){
+                char c = toupper(sequences[i][j]);
+                for(int k = 0; k < oldChars.size(); k++){
+                    if(c == '-') newSeq += '-';
+                    else if(oldChars[k].find(c) != std::string::npos){
+                        newSeq += newChars[k];
+                        break;
+                    }
+                }
+            }
+            sequences[i] = newSeq;
+            newFilterSeq.push_back(newSeq);
+            newFilterList.push_back(filtersList[filterIndex][i+1]);
+        }
+        filterSequences.push_back(newFilterSeq);
+        filtersList.push_back(newFilterList);
+    }else{
+        filtersList[filterIndex][0] = params;
+        filterSequences[filterIndex][0] = params;
+        for(int i = 0; i < sequences.size(); i++){
+            string newSeq = "";
+            for(int j = 0; j < sequences[i].size(); j++){
+                char c = toupper(sequences[i][j]);
+                for(int k = 0; k < oldChars.size(); k++){
+                    if(c == '-') newSeq += '-';
+                    else if(oldChars[k].find(c) != std::string::npos){
+                        newSeq += newChars[k];
+                        break;
+                    }
+                }
+            }
+            sequences[i] = newSeq;
+            filterSequences[filterIndex][i+1] = newSeq;
+        }
+    }
+}
+
+vector<string> Alignment::getRecommendsPDBs(string protein){
+    vector<string> recommended;
+
+    for(int i = 0; i < recommendPdbs.size(); i++){
+        string temp = std::get<0>(recommendPdbs[i]);
+        string prot = split(temp,'/')[0];
+        if(protein == prot){
+            string pdb = std::get<1>(recommendPdbs[i]);
+            char chain = std::get<2>(recommendPdbs[i]);
+            string pdbchain = pdb + " (" + chain + ")";
+            //printf("%s\n",pdbchain.c_str());
+            recommended.push_back(pdbchain);
+        }
+    }
+
+    return recommended;
 }

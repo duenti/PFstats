@@ -17,6 +17,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    libpath = ""; //NO windows começar com dir raiz
+
+    ui->menuBar->setNativeMenuBar(false);
+
     //Seta Wizard como false
     wizard = false;
 
@@ -26,6 +30,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Configura label do grafico Minss
     minssLabel = new QCPItemText(ui->graficMinss);
+
+    /*
+    QFile file("abor/index.html");
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webView->load(QUrl(localUrl.c_str()));
+    */
 
     //Conecta Slots
     connect(ui->actionInput_Alignment,SIGNAL(triggered()),this,SLOT(inputAlignment_triggered()));
@@ -98,6 +111,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionResidues_Of_Communities,SIGNAL(triggered()),SLOT(changeToResiduesOfCommunities()));
     connect(ui->actionGrouped_By_Proteins,SIGNAL(triggered()),this,SLOT(changeToULGroupedByProteins()));
     connect(ui->actionGrouped_By_Communities,SIGNAL(triggered()),this,SLOT(changeToULGroupedByComms()));
+    connect(ui->actionCorrelation_Graph,SIGNAL(triggered()),this,SLOT(changeToCorrelationGraph()));
+    connect(ui->actionCommunities_Graphs,SIGNAL(triggered()),this,SLOT(changeToCommunitiesGraphs()));
+    connect(ui->actionCorrelationBetweenCommunities,SIGNAL(triggered()),this,SLOT(changeToCorrelationBetweenComms()));
+    connect(ui->actionStrutucture_Conserved_Residues_Visualization,SIGNAL(triggered()),SLOT(changeToPDBVisualization()));
+    connect(ui->actionSet_Libraries_Path,SIGNAL(triggered()),this,SLOT(setLibPath()));
+    connect(ui->actionAlphabet_Reduction,SIGNAL(triggered()),this,SLOT(changeToAlphabetReduction()));
     connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
 
     //Configura parametros
@@ -123,28 +142,51 @@ void MainWindow::startStacked(){
 }
 
 void MainWindow::resetObjects(){
+    //MAIN WINDOW
     ui->listWidget->clear();
     ui->listWidget2->clear();
+    //GET ALIGNMENT
     ui->txtAccession->clear();
+    ui->radioButton->setChecked(false);
+    ui->radioButton_2->setChecked(true);
+    ui->radioButton_3->setChecked(false);
+    ui->radioButton_4->setChecked(true);
+    ui->radioButton_5->setChecked(false);
+    ui->radioButton_6->setChecked(true);
+    ui->radioButton_7->setChecked(true);
+    ui->radioButton_8->setChecked(false);
+    ui->radioButton_9->setChecked(false);
+    ui->radioButton_10->setChecked(false);
+    ui->cmbFetchFormat->setCurrentIndex(0);
+    ui->chkDownloadAlignment->setChecked(false);
+    //FILTER
     ui->cmbRefSeq->clear();
     ui->txtMinCover->setValue(0.8);
     ui->txtMinId->setValue(0.15);
     ui->txtMaxId->setValue(0.8);
+    ui->chkIntermediateFilter->setChecked(false);
+    //REFSEQS
+    ui->lstRefSeqs->clear();
+    ui->lstRefSeqSelected->clear();
+    //CONSERVATION
     ui->txtPDBName->clear();
     ui->txtPDBfilepath->clear();
+    ui->lstRecomendedPDBs->clear();
     ui->txtOffset->setText("0");
     ui->txtChain->setText("A");
     ui->txtMinConserv->setValue(0.8);
     ui->cmbRefSeq_2->clear();
-    ui->lstRefSeqs->clear();
+    //MINSS
     ui->graficMinss->clearGraphs();
     ui->graficMinss->setVisible(false);
     ui->txtNoAlignments->setValue(100);
+    //CORRELATION
     ui->txtMinScore->setValue(10);
     ui->txtMinssFraction->clear();
     ui->txtMinDeltaFreq->setValue(0.3);
     ui->txtOffset_2->setText("0");
     ui->cmbRefSeq_3->clear();
+    //RESULTS
     ui->checkResults1->setChecked(false);
     ui->checkResults2->setChecked(false);
     ui->checkResults3->setChecked(false);
@@ -155,6 +197,9 @@ void MainWindow::resetObjects(){
     ui->checkResults8->setChecked(false);
     ui->checkResults9->setChecked(false);
     ui->checkResults10->setChecked(false);
+    ui->checkResults11->setChecked(false);
+    ui->checkResults12->setChecked(false);
+    ui->lblHidden->setText(0);
     ui->lstProteinsFiltered->clear();
     ui->txtSequence->clear();
     ui->tableFreq->clearContents();
@@ -166,9 +211,20 @@ void MainWindow::resetObjects(){
     ui->tableComm2->clear();
     ui->tableAdherence->clear();
     ui->tableResiduesComm->clear();
+    //Uniprot Looking Tool
+    ui->chkConserveds->setChecked(false);
+    ui->chkComm->setChecked(false);
+    ui->lstLookingRefs->clear();
+    //Manage Communities
+    ui->cmbComm->clear();
+    ui->lstManageComms->clear();
+    //Alphabet Reduction
+    ui->cmbAlphabetList->setCurrentIndex(0);
+    ui->lblAlphabetName->setText("Name: ");
+    ui->lblAlphabetChanges->setText("Changes: ");
+    ui->radioAlphabetCurrent->setChecked(false);
+    ui->radioAlphabetNew->setChecked(true);
 
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
 }
 
 bool MainWindow::compareLocalWebPDB(string local, string web){
@@ -276,7 +332,7 @@ bool MainWindow::checkfile(const string &name){
     return false;
 }
 
-void MainWindow::alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName, bool intermediate){
+void MainWindow::alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName, bool intermediate, bool filter1, bool filter2, bool filter3){
     QString msg = "The filters were successfully applied\n";
     int seqSize;
     int seqCut;
@@ -301,22 +357,34 @@ void MainWindow::alignfilter(string alignPath, float occupancy, float minId, flo
 
     seqSize = alinhamentos[i].getSequencesSize();
     msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
-    alinhamentos[i].AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
+    //alinhamentos[i].AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
+    if(filter1){
+        alinhamentos[i].AlignmentTrimming(occupancy,0,firstrefseq,firstrefseqname,true,inter);
 
-    seqCut = seqSize - alinhamentos[i].getSequencesSize();
-    seqSize = alinhamentos[i].getSequencesSize();
-    msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
-    alinhamentos[i].IdentityMinimum(minId,0,occupancy,firstrefseqname,firstrefseq,inter);
+        seqCut = seqSize - alinhamentos[i].getSequencesSize();
+        seqSize = alinhamentos[i].getSequencesSize();
+        msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
+    }
 
-    seqCut = seqSize - alinhamentos[i].getSequencesSize();
-    seqSize = alinhamentos[i].getSequencesSize();
-    msg += "Minimum identity filter removed " + QString::number(seqCut) + " sequences.\n";
-    alinhamentos[i].IdentityTrimming(maxId,occupancy,minId,0,firstrefseqname,firstrefseq);
+    if(filter2){
+        alinhamentos[i].IdentityMinimum(minId,0,occupancy,firstrefseqname,firstrefseq,inter);
 
-    seqCut = seqSize - alinhamentos[i].getSequencesSize();
-    seqSize = alinhamentos[i].getSequencesSize();
-    msg += "Maximum identity filter removed " + QString::number(seqCut) + " sequences.\n\n";
+        seqCut = seqSize - alinhamentos[i].getSequencesSize();
+        seqSize = alinhamentos[i].getSequencesSize();
+        msg += "Minimum identity filter removed " + QString::number(seqCut) + " sequences.\n";
+    }
+
+    if(filter3){
+        alinhamentos[i].IdentityTrimming(maxId,occupancy,minId,0,firstrefseqname,firstrefseq,true);
+
+        seqCut = seqSize - alinhamentos[i].getSequencesSize();
+        seqSize = alinhamentos[i].getSequencesSize();
+        msg += "Maximum identity filter removed " + QString::number(seqCut) + " sequences.\n\n";
+    }
+
     msg += "Remaining sequences: " + QString::number(seqSize) + ".";
+
+    //alinhamentos[i].alignment2UpperCase();
 
     vector<vector<string> > filterList = alinhamentos.at(i).getAllFilters();
     ui->listWidget2->clear();
@@ -350,6 +418,7 @@ void MainWindow::conservation(int ai, int refseq, int offset, char chain, float 
         //printf("\n%s\n",path.c_str());
 
         alinhamentos[ai].writedGtoPDB(pdbfile, path,offset,chain,refseq);
+        alinhamentos[ai].setConsPDBPath(path);
     }
 
     if(ui->listWidget2->currentItem() == NULL)
@@ -663,7 +732,7 @@ void MainWindow::output(int ai, int seqnumber, int offset){
     //if(seqnumber>0) alinhamentos[ai].Cluster2SCM(communitiesfilename,path,true,seqnumber,offset,true,false);
     //else alinhamentos[ai].Cluster2SCM(communitiesfilename,path,false,seqnumber,offset,true,false);
 
-    //alinhamentos[ai].DeltaCommunitiesCalculation();
+    alinhamentos[ai].DeltaCommunitiesCalculation();
     //alinhamentos[ai].DeltaCommunitiesOutput(path + "Deltas.html");
 
     //if (seqnumber>0)
@@ -755,14 +824,14 @@ void MainWindow::listSequences(int ai){
         ui->lblMinId->setVisible(false);
     }else{
         string filter = ui->listWidget2->currentItem()->text().toStdString();
+        vector<string> vecPars = split(filter,' ');
 
-        if(filter == "Full Alignment"){
+        if(vecPars[0] == "Full" && vecPars[1] == "Alignment"){
             ui->lblRefSeq1->setText("Reference Sequence: Full Alignment");
             ui->lblOccupancy->setVisible(false);
             ui->lblMaxId->setVisible(false);
             ui->lblMinId->setVisible(false);
         }else{
-            vector<string> vecPars = split(filter,' ');
             ui->lblOccupancy->setVisible(true);
             ui->lblMaxId->setVisible(true);
             ui->lblMinId->setVisible(true);
@@ -776,7 +845,6 @@ void MainWindow::listSequences(int ai){
             ui->lblRefSeq1->setText(refSeq.c_str());
         }
     }
-
 
    sequences = alinhamentos.at(ai).getSequencesName();
 
@@ -923,6 +991,616 @@ void MainWindow::correlationList(int ai){
 
 }
 
+void MainWindow::createCorrelationJSON(int ai){
+    int nrows = alinhamentos[ai].getCorrGraphSize();
+    string pathJSON = libpath + "/abor/in1.json";
+    QFile fileJSON(pathJSON.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+
+    out << "{\n\t\"nodes\": {\n";
+    set<string> nodes = alinhamentos[ai].getCorrelationNodes();
+    int count = 0;
+
+    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
+        count++;
+
+        out << ("\t\t\"" + *it + "\": {\n").c_str();
+        out << ("\t\t\t\"alignName\": \"" + *it + "\"\n").c_str();
+
+        if(count < nodes.size()) out << "\t\t\t},\n";
+        else out << "\t\t}\n\t},\n";
+    }
+
+    out << "\t\"edges\":{\n";
+
+    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
+        if(it != nodes.begin()) out << ",\n";
+        out << ("\t\t\"" + *it + "\": {\n").c_str();
+
+        count = 0;
+        for(int j = 0; j < nrows; j++){
+            tuple<string,string,int> tupCorr = alinhamentos[ai].getCorrGraphTuple(j);
+
+            if(std::get<0>(tupCorr) == *it){
+                if(count > 0) out << ",\n";
+                count++;
+
+                out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
+                out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
+
+                out << "\t\t\t\t}";
+                //out << "\t\t\t}\n";
+            }
+        }
+        out << "\n\t\t}";
+    }
+    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+
+
+    string path = libpath + "/abor/index.html";
+    QFile file(path.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webCorrGraph->load(QUrl(localUrl.c_str()));
+}
+
+void MainWindow::on_cmdHideShowAntiCorr_clicked()
+{
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int ai = 0;
+    for(ai = 0; ai < alinhamentos.size(); ai++){
+        if(alignfilename == alinhamentos.at(ai).getFilepath()){
+            //fullAlignment = alinhamentos[ai];
+            break;
+        }
+    }
+
+    if(ui->cmdHideShowAntiCorr->text() == "Hide Anti-Correlations"){
+        ui->cmdHideShowAntiCorr->setText("Show Anti-Correlations");
+    }else{
+        ui->cmdHideShowAntiCorr->setText("Hide Anti-Correlations");
+    }
+
+
+    int nrows = alinhamentos[ai].getCorrGraphSize();
+    string path = libpath + "/abor/in1.json";
+    QFile fileJSON(path.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+
+    out << "{\n\t\"nodes\": {\n";
+
+    set<string> nodes;
+    if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations")
+        nodes = alinhamentos[ai].getPositiveCorrelationNodes();
+    else
+        nodes = alinhamentos[ai].getCorrelationNodes();
+
+    int count = 0;
+
+    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
+        count++;
+
+        out << ("\t\t\"" + *it + "\": {\n").c_str();
+        out << ("\t\t\t\"alignName\": \"" + *it + "\"\n").c_str();
+
+        if(count < nodes.size()) out << "\t\t\t},\n";
+        else out << "\t\t}\n\t},\n";
+    }
+
+    out << "\t\"edges\":{\n";
+
+    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
+        if(it != nodes.begin()) out << ",\n";
+        out << ("\t\t\"" + *it + "\": {\n").c_str();
+
+        count = 0;
+        for(int j = 0; j < nrows; j++){
+            tuple<string,string,int> tupCorr = alinhamentos[ai].getCorrGraphTuple(j);
+
+            if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations"){
+                if(std::get<0>(tupCorr) == *it && std::get<2>(tupCorr) > 0){
+                    if(count > 0) out << ",\n";
+                    count++;
+
+                    out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
+                    out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
+
+                    out << "\t\t\t\t}";
+                    //out << "\t\t\t}\n";
+                }
+            }else{
+                if(std::get<0>(tupCorr) == *it){
+                    if(count > 0) out << ",\n";
+                    count++;
+
+                    out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
+                    out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
+
+                    out << "\t\t\t\t}";
+                    //out << "\t\t\t}\n";
+                }
+            }
+        }
+        out << "\n\t\t}";
+    }
+    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+
+    ui->webCorrGraph->reload();//load(QUrl(localUrl.c_str()));
+
+}
+
+void MainWindow::communitiesGraphs(int ai){
+    string pathJSON = libpath + "/abor/in2.json";
+    QFile fileJSON(pathJSON.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+
+    ui->lblComunidade_4->setText("Communitie 1");
+
+    vector<string> nodes = alinhamentos[ai].getCommunitie(0);
+    vector<tuple<string,string,int> > graph = alinhamentos[ai].getEdgesByComm(0);
+
+    out << "{\n\t\"nodes\": {\n";
+    for(int i = 0; i < nodes.size(); i++){
+        out << ("\t\t\"" + nodes[i] + "\": {\n").c_str();
+        out << ("\t\t\t\"alignName\": \"" + nodes[i] + "\"\n").c_str();
+
+        if(i+1 < nodes.size()) out << "\t\t\t},\n";
+        else out << "\t\t}\n\t},\n";
+    }
+
+    out << "\t\"edges\":{\n";
+    for(int i = 0; i < nodes.size(); i++){
+        if(i != 0) out << ",\n";
+        out << ("\t\t\"" + nodes[i] + "\": {\n").c_str();
+
+        int count = 0;
+        for(int j = 0; j < graph.size(); j++){
+            tuple<string,string,int> tupCorr = graph[j];
+
+            if(std::get<0>(tupCorr) == nodes[i] && std::get<2>(tupCorr) > 0){
+                if(count > 0) out << ",\n";
+                count++;
+
+                out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
+                out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
+
+                out << "\t\t\t\t}";
+                //out << "\t\t\t}\n";
+            }
+        }
+        out << "\n\t\t}";
+    }
+    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+
+    fileJSON.close();
+
+    string path = libpath + "/abor/index2.html";
+    QFile file(path.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webCommGraphs->load(QUrl(localUrl.c_str()));
+}
+
+void MainWindow::corrBetweenComms(int ai){
+    string pathJSON = libpath + "/abor/in3.json";
+    QFile fileJSON(pathJSON.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+
+    int nDeltas = alinhamentos[ai].getNumOfUtilComms();
+
+    out << "{\n\t\"nodes\": {\n";
+    for(int i = 0; i < nDeltas; i++){
+        out << ("\t\t\"C" + std::to_string(i+1) + "\": {\n").c_str();
+        out << ("\t\t\t\"alignName\": \"C" + std::to_string(i+1) + "\"\n").c_str();
+
+        if(i+1 < nDeltas) out << "\t\t\t},\n";
+        else out << "\t\t}\n\t},\n";
+    }
+
+    out << "\t\"edges\":{\n";
+    vector<tuple<string,string,float> > graph = alinhamentos[ai].getDeltasEdges(0.5);
+    for(int i = 0; i < nDeltas; i++){
+        string comm = "C" + std::to_string(i+1);
+
+        if(i != 0) out << ",\n";
+        out << ("\t\t\"" + comm + "\": {\n").c_str();
+
+        int count = 0;
+        for(int j = 0; j < graph.size(); j++){
+            tuple<string,string,float> edge = graph[j];
+
+
+            if(std::get<0>(edge) == comm){
+                string comm2 = std::get<1>(edge);
+                float weight = std::get<2>(edge);
+
+                if(count > 0) out << ",\n";
+                count++;
+
+                string unformatedValue = std::to_string(weight);
+                string formated = "";
+
+                for(int k = 0; k < unformatedValue.size(); k++){
+                    if(unformatedValue[k] == ','){
+                        formated += '.';
+                        formated += unformatedValue[k+1];
+                        formated += unformatedValue[k+2];
+                        break;
+                    }else
+                        formated += unformatedValue[k];
+                }
+
+                out << ("\t\t\t\"" + comm2 + "\": {\n").c_str();
+                out << ("\t\t\t\t\"value\": " + formated + "\n").c_str();
+                out << "\t\t\t\t}";
+            }
+        }
+        out << "\n\t\t}";
+    }
+    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+
+    string path = libpath + "/abor/index3.html";
+    QFile file(path.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webCorrComm->load(QUrl(localUrl.c_str()));
+}
+
+void MainWindow::on_cmdCorrCommCutoff_clicked()
+{
+    ui->cmdCorrCommCutoff->setEnabled(false);
+
+    //Validaçao
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int ai = 0;
+    for(ai = 0; ai < alinhamentos.size(); ai++){
+        if(alignfilename == alinhamentos.at(ai).getFilepath()){
+            //fullAlignment = alinhamentos[ai];
+            break;
+        }
+    }
+
+    if(ui->txtGraphCutoff->text() == ""){
+        QMessageBox::warning(this,"Error","You must set a cutoff value.");
+        ui->cmdCorrCommCutoff->setEnabled(true);
+        return;
+    }
+
+    if(!isFloat(ui->txtGraphCutoff->text().toStdString())){
+        QMessageBox::warning(this,"Error","You must set a numeric value for cutoff.");
+        ui->cmdCorrCommCutoff->setEnabled(true);
+        return;
+    }
+
+    float cutoff = ui->txtGraphCutoff->text().toFloat();
+    string pathJSON = libpath + "/abor/in3.json";
+    QFile fileJSON(pathJSON.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+
+    int nDeltas = alinhamentos[ai].getNumOfUtilComms();
+
+    out << "{\n\t\"nodes\": {\n";
+    for(int i = 0; i < nDeltas; i++){
+        out << ("\t\t\"C" + std::to_string(i+1) + "\": {\n").c_str();
+        out << ("\t\t\t\"alignName\": \"C" + std::to_string(i+1) + "\"\n").c_str();
+
+        if(i+1 < nDeltas) out << "\t\t\t},\n";
+        else out << "\t\t}\n\t},\n";
+    }
+
+    out << "\t\"edges\":{\n";
+    vector<tuple<string,string,float> > graph = alinhamentos[ai].getDeltasEdges(cutoff);
+    for(int i = 0; i < nDeltas; i++){
+        string comm = "C" + std::to_string(i+1);
+
+        if(i != 0) out << ",\n";
+        out << ("\t\t\"" + comm + "\": {\n").c_str();
+
+        int count = 0;
+        for(int j = 0; j < graph.size(); j++){
+            tuple<string,string,float> edge = graph[j];
+
+
+            if(std::get<0>(edge) == comm){
+                string comm2 = std::get<1>(edge);
+                float weight = std::get<2>(edge);
+
+                if(count > 0) out << ",\n";
+                count++;
+
+                string unformatedValue = std::to_string(weight);
+                string formated = "";
+
+                for(int k = 0; k < unformatedValue.size(); k++){
+                    if(unformatedValue[k] == ','){
+                        formated += '.';
+                        formated += unformatedValue[k+1];
+                        formated += unformatedValue[k+2];
+                        break;
+                    }else
+                        formated += unformatedValue[k];
+                }
+
+                out << ("\t\t\t\"" + comm2 + "\": {\n").c_str();
+                out << ("\t\t\t\t\"value\": " + formated + "\n").c_str();
+                out << "\t\t\t\t}";
+            }
+        }
+        out << "\n\t\t}";
+    }
+    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+
+    ui->webCorrComm->reload();
+
+    ui->cmdCorrCommCutoff->setEnabled(true);
+}
+
+string MainWindow::makeConservedPDBHTML(string pdb){
+    string html = "";
+    html += "<!DOCTYPE html>\n";
+    html += "<html>\n";
+    html += "<head>\n";
+    html += "<title>Structure colored by conservation</title>\n";
+    html += "<script src=3Dmol.js></script>\n";
+    html += "<script src=3Dmol/3dmol.js></script>\n";
+    html += "<script src=3Dmol/colors.js></script>\n";
+    html += "<script src=3Dmol/glmodel.js></script>\n";
+    html += "<script src=3Dmol/glviewer.js></script>\n";
+    html += "<script src=3Dmol/gradients.js></script>\n";
+    html += "<style>head,body{margin:0;border:0;padding:0;max-height:100vh}</style>\n";
+    html += "<script>$3Dmol.syncSurface=true;var glviewer=null;var labels=[];var m=null;var posLobe=null;var negLobe=null;var m2=null;var atoms=null;var moldata=\"\";var l=null;var modelgroup=null;var receptorModel=null;var ligandModel=null;var molObj=null;var lastsurfstyle=true;var voldata=null;var toggleSurfTrans=function(b){var a=!!(lastsurfstyle)?0.75:1;glviewer.setSurfaceMaterialStyle(b,{opacity:a});glviewer.render();lastsurfstyle=!(lastsurfstyle)};var addLabels=function(){var d=glviewer.getModel().selectedAtoms({atom:\"CA\"});if(labels.length==0){for(var c in d){var e=d[c];var b=glviewer.addLabel(e.resn+\" \"+e.resi,{inFront:true,fontSize:12,position:{x:e.x,y:e.y,z:e.z}});e.label=b;labels.push(e)}}else{glviewer.removeAllLabels();labels=[]}};var atomcallback=function(b,c){if(b.clickLabel===undefined||!b.clickLabel instanceof $3Dmol.Label){b.clickLabel=c.addLabel(b.elem+b.serial,{fontSize:14,position:{x:b.x,y:b.y,z:b.z}});b.clicked=true}else{if(b.clicked){var a={fontSize:b.clickLabel.fontSize,position:b.clickLabel.position,backgroundColor:{r:100,g:0,b:255,a:0.8}};c.setLabelStyle(b.clickLabel,a);b.clicked=!b.clicked}else{c.removeLabel(b.clickLabel);b.clickLabel=undefined;b.clicked=false}}};var shapecallback=function(b,c){if(b.clickLabel===undefined||!b.clickLabel instanceof $3Dmol.Label){b.clickLabel=c.addLabel(\"Shape \"+b.id,{fontSize:14,position:{x:b.position.x,y:b.position.y,z:b.position.z}});b.clicked=true}else{if(b.clicked){var a=b.clickLabel.stylespec;a.backgroundColor={r:100,g:0,b:255,a:0.8};c.setLabelStyle(b.clickLabel,a);b.clicked=!b.clicked}else{c.removeLabel(b.clickLabel);b.clickLabel=undefined;b.clicked=false}}};$(document).ready(function(){});function upload(a){var c=glviewer=$3Dmol.createViewer(\"gldiv\",{defaultcolors:$3Dmol.rasmolElementColors});glviewer.setBackgroundColor(16777215);glviewer.addModel(a,\"pdb\");var b=new $3Dmol.Gradient.Sinebow($3Dmol.getPropertyRange(glviewer.selectedAtoms(),\"b\"));glviewer.setStyle({},{stick:{colorscheme:{prop:\"b\",gradient:new $3Dmol.Gradient.Sinebow(0,150)}}});glviewer.render();console.log(glviewer);glviewer.zoomTo();glviewer.render()}</script>\n";
+    html += "</head>\n";
+    html += "<body>\n";
+    html += "<div id=gldiv style=width:100%;position:relative;height:80vh;margin:0;padding:0;border:0></div>\n";
+    html += "<hr style=margin:0><br>\n";
+    html += "<form>\n";
+    html += "<input type=button value=Stick onclick=\"glviewer.setStyle({},{stick:{colorscheme:{prop:'b',gradient:new $3Dmol.Gradient.Sinebow(0,150)}}});glviewer.render()\"></input>\n";
+    html += "<input type=button value=Line onclick=\"glviewer.setStyle({},{line:{colorscheme:{prop:'b',gradient:new $3Dmol.Gradient.Sinebow(0,150)}}});glviewer.render()\"></input>\n";
+    html += "<input type=button value=Cross onclick=\"glviewer.setStyle({},{cross:{colorscheme:{prop:'b',gradient:new $3Dmol.Gradient.Sinebow(0,150)}}});glviewer.render()\"></input>\n";
+    html += "<input type=button value=Sphere onclick=\"glviewer.setStyle({},{sphere:{colorscheme:{prop:'b',gradient:new $3Dmol.Gradient.Sinebow(0,150)}}});glviewer.render()\"></input>\n";
+    html += "<input type=button value=Cartoon onclick=\"glviewer.setStyle({hetflag:false},{cartoon:{colorscheme:{prop:'b',gradient:new $3Dmol.Gradient.Sinebow(0,150)}}});glviewer.render()\"></input>\n";
+    html += "<input type=button value=Trace onclick=\"glviewer.setStyle({},{cartoon:{style:'trace',thickness:0.3,colorscheme:{prop:'b',gradient:new $3Dmol.Gradient.Sinebow(0,150)}}});glviewer.render()\"></input>\n";
+    html += "<input type=button value=\"Alpha C's\" onclick=addLabels(glviewer);glviewer.render()></input>\n";
+    html += "<br>\n";
+    html += "<input type=button value=Centralize onclick=glviewer.zoomTo()></input>\n";
+    html += "<br>\n";
+    html += "</form>\n";
+    html += "<br>\n";
+    html += "<script type=text/javascript>contents=\"" + pdb + "\";upload(contents);</script>\n";
+    html += "</body>\n";
+    html += "</html>";
+
+    return html;
+}
+
+void MainWindow::consVisualization(int ai){
+    string path = libpath + "/3Dmol/index.html";
+    QFile indexHTML(path.c_str());
+    indexHTML.open(QIODevice::WriteOnly);
+    QTextStream out(&indexHTML);
+    QFile pdbPath(alinhamentos[ai].getConsPDBPath().c_str());
+    pdbPath.open(QIODevice::ReadOnly);
+    string pdb = "";
+
+    while(!pdbPath.atEnd()){
+        string line = pdbPath.readLine().data();
+
+        pdb += line.substr(0,line.length()-1) + "\\n";
+    }
+
+    string html = this->makeConservedPDBHTML(pdb);
+
+    //printf("PDB:\n%s",pdb.c_str());
+
+
+    out << html.c_str();
+
+    indexHTML.close();
+    pdbPath.close();
+
+    QFile file(path.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webConservedPDB->load(QUrl(localUrl.c_str()));
+
+}
+
+void MainWindow::on_cmdNexCommGraph_clicked()
+{
+    ui->cmdNexCommGraph->setEnabled(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int ai = 0;
+    for(ai = 0; ai < alinhamentos.size(); ai++){
+        if(alignfilename == alinhamentos.at(ai).getFilepath()){
+            //fullAlignment = alinhamentos[ai];
+            break;
+        }
+    }
+
+    //Recuperar a Comunidade Atual
+    vector<string> vecSplit = split(ui->lblComunidade_4->text().toStdString(),' ');
+    string temp = vecSplit[1];
+    int currComm;
+
+    if(temp.length() == 2) currComm = atoi(&temp[0]);
+    else{
+        temp = temp[0] + temp[1];
+        currComm = atoi(temp.c_str());
+    }
+
+    //Verificar se comunidade existe ou resetar
+    int nComm = alinhamentos[ai].getNumOfUtilComms();
+    if(currComm == nComm ) currComm = 0;
+
+    //Modifica parâmetros
+    temp = "Community " + QString::number(currComm + 1).toStdString();
+    ui->lblComunidade_4->setText(temp.c_str());
+
+    string pathJSON = libpath + "/abor/in2.json";
+    QFile fileJSON(pathJSON.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+
+    vector<string> nodes = alinhamentos[ai].getCommunitie(currComm);
+    vector<tuple<string,string,int> > graph = alinhamentos[ai].getEdgesByComm(currComm);
+
+    out << "{\n\t\"nodes\": {\n";
+    for(int i = 0; i < nodes.size(); i++){
+        out << ("\t\t\"" + nodes[i] + "\": {\n").c_str();
+        out << ("\t\t\t\"alignName\": \"" + nodes[i] + "\"\n").c_str();
+
+        if(i+1 < nodes.size()) out << "\t\t\t},\n";
+        else out << "\t\t}\n\t},\n";
+    }
+
+    out << "\t\"edges\":{\n";
+    for(int i = 0; i < nodes.size(); i++){
+        if(i != 0) out << ",\n";
+        out << ("\t\t\"" + nodes[i] + "\": {\n").c_str();
+
+        int count = 0;
+        for(int j = 0; j < graph.size(); j++){
+            tuple<string,string,int> tupCorr = graph[j];
+
+            if(std::get<0>(tupCorr) == nodes[i] && std::get<2>(tupCorr) > 0){
+                if(count > 0) out << ",\n";
+                count++;
+
+                out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
+                out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
+
+                out << "\t\t\t\t}";
+                //out << "\t\t\t}\n";
+            }
+        }
+        out << "\n\t\t}";
+    }
+    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+
+    fileJSON.close();
+
+    ui->webCommGraphs->reload();
+
+    ui->cmdNexCommGraph->setEnabled(true);
+}
+
+void MainWindow::on_cmdBackCommGraph_clicked()
+{
+    ui->cmdBackCommGraph->setEnabled(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int ai = 0;
+    for(ai = 0; ai < alinhamentos.size(); ai++){
+        if(alignfilename == alinhamentos.at(ai).getFilepath()){
+            //fullAlignment = alinhamentos[ai];
+            break;
+        }
+    }
+
+    //Recuperar a Comunidade Atual
+    vector<string> vecSplit = split(ui->lblComunidade_4->text().toStdString(),' ');
+    string temp = vecSplit[1];
+    int currComm;
+
+    if(temp.length() == 2) currComm = atoi(&temp[0]) -1;
+    else{
+        temp = temp[0] + temp[1];
+        currComm = atoi(temp.c_str())-1;
+    }
+
+    //Verificar se comunidade existe ou resetar
+    int nComm = alinhamentos[ai].getNumOfUtilComms()-1;
+    if(currComm == 0 ) currComm = nComm;
+
+    //Modifica parâmetros
+    temp = "Community " + QString::number(currComm).toStdString();
+    ui->lblComunidade_4->setText(temp.c_str());
+
+    string pathJSON = libpath + "/abor/in2.json";
+    QFile fileJSON(pathJSON.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+
+    vector<string> nodes = alinhamentos[ai].getCommunitie(currComm);
+    vector<tuple<string,string,int> > graph = alinhamentos[ai].getEdgesByComm(currComm);
+
+    out << "{\n\t\"nodes\": {\n";
+    for(int i = 0; i < nodes.size(); i++){
+        out << ("\t\t\"" + nodes[i] + "\": {\n").c_str();
+        out << ("\t\t\t\"alignName\": \"" + nodes[i] + "\"\n").c_str();
+
+        if(i+1 < nodes.size()) out << "\t\t\t},\n";
+        else out << "\t\t}\n\t},\n";
+    }
+
+    out << "\t\"edges\":{\n";
+    for(int i = 0; i < nodes.size(); i++){
+        if(i != 0) out << ",\n";
+        out << ("\t\t\"" + nodes[i] + "\": {\n").c_str();
+
+        int count = 0;
+        for(int j = 0; j < graph.size(); j++){
+            tuple<string,string,int> tupCorr = graph[j];
+
+            if(std::get<0>(tupCorr) == nodes[i] && std::get<2>(tupCorr) > 0){
+                if(count > 0) out << ",\n";
+                count++;
+
+                out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
+                out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
+
+                out << "\t\t\t\t}";
+                //out << "\t\t\t}\n";
+            }
+        }
+        out << "\n\t\t}";
+    }
+    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+
+    fileJSON.close();
+
+    ui->webCommGraphs->reload();
+
+    ui->cmdBackCommGraph->setEnabled(true);
+}
+
 void MainWindow::communitiesList(int ai){
     int nrows = alinhamentos[ai].getCommListSize();
 
@@ -944,7 +1622,7 @@ void MainWindow::communitiesList(int ai){
         vector<string> residues = alinhamentos[ai].getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
 
-        string text = "Comunidade " + QString::number(i).toStdString();
+        string text = "Community " + QString::number(i).toStdString();
         item->setText(0,text.c_str());
 
         for(int j = 0; j < residues.size(); j++){
@@ -1121,10 +1799,10 @@ void MainWindow::showConservedResidues(int ai){
 */
     for(int i = 0; i < alinhamentos[ai].getRefSeqsSize(); i++){
         string ref1 = alinhamentos[ai].getRefSeq(i);
-
-        refSeqs.push_back(alinhamentos[ai].seqname2seqint(ref1));
+        //printf("1126:CR - %s\n",ref1.c_str());
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint2(ref1));
+        //printf("%s\n",QString::number(refSeqs[i]).toStdString().c_str());
     }
-
 
     for(int i = 0; i < alinhamentos[ai].frequencies.size()-2; i++){
         for(int j = 1; j <= 20; j++){
@@ -1152,23 +1830,23 @@ void MainWindow::showConservedResidues(int ai){
 
     ui->tableConsRes->setRowCount(refSeqs.size());
     for(int i = 0; i < refSeqs.size(); i++){
-        ui->tableConsRes->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].sequencenames[refSeqs[i]].c_str()));
+        ui->tableConsRes->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].fullAlignment[refSeqs[i]].c_str()));
 
         for(int j = 0; j < conservedaa.size(); j++){
-            if(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) == 0){
+            if(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) == 0){
                 QTableWidgetItem *item = new QTableWidgetItem();
                 item->setTextColor(QColor(255,0,0,255));
                 item->setText("-");
                 ui->tableConsRes->setItem(i,j,item);
             }else{
-                if(alinhamentos[ai].sequences[refSeqs[i]][conservedpos[j]]==conservedaa[j]){
+                if(alinhamentos[ai].fullSequences[refSeqs[i]][conservedpos[j]]==conservedaa[j]){
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = conservedaa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                    string textItem = conservedaa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableConsRes->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = alinhamentos[ai].sequences[refSeqs[i]][conservedpos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                    string textItem = alinhamentos[ai].fullSequences[refSeqs[i]][conservedpos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                     item->setTextColor(QColor(255,0,0,255));
                     item->setText(textItem.c_str());
                     ui->tableConsRes->setItem(i,j,item);
@@ -1193,8 +1871,7 @@ void MainWindow::showResiduesComm(int ai){
     for(int i = 0; i < alinhamentos[ai].getRefSeqsSize(); i++){
         string ref1 = alinhamentos[ai].getRefSeq(i);
 
-        refSeqs.push_back(alinhamentos[ai].seqname2seqint(ref1));
-
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint2(ref1));
     }
 
     //Parâmetros
@@ -1215,23 +1892,23 @@ void MainWindow::showResiduesComm(int ai){
 
     ui->tableResiduesComm->setRowCount(refSeqs.size());
     for(int i = 0; i < refSeqs.size(); i++){
-        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].sequencenames[refSeqs[i]].c_str()));
+        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].fullAlignment[refSeqs[i]].c_str()));
 
         for(int j = 0; j < alinhamentos[ai].Communities[0].pos.size(); j++){
-            if(alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[0].pos[j]]==alinhamentos[ai].Communities[0].aa[j]){
+            if(alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[0].pos[j]]==alinhamentos[ai].Communities[0].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = alinhamentos[ai].Communities[0].aa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,alinhamentos[ai].Communities[0].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                string textItem = alinhamentos[ai].Communities[0].aa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,alinhamentos[ai].Communities[0].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[0].pos[j]]=='-'){
+                if(alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[0].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[0].pos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,alinhamentos[ai].Communities[0].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                    string textItem = alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[0].pos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,alinhamentos[ai].Communities[0].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -1346,8 +2023,8 @@ void MainWindow::on_cmdMain_clicked()
 
         ui->listWidget->setEnabled(true);
         ui->listWidget2->setEnabled(true);
-        ui->cmdNextResult->setVisible(false);
-        ui->cmdBackResult->setVisible(false);
+        //ui->cmdNextResult->setVisible(false);
+        //ui->cmdBackResult->setVisible(false);
 
         //Desativa botões do Wizard
         changeWizardCmds(false);
@@ -1372,44 +2049,93 @@ void MainWindow::on_cmdBack_clicked()
     //ui->cmdBack->setEnabled(false);
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     int ctIx = ui->stackedWidget->currentIndex();
 
-    if(ctIx == 1){
+    switch(ctIx){
+    case 0:
+    {
+        return;
+        break;
+    }
+    case 1:
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+
         //Apaga botões do Wizard
         changeWizardCmds(false);
+        break;
     }
-    else if(ctIx == 2) ui->cmdBack->setEnabled(false);
-    else if(ctIx == 6) ui->cmdAdvance->setEnabled(true);
-    else if(ctIx == 7){
-        ui->checkResults1->setChecked(false);
-        ui->checkResults2->setChecked(false);
-        ui->checkResults3->setChecked(false);
-        ui->checkResults4->setChecked(false);
-        ui->checkResults5->setChecked(false);
-        ui->checkResults6->setChecked(false);
-        ui->checkResults7->setChecked(false);
-        ui->checkResults8->setChecked(false);
-        ui->checkResults9->setChecked(false);
-        ui->checkResults10->setChecked(false);
+    case 2:
+    {
+        ui->stackedWidget->setCurrentIndex(1);
+        ui->cmdBack->setEnabled(false);
+        ui->cmdAdvance->setEnabled(true);
+        break;
+    }
+    case 3:
+    {
+        //Get alignment
+        string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+        int i = 0;
+        for(i = 0; i < alinhamentos.size(); i++){
+            if(alignfilename == alinhamentos.at(i).getFilepath()){
+                //fullAlignment = alinhamentos[i];
+                break;
+            }
+        }
 
-        int newctIx = stackBeforeShowResults;
-
+        if(alinhamentos[i].getRefSeqsSize() == 0){
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Reference sequences not saved",
+                                            "Are you sure you want to leave this form without save the reference sequences?",
+                                            QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::Yes){
+                ui->cmdBack->setEnabled(true);
+                ui->cmdAdvance->setEnabled(true);
+                ui->stackedWidget->setCurrentIndex(2);
+            }
+            else
+                return;
+        }else{
+            ui->cmdBack->setEnabled(true);
+            ui->cmdAdvance->setEnabled(true);
+            ui->stackedWidget->setCurrentIndex(2);
+        }
+        break;
+    }
+    case 4:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(3);
+        break;
+    }
+    case 5:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(4);
+        break;
+    }
+    case 6:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(5);
+        break;
+    }
+    default:
+    {
         changeWizardCmds(true);
-
-        if(newctIx == 0) changeWizardCmds(false);
-        else if(newctIx == 1) ui->cmdBack->setEnabled(false);
-        else if(newctIx == 6) ui->cmdAdvance->setEnabled(false);
-
-        ui->stackedWidget->setCurrentIndex(newctIx);
-        return;
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(3);
+        break;
     }
-
-
-    ui->stackedWidget->setCurrentIndex(ctIx-1);
-
+    }
     //ui->cmdBack->setEnabled(true);
 }
 
@@ -1419,13 +2145,86 @@ void MainWindow::on_cmdAdvance_clicked()
 
     int ctIx = ui->stackedWidget->currentIndex();
 
-    if(ctIx == 1) ui->cmdBack->setEnabled(true);
-    if(ctIx == 5) ui->cmdAdvance->setEnabled(false);
+    switch(ctIx){
+    case 0:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(1);
+        break;
+    }
+    case 1:
+    {
+        if(ui->listWidget->count() == 0){
+            QMessageBox::warning(this,"Warning","You must fetch an alignment before goes on.");
+            return;
+        }
 
-    ui->stackedWidget->setCurrentIndex(ctIx+1);
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(2);
+        break;
+    }
+    case 2:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(3);
+        break;
+    }
+    case 3:
+    {
+        //Get alignment
+        string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+        int i = 0;
+        for(i = 0; i < alinhamentos.size(); i++){
+            if(alignfilename == alinhamentos.at(i).getFilepath()){
+                //fullAlignment = alinhamentos[i];
+                break;
+            }
+        }
 
-
-    //ui->cmdAdvance->setEnabled(true);
+        if(alinhamentos[i].getRefSeqsSize() == 0){
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Reference sequences not saved",
+                                            "Are you sure you want to leave this form without save the reference sequences?",
+                                            QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::Yes){
+                ui->cmdBack->setEnabled(true);
+                ui->cmdAdvance->setEnabled(true);
+                ui->stackedWidget->setCurrentIndex(4);
+            }
+            else
+                return;
+        }else{
+            ui->cmdBack->setEnabled(true);
+            ui->cmdAdvance->setEnabled(true);
+            ui->stackedWidget->setCurrentIndex(4);
+        }
+        break;
+    }
+    case 4:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(5);
+        break;
+    }
+    case 5:
+    {
+        ui->stackedWidget->setCurrentIndex(6);
+        ui->cmdAdvance->setEnabled(false);
+        ui->cmdBack->setEnabled(true);
+        break;
+    }
+    default:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        changeWizardCmds(true);
+        ui->stackedWidget->setCurrentIndex(4);
+    }
+    }
 }
 
 void MainWindow::on_cmdOpen_clicked()
@@ -1433,7 +2232,7 @@ void MainWindow::on_cmdOpen_clicked()
     ui->cmdOpen->setEnabled(false);
 
     //Abre arquivo
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pfam)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pfam *.sto *.stockholm)"));
     QFile file(fileName);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -1484,6 +2283,15 @@ void MainWindow::on_cmdOpen_clicked()
     //Armazena local para XML
     align.setLocalDir(fileName.toStdString());
 
+    //Configura para alinhamento carregado por arquivo
+    align.setType(0);
+    ui->chkApplyMinCover->setChecked(true);
+    emit ui->chkApplyMinCover->clicked(true);
+    ui->chkApplyMinId->setChecked(true);
+    emit ui->chkApplyMinId->clicked(true);
+    ui->chkApplyMaxId->setChecked(true);
+    emit ui->chkApplyMaxId->clicked(true);
+
     alinhamentos.push_back(align);
 
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -1498,19 +2306,27 @@ void MainWindow::on_cmdOpen_clicked()
 void MainWindow::on_cmdFetch_clicked()
 {
     ui->cmdFetch->setEnabled(false);
+    ui->cmdFetch->setText("Loading...");
+
+    Alignment align;
 
     //Validação de Dados
     if(ui->txtAccession->text() == ""){
         QMessageBox::warning(this,"Error","You must fill all fields");
+        ui->cmdFetch->setText("Fetch");
         ui->cmdFetch->setEnabled(true);
         return ;
     }
 
     //Monta URL
     QString url = "http://pfam.xfam.org/family/" + ui->txtAccession->text() + "/alignment/";
+    QString format = "";
 
-    if(ui->radioButton->isChecked()) url += "seed/format?format=pfam&amp;alnType=seed&amp;order=";
-    else url += "full/format?format=pfam&amp;alnType=full&amp;order=";
+    if(ui->cmbFetchFormat->currentIndex() == 0) format = "stockholm";
+    else format = "pfam";
+
+    if(ui->radioButton->isChecked()) url += "seed/format?format=" + format + "&amp;alnType=seed&amp;order=";
+    else url += "full/format?format=" + format + "&amp;alnType=full&amp;order=";
 
     if(ui->radioButton_3->isChecked()) url += "t&amp;case=";
     else url += "a&amp;case=";
@@ -1535,47 +2351,69 @@ void MainWindow::on_cmdFetch_clicked()
     QString pfam = reply->readAll();
 
     //Salvar arquivo
-    if(pfam.contains("302 Found") || pfam == ""){
+    if(pfam.contains("302 Found") || pfam.contains("500 Internal Server Error") || pfam == ""){
         QMessageBox::warning(this,"Error","PFAM File not Found");
+        ui->cmdFetch->setText("Fetch");
         ui->cmdFetch->setEnabled(true);
         return ;
     }else{
-        //Abre janela para salvar arquivo atualmente aberto
-        QString finalName = ui->txtAccession->text() + ".pfam";
-        QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pfam)"));
+        if(ui->chkDownloadAlignment->isChecked()){
+            //Abre janela para salvar arquivo atualmente aberto
+            QString finalName;
+            if(ui->cmbFetchFormat->currentIndex() == 0) finalName = ui->txtAccession->text() + ".sto";
+            else finalName = ui->txtAccession->text() + ".pfam";
+            QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pfam *.txt *.sto *.stockholm)"));
 
-        if(filename == ""){
-            ui->cmdFetch->setEnabled(true);
-            return;
+            if(filename == ""){
+                ui->cmdFetch->setText("Fetch");
+                ui->cmdFetch->setEnabled(true);
+                return;
+            }
+
+            //Salva em arquivo
+            if(filename.toStdString().find('.') == std::string::npos){ //contains
+                if(ui->cmbFetchFormat->currentIndex() == 0) filename += ".sto";
+                else filename += ".pfam";
+            }
+
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                ui->cmdFetch->setEnabled(true);
+                return;
+            }
+
+            //Add na Lista
+            bool same = false;
+            for(int i = 0; i < ui->listWidget->count(); i++){
+                if(filename ==  ui->listWidget->item(i)->text()) same = true;
+            }
+            if(!same) ui->listWidget->addItem(filename);
+
+            QTextStream out(&f);
+            out << pfam;
+            f.close();
+
+            align.setFilepath(filename.toUtf8().constData());
+        }else{
+            //Add na Lista
+            bool same = false;
+            for(int i = 0; i < ui->listWidget->count(); i++){
+                if(ui->txtAccession->text() ==  ui->listWidget->item(i)->text()) same = true;
+            }
+            if(!same){
+                ui->listWidget->addItem(ui->txtAccession->text());
+                align.setFilepath(ui->txtAccession->text().toStdString());
+            }
         }
-
-        //Add na Lista
-        bool same = false;
-        for(int i = 0; i < ui->listWidget->count(); i++){
-            if(filename ==  ui->listWidget->item(i)->text()) same = true;
-        }
-        if(!same) ui->listWidget->addItem(filename);
-
-        //Salva em arquivo
-        vector<string> tempFN = split(filename.toStdString(),'.');
-        if(tempFN[tempFN.size()-1] != "pfam" && tempFN[tempFN.size()-1] != "PFAM")
-            filename += ".pfam";
-
-        QFile f(filename);
-        if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-            ui->cmdFetch->setEnabled(true);
-            return;
-        }
-
-        QTextStream out(&f);
-        out << pfam;
-        f.close();
 
         //Cria Alinhamento
         //addAlignment(fileName.toUtf8().constData());
-        Alignment align;
-        align.setFilepath(filename.toUtf8().constData());
-        align.GetFromFile();
+        if(!align.getFromStd(pfam.toStdString())){
+            delete ui->listWidget->item(ui->listWidget->count()-1);
+            ui->cmdFetch->setText("Fetch");
+            ui->cmdFetch->setEnabled(true);
+            return;
+        }
         align.setWebDir(url.toStdString());
 
         //Salva Full Alignment
@@ -1597,6 +2435,15 @@ void MainWindow::on_cmdFetch_clicked()
 
         align.addFilterSequence(filterList,filterSequence);
 
+        //Configura para alinhamento carregado pela web
+        align.setType(1);
+        ui->chkApplyMinCover->setChecked(true);
+        emit ui->chkApplyMinCover->clicked(true);
+        ui->chkApplyMinId->setChecked(false);
+        emit ui->chkApplyMinId->clicked(false);
+        ui->chkApplyMaxId->setChecked(true);
+        emit ui->chkApplyMaxId->clicked(true);
+
         alinhamentos.push_back(align);
 
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -1606,6 +2453,7 @@ void MainWindow::on_cmdFetch_clicked()
         QMessageBox::information(this,"Alignment loaded",msg);
     }
 
+    ui->cmdFetch->setText("Fetch");
     ui->cmdFetch->setEnabled(true);
 }
 
@@ -1657,6 +2505,15 @@ void MainWindow::on_cmdApplyFilter_clicked()
         }
     }
 
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
     if(!ui->listWidget->currentItem()){
         QMessageBox::warning(this,"Error","You must select an alignment");
         ui->cmdApplyFilter->setEnabled(true);
@@ -1664,37 +2521,26 @@ void MainWindow::on_cmdApplyFilter_clicked()
     }
 
     ui->cmbRefSeq_2->setCurrentIndex(ui->cmbRefSeq->currentIndex());
+    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
     ui->cmbRefSeq_3->setCurrentIndex(ui->cmbRefSeq->currentIndex());
 
     ////////////////////ALIGNFILTER////////////////////
-    string inputfilename;
     float occupancy, minId, maxId;
     int refseq;
-
-    inputfilename = ui->listWidget->currentItem()->text().toStdString();
-
-    if(!checkfile(inputfilename)){
-        QMessageBox::warning(this,"Erro","File not found");
-        ui->cmdApplyFilter->setEnabled(true);
-        return;
-    }
 
     occupancy = ui->txtMinCover->value();
     minId = ui->txtMinId->value();
     maxId = ui->txtMaxId->value();
 
-    Alignment fullAlignment;
-    fullAlignment.setFilepath(inputfilename);
-    fullAlignment.GetFromFile();
-    fullAlignment.CalculateFrequencies();
+    alinhamentos[i].CalculateFrequencies();
 
     refseq = ui->cmbRefSeq->currentIndex()-1;
     string refseqName = ui->cmbRefSeq->currentText().toStdString();
 
     if(ui->chkIntermediateFilter->isChecked())
-        this->alignfilter(fullAlignment.getFilepath(),occupancy,minId,maxId,refseq,refseqName);
+        this->alignfilter(alinhamentos[i].getFilepath(),occupancy,minId,maxId,refseq,refseqName,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked());
     else
-        this->alignfilter(fullAlignment.getFilepath(),occupancy,minId,maxId,refseq,refseqName,false);
+        this->alignfilter(alinhamentos[i].getFilepath(),occupancy,minId,maxId,refseq,refseqName,false,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked());
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
@@ -1832,7 +2678,6 @@ void MainWindow::on_cmdConservation_clicked()
     }
     alinhamentos[i].setMinsCons(minCons);
 
-    QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
 
     /*REMOVED IN NEW REFSEQ
     alinhamentos[i].clearConsRefs();
@@ -1891,7 +2736,7 @@ void MainWindow::on_cmdMinss_clicked()
 
     ui->graficMinss->addGraph();
     ui->graficMinss->graph(0)->setData(x,y);
-    ui->graficMinss->yAxis->setLabel("Shenkin entropy value for each SA");
+    ui->graficMinss->yAxis->setLabel("Shannon entropy value for each SA");
     ui->graficMinss->xAxis->setLabel("Size of minimum sub-alignment(SA)");
     ui->graficMinss->yAxis->setRange(y[0]-0.15,y[99]+0.15); //DGDT
     //ui->graficMinss->yAxis->setRange(y[99] - 50,0);
@@ -1966,6 +2811,9 @@ void MainWindow::on_cmdCorrelation_clicked()
             break;
         }
     }
+
+    //USA ALINHAMENTO TODO EM MAIUSCULAS
+    alinhamentos[i].alignment2UpperCase();
 
     if(ui->listWidget2->currentItem() == NULL)
         alinhamentos[i].addParameter("correlation", "Full Alignment", minlogp, minssfraction, mindeltafreq);
@@ -2245,6 +3093,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     }
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     //ui->cmbRefSeq_2->setCurrentIndex(1);
@@ -2291,7 +3140,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
             ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
-            ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
+            //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
             ui->lstProteinsFiltered->addItem(QString::fromStdString(splitVec[0]));
         }
     }else{
@@ -2306,7 +3155,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
                     ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
-                    ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
+                    //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
                     ui->lstProteinsFiltered->addItem(QString::fromStdString(splitVec[0]));
                     alinhamentos[i].sequencenames.push_back(filterList[j][k]);
                     alinhamentos[i].sequences.push_back(filterSeq[j][k]);
@@ -2316,12 +3165,18 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
         }
     }
 
-    if(ui->stackedWidget->currentIndex() == 8){
+    vector<string> fullAlignment = alinhamentos[i].getFullAlignment();
+    for(int j = 0; j < fullAlignment.size(); j++){
+        vector<string> splitVec = this->split(fullAlignment[j],'/');
+        ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
+    }
+
+    if(ui->stackedWidget->currentIndex() == 9){
         int nOfComms = alinhamentos[i].getCommListSize();
 
         for(int j = 1; j <= nOfComms; j++)
             ui->cmbComm->addItem(QString::number(j));
-    }else if(ui->stackedWidget->currentIndex() == 6){
+    }else if(ui->stackedWidget->currentIndex() == 7){
         this->updateResultsViews(i);
     }
 
@@ -2329,6 +3184,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
     //alinhamentos[i].printFrequencies();
 
     ui->cmbRefSeq_2->setCurrentIndex(1);
+    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
     ui->cmbRefSeq_3->setCurrentIndex(1);
 
 }
@@ -2339,6 +3195,7 @@ void MainWindow::on_cmbRefSeq_activated(int index)
 
     string path = ui->listWidget->currentItem()->text().toUtf8().constData();
     ui->cmbRefSeq_2->setCurrentIndex(index);
+    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
     ui->cmbRefSeq_3->setCurrentIndex(index);
 
     for(int i = 0; i < alinhamentos.size(); i++){
@@ -2357,6 +3214,7 @@ void MainWindow::on_cmbRefSeq_activated(int index)
 
 void MainWindow::on_cmbRefSeq_2_activated(int index)
 {
+    //TAMBEM TEM EVENTO ACTIVATED COM PARAMETRO STRING
     if(index == 0) return;
 
     string path = ui->listWidget->currentItem()->text().toUtf8().constData();
@@ -2385,6 +3243,7 @@ void MainWindow::on_cmbRefSeq_3_activated(int index)
     string path = ui->listWidget->currentItem()->text().toUtf8().constData();
     ui->cmbRefSeq->setCurrentIndex(index);
     ui->cmbRefSeq_2->setCurrentIndex(index);
+    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
 
     for(int i = 0; i < alinhamentos.size(); i++){
         if(path == alinhamentos.at(i).getFilepath()){
@@ -2456,8 +3315,8 @@ void MainWindow::on_cmdShowResults_clicked()
 void MainWindow::on_cmdShow_clicked()
 {
     ui->cmdShow->setEnabled(false);
-    ui->cmdNextResult->setVisible(true);
-    ui->cmdBackResult->setVisible(true);
+    //ui->cmdNextResult->setVisible(true);
+    //ui->cmdBackResult->setVisible(true);
     this->resultsStackList.clear();
 
     //Validação dos Dados
@@ -2599,7 +3458,7 @@ void MainWindow::on_cmdNextComm_clicked()
     ui->tableComm1->clear();
 
     //Modifica parâmetros
-    temp = "Comunidade " + QString::number(currComm + 1).toStdString();
+    temp = "Community " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
@@ -2667,7 +3526,7 @@ void MainWindow::on_cmdBackComm_clicked()
     ui->tableComm1->clear();
 
     //Modifica parâmetros
-    temp = "Comunidade " + QString::number(currComm).toStdString();
+    temp = "Community " + QString::number(currComm).toStdString();
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
@@ -2735,7 +3594,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
     ui->tableComm2->clear();
 
     //Modifica parâmetros
-    temp = "Comunidade " + QString::number(currComm + 1).toStdString();
+    temp = "Community " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
@@ -2789,7 +3648,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
     ui->tableComm2->clear();
 
     //Modifica parâmetros
-    temp = "Comunidade " + QString::number(currComm).toStdString();
+    temp = "Community " + QString::number(currComm).toStdString();
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
@@ -2822,6 +3681,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
 
 void MainWindow::on_cmdNextResult_clicked()
 {
+    /*
     ui->cmdNextResult->setEnabled(false);
 
     if(this->currentStackPos + 1 >= this->resultsStackList.size()) this->currentStackPos = 0;
@@ -2833,10 +3693,12 @@ void MainWindow::on_cmdNextResult_clicked()
     ui->stackedWidget2->setCurrentIndex(result);
 
     ui->cmdNextResult->setEnabled(true);
+    */
 }
 
 void MainWindow::on_cmdBackResult_clicked()
 {
+    /*
     ui->cmdBackResult->setEnabled(false);
 
     if(this->currentStackPos - 1 < 0) this->currentStackPos = this->resultsStackList.size()-1;
@@ -2848,6 +3710,7 @@ void MainWindow::on_cmdBackResult_clicked()
     ui->stackedWidget2->setCurrentIndex(result);
 
     ui->cmdBackResult->setEnabled(true);
+    */
 }
 
 void MainWindow::on_cmdNextResComm_clicked()
@@ -2875,13 +3738,13 @@ void MainWindow::on_cmdNextResComm_clicked()
     ui->tableResiduesComm->clear();
 
     //Modifica parâmetros
-    temp = "Comunidade " + QString::number(currComm + 1).toStdString();
+    temp = "Community " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade_3->setText(temp.c_str());
 
     vector<int> refSeqs;
 
     for(int j = 0; j < alinhamentos[ai].getRefSeqsSize(); j++){
-        refSeqs.push_back(alinhamentos[ai].seqname2seqint(alinhamentos[ai].getRefSeq(j)));
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint2(alinhamentos[ai].getRefSeq(j)));
     }
 
     //Cabeçalho
@@ -2893,23 +3756,23 @@ void MainWindow::on_cmdNextResComm_clicked()
 
     ui->tableResiduesComm->setRowCount(refSeqs.size());
     for(int i = 0; i < refSeqs.size(); i++){
-        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].sequencenames[refSeqs[i]].c_str()));
+        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].fullAlignment[refSeqs[i]].c_str()));
 
         for(int j = 0; j < alinhamentos[ai].Communities[currComm].pos.size(); j++){
-            if(alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[currComm].pos[j]]==alinhamentos[ai].Communities[currComm].aa[j]){
+            if(alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[currComm].pos[j]]==alinhamentos[ai].Communities[currComm].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = alinhamentos[ai].Communities[currComm].aa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,alinhamentos[ai].Communities[currComm].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                string textItem = alinhamentos[ai].Communities[currComm].aa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,alinhamentos[ai].Communities[currComm].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[currComm].pos[j]]=='-'){
+                if(alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[currComm].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[currComm].pos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,alinhamentos[ai].Communities[currComm].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                    string textItem = alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[currComm].pos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,alinhamentos[ai].Communities[currComm].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -2948,13 +3811,13 @@ void MainWindow::on_cmdBackResComm_clicked()
     ui->tableResiduesComm->clear();
 
     //Modifica parâmetros
-    temp = "Comunidade " + QString::number(currComm).toStdString();
+    temp = "Community " + QString::number(currComm).toStdString();
     ui->lblComunidade_3->setText(temp.c_str());
 
     vector<int> refSeqs;
 
     for(int j = 0; j < alinhamentos[ai].getRefSeqsSize(); j++){
-        refSeqs.push_back(alinhamentos[ai].seqname2seqint(alinhamentos[ai].getRefSeq(j)));
+        refSeqs.push_back(alinhamentos[ai].seqname2seqint2(alinhamentos[ai].getRefSeq(j)));
     }
 
     //Cabeçalho
@@ -2966,23 +3829,23 @@ void MainWindow::on_cmdBackResComm_clicked()
 
     ui->tableResiduesComm->setRowCount(refSeqs.size());
     for(int i = 0; i < refSeqs.size(); i++){
-        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].sequencenames[refSeqs[i]].c_str()));
+        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(alinhamentos[ai].fullAlignment[refSeqs[i]].c_str()));
 
         for(int j = 0; j < alinhamentos[ai].Communities[currComm -1].pos.size(); j++){
-            if(alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[currComm-1].pos[j]]==alinhamentos[ai].Communities[currComm-1].aa[j]){
+            if(alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[currComm-1].pos[j]]==alinhamentos[ai].Communities[currComm-1].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = alinhamentos[ai].Communities[currComm-1].aa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,alinhamentos[ai].Communities[currComm-1].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                string textItem = alinhamentos[ai].Communities[currComm-1].aa[j] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,alinhamentos[ai].Communities[currComm-1].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[currComm-1].pos[j]]=='-'){
+                if(alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[currComm-1].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = alinhamentos[ai].sequences[refSeqs[i]][alinhamentos[ai].Communities[currComm-1].pos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence(refSeqs[i]+1,alinhamentos[ai].Communities[currComm-1].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].sequencenames[refSeqs[i]])).toStdString();
+                    string textItem = alinhamentos[ai].fullSequences[refSeqs[i]][alinhamentos[ai].Communities[currComm-1].pos[j]] + QString::number(alinhamentos[ai].AlignNumbering2Sequence2(refSeqs[i]+1,alinhamentos[ai].Communities[currComm-1].pos[j])+GetOffsetFromSeqName(alinhamentos[ai].fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -3025,10 +3888,8 @@ void MainWindow::Open_XML_triggered(){
                 reader.readNext();
 
                 if(reader.isStartElement()){
-                    if(reader.name() == "local")
-                        align.setLocalDir(reader.readElementText().toStdString());
-                    else if( reader.name() == "web")
-                        align.setWebDir(reader.readElementText().toStdString());
+                    if( reader.name() == "type")
+                        align.setType(reader.readElementText().toInt());
                     else if(reader.name() == "pdb")
                         align.setLocalPDBDir(reader.readElementText().toStdString());
                     else{
@@ -3357,6 +4218,25 @@ void MainWindow::Open_XML_triggered(){
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }else if(reader.name() == "deltas"){
+                        align.clearDeltaMatrix();
+
+                        while(!reader.atEnd()){
+                            reader.readNext();
+
+                            if(reader.isStartElement() && reader.name() == "row"){
+                                vector<float> deltasLines;
+
+                                for(int i = 1; i < reader.attributes().size(); i++){
+                                    deltasLines.push_back(reader.attributes().at(i).value().toFloat());
+                                }
+
+                                align.addDeltaLine(deltasLines);
+                            }else if(reader.isEndElement() && reader.name() == "deltas"){
+                                //Saiu do Delta
+                                break;
                             }
                         }
                     }
@@ -3901,14 +4781,8 @@ void MainWindow::exportConsResTXT(){
     vector<int> refSeqs;
     for(int i2 = 0; i2 < alinhamentos[i].getRefSeqsSize(); i2++){
         string ref1 = alinhamentos[i].getRefSeq(i2);
-        printf("%s\n",ref1.c_str());
-        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
-            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
+        //printf("%s\n",ref1.c_str());
+        refSeqs.push_back(alinhamentos[i].seqname2seqint2(ref1));
     }
 
     //QMessageBox::information(this,"",QString::number(refSeqs.size()));
@@ -3946,14 +4820,8 @@ void MainWindow::exportConsResXML(){
     vector<int> refSeqs;
     for(int i2 = 0; i2 < alinhamentos[i].getRefSeqsSize(); i2++){
         string ref1 = alinhamentos[i].getRefSeq(i2);
-        printf("%s\n",ref1.c_str());
-        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
-            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
+        //printf("%s\n",ref1.c_str());
+        refSeqs.push_back(alinhamentos[i].seqname2seqint2(ref1));
     }
 
     //QMessageBox::information(this,"",QString::number(refSeqs.size()));
@@ -3991,14 +4859,8 @@ void MainWindow::exportConsResHTML(){
     vector<int> refSeqs;
     for(int i2 = 0; i2 < alinhamentos[i].getRefSeqsSize(); i2++){
         string ref1 = alinhamentos[i].getRefSeq(i2);
-        printf("%s\n",ref1.c_str());
-        for(int j = 0; j < ui->lstRefSeqs->count(); j++){
-            string ref2 = ui->lstRefSeqs->item(j)->text().toStdString();
-            if(ref1 == ref2){
-                refSeqs.push_back(j);
-                break;
-            }
-        }
+        //printf("%s\n",ref1.c_str());
+        refSeqs.push_back(alinhamentos[i].seqname2seqint2(ref1));
     }
 
     //QMessageBox::information(this,"",QString::number(refSeqs.size()));
@@ -4691,10 +5553,11 @@ void MainWindow::graphClicked(QCPAbstractPlottable *plot, QMouseEvent *mouse){
     vector<string> temp = this->split(ui->lblNseq->text().toStdString(),' ');
     string strNSeq = temp[temp.size() -1];
     int nSeq = stoi(strNSeq);
-    float seqs = nSeq*(xValue/100);
+    float minssFrac = xValue/100;
+    float seqs = nSeq*minssFrac;
     nSeq = (int)seqs;
 
-    minssLabel->setText(QString::number(nSeq) + " sequences");
+    minssLabel->setText(QString::number(nSeq) + " sequences (" + QString::number(minssFrac,'f',2) + ")");
     minssLabel->position->setCoords(xValue,yValue);
     ui->graficMinss->addItem(minssLabel);
 
@@ -4722,10 +5585,14 @@ void MainWindow::saveResults(){
     vector<string> vecPath = split(alinhamentos[i].getFilepath(),'.');
     string path = "";
 
-    for(int i=0;i<vecPath.size()-1;i++){
-        path += vecPath[i];
+    if(vecPath.size() == 1){
+        path = vecPath[0] + ".xml";
+    }else{
+        for(int i=0;i<vecPath.size()-1;i++){
+            path += vecPath[i];
+        }
+        path += ".xml";
     }
-    path += ".xml";
 
     alinhamentos[i].generateXML(path);
 
@@ -5369,8 +6236,8 @@ void MainWindow::on_cmdNewComm_clicked()
 }
 
 void MainWindow::changeToListOfSequences(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5398,8 +6265,8 @@ void MainWindow::changeToListOfSequences(){
 }
 
 void MainWindow::changeToConservationFrequence(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5431,8 +6298,8 @@ void MainWindow::changeToConservationFrequence(){
 }
 
 void MainWindow::changeToConservationPercentage(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5464,8 +6331,8 @@ void MainWindow::changeToConservationPercentage(){
 }
 
 void MainWindow::changeToConservedResidues(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5497,8 +6364,8 @@ void MainWindow::changeToConservedResidues(){
 }
 
 void MainWindow::changetoCorrelationList(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5529,9 +6396,132 @@ void MainWindow::changetoCorrelationList(){
     ui->stackedWidget2->setCurrentIndex(5);
 }
 
+void MainWindow::changeToCorrelationGraph(){
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
+
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getCorrGraphSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    createCorrelationJSON(i);
+
+    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget2->setCurrentIndex(13);
+}
+
+void MainWindow::changeToCommunitiesGraphs(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getCommListSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    this->communitiesGraphs(i);
+
+    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget2->setCurrentIndex(14);
+}
+
+void MainWindow::changeToCorrelationBetweenComms(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getDeltasSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        return;
+    }
+
+    this->corrBetweenComms(i);
+
+    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget2->setCurrentIndex(15);
+
+}
+
+void MainWindow::changeToPDBVisualization(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    string alignfilename = ui->listWidget->currentItem()->text().toStdString();
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(alignfilename == alinhamentos.at(i).getFilepath()){
+            //fullAlignment = alinhamentos[i];
+            break;
+        }
+    }
+
+    if(alinhamentos[i].getConsPDBPath() == ""){
+        QMessageBox::warning(this,"Warning","You must run conservation method and send a PDB file.");
+        return;
+    }
+
+    this->consVisualization(i);
+
+    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget2->setCurrentIndex(16);
+}
+
+void MainWindow::changeToAlphabetReduction(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    emit ui->cmbAlphabetList->currentIndexChanged(0);
+    ui->stackedWidget->setCurrentIndex(10);
+}
+
 void MainWindow::changeToCommunitiesList(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5563,8 +6553,8 @@ void MainWindow::changeToCommunitiesList(){
 }
 
 void MainWindow::changeToCorrelationInPerc(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5596,8 +6586,8 @@ void MainWindow::changeToCorrelationInPerc(){
 }
 
 void MainWindow::changeToCorrelationInLogP(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5629,8 +6619,8 @@ void MainWindow::changeToCorrelationInLogP(){
 }
 
 void MainWindow::changeToAdherenceMatrix(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5662,8 +6652,8 @@ void MainWindow::changeToAdherenceMatrix(){
 }
 
 void MainWindow::changeToResiduesOfCommunities(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5695,8 +6685,8 @@ void MainWindow::changeToResiduesOfCommunities(){
 }
 
 void MainWindow::changeToULGroupedByProteins(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5729,8 +6719,8 @@ void MainWindow::changeToULGroupedByProteins(){
 }
 
 void MainWindow::changeToULGroupedByComms(){
-    ui->cmdNextResult->setVisible(false);
-    ui->cmdBackResult->setVisible(false);
+    //ui->cmdNextResult->setVisible(false);
+    //ui->cmdBackResult->setVisible(false);
 
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -5885,9 +6875,10 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
 
     alinhamentos[i].clearRefSeq();
 
-    for(int j = 0; j < ui->lstRefSeqSelected->count(); j++)
+    for(int j = 0; j < ui->lstRefSeqSelected->count(); j++){
+        //printf("5891:Refseq - %s\n",ui->lstRefSeqSelected->item(j)->text().toStdString().c_str());
         alinhamentos[i].addRefSeq(ui->lstRefSeqSelected->item(j)->text().toStdString());
-
+    }
     QMessageBox::information(this,"Reference sequences","The reference sequences are stored.");
 
     ui->cmdSaveRefSeqs->setEnabled(true);
@@ -5908,4 +6899,642 @@ void MainWindow::on_cmdUpdateComms_clicked()
     this->output(i,1,alinhamentos[i].getRefSeqOffset());
 
     QMessageBox::information(this,"Update Communities","The communtities have been updated.");
+}
+
+void MainWindow::on_txtMinssFraction_editingFinished()
+{
+    string minssFraction = ui->txtMinssFraction->text().toStdString();
+    string newMinss = "";
+
+    for(int i = 0; i < minssFraction.size(); i++){
+        if(minssFraction[i] == ',') newMinss += '.';
+        else newMinss += minssFraction[i];
+    }
+
+    ui->txtMinssFraction->setText(newMinss.c_str());
+}
+
+void MainWindow::on_txtGraphCutoff_editingFinished()
+{
+    string cutoff = ui->txtGraphCutoff->text().toStdString();
+    string newCutoff = "";
+
+    for(int i = 0; i < cutoff.size(); i++){
+        if(cutoff[i] == ',') newCutoff += '.';
+        else newCutoff += cutoff[i];
+    }
+
+    ui->txtGraphCutoff->setText(newCutoff.c_str());
+}
+
+void MainWindow::setLibPath(){
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOption(QFileDialog::ShowDirsOnly);
+
+    libpath = dialog.getExistingDirectory().toStdString();
+
+    string msg = "The libraries directory is set.\n" + libpath;
+    QMessageBox::information(this,"Setting lib path",msg.c_str());
+}
+
+void MainWindow::on_chkApplyMinCover_clicked(bool checked)
+{
+    ui->label_11->setEnabled(checked);
+    ui->txtMinCover->setEnabled(checked);
+
+    if(checked || ui->chkApplyMinId->isChecked() || ui->chkApplyMaxId->isChecked()){
+        ui->chkIntermediateFilter->setEnabled(true);
+        ui->label_61->setEnabled(true);
+        ui->cmdApplyFilter->setEnabled(true);
+    }else{
+        ui->chkIntermediateFilter->setEnabled(false);
+        ui->label_61->setEnabled(false);
+        ui->cmdApplyFilter->setEnabled(false);
+    }
+}
+
+void MainWindow::on_chkApplyMinId_clicked(bool checked)
+{
+    ui->label_12->setEnabled(checked);
+    ui->txtMinId->setEnabled(checked);
+
+    if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMaxId->isChecked()){
+        ui->chkIntermediateFilter->setEnabled(true);
+        ui->label_61->setEnabled(true);
+        ui->cmdApplyFilter->setEnabled(true);
+    }else{
+        ui->chkIntermediateFilter->setEnabled(false);
+        ui->label_61->setEnabled(false);
+        ui->cmdApplyFilter->setEnabled(false);
+    }
+}
+
+
+void MainWindow::on_chkApplyMaxId_clicked(bool checked)
+{
+    ui->label_13->setEnabled(checked);
+    ui->txtMaxId->setEnabled(checked);
+
+    if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMinId->isChecked()){
+        ui->chkIntermediateFilter->setEnabled(true);
+        ui->label_61->setEnabled(true);
+        ui->cmdApplyFilter->setEnabled(true);
+    }else{
+        ui->chkIntermediateFilter->setEnabled(false);
+        ui->label_61->setEnabled(false);
+        ui->cmdApplyFilter->setEnabled(false);
+    }
+}
+
+void MainWindow::on_cmbAlphabetList_currentIndexChanged(int index)
+{
+    switch(index){
+    case 0:
+    {
+        ui->lblAlphabetName->setText("Name: Complete Alphabet");
+        ui->lblAlphabetChanges->setText("Changes: None");
+        break;
+    }
+    case 1:
+    {
+        ui->lblAlphabetName->setText("Name: Two Letters Alphabet");
+        ui->lblAlphabetChanges->setText("Changes: AGTSNQDEHRKP => P: Hydrophilic\nCMFILVWY =>H: Hydrophobic");
+        break;
+    }
+    case 2:
+    {
+        ui->lblAlphabetName->setText("Name: Five letters alphabet: Chemical / structural properties");
+        ui->lblAlphabetChanges->setText("IVL   => A: Aliphatic\nFYWH  => R: Aromatic\nKRDE  => C: Charged\nGACS  => T: Tiny\nTMQNP => D: Diverse");
+        break;
+    }
+    case 3:
+    {
+        ui->lblAlphabetName->setText("Name: Six letters alphabet: Chemical / structural properties #2");
+        ui->lblAlphabetChanges->setText("Changes: A: Aliphatic\nFYWH  => R: Aromatic\nKR    => P: Pos. charged\nDE    => N: Neg. charged\nGACS  => T: Tiny\nTMQNP => D: Diverse");
+        break;
+    }
+    case 4:
+    {
+        ui->lblAlphabetName->setText("Name: 3 IMGT amino acid hydropathy alphabet");
+        ui->lblAlphabetChanges->setText("Changes: IVLFCMAW => P: Hydrophilic\nGTSYPM => N: Neutral\nDNEQKR =>H: Hydrophobic");
+        break;
+    }
+    case 5:
+    {
+        ui->lblAlphabetName->setText("Name: 5 IMGT amino acid volume alphabet");
+        ui->lblAlphabetChanges->setText("Changes: GAS   => G: 60-90\nCDPNT => C: 108-117\nEVQH  => E: 138-154\nMILKR => M: 162-174\nFYW   => F: 189-228");
+        break;
+    }
+    case 6:
+    {
+        ui->lblAlphabetName->setText("Name: 11 IMGT amino acid chemical characteristics alphabet");
+        ui->lblAlphabetChanges->setText("Changes: AVIL => A: Aliphatic\nF    => F: Phenylalanine\nCM   => C: Sulfur\nG    => G: Glycine\nST   => S: Hydroxyl\nW    => W: Tryptophan\nY    => Y: Tyrosine\nP    => P: Proline\nDE   => D: Acidic\nNQ   => N: Amide\nHKR  => H: Basic");
+        break;
+    }
+    case 7:
+    {
+        ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 15 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: L: Large hydrophobic\nC    => C\nA    => A\nG    => G\nS    => S\nT    => T\nP    => P\nFY   => F: Hydrophobic/aromatic sidechains\nW    => W\nE    => E\nD    => D\nN    => N\nQ    => Q\nKR   => K: Long-chain positively charged\nH    => H");
+        break;
+    }
+    case 8:
+    {
+        ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 10 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: LVIM => L: Large hydrophobic\nC    => C\nA    => A\nG    => G\nST   => S: Polar\nP    => P\nFYW  => F:Hydrophobic/aromatic sidechains\nEDNQ => E: Charged / polar\nKR   => K: Long-chain positively charged\nH    =>H");
+        break;
+    }
+    case 9:
+    {
+        ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 8 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: LVIMC => L: Hydrophobic\nAG    => A\nST    => S: Polar\nP     => P\nFYW   => F: Hydrophobic/aromatic sidechains\nEDNQ  => E\nKR    => K: Long-chain positively charged\nH     => H");
+        break;
+    }
+    case 10:
+    {
+        ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 4 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: LVIMC   => L: Hydrophobic\nAGSTP   => A\nFYW     => F: Hydrophobic/aromatic sidechains\nEDNQKRH =>E");
+        break;
+    }
+    case 11:
+    {
+        ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 2 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: LVIMCAGSTPFYW => P: Hydrophobic\nEDNQKRH       => E: Hydrophilic");
+        break;
+    }
+    case 12:
+    {
+        ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 5 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: CMFILVWY => I\nATH      => A\nGP       => G\nDE       => E\nSNQRK    => K");
+        break;
+    }
+    case 13:
+    {
+        ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 5 letters variant alphabet");
+        ui->lblAlphabetChanges->setText("Changes: CMFI => I\nLVWY => L\nATGS => A\nNQDE => E\nHPRK => K");
+        break;
+    }
+    case 14:
+    {
+        ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 3 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: CMFILVWY => I\nATHGPR   => A\nDESNQK   => E");
+        break;
+    }
+    case 15:
+    {
+        ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 2 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: CMFILVWY     => I\nATHGPRDESNQK => A");
+        break;
+    }
+    case 16:
+    {
+        ui->lblAlphabetName->setText("Name: Li et al, 2003; 10 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: C   => C\nFYW => Y\nML  => L\nIV  => V\nG   => G\nP   => P\nATS => S\nNH  => N\nQED => E\nRK  => K");
+        break;
+    }
+    case 17:
+    {
+        ui->lblAlphabetName->setText("Name: Li et al, 2003; 5 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: CFYW    => Y\nMLIV    => I\nG       => G\nPATS    => S\nNHQEDRK => E");
+        break;
+    }
+    case 18:
+    {
+        ui->lblAlphabetName->setText("Name: Li et al, 2003; 4 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: CFYW    => Y\nMLIV    => I\nGPATS   => S\nNHQEDRK => E");
+        break;
+    }
+    case 19:
+    {
+        ui->lblAlphabetName->setText("Name: Li et al, 2003; 3 letters alphabet");
+        ui->lblAlphabetChanges->setText("Changes: CFYWMLIV => I\nGPATS    => S\nNHQEDRK  => E");
+        break;
+    }
+    }
+}
+
+void MainWindow::on_radioAlphabetCurrent_clicked(bool checked)
+{
+    if(checked){
+        ui->radioAlphabetCurrent->setChecked(true);
+        ui->radioAlphabetNew->setChecked(false);
+    }
+}
+
+void MainWindow::on_radioAlphabetNew_clicked(bool checked)
+{
+    if(checked){
+        ui->radioAlphabetCurrent->setChecked(false);
+        ui->radioAlphabetNew->setChecked(true);
+    }
+}
+
+void MainWindow::on_cmdApplyAlphabetReduction_clicked()
+{
+    ui->cmdApplyAlphabetReduction->setEnabled(false);
+
+    vector<string> oldChars;
+    vector<char> newChars;
+    int alphabet = ui->cmbAlphabetList->currentIndex();
+    int filterIndex = ui->listWidget2->currentIndex().row();
+    string currentFilter = ui->listWidget2->currentItem()->text().toStdString();
+    string path = ui->listWidget->currentItem()->text().toStdString();
+    string param = currentFilter + " T2";
+    string type = "";
+
+    bool newFilter;
+
+    if(ui->radioAlphabetNew->isChecked()) newFilter = true;
+    else newFilter = false;
+
+    int i = 0;
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    switch(alphabet){
+    case 0:
+    {
+        //CUSTOM
+        break;
+    }
+    case 1:
+    {
+        type = "T2";
+        oldChars.push_back("AGTSNQDEHRKP");
+        newChars.push_back('P');
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('H');
+
+        break;
+    }
+    case 2:
+    {
+        type = "T5";
+        oldChars.push_back("IVL");
+        newChars.push_back('A');
+        oldChars.push_back("FYWH");
+        newChars.push_back('R');
+        oldChars.push_back("KRDE");
+        newChars.push_back('C');
+        oldChars.push_back("GACS");
+        newChars.push_back('T');
+        oldChars.push_back("TMQNP");
+        newChars.push_back('D');
+
+        break;
+    }
+    case 3:
+    {
+        type = "T6";
+        oldChars.push_back("IVL");
+        newChars.push_back('A');
+        oldChars.push_back("FYWH");
+        newChars.push_back('R');
+        oldChars.push_back("KR");
+        newChars.push_back('P');
+        oldChars.push_back("DE");
+        newChars.push_back('N');
+        oldChars.push_back("GACS");
+        newChars.push_back('T');
+        oldChars.push_back("TMQNP");
+        newChars.push_back('D');
+
+        break;
+    }
+    case 4:
+    {
+        type = "3IMG";
+        oldChars.push_back("IVLFCMAW");
+        newChars.push_back('P');
+        oldChars.push_back("GTSYPM");
+        newChars.push_back('N');
+        oldChars.push_back("DNEQKR");
+        newChars.push_back('H');
+
+        break;
+    }
+    case 5:
+    {
+        type = "5IMG";
+        oldChars.push_back("GAS");
+        newChars.push_back('G');
+        oldChars.push_back("CDPNT");
+        newChars.push_back('C');
+        oldChars.push_back("EVQH");
+        newChars.push_back('E');
+        oldChars.push_back("MILKR");
+        newChars.push_back('M');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+
+        break;
+    }
+    case 6:
+    {
+        type = "11IMG";
+        oldChars.push_back("AVIL");
+        newChars.push_back('A');
+        oldChars.push_back("F");
+        newChars.push_back('F');
+        oldChars.push_back("CM");
+        newChars.push_back('C');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("ST");
+        newChars.push_back('S');
+        oldChars.push_back("W");
+        newChars.push_back('W');
+        oldChars.push_back("Y");
+        newChars.push_back('Y');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("DE");
+        newChars.push_back('D');
+        oldChars.push_back("NQ");
+        newChars.push_back('N');
+        oldChars.push_back("HKR");
+        newChars.push_back('H');
+        break;
+    }
+    case 7:
+    {
+        type = "Murphy15";
+        oldChars.push_back("LVIM");
+        newChars.push_back('L');
+        oldChars.push_back("C");
+        newChars.push_back('C');
+        oldChars.push_back("A");
+        newChars.push_back('A');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("S");
+        newChars.push_back('S');
+        oldChars.push_back("T");
+        newChars.push_back('T');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("FY");
+        newChars.push_back('F');
+        oldChars.push_back("W");
+        newChars.push_back('W');
+        oldChars.push_back("E");
+        newChars.push_back('E');
+        oldChars.push_back("D");
+        newChars.push_back('D');
+        oldChars.push_back("N");
+        newChars.push_back('N');
+        oldChars.push_back("Q");
+        newChars.push_back('Q');
+        oldChars.push_back("KR");
+        newChars.push_back('K');
+        oldChars.push_back("H");
+        newChars.push_back('H');
+
+        break;
+    }
+    case 8:
+    {
+        type = "Murphy10";
+        oldChars.push_back("LVIM");
+        newChars.push_back('L');
+        oldChars.push_back("C");
+        newChars.push_back('C');
+        oldChars.push_back("A");
+        newChars.push_back('A');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("ST");
+        newChars.push_back('S');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+        oldChars.push_back("EDNQ");
+        newChars.push_back('E');
+        oldChars.push_back("KR");
+        newChars.push_back('K');
+        oldChars.push_back("H");
+        newChars.push_back('H');
+
+        break;
+    }
+    case 9:
+    {
+        type = "Murphy8";
+        oldChars.push_back("LVIMC");
+        newChars.push_back('L');
+        oldChars.push_back("AG");
+        newChars.push_back('A');
+        oldChars.push_back("ST");
+        newChars.push_back('S');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+        oldChars.push_back("EDNQ");
+        newChars.push_back('E');
+        oldChars.push_back("KR");
+        newChars.push_back('K');
+        oldChars.push_back("H");
+        newChars.push_back('H');
+
+        break;
+    }
+    case 10:
+    {
+        type = "Murphy4";
+        oldChars.push_back("LVIMC");
+        newChars.push_back('L');
+        oldChars.push_back("AGSTP");
+        newChars.push_back('A');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+        oldChars.push_back("EDNQKRH");
+        newChars.push_back('E');
+
+        break;
+    }
+    case 11:
+    {
+        type = "Murphy2";
+        oldChars.push_back("LVIMCAGSTPFYW");
+        newChars.push_back('P');
+        oldChars.push_back("EDNQKRH");
+        newChars.push_back('E');
+
+        break;
+    }
+    case 12:
+    {
+        type = "Wang5";
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('I');
+        oldChars.push_back("ATH");
+        newChars.push_back('A');
+        oldChars.push_back("GP");
+        newChars.push_back('G');
+        oldChars.push_back("DE");
+        newChars.push_back('E');
+        oldChars.push_back("SNQRK");
+        newChars.push_back('K');
+
+        break;
+    }
+    case 13:
+    {
+        type = "Wang5v";
+        oldChars.push_back("CMFI");
+        newChars.push_back('I');
+        oldChars.push_back("LVWY");
+        newChars.push_back('L');
+        oldChars.push_back("ATGS");
+        newChars.push_back('A');
+        oldChars.push_back("NQDE");
+        newChars.push_back('E');
+        oldChars.push_back("HPRK");
+        newChars.push_back('K');
+
+        break;
+    }
+    case 14:
+    {
+        type = "Wang3";
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('I');
+        oldChars.push_back("ATHGPR");
+        newChars.push_back('A');
+        oldChars.push_back("DESNQK");
+        newChars.push_back('E');
+
+        break;
+    }
+    case 15:
+    {
+        type = "Wang2";
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('I');
+        oldChars.push_back("ATHGPRDESNQK");
+        newChars.push_back('A');
+
+        break;
+    }
+    case 16:
+    {
+        type = "Li10";
+        oldChars.push_back("C");
+        newChars.push_back('C');
+        oldChars.push_back("FYW");
+        newChars.push_back('Y');
+        oldChars.push_back("ML");
+        newChars.push_back('L');
+        oldChars.push_back("IV");
+        newChars.push_back('V');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("ATS");
+        newChars.push_back('S');
+        oldChars.push_back("NH");
+        newChars.push_back('N');
+        oldChars.push_back("QED");
+        newChars.push_back('E');
+        oldChars.push_back("RK");
+        newChars.push_back('K');
+
+        break;
+    }
+    case 17:
+    {
+        type = "Li5";
+        oldChars.push_back("CFYW");
+        newChars.push_back('Y');
+        oldChars.push_back("MLIV");
+        newChars.push_back('I');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("PATS");
+        newChars.push_back('S');
+        oldChars.push_back("NH");
+        newChars.push_back('N');
+        oldChars.push_back("QED");
+        newChars.push_back('E');
+        oldChars.push_back("RK");
+        newChars.push_back('K');
+
+        break;
+    }
+    case 18:
+    {
+        type = "Li4";
+        oldChars.push_back("CFYW");
+        newChars.push_back('Y');
+        oldChars.push_back("MLIV");
+        newChars.push_back('I');
+        oldChars.push_back("GPATS");
+        newChars.push_back('S');
+        oldChars.push_back("NHQEDRK");
+        newChars.push_back('E');
+
+        break;
+    }
+    case 19:
+    {
+        type = "Li3";
+        oldChars.push_back("CFYWMLIV");
+        newChars.push_back('I');
+        oldChars.push_back("GPATS");
+        newChars.push_back('S');
+        oldChars.push_back("NHQEDRK");
+        newChars.push_back('E');
+
+        break;
+    }
+    }
+
+    alinhamentos[i].applyAlphabetReduction(type,oldChars,newChars,filterIndex,newFilter);
+
+    if(newFilter){
+        ui->listWidget2->addItem(param.c_str());
+        ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+    }else
+        ui->listWidget2->currentItem()->setText(param.c_str());
+
+    string msg = "The sequence alphabet was reduced using the " + type + " method.";
+    QMessageBox::information(this,"Alhabet Reduced",msg.c_str());
+
+    ui->cmdApplyAlphabetReduction->setEnabled(true);
+}
+
+void MainWindow::on_cmbRefSeq_2_activated(const QString &arg1)
+{
+
+    //Atualizar Recommended PDBS
+    ui->lstRecomendedPDBs->clear();
+
+    int i = 0;
+    string path = ui->listWidget->currentItem()->text().toStdString();
+    for(i = 0; i < alinhamentos.size(); i++){
+        if(path == alinhamentos.at(i).getFilepath()){
+            break;
+        }
+    }
+
+    vector<string> pdbs = alinhamentos[i].getRecommendsPDBs(arg1.toStdString());
+
+    for(int j = 0; j < pdbs.size(); j++){
+        ui->lstRecomendedPDBs->addItem(pdbs[j].c_str());
+    }
+
+}
+
+void MainWindow::on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item)
+{
+    string pdbchain = item->text().toStdString();
+    string pdb = split(pdbchain,' ')[0];
+    ui->txtPDBName->setText(pdb.c_str());
 }

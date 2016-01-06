@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <set>
 #include <QObject>
 #include <QProgressDialog>
 #include "uniprot.h"
@@ -17,12 +18,12 @@ class Alignment
 private:
     string filepath;
     string refSeqName;
+    string conservedPDBpath;
+    int type; //ALINHAMENTO SUBIDO PELO PFAM (0) OU ARQUIVO(1), -1 PARA NÃO CARREGADO
     float minCons;
     vector<int> subalignmentseqs;
     vector<int> referencevector; // Vector containing the positions for a reference sequence
     vector<int> SortOrder;
-    vector<string> fullAlignment;
-    vector<string> fullSequences;
 
     //XML Variables
     string localdir = "";
@@ -44,7 +45,8 @@ private:
     vector<vector<vector<float> > > communityX;//Resetando
     vector<vector<float> > communityXAll;//Resetando
     vector<vector<vector<int> > > communityXps;//Resetando
-    vector<Uniprot*> uniprotMined;//FALTA RESETAR
+    vector<Uniprot*> uniprotMined;//Resetando
+    vector<tuple<string,string,char,string> > recommendPdbs; //Resetando -protein,pdb,chain,interval
     vector<string> parameters;
     //function_tag,parameters.
 
@@ -61,6 +63,7 @@ private:
     int getresn(string line);
     int GetOffsetFromSeqName (string seqname);
     bool isaa(char c);
+    bool isaa(char c, bool casesensitive);
     bool isaax(char c);
     char num2aa(int n);
     long double lnbdf (int N, int nx, float px);
@@ -71,11 +74,19 @@ private:
     int cbd(int N, int n, float freq, bool right);
     string outputBfactor(string line, float Bf);
     vector<int> getRefSeqCodes();
+    void readPFAM();
+    void readPFAM(vector<string> pfam);
+    void readSTO();
+    void readSTO(vector<string> pfam);
 
 public:
     Alignment();
     Alignment(string path);
     ~Alignment();
+    void setConsPDBPath(string path);
+    int getType();
+    void setType(int t);
+    string getConsPDBPath();
     void setMinsCons(float v);
     void clear();
     vector<string> split(string text, char sep);
@@ -102,6 +113,8 @@ public:
     vector<tuple<string,string,int> > getCorrelationGraph();
     tuple<string,string,int> getCorrelationEdge(int i);
     int getCorrelationGraphSize();
+    set<string> getCorrelationNodes();
+    set<string> getPositiveCorrelationNodes();
     void addRefSeq(string seq);
     string getRefSeq(int i);
     void clearRefSeq();
@@ -158,6 +171,8 @@ public:
     vector<int> getConsFreqRow(int i);
     vector<float> getConsFreqPercRow(int i);
     tuple<string,string,int> getCorrGraphTuple(int i);
+    vector<tuple<string,string,int> > getEdgesByComm(int comm);
+    vector<tuple<string,string,float> > getDeltasEdges(float cutoff);
     vector<string> getCommunitie(int i);
     vector<float> getCommXRow(int c, int i);
     vector<float> getCommAll(int c);
@@ -167,6 +182,8 @@ public:
     void updateFullAlignment();
     vector<string> sequences;
     vector<string> sequencenames;
+    vector<string> fullAlignment;
+    vector<string> fullSequences;
     vector<vector<int> > frequencies;
     vector<vector<int> > subsetfrequencies;
     vector<vector<float> > Deltas; // Delta parameter for community pairs
@@ -196,6 +213,10 @@ public:
     vector<vector<float> > selfcorrelationmatrix;
     vector<vector<float> > identitymatrix;
     int referencesequence;
+    int getDeltasSize();
+    void clearDeltaMatrix();
+    void addDeltaLine(vector<float> line);
+    vector<float> getDeltasList(int c);
     void generateXML(string outputXML); //[1%]
     bool GetFromFile(); //[OK]
     bool getFromStd(string text); //[10%]
@@ -205,10 +226,12 @@ public:
     void WriteAASpecificConservation(string outputfilename);
     float Identity(int seq1, int seq2); //[OK]
     int SeqSize(int seq); //[OK]
+    void alignment2UpperCase();
     void IdentityMatrixCalculation();
     void IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
     void IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
     void AlignmentTrimming(float minocc, int refseq, string refseqName, string refSeq,bool intermediate = true, string newalignmentfilename="");//[OK]
+    void AlignmentTrimming(float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive, bool inter);
     void UniprotList(string uniprotlistfilename, string newalignmentfilename);
     void IdentityStatistics(string familyid);
     void dGCalculation();//[OK]
@@ -216,10 +239,13 @@ public:
     void dGDTCalculation(int numseqs); //[OK]
     void FreqWrite(); //[OK]
     void CalculateReferenceVector(int seqnumber); // Seqnumber starts with 1 [OK]
+    void CalculateReferenceVector2(int seqnumber);
     int AlignNumbering2Sequence(int seqnumber, int position); // Seqnumber starts with 1 [OK]
+    int AlignNumbering2Sequence2(int seqnumber, int position); // Seqnumber starts with 1 [OK]
     void NormalizedG(); //[OK]
     int seqcode2seqint (string refseqcode); //[OK]
     int seqname2seqint(string refseqcode); //[OK]
+    int seqname2seqint2(string refseqcode);
     void writedGtoPDB(string PDBfilename, string dgPDBfilename,int initres,char chain,int seqnumber);//[OK]
     void writeCommtoPDB(string PDBfilename, string commPDBfilename, int initres, char chain, int seqnumber);
     void SubAlignmentIndices(char aa,int pos); //[OK]
@@ -265,6 +291,8 @@ public:
     void uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins);
     vector<string> getConsRes();
     vector<Uniprot*> getAllResidueFeatures(string res);
+    void applyAlphabetReduction(string name, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter=false);
+    vector<string> getRecommendsPDBs(string protein);
 };
 
 #endif // ALIGNMENT_H

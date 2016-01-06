@@ -6,6 +6,8 @@
 #include <string>
 #include "alignment.h"
 #include "qcustomplot.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -93,6 +95,12 @@ private slots:
     void changeToResiduesOfCommunities();
     void changeToULGroupedByProteins();
     void changeToULGroupedByComms();
+    void changeToCorrelationGraph();
+    void changeToCommunitiesGraphs();
+    void changeToCorrelationBetweenComms();
+    void changeToPDBVisualization();
+    void setLibPath();
+    void changeToAlphabetReduction();
     void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
 
     void on_cmdStartWizard_clicked();
@@ -183,10 +191,41 @@ private slots:
 
     void on_cmdUpdateComms_clicked();
 
+    void on_txtMinssFraction_editingFinished();
+
+    void on_cmdHideShowAntiCorr_clicked();
+
+    void on_cmdNexCommGraph_clicked();
+
+    void on_cmdBackCommGraph_clicked();
+
+    void on_txtGraphCutoff_editingFinished();
+
+    void on_cmdCorrCommCutoff_clicked();
+
+    void on_chkApplyMinCover_clicked(bool checked);
+
+    void on_chkApplyMinId_clicked(bool checked);
+
+    void on_chkApplyMaxId_clicked(bool checked);
+
+    void on_cmbAlphabetList_currentIndexChanged(int index);
+
+    void on_radioAlphabetCurrent_clicked(bool checked);
+
+    void on_radioAlphabetNew_clicked(bool checked);
+
+    void on_cmdApplyAlphabetReduction_clicked();
+
+    void on_cmbRefSeq_2_activated(const QString &arg1);
+
+    void on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item);
+
 private:
     Ui::MainWindow *ui;
     void changeWizardCmds(bool bl);
     void resetObjects();
+    string libpath;
     bool wizard;
     string pdbweb = "";
     int stackBeforeShowResults = 0;
@@ -201,7 +240,7 @@ private:
     string makeNewPath(string oldPath, string fileSufix);
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
-    void alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName, bool intermediate = true);
+    void alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName, bool intermediate = true, bool filter1=true, bool filter2=true, bool filter3=true);
     void conservation(int ai, int refseq, int offset, char chain, float minCons, string pdbfile = "");
     void conservedresidues(int ai, vector<int> referencesequences, float minconservation);
     vector<float> minss(int ai, int repetitions); //from 100 to 1;
@@ -216,6 +255,10 @@ private:
     void tableFreqPerc(int ai);
     void conservResidues(int ai);
     void correlationList(int ai);
+    void createCorrelationJSON(int ai);
+    void communitiesGraphs(int ai);
+    void corrBetweenComms(int ai);
+    void consVisualization(int ai);
     void communitiesList(int ai);
     void corrTable1(int ai);
     void corrTable2(int ai);
@@ -228,6 +271,7 @@ private:
     bool isInt(string v);
     void updateResultsViews(int ai);
     bool isFloat(string myString);
+    string makeConservedPDBHTML(string PDB);
 };
 
 #endif // MAINWINDOW_H

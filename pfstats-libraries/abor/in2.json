@@ -1,0 +1,40 @@
+{
+	"nodes": {
+		"K42": {
+			"alignName": "K42"
+			},
+		"T104": {
+			"alignName": "T104"
+			},
+		"L124": {
+			"alignName": "L124"
+			},
+		"N275": {
+			"alignName": "N275"
+		}
+	},
+	"edges":{
+		"K42": {
+			"T104": {
+				"value": 14
+				},
+			"L124": {
+				"value": 14
+				},
+			"N275": {
+				"value": 13
+				}
+		},
+		"T104": {
+			"L124": {
+				"value": 14
+				}
+		},
+		"L124": {
+
+		},
+		"N275": {
+
+		}	},
+"_": "zebra finch bk42w74 syllable transition graph"
+}

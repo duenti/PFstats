@@ -3,8 +3,11 @@
 # Project created by QtCreator 2015-03-30T14:31:47
 #
 #-------------------------------------------------
+#
+#COLOCAR O DIRETORIO ABOR NA PASTA RAIZ INSTALADA
+##NO WINDOWS libpath DEVE COMEÇAR COM VALOR DO DIR RAIZ
 
-QT       += core gui
+QT       += core gui webkitwidgets
 QT += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport

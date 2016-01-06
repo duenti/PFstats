@@ -1,0 +1,101 @@
+{
+  "nodes": {
+    "L26": {
+      "alignName" : "L26"
+      }, 
+    "F29": {
+      "alignName" : "F29"
+      }, 
+    "A272": {
+      "alignName" : "A272"
+      }, 
+    "Q28": {
+      "alignName" : "Q28"
+      }, 
+    "F29": {
+      "alignName" : "F29"
+      }, 
+    "I33": {
+      "alignName" : "I33"
+      }, 
+    "F276": {
+      "alignName" : "F276"
+      }, 
+    "C35": {
+      "alignName" : "C35"
+      }, 
+    "K42": {
+      "alignName" : "K42"
+      }, 
+    "A128": {
+      "alignName" : "A128"
+      }, 
+    "C181": {
+      "alignName" : "C181"
+      }, 
+    "N279": {
+      "alignName" : "N279"
+      },
+    "L280": {
+      "alignName" : "L280"
+      },
+    "T282": {
+      "alignName" : "T282"
+    }
+  }, 
+  "edges": {
+    "L26": {
+      "F29": {
+        "value" : -15
+        }, 
+      "A272": {
+        "value" : 11
+      }
+    }, 
+    "Q28": {
+      "F29": {
+        "value" : 16
+      }
+    }, 
+    "F29": {
+      "I33": {
+        "value" : 15
+        }, 
+      "A272": {
+        "value" : 38
+        },
+      "F276": {
+        "value" : -34
+      }
+    }, 
+    "I33": {
+      "A272": {
+        "value" : 15
+        }, 
+      "F276": {
+        "value" : 16
+      }
+    }, 
+    "C35": {
+      "K42": {
+        "value" : 21
+        },
+      "A128": {
+        "value" : 24
+        },
+      "C181": {
+        "value" : 60
+        },
+      "N279": {
+        "value" : 26
+        },
+      "L280": {
+        "value" : 26
+        },
+      "T282": {
+        "value" : 14
+      }
+    }
+  }, 
+  "_": "zebra finch bk42w74 syllable transition graph"
+}

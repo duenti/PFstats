@@ -59,9 +59,9 @@ private:
     void resetCommunities();
     bool validstartcharacter(char c);
     bool validposition(char c);
-    int freqmatrixposition(char c);
-    int getresn(string line);
-    int GetOffsetFromSeqName (string seqname);
+    unsigned int freqmatrixposition(char c);
+    unsigned int getresn(string line);
+    unsigned int GetOffsetFromSeqName (string seqname);
     bool isaa(char c);
     bool isaa(char c, bool casesensitive);
     bool isaax(char c);
@@ -95,7 +95,7 @@ public:
     void setFilepath(string path);
     string getRefSeqName();
     void setRefSeqName(string ref);
-    int getRefSeqOffset();
+    unsigned int getRefSeqOffset();
     string getLocalDir();
     void setLocalDir(string dir);
     string getWebDir();
@@ -108,17 +108,17 @@ public:
     vector<vector<string> > getAllSequences();
     void removeFilterItem(int pos);
     string getFilterName(int i,int j);
-    int getFilterSize();
+    unsigned int getFilterSize();
     void addSequence();
     vector<tuple<string,string,int> > getCorrelationGraph();
     tuple<string,string,int> getCorrelationEdge(int i);
-    int getCorrelationGraphSize();
+    unsigned int getCorrelationGraphSize();
     set<string> getCorrelationNodes();
     set<string> getPositiveCorrelationNodes();
     void addRefSeq(string seq);
     string getRefSeq(int i);
     void clearRefSeq();
-    int getRefSeqsSize();
+    unsigned int getRefSeqsSize();
     void addCommunity(vector<string> comm);
     void addItemToCommunity(string res, int commindex);
     void removeItemOfCommunity(int comm, int item);
@@ -130,13 +130,14 @@ public:
     void setConsDG(vector<float> dg);
     void addConsFreqRow(vector<int> consfreq);
     void addConsFreqPercRow(vector<float> cfreqperc);
-    int getUniprotMinedSize(); //UNIPROT MINE
+    unsigned int getUniprotMinedSize(); //UNIPROT MINE
     void addUniprotEntry(Uniprot *entry);
     string getUniprotEntryName(int i);
-    int getUniprotEntryNofFeatures(int i);
+    unsigned int getUniprotEntryNofFeatures(int i);
     Feature* getUniprotFeature(int i, int j);
     string uniprotEntryToString(int i);
     void setMinssVector(vector<float> minss);
+    unsigned int getMinssVectorSize();
     void addCorrGraphEdge(string v1, string v2, int e);
     void addResiduesComm(vector<string> comm);
     void addResiduesCommPs(vector<string> comm);
@@ -162,12 +163,12 @@ public:
     vector<string> getCorrelationParameters();
     vector<string> getFullAlignment();
     vector<string> getFullSequences();
-    int getSequencesSize();
-    int getConsFreqSize();
-    int getConsFreqPercSize();
-    int getCorrGraphSize();
-    int getCommListSize();
-    int getNumOfUtilComms();
+    unsigned int getSequencesSize();
+    unsigned int getConsFreqSize();
+    unsigned int getConsFreqPercSize();
+    unsigned int getCorrGraphSize();
+    unsigned int getCommListSize();
+    unsigned int getNumOfUtilComms();
     vector<int> getConsFreqRow(int i);
     vector<float> getConsFreqPercRow(int i);
     tuple<string,string,int> getCorrGraphTuple(int i);
@@ -213,7 +214,7 @@ public:
     vector<vector<float> > selfcorrelationmatrix;
     vector<vector<float> > identitymatrix;
     int referencesequence;
-    int getDeltasSize();
+    unsigned int getDeltasSize();
     void clearDeltaMatrix();
     void addDeltaLine(vector<float> line);
     vector<float> getDeltasList(int c);
@@ -225,7 +226,7 @@ public:
     void CalculateAASpecificConservation();
     void WriteAASpecificConservation(string outputfilename);
     float Identity(int seq1, int seq2); //[OK]
-    int SeqSize(int seq); //[OK]
+    unsigned int SeqSize(int seq); //[OK]
     void alignment2UpperCase();
     void IdentityMatrixCalculation();
     void IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
@@ -240,8 +241,8 @@ public:
     void FreqWrite(); //[OK]
     void CalculateReferenceVector(int seqnumber); // Seqnumber starts with 1 [OK]
     void CalculateReferenceVector2(int seqnumber);
-    int AlignNumbering2Sequence(int seqnumber, int position); // Seqnumber starts with 1 [OK]
-    int AlignNumbering2Sequence2(int seqnumber, int position); // Seqnumber starts with 1 [OK]
+    unsigned int AlignNumbering2Sequence(int seqnumber, int position); // Seqnumber starts with 1 [OK]
+    unsigned int AlignNumbering2Sequence2(int seqnumber, int position); // Seqnumber starts with 1 [OK]
     void NormalizedG(); //[OK]
     int seqcode2seqint (string refseqcode); //[OK]
     int seqname2seqint(string refseqcode); //[OK]
@@ -264,7 +265,7 @@ public:
     void pMatrix2HTML(string path, bool renumber, int seqnumber); //[OK]
     void pMatrix2HTMLRAM(bool renumber, int seqnumber); //[OK]
     float PSA(int seqnumber, int communitynumber); //[OK]
-    int ADH_count(int seqnumber,int communitynumber);
+    //int ADH_count(int seqnumber,int communitynumber);
     void CalculateHighlyConservedPositions();
     void SuccessiveRandomElimination(string outputfilename, int step, int repetitions, int endvalue=100);
     vector<float> DTRandomElimination(int repetitions, int max, int min, int step); //[OK]

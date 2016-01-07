@@ -522,8 +522,8 @@ public:
     QStatusBar *statusBar;
     QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup_3;
-    QButtonGroup *buttonGroup_4;
     QButtonGroup *buttonGroup;
+    QButtonGroup *buttonGroup_4;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -2673,8 +2673,8 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(4);
-        stackedWidget2->setCurrentIndex(11);
+        stackedWidget->setCurrentIndex(2);
+        stackedWidget2->setCurrentIndex(16);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

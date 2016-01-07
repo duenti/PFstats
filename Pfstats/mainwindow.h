@@ -138,9 +138,9 @@ private slots:
     void on_lstProteinsFiltered_activated(const QModelIndex &index);
 
     void on_cmdNextComm_clicked();
-    
+
     void on_cmdBackComm_clicked();
-    
+
     void on_cmdNextComm_2_clicked();
 
     void on_cmdBackComm_2_clicked();
@@ -240,9 +240,9 @@ private:
     string makeNewPath(string oldPath, string fileSufix);
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
-    void alignfilter(string alignPath, float occupancy, float minId, float maxId, int refseq, string refseqName, bool intermediate = true, bool filter1=true, bool filter2=true, bool filter3=true);
+    void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true);
     void conservation(int ai, int refseq, int offset, char chain, float minCons, string pdbfile = "");
-    void conservedresidues(int ai, vector<int> referencesequences, float minconservation);
+    void conservedresidues(int ai, float minconservation);
     vector<float> minss(int ai, int repetitions); //from 100 to 1;
     void pcalc(int ai, int minlogp, float minssfraction, float mindeltafreq);
     void trivcomm(int ai);

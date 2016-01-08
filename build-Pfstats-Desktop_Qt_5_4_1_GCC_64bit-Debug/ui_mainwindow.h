@@ -520,9 +520,9 @@ public:
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
+    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup_3;
-    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_4;
 
     void setupUi(QMainWindow *MainWindow)
@@ -2673,8 +2673,8 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(2);
-        stackedWidget2->setCurrentIndex(16);
+        stackedWidget->setCurrentIndex(7);
+        stackedWidget2->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

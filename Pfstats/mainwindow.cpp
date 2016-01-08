@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    currentAlign = nullptr;
 
     libpath = ""; //NO windows começar com dir raiz
 
@@ -3072,9 +3073,12 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     for(i = 0; i < alinhamentos.size(); i++){
         if(path == alinhamentos.at(i).getFilepath()){
             sequences = alinhamentos.at(i).getSequencesName();
+            //currentAlign = &alinhamentos[i];
             break;
         }
     }
+
+    //QMessageBox::information(this,"a",currentAlign->sequencenames[10].c_str());
 /*
     for(unsigned int j = 0; j < sequences.size(); j++){
         printf("%d - %s",i,sequences[i].c_str());
@@ -3468,7 +3472,7 @@ void MainWindow::on_cmdShow_clicked()
 void MainWindow::on_lstProteinsFiltered_activated(const QModelIndex &index)
 {
     //Acha qual alinhamento está trabalhando
-    string path = index.data().toString().toStdString();
+    string path = ui->listWidget->currentItem()->text().toStdString();
 
     unsigned int i = 0;
     for(i = 0; i < alinhamentos.size(); i++){
@@ -3477,7 +3481,7 @@ void MainWindow::on_lstProteinsFiltered_activated(const QModelIndex &index)
         }
     }
 
-    string sequence = alinhamentos[i].getSequence(ui->lstProteinsFiltered->currentItem()->text().toStdString());
+    string sequence = alinhamentos[i].getSequence(index.data().toString().toStdString());
 
     ui->txtSequence->setText(sequence.c_str());
 }
@@ -5829,7 +5833,7 @@ void MainWindow::on_treeMinerComms_clicked(const QModelIndex &index)
     ui->tableProteinsMined2->clearContents();
 
     //Acha qual alinhamento está trabalhando
-    string path = index.data().toString().toStdString();
+    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
 
     unsigned int i = 0;
     for(i = 0; i < alinhamentos.size(); i++){
@@ -5838,7 +5842,7 @@ void MainWindow::on_treeMinerComms_clicked(const QModelIndex &index)
         }
     }
 
-    QString item = ui->treeMinerComms->currentItem()->text(0);
+    QString item = index.data().toString();
 
     if(!item.startsWith("Comm") && !item.startsWith("Conservation")){
         vector<Uniprot*> features = alinhamentos[i].getAllResidueFeatures(item.toStdString());

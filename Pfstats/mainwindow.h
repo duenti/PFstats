@@ -223,6 +223,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    Alignment *currentAlign;
     void changeWizardCmds(bool bl);
     void resetObjects();
     string libpath;

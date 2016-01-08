@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>7</number>
     </property>
     <widget class="QWidget" name="page">
      <layout class="QFormLayout" name="formLayout">
@@ -1527,7 +1527,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>16</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_8">
        <widget class="QGroupBox" name="groupBox_5">
@@ -4562,9 +4562,9 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

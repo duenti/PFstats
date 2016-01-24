@@ -8,6 +8,7 @@
 #include "qcustomplot.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "pdb.h"
 
 using namespace std;
 
@@ -27,7 +28,6 @@ public:
 private slots:
     void inputAlignment_triggered();
     void fetchPFAM_triggered();
-    void exportAlignment_triggered();
     void Open_XML_triggered();
     void exportAlignment_PFAM();
     void exportAlignment_TXT();
@@ -74,6 +74,7 @@ private slots:
     void startWizard();
     void changetoFilterStack();
     void changeToRefSeqs();
+    void changeToLoadPDBs();
     void changeToConservationStack();
     void changetoMinssStack();
     void changetoCorrelationStack();
@@ -110,8 +111,6 @@ private slots:
     void on_cmdOpen_clicked();
     void on_cmdFetch_clicked();
     void on_cmdApplyFilter_clicked();
-    void on_cmdFetchPDB_clicked();
-    void on_cmdPDBfromFile_clicked();
     void on_cmdConservation_clicked();
     void on_cmdMinss_clicked();
     //void on_cmdGraphPath_clicked();
@@ -221,9 +220,30 @@ private slots:
 
     void on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item);
 
+    void on_chkRemoveContactResidues_clicked(bool checked);
+
+    void on_cmbRefSeq_3_activated(const QString &arg1);
+
+    void on_lstPDBsLoaded_2_itemActivated(QListWidgetItem *item);
+
+    void on_cmbRefSeq_4_activated(const QString &arg1);
+
+    void on_lstRecommendedPDBs_itemActivated(QListWidgetItem *item);
+
+    void on_cmdPDBFile_clicked();
+
+    void on_cmdPDBFetch_clicked();
+
+    void on_cmdLoadPDB_clicked();
+
+    void on_chkGenerateConsPDB_clicked(bool checked);
+
+    void on_chkCommVisualization_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
     Alignment *currentAlign;
+    string currentPDBContent;
     void changeWizardCmds(bool bl);
     void resetObjects();
     string libpath;
@@ -235,6 +255,7 @@ private:
     QCPItemText *minssLabel;
     bool compareLocalWebPDB(string local, string web);
     vector<Alignment> alinhamentos;
+    vector<Pdb*> pdbs;
     void addAlignment(string path);
     bool checkfile(const string& name);
     vector<string> split(string text, char sep);
@@ -242,7 +263,7 @@ private:
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
     void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true);
-    void conservation(int refseq, int offset, char chain, float minCons, string pdbfile = "");
+    void conservation(int refseq, int offset, char chain, float minCons, string pdbid = "");
     void conservedresidues(float minconservation);
     vector<float> minss(int repetitions); //from 100 to 1;
     void pcalc(int minlogp, float minssfraction, float mindeltafreq);

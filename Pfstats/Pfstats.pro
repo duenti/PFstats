@@ -28,14 +28,18 @@ SOURCES += main.cpp\
     alignment.cpp \
     about.cpp \
     uniprot.cpp \
-    feature.cpp
+    feature.cpp \
+    pdb.cpp \
+    pdbatom.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
     alignment.h \
     about.h \
     uniprot.h \
-    feature.h
+    feature.h \
+    pdb.h \
+    pdbatom.h
 
 FORMS    += mainwindow.ui \
     about.ui

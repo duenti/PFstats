@@ -44,7 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //Conecta Slots
     connect(ui->actionInput_Alignment,SIGNAL(triggered()),this,SLOT(inputAlignment_triggered()));
     connect(ui->actionFetch_From_PFAM,SIGNAL(triggered()),this,SLOT(fetchPFAM_triggered()));
-    connect(ui->actionExport_Alignment,SIGNAL(triggered()),this,SLOT(exportAlignment_triggered()));
     connect(ui->actionOpen_XML,SIGNAL(triggered()),this,SLOT(Open_XML_triggered()));
     connect(ui->actionAlignmentPFAM,SIGNAL(triggered()),this,SLOT(exportAlignment_PFAM()));
     connect(ui->actionAlignmentTXT,SIGNAL(triggered()),this,SLOT(exportAlignment_TXT()));
@@ -83,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionStart_Wizard,SIGNAL(triggered()),this,SLOT(startWizard()));
     connect(ui->actionFilter_Alignment,SIGNAL(triggered()),this,SLOT(changetoFilterStack()));
     connect(ui->actionReference_Sequences,SIGNAL(triggered()),this,SLOT(changeToRefSeqs()));
+    connect(ui->actionLoadPDB,SIGNAL(triggered()),this,SLOT(changeToLoadPDBs()));
     connect(ui->actionConservation,SIGNAL(triggered()),this,SLOT(changeToConservationStack()));
     connect(ui->actionMinss,SIGNAL(triggered()),this,SLOT(changetoMinssStack()));
     connect(ui->actionCorrelation,SIGNAL(triggered()),this,SLOT(changetoCorrelationStack()));
@@ -169,9 +169,18 @@ void MainWindow::resetObjects(){
     //REFSEQS
     ui->lstRefSeqs->clear();
     ui->lstRefSeqSelected->clear();
+    //PDB
+    ui->txtFilePathPDB->clear();
+    ui->txtPdbId->clear();
+    ui->lstRecommendedPDBs->clear();
+    ui->lstPDBsInMemory->clear();
+    ui->chkDownloadPDB->setChecked(false);
+    ui->txtPDBFrom->setValue(0);
+    ui->txtPDBTo->setValue(0);
+    ui->cmbRefSeq_4->clear();
+    ui->chkPDBSWS->setChecked(false);
     //CONSERVATION
     ui->txtPDBName->clear();
-    ui->txtPDBfilepath->clear();
     ui->lstRecomendedPDBs->clear();
     ui->txtOffset->setText("0");
     ui->txtChain->setText("A");
@@ -182,6 +191,10 @@ void MainWindow::resetObjects(){
     ui->graficMinss->setVisible(false);
     ui->txtNoAlignments->setValue(100);
     //CORRELATION
+    ui->chkRemoveContactResidues->setChecked(false);
+    ui->txtAtomDistance->setValue(4.5);
+    ui->txtPDBName_2->clear();
+    ui->lstPDBsLoaded_2->clear();
     ui->txtMinScore->setValue(10);
     ui->txtMinssFraction->clear();
     ui->txtMinDeltaFreq->setValue(0.3);
@@ -351,6 +364,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     seqSize = currentAlign->getSequencesSize();
     msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
     //currentAlign->AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
+
     if(filter1){
         currentAlign->AlignmentTrimming(occupancy,0,firstrefseq,firstrefseqname,true,inter);
 
@@ -358,7 +372,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
         seqSize = currentAlign->getSequencesSize();
         msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
     }
-
+//QMessageBox::information(this,"a","teste4");
     if(filter2){
         currentAlign->IdentityMinimum(minId,0,occupancy,firstrefseqname,firstrefseq,inter);
 
@@ -366,7 +380,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
         seqSize = currentAlign->getSequencesSize();
         msg += "Minimum identity filter removed " + QString::number(seqCut) + " sequences.\n";
     }
-
+//QMessageBox::information(this,"a","teste5");
     if(filter3){
         currentAlign->IdentityTrimming(maxId,occupancy,minId,0,firstrefseqname,firstrefseq,true);
 
@@ -392,7 +406,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     QMessageBox::information(this,"Alignment filters",msg);
 }
 
-void MainWindow::conservation(int refseq, int offset, char chain, float minCons, string pdbfile){
+void MainWindow::conservation(int refseq, int offset, char chain, float minCons, string pdbid){
     currentAlign->CalculateFrequencies();
     currentAlign->dGCalculation();
     currentAlign->dGWrite();
@@ -400,18 +414,30 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
 
     string path = "";
 
-    if(pdbfile != ""){
-        vector<string> vecPath = split(currentAlign->getFilepath(),'.');
-
-        for(unsigned int i=0;i<vecPath.size()-1;i++){
-            path += vecPath[i];
+    if(pdbid != ""){
+        Pdb* pdb = NULL;
+        for(unsigned int i = 0; i < pdbs.size(); i++){
+            if(pdbid == pdbs[i]->getId()){
+                pdb = pdbs[i];
+                break;
+            }
         }
-        path += "_STRUCTURE.pdb";
 
-        //printf("\n%s\n",path.c_str());
+        if(pdb == NULL){
+            QMessageBox::warning(this,"Warning","This is not a valid loaded structure.");
+            ui->cmdConservation->setEnabled(true);
+            return;
+        }
 
-        currentAlign->writedGtoPDB(pdbfile, path,offset,chain,refseq);
+        QString filename = QFileDialog::getSaveFileName(this,tr("Save conservation structure file"),"",tr("TEXT Files (*.pdb)"));
+        path = filename.toStdString();
+
+        //pdb->printSeqNumbers();
+        vector<float> consvec = currentAlign->createConservationVector(refseq);
+        pdb->exportStructure(filename,consvec);
+
         currentAlign->setConsPDBPath(path);
+
     }
 
     if(ui->listWidget2->currentItem() == NULL)
@@ -419,7 +445,7 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
     else
         currentAlign->addParameter("conservation", ui->listWidget2->currentItem()->text().toStdString(), refseq, offset, chain, minCons);
 
-    if(pdbfile != "") QMessageBox::information(this,"Conservation","Conservation has been calculated and the structure file has been successfully created at the above path:\n\n" + QString::fromStdString(path));
+    if(pdbid != "") QMessageBox::information(this,"Conservation","Conservation has been calculated and the structure file has been successfully created at the above path:\n\n" + QString::fromStdString(path));
     else QMessageBox::information(this,"Conservation","Conservation has been calculated.");
 }
 
@@ -1950,27 +1976,6 @@ void MainWindow::fetchPFAM_triggered(){
 
 }
 
-void MainWindow::exportAlignment_triggered(){
-    //Abre janela para salvar arquivo atualmente aberto
-    QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),"",tr("TEXT Files (*.txt *.pfam)"));
-
-    //Add na Lista
-    bool same = false;
-    for(int i = 0; i < ui->listWidget->count(); i++){
-        if(filename ==  ui->listWidget->item(i)->text()) same = true;
-    }
-    if(!same) ui->listWidget->addItem(filename);
-
-    //Salva em arquivo
-    QFile f(filename);
-    if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-
-    QTextStream out(&f);
-    //out << ui->textBrowser->toPlainText();
-    f.close();
-}
-
 void MainWindow::on_cmdStartWizard_clicked()
 {
     this->startWizard();
@@ -2076,9 +2081,20 @@ void MainWindow::on_cmdBack_clicked()
     }
     case 6:
     {
+        if(pdbs.size() == 0){
+            ui->chkGenerateConsPDB->setChecked(false);
+            emit ui->chkGenerateConsPDB->clicked(false);
+        }
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
         ui->stackedWidget->setCurrentIndex(5);
+        break;
+    }
+    case 7:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(6);
         break;
     }
     default:
@@ -2160,6 +2176,27 @@ void MainWindow::on_cmdAdvance_clicked()
     }
     case 4:
     {
+        if(pdbs.size() == 0){
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Warning",
+                                            "You are leaving this page without any structure loaded. Is that correct?",
+                                            QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::Yes){
+                ui->chkGenerateConsPDB->setChecked(false);
+                emit ui->chkGenerateConsPDB->clicked(false);
+                ui->cmdBack->setEnabled(true);
+                ui->cmdAdvance->setEnabled(true);
+                ui->stackedWidget->setCurrentIndex(5);
+            }else return;
+        }else{
+            ui->cmdBack->setEnabled(true);
+            ui->cmdAdvance->setEnabled(true);
+            ui->stackedWidget->setCurrentIndex(5);
+        }
+        break;
+    }
+    case 5:
+    {
         if(currentAlign->getConsFreqSize() == 0){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Warning",
@@ -2170,10 +2207,10 @@ void MainWindow::on_cmdAdvance_clicked()
 
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(5);
+        ui->stackedWidget->setCurrentIndex(6);
         break;
     }
-    case 5:
+    case 6:
     {
         if(currentAlign->getMinssVectorSize() == 0){
             QMessageBox::StandardButton reply;
@@ -2183,7 +2220,12 @@ void MainWindow::on_cmdAdvance_clicked()
             if (reply == QMessageBox::No) return;
         }
 
-        ui->stackedWidget->setCurrentIndex(6);
+        if(pdbs.size() == 0){
+            ui->chkRemoveContactResidues->setChecked(false);
+            emit ui->chkRemoveContactResidues->clicked(false);
+        }
+
+        ui->stackedWidget->setCurrentIndex(7);
         ui->cmdAdvance->setEnabled(false);
         ui->cmdBack->setEnabled(true);
         break;
@@ -2485,6 +2527,8 @@ void MainWindow::on_cmdApplyFilter_clicked()
     ui->cmbRefSeq_2->setCurrentIndex(ui->cmbRefSeq->currentIndex());
     ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
     ui->cmbRefSeq_3->setCurrentIndex(ui->cmbRefSeq->currentIndex());
+    ui->cmbRefSeq_4->setCurrentIndex(ui->cmbRefSeq->currentIndex());
+    ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 
     ////////////////////ALIGNFILTER////////////////////
     float occupancy, minId, maxId;
@@ -2506,6 +2550,7 @@ void MainWindow::on_cmdApplyFilter_clicked()
     ui->cmdApplyFilter->setEnabled(true);
 }
 
+/*
 void MainWindow::on_cmdFetchPDB_clicked()
 {
     ui->cmdFetchPDB->setEnabled(false);
@@ -2569,7 +2614,6 @@ void MainWindow::on_cmdFetchPDB_clicked()
 
     ui->cmdFetchPDB->setEnabled(true);
 }
-
 void MainWindow::on_cmdPDBfromFile_clicked()
 {
     ui->cmdPDBfromFile->setEnabled(false);
@@ -2588,6 +2632,7 @@ void MainWindow::on_cmdPDBfromFile_clicked()
 
     ui->cmdPDBfromFile->setEnabled(true);
 }
+*/
 
 void MainWindow::on_cmdConservation_clicked()
 {
@@ -2612,36 +2657,28 @@ void MainWindow::on_cmdConservation_clicked()
         ui->cmdConservation->setEnabled(true);
         return;
     }
+    if(ui->chkGenerateConsPDB->isChecked() && ui->txtPDBName->text() == ""){
+        QMessageBox::warning(this,"Error","You checked to generate structure visualization, but didnt inform any PDB file.");
+        ui->cmdConservation->setEnabled(true);
+        return;
+    }
 
     //Calcular a conservaçao
     string alignfilename;
-    string pdbfilename;
+    string pdbfilename = "";
     char chain;
     int refseq;
     float minCons;
 
+    if(ui->chkGenerateConsPDB->isChecked())
+        pdbfilename = ui->txtPDBName->text().toStdString();
+
     alignfilename = ui->listWidget->currentItem()->text().toStdString();
-    pdbfilename = ui->txtPDBfilepath->text().toStdString();
     refseq = ui->cmbRefSeq_2->currentIndex();
     chain = ui->txtChain->text().at(0).toLatin1();
     minCons = ui->txtMinConserv->value();
 
     currentAlign->setMinsCons(minCons);
-
-
-    /*REMOVED IN NEW REFSEQ
-    currentAlign->clearConsRefs();
-    for(unsigned int j = 0; j < indexList.size(); j++){
-        currentAlign->addConsRef(ui->lstRefSeqs->item(indexList.at(j).row())->text().toStdString());
-    }
-    */
-
-    if(ui->txtPDBfilepath->text() != ""){
-        currentAlign->setLocalPDBDir(ui->txtPDBfilepath->text().toStdString());
-    }
-
-    if(this->compareLocalWebPDB(ui->txtPDBfilepath->text().toStdString(),this->pdbweb))
-        currentAlign->setWebPDBDir(pdbweb);
 
     this->conservation(refseq,offset,chain,minCons,pdbfilename);
 
@@ -2713,6 +2750,7 @@ void MainWindow::on_cmdGraphPath_clicked()
 void MainWindow::on_cmdCorrelation_clicked()
 {
     ui->cmdCorrelation->setEnabled(false);
+    string msg = "";
 
     //Validação de dados
     if(ui->listWidget->selectedItems().size() == 0){
@@ -2739,6 +2777,33 @@ void MainWindow::on_cmdCorrelation_clicked()
         return;
     }
 
+    vector<tuple<string, string> > contactResidues;
+
+    //Contact Filters
+    if(ui->chkRemoveContactResidues->isChecked()){
+       if(ui->txtPDBName_2->text() == ""){
+           QMessageBox::warning(this,"Warning","You must choose a PDB loaded to apply the contact filter");
+           ui->cmdCorrelation->setEnabled(true);
+           return;
+       }
+
+       Pdb* pdb = NULL;
+       for(unsigned int i = 0; i < pdbs.size(); i++){
+           if(ui->txtPDBName_2->text().toStdString() == pdbs[i]->getId()){
+               pdb = pdbs[i];
+               break;
+           }
+       }
+
+       if(pdb == NULL){
+           QMessageBox::warning(this,"Warning","This is not a valid loaded structure.");
+           ui->cmdConservation->setEnabled(true);
+           return;
+       }
+
+       contactResidues = pdb->getResiduesInContact(ui->txtAtomDistance->value());
+    }
+
     //Chamar PCalc
     //string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
     int minlogp = ui->txtMinScore->value();
@@ -2754,14 +2819,56 @@ void MainWindow::on_cmdCorrelation_clicked()
 
     this->pcalc(minlogp,minssfraction,mindeltafreq);
 
+    //Aplica filtro
+    if(contactResidues.size() > 0){
+        vector<string> filtered = currentAlign->filterCorrGraph(contactResidues,ui->cmbRefSeq_3->currentIndex());
+
+        if(filtered.size() > 0){
+            msg += "The pairs above were removed in the filtered:\n\n";
+            for(unsigned int i = 0; i < filtered.size(); i++){
+                msg += filtered[i] + " ";
+            }
+            msg += "\n\n";
+        }else msg += "None correlation pair were removed in the filter.\n\n";
+
+    }
+
     //Chamar Trivcomm
     this->trivcomm();
 
     //Chamar Output
     this->output(1,ui->txtOffset_2->text().toInt());
 
+    //Gerar Visualizações
+    if(ui->chkCommVisualization->isChecked()){
+        if(ui->txtPDBName_2->text() == ""){
+            QMessageBox::warning(this,"Warning","To generate communities visualization, you must set a PDB id");
+            ui->cmdCorrelation->setEnabled(true);
+            return;
+        }
 
-    QMessageBox::information(this,"Correlation","All correlations were calculated.");
+        Pdb* pdb = NULL;
+        for(unsigned int i = 0; i < pdbs.size(); i++){
+            if(ui->txtPDBName_2->text().toStdString() == pdbs[i]->getId()){
+                pdb = pdbs[i];
+                break;
+            }
+        }
+
+        if(pdb == NULL){
+            QMessageBox::warning(this,"Warning","PDB not found. Maybe it hasn't been loaded.");
+            ui->cmdCorrelation->setEnabled(true);
+            return;
+        }
+
+        QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),"",tr("TEXT Files (*.pdb)"));
+        vector<float> commvec = currentAlign->createCommuntitiesVector(ui->cmbRefSeq_3->currentIndex());
+        pdb->exportStructure(filename,commvec);
+    }
+
+    msg += "All correlations were calculated.";
+
+    QMessageBox::information(this,"Correlation",msg.c_str());
     ui->cmdCorrelation->setEnabled(true);
 }
 
@@ -2781,7 +2888,7 @@ void MainWindow::updateResultsViews(){
     {
         if(currentAlign->getConsFreqSize() == 0){
             QMessageBox::warning(this,"Warning","You must run conservation method.");
-            ui->stackedWidget->setCurrentIndex(3);
+            ui->stackedWidget->setCurrentIndex(5);
             return;
         }
 
@@ -2796,7 +2903,7 @@ void MainWindow::updateResultsViews(){
     {
         if(currentAlign->getConsFreqPercSize() == 0){
             QMessageBox::warning(this,"Warning","You must run conservation method.");
-            ui->stackedWidget->setCurrentIndex(3);
+            ui->stackedWidget->setCurrentIndex(5);
             return;
         }
 
@@ -2974,6 +3081,8 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbRefSeq_2->addItem("");
     ui->cmbRefSeq_3->clear();
     ui->cmbRefSeq_3->addItem("");
+    ui->cmbRefSeq_4->clear();
+    ui->cmbRefSeq_4->addItem("");
     ui->lstRefSeqs->clear();
     ui->lstRefSeqSelected->clear();
     ui->lstLookingRefs->clear();
@@ -3046,6 +3155,8 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
     ui->cmbRefSeq_2->addItem("");
     ui->cmbRefSeq_3->clear();
     ui->cmbRefSeq_3->addItem("");
+    ui->cmbRefSeq_4->clear();
+    ui->cmbRefSeq_4->addItem("");
     //ui->lstRefSeqs->clear();
     //ui->lstRefSeqs_2->clear();
     ui->lstProteinsFiltered->clear();
@@ -3062,6 +3173,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
             vector<string> splitVec = this->split(fullAlignment[j],'/');
             ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
             ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
+            ui->cmbRefSeq_4->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
@@ -3077,6 +3189,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
                     vector<string> splitVec = this->split(filterList[j][k],'/');
                     ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
                     ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
+                    ui->cmbRefSeq_4->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
@@ -3110,17 +3223,19 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
     ui->cmbRefSeq_2->setCurrentIndex(1);
     ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
     ui->cmbRefSeq_3->setCurrentIndex(1);
-
+    ui->cmbRefSeq_4->setCurrentIndex(1);
+    ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 }
 
 void MainWindow::on_cmbRefSeq_activated(int index)
 {
     if(index == 0) return;
 
-    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
     ui->cmbRefSeq_2->setCurrentIndex(index);
     ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
     ui->cmbRefSeq_3->setCurrentIndex(index);
+    ui->cmbRefSeq_4->setCurrentIndex(index);
+    ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 
     //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
     currentAlign->setRefSeqName(currentAlign->sequencenames[index-1]);
@@ -3135,7 +3250,6 @@ void MainWindow::on_cmbRefSeq_2_activated(int index)
     //TAMBEM TEM EVENTO ACTIVATED COM PARAMETRO STRING
     if(index == 0) return;
 
-    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
     ui->cmbRefSeq->setCurrentIndex(index);
     ui->cmbRefSeq_3->setCurrentIndex(index);
 
@@ -3326,8 +3440,6 @@ void MainWindow::on_lstProteinsFiltered_activated(const QModelIndex &index)
 
 void MainWindow::on_cmdNextComm_clicked()
 {
-    int ai = ui->lblHidden->text().toInt();
-
     //Recuperar a Comunidade Atual
     vector<string> vecSplit = split(ui->lblComunidade->text().toStdString(),' ');
     string temp = vecSplit[1];
@@ -3394,8 +3506,6 @@ void MainWindow::on_cmdNextComm_clicked()
 
 void MainWindow::on_cmdBackComm_clicked()
 {
-    int ai = ui->lblHidden->text().toInt();
-
     //Recuperar a Comunidade Atual
     vector<string> vecSplit = split(ui->lblComunidade->text().toStdString(),' ');
     string temp = vecSplit[1];
@@ -3462,8 +3572,6 @@ void MainWindow::on_cmdBackComm_clicked()
 
 void MainWindow::on_cmdNextComm_2_clicked()
 {
-    int ai = ui->lblHidden->text().toInt();
-
     //Recuperar a Comunidade Atual
     vector<string> vecSplit = split(ui->lblComunidade_2->text().toStdString(),' ');
     string temp = vecSplit[1];
@@ -3516,8 +3624,6 @@ void MainWindow::on_cmdNextComm_2_clicked()
 
 void MainWindow::on_cmdBackComm_2_clicked()
 {
-    int ai = ui->lblHidden->text().toInt();
-
     //Recuperar a Comunidade Atual
     vector<string> vecSplit = split(ui->lblComunidade_2->text().toStdString(),' ');
     string temp = vecSplit[1];
@@ -3606,8 +3712,6 @@ void MainWindow::on_cmdNextResComm_clicked()
 {
     ui->cmdNextResComm->setEnabled(false);
 
-    int ai = ui->lblHidden->text().toInt();
-
     //Recuperar a Comunidade Atual
     vector<string> vecSplit = split(ui->lblComunidade_3->text().toStdString(),' ');
     string temp = vecSplit[1];
@@ -3678,8 +3782,6 @@ void MainWindow::on_cmdNextResComm_clicked()
 void MainWindow::on_cmdBackResComm_clicked()
 {
     ui->cmdBackResComm->setEnabled(false);
-
-    int ai = ui->lblHidden->text().toInt();
 
     //Recuperar a Comunidade Atual
     vector<string> vecSplit = split(ui->lblComunidade_3->text().toStdString(),' ');
@@ -4955,7 +5057,7 @@ void MainWindow::changeToRefSeqs(){
     ui->stackedWidget->setCurrentIndex(3);
 }
 
-void MainWindow::changeToConservationStack(){
+void MainWindow::changeToLoadPDBs(){
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
 
@@ -4966,6 +5068,22 @@ void MainWindow::changeToConservationStack(){
     ui->stackedWidget->setCurrentIndex(4);
 }
 
+void MainWindow::changeToConservationStack(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    if(pdbs.size() == 0){
+        ui->chkGenerateConsPDB->setChecked(false);
+        emit ui->chkGenerateConsPDB->clicked(false);
+    }
+
+    ui->stackedWidget->setCurrentIndex(5);
+}
+
 void MainWindow::changetoMinssStack(){
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
@@ -4974,7 +5092,7 @@ void MainWindow::changetoMinssStack(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(5);
+    ui->stackedWidget->setCurrentIndex(6);
 }
 
 void MainWindow::changetoCorrelationStack(){
@@ -4985,7 +5103,12 @@ void MainWindow::changetoCorrelationStack(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    if(pdbs.size() == 0){
+        ui->chkRemoveContactResidues->setChecked(false);
+        emit ui->chkRemoveContactResidues->clicked(false);
+    }
+
+    ui->stackedWidget->setCurrentIndex(7);
 }
 
 void MainWindow::changetoShowResultsStack(){
@@ -5003,7 +5126,7 @@ void MainWindow::changetoShowResultsStack(){
     stackBeforeShowResults = ui->stackedWidget->currentIndex();
 
     ui->stackedWidget2->setCurrentIndex(0);
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
 
     ui->listWidget->setEnabled(false);
     ui->listWidget2->setEnabled(false);
@@ -5096,7 +5219,7 @@ void MainWindow::changeToUniprotLookingTool(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(8);
+    ui->stackedWidget->setCurrentIndex(9);
 }
 
 void MainWindow::graphClicked(QCPAbstractPlottable *plot, QMouseEvent *mouse){
@@ -5526,7 +5649,7 @@ void MainWindow::changeToCreateCommunity(){
     for(unsigned int j = 1; j <= nOfComms; j++)
         ui->cmbComm->addItem(QString::number(j));
 
-    ui->stackedWidget->setCurrentIndex(9);
+    ui->stackedWidget->setCurrentIndex(10);
 }
 
 
@@ -5645,7 +5768,7 @@ void MainWindow::changeToListOfSequences(){
 
     this->listSequences();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(1);
 }
 
@@ -5669,7 +5792,7 @@ void MainWindow::changeToConservationFrequence(){
 
     this->tableFreq();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(2);
 }
 
@@ -5693,7 +5816,7 @@ void MainWindow::changeToConservationPercentage(){
 
     this->tableFreqPerc();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(3);
 }
 
@@ -5717,7 +5840,7 @@ void MainWindow::changeToConservedResidues(){
 
     this->showConservedResidues();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(4);
 }
 
@@ -5741,7 +5864,7 @@ void MainWindow::changetoCorrelationList(){
 
     this->correlationList();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(5);
 }
 
@@ -5762,7 +5885,7 @@ void MainWindow::changeToCorrelationGraph(){
 
     createCorrelationJSON();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(13);
 }
 
@@ -5780,7 +5903,7 @@ void MainWindow::changeToCommunitiesGraphs(){
 
     this->communitiesGraphs();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(14);
 }
 
@@ -5798,7 +5921,7 @@ void MainWindow::changeToCorrelationBetweenComms(){
 
     this->corrBetweenComms();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(15);
 
 }
@@ -5817,7 +5940,7 @@ void MainWindow::changeToPDBVisualization(){
 
     this->consVisualization();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(16);
 }
 
@@ -5829,7 +5952,7 @@ void MainWindow::changeToAlphabetReduction(){
     }
 
     emit ui->cmbAlphabetList->currentIndexChanged(0);
-    ui->stackedWidget->setCurrentIndex(10);
+    ui->stackedWidget->setCurrentIndex(11);
 }
 
 void MainWindow::changeToCommunitiesList(){
@@ -5852,7 +5975,7 @@ void MainWindow::changeToCommunitiesList(){
 
     this->communitiesList();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(6);
 }
 
@@ -5876,7 +5999,7 @@ void MainWindow::changeToCorrelationInPerc(){
 
     this->corrTable1();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(7);
 }
 
@@ -5900,7 +6023,7 @@ void MainWindow::changeToCorrelationInLogP(){
 
     this->corrTable2();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(8);
 }
 
@@ -5924,7 +6047,7 @@ void MainWindow::changeToAdherenceMatrix(){
 
     this->adh();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(9);
 }
 
@@ -5948,7 +6071,7 @@ void MainWindow::changeToResiduesOfCommunities(){
 
     this->showResiduesComm();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(10);
 }
 
@@ -5973,7 +6096,7 @@ void MainWindow::changeToULGroupedByProteins(){
 
     this->showUniprotGroupByProteins();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(11);
 }
 
@@ -5998,7 +6121,7 @@ void MainWindow::changeToULGroupedByComms(){
 
     this->showUniprotGroupByComms();
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(8);
     ui->stackedWidget2->setCurrentIndex(12);
 }
 
@@ -6736,21 +6859,278 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
 
 void MainWindow::on_cmbRefSeq_2_activated(const QString &arg1)
 {
-
     //Atualizar Recommended PDBS
     ui->lstRecomendedPDBs->clear();
 
-    vector<string> pdbs = currentAlign->getRecommendsPDBs(arg1.toStdString());
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        Pdb* pdb = pdbs[i];
 
-    for(unsigned int j = 0; j < pdbs.size(); j++){
-        ui->lstRecomendedPDBs->addItem(pdbs[j].c_str());
+        if(pdb->getRefseq() == arg1.toStdString())
+            ui->lstRecomendedPDBs->addItem(pdb->getId().c_str());
     }
-
 }
 
 void MainWindow::on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item)
 {
+    string pdb = item->text().toStdString();
+    ui->txtPDBName->setText(pdb.c_str());
+}
+
+void MainWindow::on_chkRemoveContactResidues_clicked(bool checked)
+{
+
+    if(checked){
+        ui->txtAtomDistance->setEnabled(true);
+        ui->txtPDBName_2->setEnabled(true);
+        ui->lstPDBsLoaded_2->setEnabled(true);
+    }else{
+        ui->txtAtomDistance->setEnabled(false);
+        if(ui->chkCommVisualization->isChecked()){
+            ui->txtPDBName_2->setEnabled(true);
+            ui->lstPDBsLoaded_2->setEnabled(true);
+        }else{
+            ui->txtPDBName_2->setEnabled(false);
+            ui->lstPDBsLoaded_2->setEnabled(false);
+        }
+    }
+}
+
+void MainWindow::on_cmbRefSeq_3_activated(const QString &arg1)
+{
+    //Atualizar Recommended PDBS
+    ui->lstPDBsLoaded_2->clear();
+
+    for(int i = 0; i < pdbs.size(); i++){
+        Pdb* pdb = pdbs[i];
+
+        if(pdb->getRefseq() == arg1.toStdString())
+            ui->lstPDBsLoaded_2->addItem(pdb->getId().c_str());
+    }
+}
+
+void MainWindow::on_lstPDBsLoaded_2_itemActivated(QListWidgetItem *item)
+{
+    string pdb = item->text().toStdString();
+    ui->txtPDBName_2->setText(pdb.c_str());
+}
+
+void MainWindow::on_cmbRefSeq_4_activated(const QString &arg1)
+{
+    //Atualizar Recommended PDBS
+    ui->lstRecommendedPDBs->clear();
+
+    vector<string> pdbs = currentAlign->getRecommendsPDBs(arg1.toStdString());
+
+    for(unsigned int j = 0; j < pdbs.size(); j++){
+        ui->lstRecommendedPDBs->addItem(pdbs[j].c_str());
+    }
+}
+
+void MainWindow::on_lstRecommendedPDBs_itemActivated(QListWidgetItem *item)
+{
     string pdbchain = item->text().toStdString();
     string pdb = split(pdbchain,' ')[0];
-    ui->txtPDBName->setText(pdb.c_str());
+    ui->txtPdbId->setText(pdb.c_str());
+
+    string interval = currentAlign->getPDBInterval(pdb);
+
+    vector<string> intervals = split(interval,'-');
+
+    ui->txtPDBFrom->setValue(stoi(intervals[0].c_str()));
+    ui->txtPDBTo->setValue(stoi(intervals[1].c_str()));
+}
+
+void MainWindow::on_cmdPDBFile_clicked()
+{
+    ui->cmdPDBFile->setEnabled(false);
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pdb)"));
+    ui->txtFilePathPDB->setText(fileName);
+    ui->txtPdbId->clear();
+
+    ui->cmdPDBFile->setEnabled(true);
+}
+
+void MainWindow::on_cmdPDBFetch_clicked()
+{
+    ui->cmdPDBFetch->setEnabled(false);
+
+    //Validação
+    if(ui->txtPdbId->text() == ""){
+        QMessageBox::warning(this,"Error","You must fill PDB name");
+        ui->cmdPDBFetch->setEnabled(true);
+        return;
+    }
+
+    //Montar URL
+    QString url = "http://www.rcsb.org/pdb/files/" + ui->txtPdbId->text() + ".pdb";
+
+    //Faz a conexão
+    QUrl qurl = url;
+    QNetworkAccessManager manager;
+    QNetworkRequest request(qurl);
+    QNetworkReply *reply(manager.get(request));
+    QEventLoop loop;
+    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+    //qDebug(reply->readAll());
+    QString pdb = reply->readAll();
+
+    if(pdb.contains("302 Found") || pdb.contains("301 Moved") || pdb == ""){
+        printf("\n%s",pdb.toStdString().c_str());
+        QMessageBox::warning(this,"Fetching Failed","PDB not found");
+        ui->cmdPDBFetch->setEnabled(true);
+        return ;
+    }else{
+        if(ui->chkDownloadPDB->isChecked()){
+            QString finalName = ui->txtPdbId->text() + ".pdb";
+            QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pdb)"));
+
+            if(filename == ""){
+                ui->cmdPDBFetch->setEnabled(true);
+                return;
+            }
+
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "pdb" && tempFN[tempFN.size()-1] != "PDB")
+                filename += ".pdb";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                ui->cmdPDBFetch->setEnabled(true);
+                return;
+            }
+
+            QTextStream out(&f);
+            out << pdb;
+            f.close();
+
+            ui->txtFilePathPDB->setText(filename);
+        }else{
+            ui->txtFilePathPDB->clear();
+        }
+
+        currentPDBContent = pdb.toStdString();
+        this->pdbweb = url.toStdString();
+    }
+
+    QMessageBox::StandardButton mbox;
+    mbox = QMessageBox::question(this, "Load 3D Structure", "Your PDB file has been found on the rcsb.org. Do you want to load it now?",
+                                QMessageBox::Yes|QMessageBox::No);
+    if (mbox == QMessageBox::Yes) {
+        ui->cmdLoadPDB->clicked();
+    }
+
+    ui->cmdPDBFetch->setEnabled(true);
+}
+
+void MainWindow::on_cmdLoadPDB_clicked()
+{
+    ui->cmdLoadPDB->setEnabled(false);
+    Pdb* pdb = NULL;
+    int intervalFrom = ui->txtPDBFrom->value();
+    int intervalTo = ui->txtPDBTo->value();
+    string refseq = ui->cmbRefSeq_4->currentText().toStdString();
+
+    //Validação
+    if(refseq == " "){
+        QMessageBox::warning(this,"Warning","You must set a reference sequence for this structure.");
+        ui->cmdLoadPDB->setEnabled(true);
+        return;
+    }
+
+    if(intervalFrom >= intervalTo){
+        QMessageBox::warning(this,"Warning","The second value of intervals must be higher than first.");
+        ui->cmdLoadPDB->setEnabled(true);
+        return;
+    }
+
+    if(ui->txtPdbId->text() != ""){
+        //Já está na memoria
+        //printf("%s",currentPDBContent.c_str());
+        pdb = new Pdb(currentPDBContent);
+    }else if(ui->txtFilePathPDB->text() != ""){
+        QString filepath = ui->txtFilePathPDB->text();
+        pdb = new Pdb(filepath);
+    }
+
+    if(pdb != NULL){
+        string pdbname = pdb->getId();
+
+        pdb->setRefseq(refseq);
+        pdb->setIntervals(intervalFrom,intervalTo);
+        pdb->setResiduesSeqNumber();
+
+        //Verify if pdb and sequence align
+        string currseq = currentAlign->getNoGAPSequence(ui->cmbRefSeq_3->currentIndex()-1);
+
+        if(ui->chkPDBSWS->isChecked()){
+            string pdbseq = pdb->getSWSSeq();
+            printf("%s\n%s\n",currseq.c_str(),pdbseq.c_str());
+            if(pdbseq != currseq){
+                for(unsigned int i = 0; i < currseq.size(); i++){
+                    if(pdbseq[i] != currseq[i]){
+                        printf("ERROR: %c - %c - %d\n",pdbseq[i],currseq[i],i);
+                        QMessageBox::warning(this,"Warning","Your structure file didnt fully aligned with the PDB-SWS webservice. Maybe you selected the wrong reference sequence.");
+                        ui->cmdLoadPDB->setEnabled(true);
+                        return;
+                    }
+                }
+            }
+        }else{
+            string pdbseq = pdb->getPDBSequence().substr(intervalFrom-1,intervalTo-1);
+            if(pdbseq != currseq){
+                for(unsigned int i = 0; i < currseq.size(); i++){
+                    if(pdbseq[i] != currseq[i]){
+                        //printf("%c - %c - %d",pdbseq[i],currseq[i],i);
+                        string msg = "The PDB and current sequence do not align. Maybe the intervals are wrong.";
+                        QMessageBox::warning(this,"Warning",msg.c_str());
+                        ui->cmdLoadPDB->setEnabled(true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        ui->lstPDBsInMemory->addItem(pdbname.c_str());
+
+        pdbs.push_back(pdb);
+
+        //Emit
+        emit ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
+        emit ui->cmbRefSeq_3->activated(ui->cmbRefSeq_3->currentText());
+
+        QMessageBox::information(this,"Structure loaded","The Structure file has been load.");
+    }
+
+    ui->cmdLoadPDB->setEnabled(true);
+}
+
+void MainWindow::on_chkGenerateConsPDB_clicked(bool checked)
+{
+    ui->txtPDBName->setEnabled(checked);
+    ui->lstRecomendedPDBs->setEnabled(checked);
+}
+
+void MainWindow::on_chkCommVisualization_clicked(bool checked)
+{
+    if(checked){
+        ui->txtPDBName_2->setEnabled(true);
+        ui->lstPDBsLoaded_2->setEnabled(true);
+        if(ui->chkRemoveContactResidues->isChecked())
+            ui->txtAtomDistance->setEnabled(true);
+        else
+            ui->txtAtomDistance->setEnabled(false);
+    }else{
+        if(ui->chkRemoveContactResidues->isChecked()){
+            ui->txtPDBName_2->setEnabled(true);
+            ui->lstPDBsLoaded_2->setEnabled(true);
+            ui->txtAtomDistance->setEnabled(true);
+        }else{
+            ui->txtPDBName_2->setEnabled(false);
+            ui->lstPDBsLoaded_2->setEnabled(false);
+            ui->txtAtomDistance->setEnabled(false);
+        }
+    }
 }

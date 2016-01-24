@@ -930,6 +930,95 @@ char Alignment::num2aa(int n){
     return('-');
 }
 
+string Alignment::aa1lto3l(char c){
+    switch(c){
+    case 'r':
+    case 'R':
+        return "ARG";
+        break;
+    case 'h':
+    case 'H':
+        return "HIS";
+        break;
+    case 'k':
+    case 'K':
+        return "LYS";
+        break;
+    case 'd':
+    case 'D':
+        return "ASP";
+        break;
+    case 'e':
+    case 'E':
+        return "GLU";
+        break;
+    case 's':
+    case 'S':
+        return "SER";
+        break;
+    case 't':
+    case 'T':
+        return "THR";
+        break;
+    case 'n':
+    case 'N':
+        return "ASN";
+        break;
+    case 'q':
+    case 'Q':
+        return "GLN";
+        break;
+    case 'c':
+    case 'C':
+        return "CYS";
+        break;
+    case 'u':
+    case 'U':
+        return "SEC";
+        break;
+    case 'g':
+    case 'G':
+        return "GLY";
+        break;
+    case 'p':
+    case 'P':
+        return "PRO";
+        break;
+    case 'a':
+    case 'A':
+        return "ALA";
+        break;
+    case 'v':
+    case 'V':
+        return "VAL";
+        break;
+    case 'i':
+    case 'I':
+        return "ILE";
+        break;
+    case 'l':
+    case 'L':
+        return "LEU";
+        break;
+    case 'm':
+    case 'M':
+        return "MET";
+        break;
+    case 'f':
+    case 'F':
+        return "PHE";
+        break;
+    case 'y':
+    case 'Y':
+        return "TYR";
+        break;
+    case 'w':
+    case 'W':
+        return "TRP";
+        break;
+    }
+}
+
 long double Alignment::lnbdf(int N, int nx, float px){
     if(N==nx) return ((long double)N*logl((long double)px));
     if(nx==0) return ((long double)N*logl((long double)(1.0-px)));
@@ -1475,24 +1564,31 @@ void Alignment::readSTO(){
         getline(alignmentfile,line);
 
         if(line[0] == '#'){
-            if(line.length() > 30){
-                if(line.substr(31,2) == "DR" && line.substr(34,3) == "PDB"){
-                    string temp = line.substr(5,25);
-                    string protein = split(temp,' ')[0];
-                    string pdb = line.substr(39,4);
-                    char chain = line[44];
-                    string interval = line.substr(47);
-                    tuple<string,string,char,string> tup(protein,pdb,chain,interval.substr(0,interval.length()-1));
+            vector<string> splittedLine = this->split(line,' ');
+            for(int i = 0; i < splittedLine.size(); i++){
+                if(splittedLine[i] == "PDB;"){
+                    string protein = splittedLine[1];
+                    string pdb = splittedLine[i+1];
+                    char chain = splittedLine[i+2][0];
+                    string temp = splittedLine[i+3];
+                    string interval = temp.substr(0,temp.size()-1);
+                    tuple<string,string,char,string> tup(protein,pdb,chain,interval);
                     recommendPdbs.push_back(tup);
-                    //printf("%s - %s - %c - %s\n",protein.c_str(),pdb.c_str(),chain,interval.substr(0,interval.length()-1).c_str());
+                    break;
                 }
             }
-        }else if(line.length() > 30){
-            string temp = line.substr(0,36);
-            string protein = split(temp,' ')[0];
-            string sequence = line.substr(36);
+        }else if(line.length() > 100){
+            vector<string> splittedLine = this->split(line,' ');
+            string protein = splittedLine[0];
+            string sequence;
 
-            //printf("%s\t%s\n",protein.c_str(),sequence.c_str());
+            for(int i = 1; i < splittedLine.size(); i++){
+                if(splittedLine[i] != ""){
+                    sequence = splittedLine[i];
+                    printf("%s\n",splittedLine[i].c_str());
+                    break;
+                }
+            }
 
             sequencenames.push_back(protein);
             sequences.push_back(sequence);
@@ -1509,24 +1605,31 @@ void Alignment::readSTO(vector<string> pfam){
         line = pfam[i];
 
         if(line[0] == '#'){
-            if(line.length() > 30){
-                if(line.substr(31,2) == "DR" && line.substr(34,3) == "PDB"){
-                    string temp = line.substr(5,25);
-                    string protein = split(temp,' ')[0];
-                    string pdb = line.substr(39,4);
-                    char chain = line[44];
-                    string interval = line.substr(47);
-                    tuple<string,string,char,string> tup(protein,pdb,chain,interval.substr(0,interval.length()-1));
+            vector<string> splittedLine = this->split(line,' ');
+            for(int i = 0; i < splittedLine.size(); i++){
+                if(splittedLine[i] == "PDB;"){
+                    string protein = splittedLine[1];
+                    string pdb = splittedLine[i+1];
+                    char chain = splittedLine[i+2][0];
+                    string temp = splittedLine[i+3];
+                    string interval = temp.substr(0,temp.size()-1);
+                    tuple<string,string,char,string> tup(protein,pdb,chain,interval);
                     recommendPdbs.push_back(tup);
-                    printf("%s - %s - %c - %s\n",protein.c_str(),pdb.c_str(),chain,interval.substr(0,interval.length()-1).c_str());
+                    break;
                 }
             }
-        }else if(line.length() > 30){
-            string temp = line.substr(0,36);
-            string protein = split(temp,' ')[0];
-            string sequence = line.substr(36);
+        }else if(line.length() > 100){
+            vector<string> splittedLine = this->split(line,' ');
+            string protein = splittedLine[0];
+            string sequence;
 
-            //printf("%s\t%s\n",protein.c_str(),sequence.c_str());
+            for(int i = 1; i < splittedLine.size(); i++){
+                if(splittedLine[i] != ""){
+                    sequence = splittedLine[i];
+                    printf("%s\n",splittedLine[i].c_str());
+                    break;
+                }
+            }
 
             sequencenames.push_back(protein);
             sequences.push_back(sequence);
@@ -1933,7 +2036,7 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
                 seqstoremove.push_back(c1);
         }
     }
-
+//QMessageBox::information(NULL,"a","a");
     for (c1=0;c1<=seqstoremove.size()-1;c1++)
     {
         sequences[c1].clear();
@@ -1941,12 +2044,12 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
         sequences.erase(sequences.begin()+c1);
         sequencenames.erase(sequencenames.begin()+c1);
     }
-
+//QMessageBox::information(NULL,"a","b");
     if(sequencenames[0] != refseqName){
         sequences.insert(sequences.begin(),refSeq);
         sequencenames.insert(sequencenames.begin(),refseqName);
     }
-
+//QMessageBox::information(NULL,"a","c");
     if(intermediate){
         vector<string> filterVec;
         string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
@@ -2207,8 +2310,9 @@ void Alignment::dGWrite(){
     */
 
     consDG.clear();
-    for(unsigned int i = 0; i<sequences[0].size()-1;i++){
+    for(unsigned int i = 0; i<sequences[0].size();i++){//for(unsigned int i = 0; i<sequences[0].size()-1;i++){
         consDG.push_back(float(dG[i]));
+        //printf("%d - %f\n",i,dG[i]);
     }
 }
 
@@ -2253,6 +2357,7 @@ void Alignment::CalculateReferenceVector2(int seqnumber){
 }
 
 unsigned int Alignment::AlignNumbering2Sequence(int seqnumber, int position){
+    //printf("PARS %d %d\n",seqnumber,position);
     this->CalculateReferenceVector(seqnumber);
     for(unsigned int c1=0;c1<=referencevector.size()-1;c1++)
         if (referencevector[c1]==position) return(c1+1);
@@ -2650,6 +2755,7 @@ void Alignment::SympvalueCalculation(int minlogp, float minssfraction, float min
                                     string residue2 = num2aa(aa2) + QString::number(pos2+1).toStdString();
                                     int edgeValue = (pvalue1+pvalue2)/2;
                                     tuple<string,string,int> node(residue1,residue2,edgeValue);
+                                    //printf("%s %s %d\n",residue1.c_str(),residue2.c_str(),edgeValue);
                                     this->corrGraph.push_back(node);
                                     //out << num2aa(aa1) << pos1+1 << " " << num2aa(aa2) << pos2+1 << " " << (pvalue1+pvalue2)/2 << "\n";
                                 }
@@ -2661,6 +2767,39 @@ void Alignment::SympvalueCalculation(int minlogp, float minssfraction, float min
     }
 }
 
+vector<string> Alignment::filterCorrGraph(vector<tuple<string, string> > tup, int refseq){
+    //Refseq must start withs 1
+    vector<string> removed;
+
+    //printf("%d\n\n",refseq);
+
+    for(unsigned int i = 0; i < corrGraph.size(); i++){
+        string res1 = get<0>(corrGraph[i]);
+        string res2 = get<1>(corrGraph[i]);
+        char aa1 = res1[0];
+        char aa2 = res2[0];
+        int pos1 = this->AlignNumbering2Sequence(refseq,atoi(res1.substr(1).c_str()));
+        int pos2 = this->AlignNumbering2Sequence(refseq,atoi(res2.substr(1).c_str()));
+        string newRes1 = aa1 + to_string(pos1);
+        string newRes2 = aa2 + to_string(pos2);
+
+        //printf("%s - %s\n",newRes1.c_str(),newRes2.c_str());
+
+        for(unsigned int j = 0; j < tup.size(); j++){
+            string tupRes1 = get<0>(tup[j]);
+            string tupRes2 = get<1>(tup[j]);
+
+            if(newRes1 == tupRes1 && tupRes2 == newRes2){
+                removed.push_back(res1 + "-" + res2);
+                corrGraph.erase(corrGraph.begin() + i);
+                i--;
+                break;
+            }
+        }
+    }
+
+    return removed;
+}
 
 void Alignment::GetCommunitiesFromFile(string clusterfilename){
     int c1,c2;
@@ -6031,4 +6170,162 @@ vector<string> Alignment::getRecommendsPDBs(string protein){
     }
 
     return recommended;
+}
+
+string Alignment::getPDBInterval(string pdbid){
+    string interval = "";
+
+    for(unsigned int i = 0; i < recommendPdbs.size(); i++){
+        string id = std::get<1>(recommendPdbs[i]);
+        if(pdbid == id){
+            interval = std::get<3>(recommendPdbs[i]);
+            break;
+        }
+    }
+
+    return interval;
+}
+
+string Alignment::getNoGAPSequence(int refseq){
+    string seq = "";
+
+    for(unsigned int i = 0; i < sequences[refseq].size(); i++){
+        if(sequences[refseq][i] != '-' && sequences[refseq][i] != ' ') seq += sequences[refseq][i];
+    }
+
+    return seq;
+}
+
+vector<float> Alignment::createConservationVector(int refseq){//REFSEQ STARTS WITH 1
+    vector<float> consvec;
+    //Para cada residuo da refseq, add o valor de freqperc referente aquele residuo
+    string sequence = sequences[refseq-1];
+
+    for(unsigned int i = 0; i < sequence.size(); i++){
+        char residue = sequence[i];
+        if(residue != '-' && residue != ' '){
+            //printf("%c",residue);
+            switch(residue){
+            case 'A':
+            case 'a':
+                consvec.push_back(consfreqPerc[i][0]);
+                break;
+            case 'C':
+            case 'c':
+                consvec.push_back(consfreqPerc[i][1]);
+                break;
+            case 'D':
+            case 'd':
+                consvec.push_back(consfreqPerc[i][2]);
+                break;
+            case 'E':
+            case 'e':
+                consvec.push_back(consfreqPerc[i][3]);
+                break;
+            case 'F':
+            case 'f':
+                consvec.push_back(consfreqPerc[i][4]);
+                break;
+            case 'G':
+            case 'g':
+                consvec.push_back(consfreqPerc[i][5]);
+                break;
+            case 'H':
+            case 'h':
+                consvec.push_back(consfreqPerc[i][6]);
+                break;
+            case 'I':
+            case 'i':
+                consvec.push_back(consfreqPerc[i][7]);
+                break;
+            case 'K':
+            case 'k':
+                consvec.push_back(consfreqPerc[i][8]);
+                break;
+            case 'L':
+            case 'l':
+                consvec.push_back(consfreqPerc[i][9]);
+                break;
+            case 'M':
+            case 'm':
+                consvec.push_back(consfreqPerc[i][10]);
+                break;
+            case 'N':
+            case 'n':
+                consvec.push_back(consfreqPerc[i][11]);
+                break;
+            case 'P':
+            case 'p':
+                consvec.push_back(consfreqPerc[i][12]);
+                break;
+            case 'Q':
+            case 'q':
+                consvec.push_back(consfreqPerc[i][13]);
+                break;
+            case 'R':
+            case 'r':
+                consvec.push_back(consfreqPerc[i][14]);
+                break;
+            case 'S':
+            case 's':
+                consvec.push_back(consfreqPerc[i][15]);
+                break;
+            case 'T':
+            case 't':
+                consvec.push_back(consfreqPerc[i][16]);
+                break;
+            case 'V':
+            case 'v':
+                consvec.push_back(consfreqPerc[i][17]);
+                break;
+            case 'W':
+            case 'w':
+                consvec.push_back(consfreqPerc[i][18]);
+                break;
+            case 'Y':
+            case 'y':
+                consvec.push_back(consfreqPerc[i][19]);
+                break;
+            default:
+                consvec.push_back(0);
+                break;
+            }
+        }
+    }
+
+    //for(int i = 0; i < consvec.size(); i++)
+        //printf("%f\n",consvec[i]);
+
+    return consvec;
+}
+
+vector<float> Alignment::createCommuntitiesVector(int refseq){
+    vector<float> commvec;
+    string sequence = sequences[refseq-1];
+    int nOfComms = this->getNumOfUtilComms();
+    float offset = 100.00/nOfComms;
+
+    //printf("%s\n",sequence.c_str());
+    for(unsigned int i = 0; i < sequence.size(); i++){
+        if(sequence[i] != '-')
+        commvec.push_back(0);
+    }
+
+    float total = offset;
+    for(unsigned int i = 0; i < comunidades.size(); i++){
+        if(comunidades[i].size() > 1){
+            for(unsigned int j = 0; j < comunidades[i].size(); j++){
+                char commres = comunidades[i][j][0];
+                int commpos = atoi(comunidades[i][j].substr(1).c_str());
+                int seqpos = AlignNumbering2Sequence(refseq,commpos-1);
+
+                if(sequence[commpos-1] == commres){
+                    commvec[seqpos-1] = total;
+                }
+            }
+            total += offset;
+        }
+    }
+
+    return commvec;
 }

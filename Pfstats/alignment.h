@@ -66,6 +66,7 @@ private:
     bool isaa(char c, bool casesensitive);
     bool isaax(char c);
     char num2aa(int n);
+    string aa1lto3l(char c);
     long double lnbdf (int N, int nx, float px);
     long double lnfact(int x);
     long double stirling(int x);
@@ -253,6 +254,7 @@ public:
     int SubAlignmentFrequency(char aa,int pos); //[OK]
     int Singlepvalue(char aa1,int pos1, char aa2, int pos2); //[OK]
     void SympvalueCalculation (int minlogp, float minssfraction, float mindeltafreq);//[OK]
+    vector<string> filterCorrGraph(vector<tuple<string,string> > tup, int refseq);
     void pvalueCalculation(string outputgraph, int minlogp, float minssfraction, bool writefullgraph, float mindeltafreq, bool signedgraph);
     void GetCommunitiesFromFile(string clusterfilename); //[OK]
     void getCommunitiesFromRAM();
@@ -294,6 +296,10 @@ public:
     vector<Uniprot*> getAllResidueFeatures(string res);
     void applyAlphabetReduction(string name, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter=false);
     vector<string> getRecommendsPDBs(string protein);
+    string getPDBInterval(string pdbid);
+    string getNoGAPSequence(int refseq);
+    vector<float> createConservationVector(int refseq);
+    vector<float> createCommuntitiesVector(int refseq);
 };
 
 #endif // ALIGNMENT_H

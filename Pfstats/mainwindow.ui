@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>7</number>
     </property>
     <widget class="QWidget" name="page">
      <layout class="QFormLayout" name="formLayout">
@@ -916,7 +916,7 @@
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>10</x>
         <y>130</y>
         <width>671</width>
         <height>370</height>
@@ -996,11 +996,58 @@
             <widget class="QLineEdit" name="txtPdbId"/>
            </item>
            <item>
+            <widget class="QLabel" name="label_68">
+             <property name="text">
+              <string>Chain:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="txtChainPDB">
+             <property name="maximumSize">
+              <size>
+               <width>60</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_41">
+           <item>
+            <spacer name="horizontalSpacer_18">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QPushButton" name="cmdPDBFetch">
              <property name="text">
               <string>Fetch From Internet</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_33">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>
@@ -1268,6 +1315,29 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>Chain:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txtChain">
+            <property name="maximumSize">
+             <size>
+              <width>60</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>A</string>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -1341,30 +1411,6 @@
             </property>
             <property name="text">
              <string>0</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_18">
-          <item>
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>Chain:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="txtChain">
-            <property name="maximumSize">
-             <size>
-              <width>60</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>A</string>
             </property>
            </widget>
           </item>
@@ -1577,9 +1623,9 @@
       <property name="geometry">
        <rect>
         <x>360</x>
-        <y>250</y>
+        <y>200</y>
         <width>301</width>
-        <height>251</height>
+        <height>301</height>
        </rect>
       </property>
       <property name="title">
@@ -1591,7 +1637,7 @@
          <x>20</x>
          <y>30</y>
          <width>274</width>
-         <height>206</height>
+         <height>241</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1846,22 +1892,35 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_24">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <widget class="QLineEdit" name="txtPDBName_2">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Chain:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txtChain_2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>60</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>A</string>
             </property>
             <property name="readOnly">
              <bool>true</bool>
@@ -1946,7 +2005,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>17</number>
       </property>
       <widget class="QWidget" name="page_8">
        <widget class="QGroupBox" name="groupBox_5">
@@ -3571,6 +3630,36 @@
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="page_30">
+       <widget class="QLabel" name="label_77">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>371</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Structure file colored by correlation communities:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QWebView" name="webCommunitiesPDB">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>44</y>
+          <width>611</width>
+          <height>381</height>
+         </rect>
+        </property>
+        <property name="url">
+         <url>
+          <string>about:blank</string>
+         </url>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="page_19">
@@ -4353,6 +4442,7 @@
     <addaction name="actionCorrelation_List"/>
     <addaction name="actionCorrelation_Graph"/>
     <addaction name="actionCommunities_List"/>
+    <addaction name="actionStructure_Communities_Visualization"/>
     <addaction name="actionCommunities_Graphs"/>
     <addaction name="menuCorrelation_Tables_2"/>
     <addaction name="actionAdherence_Matrix"/>
@@ -4969,6 +5059,11 @@
     <string>Load PDB Structure</string>
    </property>
   </action>
+  <action name="actionStructure_Communities_Visualization">
+   <property name="text">
+    <string>Structure Communities Visualization</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -4987,9 +5082,9 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
   <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

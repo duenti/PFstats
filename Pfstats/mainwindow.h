@@ -100,6 +100,7 @@ private slots:
     void changeToCommunitiesGraphs();
     void changeToCorrelationBetweenComms();
     void changeToPDBVisualization();
+    void changeToPDBVisualization2();
     void setLibPath();
     void changeToAlphabetReduction();
     void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
@@ -244,6 +245,7 @@ private:
     Ui::MainWindow *ui;
     Alignment *currentAlign;
     string currentPDBContent;
+    QString CONFIG = "PF_CONFIG.conf";
     void changeWizardCmds(bool bl);
     void resetObjects();
     string libpath;
@@ -281,6 +283,7 @@ private:
     void communitiesGraphs();
     void corrBetweenComms();
     void consVisualization();
+    void commVisualization();
     void communitiesList();
     void corrTable1();
     void corrTable2();
@@ -293,7 +296,8 @@ private:
     bool isInt(string v);
     void updateResultsViews();
     bool isFloat(string myString);
-    string makeConservedPDBHTML(string PDB);
+    string makeVisPDBHTML(string PDB);
+    void loadConfigurationFile();
 };
 
 #endif // MAINWINDOW_H

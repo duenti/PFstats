@@ -23,6 +23,7 @@ private:
     float resolution;
     int interval1, interval2;
     string refseq;
+    char refseq_chain;
     string header, footer;
     vector<PdbAtom*> atoms;
     vector<string> split(string text, char sep);
@@ -40,17 +41,20 @@ public:
     void setIntervals(int i1, int i2);
     string getRefseq();
     void setRefseq(string seq);
+    char getRefseq_chain();
+    void setRefseq_chain(char c);
     vector<PdbAtom*> getAllAtoms();
+    vector<PdbAtom*> getAllAtoms(char chain);
     int countAtoms();
     void clearAtoms();
     PdbAtom* getAtom(int i);
     void addAtom(PdbAtom* atom);
-    void setResiduesSeqNumber();
-    vector<tuple<string,string> > getResiduesInContact(float dist);
-    string getPDBSequence();
-    bool SWSalign(int offset);
-    string getSWSSeq();
-    bool exportStructure(QString filepath, vector<float> bfactors);
+    void setResiduesSeqNumber(char chain);
+    vector<tuple<string,string> > getResiduesInContact(float dist, char chain);
+    string getPDBSequence(char chain);
+    bool SWSalign(int offset, char chain);
+    string getSWSSeq(char chain);
+    bool exportStructure(QString filepath, vector<float> bfactors, char chain);
     void printSeqNumbers();
 };
 

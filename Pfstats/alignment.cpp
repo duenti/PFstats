@@ -24,6 +24,7 @@ Alignment::Alignment()
 Alignment::Alignment(string path){
     this->filepath = path;
     conservedPDBpath = "";
+    commPDBPath = "";
     this->GetFromFile();
     refSeqName = "";
     minCons = 0.8;
@@ -41,6 +42,14 @@ void Alignment::setConsPDBPath(string path){
 
 string Alignment::getConsPDBPath(){
     return this->conservedPDBpath;
+}
+
+void Alignment::setCommPDBPath(string path){
+    this->commPDBPath = path;
+}
+
+string Alignment::getCommPDBPath(){
+    return this->commPDBPath;
 }
 
 void Alignment::setMinsCons(float v){
@@ -2017,7 +2026,7 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size());
     progress.show();
 
-    for(c1 = sequences.size()-1; c1 > 0; c1--){
+    for(c1 = sequences.size()-1; c1 >= 0; c1--){
         progress.setValue(sequences.size() - c1);
 
         if(progress.wasCanceled()) break;
@@ -2032,24 +2041,32 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
                     }
                 }
             }
-            if (((float)totalaln)/((float)totalseq)<minocc)
+            if (((float)totalaln)/((float)totalseq)<minocc){
                 seqstoremove.push_back(c1);
+                //printf("%d ",c1);
+            }
         }
     }
-//QMessageBox::information(NULL,"a","a");
-    for (c1=0;c1<=seqstoremove.size()-1;c1++)
-    {
+
+    for (c1=0;c1<=seqstoremove.size()-1;c1++){
+        //printf("SEQ: %d - SIZE: %d\n",c1,seqstoremove.size());
+        sequences[seqstoremove[c1]].clear();
+        sequencenames[seqstoremove[c1]].clear();
+        sequences.erase(sequences.begin()+seqstoremove[c1]);
+        sequencenames.erase(sequencenames.begin()+seqstoremove[c1]);
+        /*
         sequences[c1].clear();
         sequencenames[c1].clear();
         sequences.erase(sequences.begin()+c1);
         sequencenames.erase(sequencenames.begin()+c1);
+        */
     }
-//QMessageBox::information(NULL,"a","b");
+
     if(sequencenames[0] != refseqName){
         sequences.insert(sequences.begin(),refSeq);
         sequencenames.insert(sequencenames.begin(),refseqName);
     }
-//QMessageBox::information(NULL,"a","c");
+
     if(intermediate){
         vector<string> filterVec;
         string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;

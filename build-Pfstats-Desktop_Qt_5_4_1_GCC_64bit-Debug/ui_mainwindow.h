@@ -135,6 +135,7 @@ public:
     QAction *actionSet_Libraries_Path;
     QAction *actionAlphabet_Reduction;
     QAction *actionLoadPDB;
+    QAction *actionStructure_Communities_Visualization;
     QWidget *centralWidget;
     QStackedWidget *stackedWidget;
     QWidget *page;
@@ -247,7 +248,12 @@ public:
     QHBoxLayout *horizontalLayout_48;
     QLabel *label_70;
     QLineEdit *txtPdbId;
+    QLabel *label_68;
+    QLineEdit *txtChainPDB;
+    QHBoxLayout *horizontalLayout_41;
+    QSpacerItem *horizontalSpacer_18;
     QPushButton *cmdPDBFetch;
+    QSpacerItem *horizontalSpacer_33;
     QHBoxLayout *horizontalLayout_49;
     QLabel *label_71;
     QSpacerItem *horizontalSpacer_27;
@@ -283,6 +289,8 @@ public:
     QHBoxLayout *horizontalLayout_15;
     QLabel *label_16;
     QLineEdit *txtPDBName;
+    QLabel *label_19;
+    QLineEdit *txtChain;
     QHBoxLayout *horizontalLayout_42;
     QLabel *label_64;
     QSpacerItem *horizontalSpacer_19;
@@ -293,9 +301,6 @@ public:
     QHBoxLayout *horizontalLayout_17;
     QLabel *label_18;
     QLineEdit *txtOffset;
-    QHBoxLayout *horizontalLayout_18;
-    QLabel *label_19;
-    QLineEdit *txtChain;
     QHBoxLayout *horizontalLayout_24;
     QLabel *label_28;
     QDoubleSpinBox *txtMinConserv;
@@ -351,8 +356,9 @@ public:
     QDoubleSpinBox *txtAtomDistance;
     QHBoxLayout *horizontalLayout_45;
     QLabel *label_66;
-    QSpacerItem *horizontalSpacer_24;
     QLineEdit *txtPDBName_2;
+    QLabel *label_15;
+    QLineEdit *txtChain_2;
     QHBoxLayout *horizontalLayout_46;
     QLabel *label_67;
     QSpacerItem *horizontalSpacer_22;
@@ -484,6 +490,9 @@ public:
     QWidget *page_27;
     QLabel *label_60;
     QWebView *webConservedPDB;
+    QWidget *page_30;
+    QLabel *label_77;
+    QWebView *webCommunitiesPDB;
     QWidget *page_19;
     QLabel *label_47;
     QGroupBox *groupBox_6;
@@ -574,10 +583,10 @@ public:
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
+    QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup_3;
     QButtonGroup *buttonGroup_4;
     QButtonGroup *buttonGroup;
-    QButtonGroup *buttonGroup_2;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -766,6 +775,8 @@ public:
         actionAlphabet_Reduction->setObjectName(QStringLiteral("actionAlphabet_Reduction"));
         actionLoadPDB = new QAction(MainWindow);
         actionLoadPDB->setObjectName(QStringLiteral("actionLoadPDB"));
+        actionStructure_Communities_Visualization = new QAction(MainWindow);
+        actionStructure_Communities_Visualization->setObjectName(QStringLiteral("actionStructure_Communities_Visualization"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         stackedWidget = new QStackedWidget(centralWidget);
@@ -1299,7 +1310,7 @@ public:
         label_69->setWordWrap(true);
         layoutWidget4 = new QWidget(page_29);
         layoutWidget4->setObjectName(QStringLiteral("layoutWidget4"));
-        layoutWidget4->setGeometry(QRect(20, 130, 671, 370));
+        layoutWidget4->setGeometry(QRect(10, 130, 671, 370));
         horizontalLayout_55 = new QHBoxLayout(layoutWidget4);
         horizontalLayout_55->setSpacing(6);
         horizontalLayout_55->setContentsMargins(11, 11, 11, 11);
@@ -1358,13 +1369,38 @@ public:
 
         horizontalLayout_48->addWidget(txtPdbId);
 
-        cmdPDBFetch = new QPushButton(layoutWidget4);
-        cmdPDBFetch->setObjectName(QStringLiteral("cmdPDBFetch"));
+        label_68 = new QLabel(layoutWidget4);
+        label_68->setObjectName(QStringLiteral("label_68"));
 
-        horizontalLayout_48->addWidget(cmdPDBFetch);
+        horizontalLayout_48->addWidget(label_68);
+
+        txtChainPDB = new QLineEdit(layoutWidget4);
+        txtChainPDB->setObjectName(QStringLiteral("txtChainPDB"));
+        txtChainPDB->setMaximumSize(QSize(60, 16777215));
+
+        horizontalLayout_48->addWidget(txtChainPDB);
 
 
         verticalLayout_9->addLayout(horizontalLayout_48);
+
+        horizontalLayout_41 = new QHBoxLayout();
+        horizontalLayout_41->setSpacing(6);
+        horizontalLayout_41->setObjectName(QStringLiteral("horizontalLayout_41"));
+        horizontalSpacer_18 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_41->addItem(horizontalSpacer_18);
+
+        cmdPDBFetch = new QPushButton(layoutWidget4);
+        cmdPDBFetch->setObjectName(QStringLiteral("cmdPDBFetch"));
+
+        horizontalLayout_41->addWidget(cmdPDBFetch);
+
+        horizontalSpacer_33 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_41->addItem(horizontalSpacer_33);
+
+
+        verticalLayout_9->addLayout(horizontalLayout_41);
 
         horizontalLayout_49 = new QHBoxLayout();
         horizontalLayout_49->setSpacing(6);
@@ -1538,6 +1574,18 @@ public:
 
         horizontalLayout_15->addWidget(txtPDBName);
 
+        label_19 = new QLabel(layoutWidget5);
+        label_19->setObjectName(QStringLiteral("label_19"));
+
+        horizontalLayout_15->addWidget(label_19);
+
+        txtChain = new QLineEdit(layoutWidget5);
+        txtChain->setObjectName(QStringLiteral("txtChain"));
+        txtChain->setMaximumSize(QSize(60, 16777215));
+        txtChain->setReadOnly(true);
+
+        horizontalLayout_15->addWidget(txtChain);
+
 
         verticalLayout_7->addLayout(horizontalLayout_15);
 
@@ -1588,23 +1636,6 @@ public:
 
 
         verticalLayout_5->addLayout(horizontalLayout_17);
-
-        horizontalLayout_18 = new QHBoxLayout();
-        horizontalLayout_18->setSpacing(6);
-        horizontalLayout_18->setObjectName(QStringLiteral("horizontalLayout_18"));
-        label_19 = new QLabel(layoutWidget6);
-        label_19->setObjectName(QStringLiteral("label_19"));
-
-        horizontalLayout_18->addWidget(label_19);
-
-        txtChain = new QLineEdit(layoutWidget6);
-        txtChain->setObjectName(QStringLiteral("txtChain"));
-        txtChain->setMaximumSize(QSize(60, 16777215));
-
-        horizontalLayout_18->addWidget(txtChain);
-
-
-        verticalLayout_5->addLayout(horizontalLayout_18);
 
         horizontalLayout_24 = new QHBoxLayout();
         horizontalLayout_24->setSpacing(6);
@@ -1722,10 +1753,10 @@ public:
         label_23->setWordWrap(true);
         groupBox_7 = new QGroupBox(page_6);
         groupBox_7->setObjectName(QStringLiteral("groupBox_7"));
-        groupBox_7->setGeometry(QRect(360, 250, 301, 251));
+        groupBox_7->setGeometry(QRect(360, 200, 301, 301));
         layoutWidget8 = new QWidget(groupBox_7);
         layoutWidget8->setObjectName(QStringLiteral("layoutWidget8"));
-        layoutWidget8->setGeometry(QRect(20, 30, 274, 206));
+        layoutWidget8->setGeometry(QRect(20, 30, 274, 241));
         verticalLayout_6 = new QVBoxLayout(layoutWidget8);
         verticalLayout_6->setSpacing(6);
         verticalLayout_6->setContentsMargins(11, 11, 11, 11);
@@ -1890,16 +1921,25 @@ public:
 
         horizontalLayout_45->addWidget(label_66);
 
-        horizontalSpacer_24 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_45->addItem(horizontalSpacer_24);
-
         txtPDBName_2 = new QLineEdit(layoutWidget9);
         txtPDBName_2->setObjectName(QStringLiteral("txtPDBName_2"));
         txtPDBName_2->setEnabled(false);
         txtPDBName_2->setReadOnly(true);
 
         horizontalLayout_45->addWidget(txtPDBName_2);
+
+        label_15 = new QLabel(layoutWidget9);
+        label_15->setObjectName(QStringLiteral("label_15"));
+
+        horizontalLayout_45->addWidget(label_15);
+
+        txtChain_2 = new QLineEdit(layoutWidget9);
+        txtChain_2->setObjectName(QStringLiteral("txtChain_2"));
+        txtChain_2->setEnabled(false);
+        txtChain_2->setMaximumSize(QSize(60, 16777215));
+        txtChain_2->setReadOnly(true);
+
+        horizontalLayout_45->addWidget(txtChain_2);
 
 
         verticalLayout_8->addLayout(horizontalLayout_45);
@@ -2502,6 +2542,16 @@ public:
         webConservedPDB->setGeometry(QRect(10, 44, 611, 381));
         webConservedPDB->setUrl(QUrl(QStringLiteral("about:blank")));
         stackedWidget2->addWidget(page_27);
+        page_30 = new QWidget();
+        page_30->setObjectName(QStringLiteral("page_30"));
+        label_77 = new QLabel(page_30);
+        label_77->setObjectName(QStringLiteral("label_77"));
+        label_77->setGeometry(QRect(10, 10, 371, 17));
+        webCommunitiesPDB = new QWebView(page_30);
+        webCommunitiesPDB->setObjectName(QStringLiteral("webCommunitiesPDB"));
+        webCommunitiesPDB->setGeometry(QRect(10, 44, 611, 381));
+        webCommunitiesPDB->setUrl(QUrl(QStringLiteral("about:blank")));
+        stackedWidget2->addWidget(page_30);
         stackedWidget->addWidget(page_7);
         page_19 = new QWidget();
         page_19->setObjectName(QStringLiteral("page_19"));
@@ -2922,6 +2972,7 @@ public:
         menuShow->addAction(actionCorrelation_List);
         menuShow->addAction(actionCorrelation_Graph);
         menuShow->addAction(actionCommunities_List);
+        menuShow->addAction(actionStructure_Communities_Visualization);
         menuShow->addAction(actionCommunities_Graphs);
         menuShow->addAction(menuCorrelation_Tables_2->menuAction());
         menuShow->addAction(actionAdherence_Matrix);
@@ -2998,8 +3049,8 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(5);
-        stackedWidget2->setCurrentIndex(3);
+        stackedWidget->setCurrentIndex(7);
+        stackedWidget2->setCurrentIndex(17);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -3097,6 +3148,7 @@ public:
         actionSet_Libraries_Path->setText(QApplication::translate("MainWindow", "Set Libraries Path", 0));
         actionAlphabet_Reduction->setText(QApplication::translate("MainWindow", "Alphabet Reduction", 0));
         actionLoadPDB->setText(QApplication::translate("MainWindow", "Load PDB Structure", 0));
+        actionStructure_Communities_Visualization->setText(QApplication::translate("MainWindow", "Structure Communities Visualization", 0));
         label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PFstats</span></p><p align=\"justify\">PFstats contains a set of functions to extract useful information from protein families (represented by a multiple sequence alignment) using conservation and correlation methods.<br/><br/>These functions can be acessed from the menu bar or a complete analysis can be accomplished using the Wizard option.</p></body></html>", 0));
         cmdStartWizard->setText(QApplication::translate("MainWindow", "Start Wizard", 0));
         label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Getting An Alignment</span></p><p align=\"justify\">PFSTATS uses multiple sequence alignments in the PFAM format (identifier, spacer, complete sequence) as input. Use &quot;get from desktop&quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
@@ -3151,6 +3203,7 @@ public:
         cmdPDBFile->setText(QApplication::translate("MainWindow", "Choose from File", 0));
         label_75->setText(QApplication::translate("MainWindow", "File Path:", 0));
         label_70->setText(QApplication::translate("MainWindow", "PDB Name:", 0));
+        label_68->setText(QApplication::translate("MainWindow", "Chain:", 0));
         cmdPDBFetch->setText(QApplication::translate("MainWindow", "Fetch From Internet", 0));
         label_71->setText(QApplication::translate("MainWindow", "Recommended PDBs:", 0));
         chkDownloadPDB->setText(QApplication::translate("MainWindow", "Download File", 0));
@@ -3164,12 +3217,12 @@ public:
         groupBox_3->setTitle(QApplication::translate("MainWindow", "PDB File (Optional)", 0));
         chkGenerateConsPDB->setText(QApplication::translate("MainWindow", "Generate Visualization by Structure", 0));
         label_16->setText(QApplication::translate("MainWindow", "PDB Name:", 0));
+        label_19->setText(QApplication::translate("MainWindow", "Chain:", 0));
+        txtChain->setText(QApplication::translate("MainWindow", "A", 0));
         label_64->setText(QApplication::translate("MainWindow", "Structures Loaded:", 0));
         groupBox_4->setTitle(QApplication::translate("MainWindow", "Conservation", 0));
         label_18->setText(QApplication::translate("MainWindow", "Offset:", 0));
         txtOffset->setText(QApplication::translate("MainWindow", "0", 0));
-        label_19->setText(QApplication::translate("MainWindow", "Chain:", 0));
-        txtChain->setText(QApplication::translate("MainWindow", "A", 0));
         label_28->setText(QApplication::translate("MainWindow", "Minumum Conservation:", 0));
         label_17->setText(QApplication::translate("MainWindow", "Main Reference Sequence:", 0));
         cmdConservation->setText(QApplication::translate("MainWindow", "Calculate", 0));
@@ -3190,6 +3243,8 @@ public:
         chkRemoveContactResidues->setText(QApplication::translate("MainWindow", "Remove residues in contact", 0));
         label_65->setText(QApplication::translate("MainWindow", "Atoms distance:", 0));
         label_66->setText(QApplication::translate("MainWindow", "PDB Name:", 0));
+        label_15->setText(QApplication::translate("MainWindow", "Chain:", 0));
+        txtChain_2->setText(QApplication::translate("MainWindow", "A", 0));
         label_67->setText(QApplication::translate("MainWindow", "Structures Loaded:", 0));
         chkCommVisualization->setText(QApplication::translate("MainWindow", "Generate Structural Visualization", 0));
         label_32->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Results</span></p>\n"
@@ -3405,6 +3460,7 @@ public:
         txtGraphCutoff->setText(QApplication::translate("MainWindow", "1.5", 0));
         cmdCorrCommCutoff->setText(QApplication::translate("MainWindow", "Enter", 0));
         label_60->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Structure file colored by conservation:</span></p></body></html>", 0));
+        label_77->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Structure file colored by correlation communities:</span></p></body></html>", 0));
         label_47->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Uniprot Looking Tool</span></p></body></html>", 0));
         groupBox_6->setTitle(QApplication::translate("MainWindow", "Target Residues", 0));
         chkConserveds->setText(QApplication::translate("MainWindow", "Conserved Residues", 0));

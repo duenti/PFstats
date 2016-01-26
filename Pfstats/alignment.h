@@ -19,6 +19,7 @@ private:
     string filepath;
     string refSeqName;
     string conservedPDBpath;
+    string commPDBPath;
     int type; //ALINHAMENTO SUBIDO PELO PFAM (0) OU ARQUIVO(1), -1 PARA NÃO CARREGADO
     float minCons;
     vector<int> subalignmentseqs;
@@ -85,9 +86,11 @@ public:
     Alignment(string path);
     ~Alignment();
     void setConsPDBPath(string path);
+    string getConsPDBPath();
+    void setCommPDBPath(string path);
+    string getCommPDBPath();
     int getType();
     void setType(int t);
-    string getConsPDBPath();
     void setMinsCons(float v);
     void clear();
     vector<string> split(string text, char sep);

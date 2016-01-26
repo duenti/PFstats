@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[156];
-    char stringdata[3452];
+    QByteArrayData data[158];
+    char stringdata[3510];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -105,86 +105,88 @@ QT_MOC_LITERAL(72, 1380, 24), // "changeToCorrelationGraph"
 QT_MOC_LITERAL(73, 1405, 25), // "changeToCommunitiesGraphs"
 QT_MOC_LITERAL(74, 1431, 31), // "changeToCorrelationBetweenComms"
 QT_MOC_LITERAL(75, 1463, 24), // "changeToPDBVisualization"
-QT_MOC_LITERAL(76, 1488, 10), // "setLibPath"
-QT_MOC_LITERAL(77, 1499, 25), // "changeToAlphabetReduction"
-QT_MOC_LITERAL(78, 1525, 12), // "graphClicked"
-QT_MOC_LITERAL(79, 1538, 21), // "QCPAbstractPlottable*"
-QT_MOC_LITERAL(80, 1560, 4), // "plot"
-QT_MOC_LITERAL(81, 1565, 12), // "QMouseEvent*"
-QT_MOC_LITERAL(82, 1578, 5), // "mouse"
-QT_MOC_LITERAL(83, 1584, 25), // "on_cmdStartWizard_clicked"
-QT_MOC_LITERAL(84, 1610, 18), // "on_cmdMain_clicked"
-QT_MOC_LITERAL(85, 1629, 18), // "on_cmdBack_clicked"
-QT_MOC_LITERAL(86, 1648, 21), // "on_cmdAdvance_clicked"
-QT_MOC_LITERAL(87, 1670, 18), // "on_cmdOpen_clicked"
-QT_MOC_LITERAL(88, 1689, 19), // "on_cmdFetch_clicked"
-QT_MOC_LITERAL(89, 1709, 25), // "on_cmdApplyFilter_clicked"
-QT_MOC_LITERAL(90, 1735, 26), // "on_cmdConservation_clicked"
-QT_MOC_LITERAL(91, 1762, 19), // "on_cmdMinss_clicked"
-QT_MOC_LITERAL(92, 1782, 25), // "on_cmdCorrelation_clicked"
-QT_MOC_LITERAL(93, 1808, 23), // "on_listWidget_activated"
-QT_MOC_LITERAL(94, 1832, 5), // "index"
-QT_MOC_LITERAL(95, 1838, 22), // "on_cmbRefSeq_activated"
-QT_MOC_LITERAL(96, 1861, 24), // "on_cmbRefSeq_2_activated"
-QT_MOC_LITERAL(97, 1886, 24), // "on_cmbRefSeq_3_activated"
-QT_MOC_LITERAL(98, 1911, 36), // "on_lstRefSeqs_2_itemSelection..."
-QT_MOC_LITERAL(99, 1948, 25), // "on_cmdSaveResults_clicked"
-QT_MOC_LITERAL(100, 1974, 24), // "on_listWidget2_activated"
-QT_MOC_LITERAL(101, 1999, 18), // "on_cmdShow_clicked"
-QT_MOC_LITERAL(102, 2018, 32), // "on_lstProteinsFiltered_activated"
-QT_MOC_LITERAL(103, 2051, 22), // "on_cmdNextComm_clicked"
-QT_MOC_LITERAL(104, 2074, 22), // "on_cmdBackComm_clicked"
-QT_MOC_LITERAL(105, 2097, 24), // "on_cmdNextComm_2_clicked"
-QT_MOC_LITERAL(106, 2122, 24), // "on_cmdBackComm_2_clicked"
-QT_MOC_LITERAL(107, 2147, 24), // "on_cmdNextResult_clicked"
-QT_MOC_LITERAL(108, 2172, 24), // "on_cmdBackResult_clicked"
-QT_MOC_LITERAL(109, 2197, 25), // "on_cmdNextResComm_clicked"
-QT_MOC_LITERAL(110, 2223, 25), // "on_cmdBackResComm_clicked"
-QT_MOC_LITERAL(111, 2249, 26), // "on_cmdRemoveFilter_clicked"
-QT_MOC_LITERAL(112, 2276, 29), // "on_cmdRemoveAlignment_clicked"
-QT_MOC_LITERAL(113, 2306, 32), // "on_cmdUploadConsRefsSeqs_clicked"
-QT_MOC_LITERAL(114, 2339, 18), // "on_cmdLook_clicked"
-QT_MOC_LITERAL(115, 2358, 22), // "on_cmdLookNone_clicked"
-QT_MOC_LITERAL(116, 2381, 21), // "on_cmdLookAll_clicked"
-QT_MOC_LITERAL(117, 2403, 29), // "on_lstProteinsMined_activated"
-QT_MOC_LITERAL(118, 2433, 25), // "on_treeMinerComms_clicked"
-QT_MOC_LITERAL(119, 2459, 30), // "on_cmbComm_currentIndexChanged"
-QT_MOC_LITERAL(120, 2490, 24), // "on_cmdAddResComm_clicked"
-QT_MOC_LITERAL(121, 2515, 24), // "on_cmdDelResComm_clicked"
-QT_MOC_LITERAL(122, 2540, 21), // "on_cmdNewComm_clicked"
-QT_MOC_LITERAL(123, 2562, 27), // "on_cmdAddFileRefSeq_clicked"
-QT_MOC_LITERAL(124, 2590, 26), // "on_cmdAddAllRefSeq_clicked"
-QT_MOC_LITERAL(125, 2617, 29), // "on_cmdRemoveAllRefSeq_clicked"
-QT_MOC_LITERAL(126, 2647, 26), // "on_cmdAddOneRefSeq_clicked"
-QT_MOC_LITERAL(127, 2674, 29), // "on_cmdRemoveOneRefSeq_clicked"
-QT_MOC_LITERAL(128, 2704, 25), // "on_cmdSaveRefSeqs_clicked"
-QT_MOC_LITERAL(129, 2730, 25), // "on_cmdUpdateComms_clicked"
-QT_MOC_LITERAL(130, 2756, 35), // "on_txtMinssFraction_editingFi..."
-QT_MOC_LITERAL(131, 2792, 30), // "on_cmdHideShowAntiCorr_clicked"
-QT_MOC_LITERAL(132, 2823, 26), // "on_cmdNexCommGraph_clicked"
-QT_MOC_LITERAL(133, 2850, 27), // "on_cmdBackCommGraph_clicked"
-QT_MOC_LITERAL(134, 2878, 33), // "on_txtGraphCutoff_editingFini..."
-QT_MOC_LITERAL(135, 2912, 28), // "on_cmdCorrCommCutoff_clicked"
-QT_MOC_LITERAL(136, 2941, 27), // "on_chkApplyMinCover_clicked"
-QT_MOC_LITERAL(137, 2969, 7), // "checked"
-QT_MOC_LITERAL(138, 2977, 24), // "on_chkApplyMinId_clicked"
-QT_MOC_LITERAL(139, 3002, 24), // "on_chkApplyMaxId_clicked"
-QT_MOC_LITERAL(140, 3027, 38), // "on_cmbAlphabetList_currentInd..."
-QT_MOC_LITERAL(141, 3066, 31), // "on_radioAlphabetCurrent_clicked"
-QT_MOC_LITERAL(142, 3098, 27), // "on_radioAlphabetNew_clicked"
-QT_MOC_LITERAL(143, 3126, 36), // "on_cmdApplyAlphabetReduction_..."
-QT_MOC_LITERAL(144, 3163, 4), // "arg1"
-QT_MOC_LITERAL(145, 3168, 34), // "on_lstRecomendedPDBs_itemActi..."
-QT_MOC_LITERAL(146, 3203, 16), // "QListWidgetItem*"
-QT_MOC_LITERAL(147, 3220, 4), // "item"
-QT_MOC_LITERAL(148, 3225, 35), // "on_chkRemoveContactResidues_c..."
-QT_MOC_LITERAL(149, 3261, 32), // "on_lstPDBsLoaded_2_itemActivated"
-QT_MOC_LITERAL(150, 3294, 24), // "on_cmbRefSeq_4_activated"
-QT_MOC_LITERAL(151, 3319, 35), // "on_lstRecommendedPDBs_itemAct..."
-QT_MOC_LITERAL(152, 3355, 21), // "on_cmdPDBFile_clicked"
-QT_MOC_LITERAL(153, 3377, 22), // "on_cmdPDBFetch_clicked"
-QT_MOC_LITERAL(154, 3400, 21), // "on_cmdLoadPDB_clicked"
-QT_MOC_LITERAL(155, 3422, 29) // "on_chkGenerateConsPDB_clicked"
+QT_MOC_LITERAL(76, 1488, 25), // "changeToPDBVisualization2"
+QT_MOC_LITERAL(77, 1514, 10), // "setLibPath"
+QT_MOC_LITERAL(78, 1525, 25), // "changeToAlphabetReduction"
+QT_MOC_LITERAL(79, 1551, 12), // "graphClicked"
+QT_MOC_LITERAL(80, 1564, 21), // "QCPAbstractPlottable*"
+QT_MOC_LITERAL(81, 1586, 4), // "plot"
+QT_MOC_LITERAL(82, 1591, 12), // "QMouseEvent*"
+QT_MOC_LITERAL(83, 1604, 5), // "mouse"
+QT_MOC_LITERAL(84, 1610, 25), // "on_cmdStartWizard_clicked"
+QT_MOC_LITERAL(85, 1636, 18), // "on_cmdMain_clicked"
+QT_MOC_LITERAL(86, 1655, 18), // "on_cmdBack_clicked"
+QT_MOC_LITERAL(87, 1674, 21), // "on_cmdAdvance_clicked"
+QT_MOC_LITERAL(88, 1696, 18), // "on_cmdOpen_clicked"
+QT_MOC_LITERAL(89, 1715, 19), // "on_cmdFetch_clicked"
+QT_MOC_LITERAL(90, 1735, 25), // "on_cmdApplyFilter_clicked"
+QT_MOC_LITERAL(91, 1761, 26), // "on_cmdConservation_clicked"
+QT_MOC_LITERAL(92, 1788, 19), // "on_cmdMinss_clicked"
+QT_MOC_LITERAL(93, 1808, 25), // "on_cmdCorrelation_clicked"
+QT_MOC_LITERAL(94, 1834, 23), // "on_listWidget_activated"
+QT_MOC_LITERAL(95, 1858, 5), // "index"
+QT_MOC_LITERAL(96, 1864, 22), // "on_cmbRefSeq_activated"
+QT_MOC_LITERAL(97, 1887, 24), // "on_cmbRefSeq_2_activated"
+QT_MOC_LITERAL(98, 1912, 24), // "on_cmbRefSeq_3_activated"
+QT_MOC_LITERAL(99, 1937, 36), // "on_lstRefSeqs_2_itemSelection..."
+QT_MOC_LITERAL(100, 1974, 25), // "on_cmdSaveResults_clicked"
+QT_MOC_LITERAL(101, 2000, 24), // "on_listWidget2_activated"
+QT_MOC_LITERAL(102, 2025, 18), // "on_cmdShow_clicked"
+QT_MOC_LITERAL(103, 2044, 32), // "on_lstProteinsFiltered_activated"
+QT_MOC_LITERAL(104, 2077, 22), // "on_cmdNextComm_clicked"
+QT_MOC_LITERAL(105, 2100, 22), // "on_cmdBackComm_clicked"
+QT_MOC_LITERAL(106, 2123, 24), // "on_cmdNextComm_2_clicked"
+QT_MOC_LITERAL(107, 2148, 24), // "on_cmdBackComm_2_clicked"
+QT_MOC_LITERAL(108, 2173, 24), // "on_cmdNextResult_clicked"
+QT_MOC_LITERAL(109, 2198, 24), // "on_cmdBackResult_clicked"
+QT_MOC_LITERAL(110, 2223, 25), // "on_cmdNextResComm_clicked"
+QT_MOC_LITERAL(111, 2249, 25), // "on_cmdBackResComm_clicked"
+QT_MOC_LITERAL(112, 2275, 26), // "on_cmdRemoveFilter_clicked"
+QT_MOC_LITERAL(113, 2302, 29), // "on_cmdRemoveAlignment_clicked"
+QT_MOC_LITERAL(114, 2332, 32), // "on_cmdUploadConsRefsSeqs_clicked"
+QT_MOC_LITERAL(115, 2365, 18), // "on_cmdLook_clicked"
+QT_MOC_LITERAL(116, 2384, 22), // "on_cmdLookNone_clicked"
+QT_MOC_LITERAL(117, 2407, 21), // "on_cmdLookAll_clicked"
+QT_MOC_LITERAL(118, 2429, 29), // "on_lstProteinsMined_activated"
+QT_MOC_LITERAL(119, 2459, 25), // "on_treeMinerComms_clicked"
+QT_MOC_LITERAL(120, 2485, 30), // "on_cmbComm_currentIndexChanged"
+QT_MOC_LITERAL(121, 2516, 24), // "on_cmdAddResComm_clicked"
+QT_MOC_LITERAL(122, 2541, 24), // "on_cmdDelResComm_clicked"
+QT_MOC_LITERAL(123, 2566, 21), // "on_cmdNewComm_clicked"
+QT_MOC_LITERAL(124, 2588, 27), // "on_cmdAddFileRefSeq_clicked"
+QT_MOC_LITERAL(125, 2616, 26), // "on_cmdAddAllRefSeq_clicked"
+QT_MOC_LITERAL(126, 2643, 29), // "on_cmdRemoveAllRefSeq_clicked"
+QT_MOC_LITERAL(127, 2673, 26), // "on_cmdAddOneRefSeq_clicked"
+QT_MOC_LITERAL(128, 2700, 29), // "on_cmdRemoveOneRefSeq_clicked"
+QT_MOC_LITERAL(129, 2730, 25), // "on_cmdSaveRefSeqs_clicked"
+QT_MOC_LITERAL(130, 2756, 25), // "on_cmdUpdateComms_clicked"
+QT_MOC_LITERAL(131, 2782, 35), // "on_txtMinssFraction_editingFi..."
+QT_MOC_LITERAL(132, 2818, 30), // "on_cmdHideShowAntiCorr_clicked"
+QT_MOC_LITERAL(133, 2849, 26), // "on_cmdNexCommGraph_clicked"
+QT_MOC_LITERAL(134, 2876, 27), // "on_cmdBackCommGraph_clicked"
+QT_MOC_LITERAL(135, 2904, 33), // "on_txtGraphCutoff_editingFini..."
+QT_MOC_LITERAL(136, 2938, 28), // "on_cmdCorrCommCutoff_clicked"
+QT_MOC_LITERAL(137, 2967, 27), // "on_chkApplyMinCover_clicked"
+QT_MOC_LITERAL(138, 2995, 7), // "checked"
+QT_MOC_LITERAL(139, 3003, 24), // "on_chkApplyMinId_clicked"
+QT_MOC_LITERAL(140, 3028, 24), // "on_chkApplyMaxId_clicked"
+QT_MOC_LITERAL(141, 3053, 38), // "on_cmbAlphabetList_currentInd..."
+QT_MOC_LITERAL(142, 3092, 31), // "on_radioAlphabetCurrent_clicked"
+QT_MOC_LITERAL(143, 3124, 27), // "on_radioAlphabetNew_clicked"
+QT_MOC_LITERAL(144, 3152, 36), // "on_cmdApplyAlphabetReduction_..."
+QT_MOC_LITERAL(145, 3189, 4), // "arg1"
+QT_MOC_LITERAL(146, 3194, 34), // "on_lstRecomendedPDBs_itemActi..."
+QT_MOC_LITERAL(147, 3229, 16), // "QListWidgetItem*"
+QT_MOC_LITERAL(148, 3246, 4), // "item"
+QT_MOC_LITERAL(149, 3251, 35), // "on_chkRemoveContactResidues_c..."
+QT_MOC_LITERAL(150, 3287, 32), // "on_lstPDBsLoaded_2_itemActivated"
+QT_MOC_LITERAL(151, 3320, 24), // "on_cmbRefSeq_4_activated"
+QT_MOC_LITERAL(152, 3345, 35), // "on_lstRecommendedPDBs_itemAct..."
+QT_MOC_LITERAL(153, 3381, 21), // "on_cmdPDBFile_clicked"
+QT_MOC_LITERAL(154, 3403, 22), // "on_cmdPDBFetch_clicked"
+QT_MOC_LITERAL(155, 3426, 21), // "on_cmdLoadPDB_clicked"
+QT_MOC_LITERAL(156, 3448, 29), // "on_chkGenerateConsPDB_clicked"
+QT_MOC_LITERAL(157, 3478, 31) // "on_chkCommVisualization_clicked"
 
     },
     "MainWindow\0inputAlignment_triggered\0"
@@ -230,7 +232,8 @@ QT_MOC_LITERAL(155, 3422, 29) // "on_chkGenerateConsPDB_clicked"
     "changeToCorrelationGraph\0"
     "changeToCommunitiesGraphs\0"
     "changeToCorrelationBetweenComms\0"
-    "changeToPDBVisualization\0setLibPath\0"
+    "changeToPDBVisualization\0"
+    "changeToPDBVisualization2\0setLibPath\0"
     "changeToAlphabetReduction\0graphClicked\0"
     "QCPAbstractPlottable*\0plot\0QMouseEvent*\0"
     "mouse\0on_cmdStartWizard_clicked\0"
@@ -291,7 +294,8 @@ QT_MOC_LITERAL(155, 3422, 29) // "on_chkGenerateConsPDB_clicked"
     "on_lstRecommendedPDBs_itemActivated\0"
     "on_cmdPDBFile_clicked\0on_cmdPDBFetch_clicked\0"
     "on_cmdLoadPDB_clicked\0"
-    "on_chkGenerateConsPDB_clicked"
+    "on_chkGenerateConsPDB_clicked\0"
+    "on_chkCommVisualization_clicked"
 };
 #undef QT_MOC_LITERAL
 
@@ -301,7 +305,7 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-     147,   14, // methods
+     149,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -309,153 +313,155 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  749,    2, 0x08 /* Private */,
-       3,    0,  750,    2, 0x08 /* Private */,
-       4,    0,  751,    2, 0x08 /* Private */,
-       5,    0,  752,    2, 0x08 /* Private */,
-       6,    0,  753,    2, 0x08 /* Private */,
-       7,    0,  754,    2, 0x08 /* Private */,
-       8,    0,  755,    2, 0x08 /* Private */,
-       9,    0,  756,    2, 0x08 /* Private */,
-      10,    0,  757,    2, 0x08 /* Private */,
-      11,    0,  758,    2, 0x08 /* Private */,
-      12,    0,  759,    2, 0x08 /* Private */,
-      13,    0,  760,    2, 0x08 /* Private */,
-      14,    0,  761,    2, 0x08 /* Private */,
-      15,    0,  762,    2, 0x08 /* Private */,
-      16,    0,  763,    2, 0x08 /* Private */,
-      17,    0,  764,    2, 0x08 /* Private */,
-      18,    0,  765,    2, 0x08 /* Private */,
-      19,    0,  766,    2, 0x08 /* Private */,
-      20,    0,  767,    2, 0x08 /* Private */,
-      21,    0,  768,    2, 0x08 /* Private */,
-      22,    0,  769,    2, 0x08 /* Private */,
-      23,    0,  770,    2, 0x08 /* Private */,
-      24,    0,  771,    2, 0x08 /* Private */,
-      25,    0,  772,    2, 0x08 /* Private */,
-      26,    0,  773,    2, 0x08 /* Private */,
-      27,    0,  774,    2, 0x08 /* Private */,
-      28,    0,  775,    2, 0x08 /* Private */,
-      29,    0,  776,    2, 0x08 /* Private */,
-      30,    0,  777,    2, 0x08 /* Private */,
-      31,    0,  778,    2, 0x08 /* Private */,
-      32,    0,  779,    2, 0x08 /* Private */,
-      33,    0,  780,    2, 0x08 /* Private */,
-      34,    0,  781,    2, 0x08 /* Private */,
-      35,    0,  782,    2, 0x08 /* Private */,
-      36,    0,  783,    2, 0x08 /* Private */,
-      37,    0,  784,    2, 0x08 /* Private */,
-      38,    0,  785,    2, 0x08 /* Private */,
-      39,    0,  786,    2, 0x08 /* Private */,
-      40,    0,  787,    2, 0x08 /* Private */,
-      41,    0,  788,    2, 0x08 /* Private */,
-      42,    0,  789,    2, 0x08 /* Private */,
-      43,    0,  790,    2, 0x08 /* Private */,
-      44,    0,  791,    2, 0x08 /* Private */,
-      45,    0,  792,    2, 0x08 /* Private */,
-      46,    0,  793,    2, 0x08 /* Private */,
-      47,    0,  794,    2, 0x08 /* Private */,
-      48,    0,  795,    2, 0x08 /* Private */,
-      49,    0,  796,    2, 0x08 /* Private */,
-      50,    0,  797,    2, 0x08 /* Private */,
-      51,    0,  798,    2, 0x08 /* Private */,
-      52,    0,  799,    2, 0x08 /* Private */,
-      53,    0,  800,    2, 0x08 /* Private */,
-      54,    0,  801,    2, 0x08 /* Private */,
-      55,    0,  802,    2, 0x08 /* Private */,
-      56,    0,  803,    2, 0x08 /* Private */,
-      57,    0,  804,    2, 0x08 /* Private */,
-      58,    0,  805,    2, 0x08 /* Private */,
-      59,    0,  806,    2, 0x08 /* Private */,
-      60,    0,  807,    2, 0x08 /* Private */,
-      61,    0,  808,    2, 0x08 /* Private */,
-      62,    0,  809,    2, 0x08 /* Private */,
-      63,    0,  810,    2, 0x08 /* Private */,
-      64,    0,  811,    2, 0x08 /* Private */,
-      65,    0,  812,    2, 0x08 /* Private */,
-      66,    0,  813,    2, 0x08 /* Private */,
-      67,    0,  814,    2, 0x08 /* Private */,
-      68,    0,  815,    2, 0x08 /* Private */,
-      69,    0,  816,    2, 0x08 /* Private */,
-      70,    0,  817,    2, 0x08 /* Private */,
-      71,    0,  818,    2, 0x08 /* Private */,
-      72,    0,  819,    2, 0x08 /* Private */,
-      73,    0,  820,    2, 0x08 /* Private */,
-      74,    0,  821,    2, 0x08 /* Private */,
-      75,    0,  822,    2, 0x08 /* Private */,
-      76,    0,  823,    2, 0x08 /* Private */,
-      77,    0,  824,    2, 0x08 /* Private */,
-      78,    2,  825,    2, 0x08 /* Private */,
-      83,    0,  830,    2, 0x08 /* Private */,
-      84,    0,  831,    2, 0x08 /* Private */,
-      85,    0,  832,    2, 0x08 /* Private */,
-      86,    0,  833,    2, 0x08 /* Private */,
-      87,    0,  834,    2, 0x08 /* Private */,
-      88,    0,  835,    2, 0x08 /* Private */,
-      89,    0,  836,    2, 0x08 /* Private */,
-      90,    0,  837,    2, 0x08 /* Private */,
-      91,    0,  838,    2, 0x08 /* Private */,
-      92,    0,  839,    2, 0x08 /* Private */,
-      93,    1,  840,    2, 0x08 /* Private */,
-      95,    1,  843,    2, 0x08 /* Private */,
-      96,    1,  846,    2, 0x08 /* Private */,
-      97,    1,  849,    2, 0x08 /* Private */,
-      98,    0,  852,    2, 0x08 /* Private */,
-      99,    0,  853,    2, 0x08 /* Private */,
-     100,    1,  854,    2, 0x08 /* Private */,
-     101,    0,  857,    2, 0x08 /* Private */,
-     102,    1,  858,    2, 0x08 /* Private */,
-     103,    0,  861,    2, 0x08 /* Private */,
-     104,    0,  862,    2, 0x08 /* Private */,
-     105,    0,  863,    2, 0x08 /* Private */,
-     106,    0,  864,    2, 0x08 /* Private */,
-     107,    0,  865,    2, 0x08 /* Private */,
-     108,    0,  866,    2, 0x08 /* Private */,
-     109,    0,  867,    2, 0x08 /* Private */,
-     110,    0,  868,    2, 0x08 /* Private */,
-     111,    0,  869,    2, 0x08 /* Private */,
-     112,    0,  870,    2, 0x08 /* Private */,
-     113,    0,  871,    2, 0x08 /* Private */,
-     114,    0,  872,    2, 0x08 /* Private */,
-     115,    0,  873,    2, 0x08 /* Private */,
-     116,    0,  874,    2, 0x08 /* Private */,
-     117,    1,  875,    2, 0x08 /* Private */,
-     118,    1,  878,    2, 0x08 /* Private */,
-     119,    1,  881,    2, 0x08 /* Private */,
-     120,    0,  884,    2, 0x08 /* Private */,
-     121,    0,  885,    2, 0x08 /* Private */,
-     122,    0,  886,    2, 0x08 /* Private */,
-     123,    0,  887,    2, 0x08 /* Private */,
-     124,    0,  888,    2, 0x08 /* Private */,
-     125,    0,  889,    2, 0x08 /* Private */,
-     126,    0,  890,    2, 0x08 /* Private */,
-     127,    0,  891,    2, 0x08 /* Private */,
-     128,    0,  892,    2, 0x08 /* Private */,
-     129,    0,  893,    2, 0x08 /* Private */,
-     130,    0,  894,    2, 0x08 /* Private */,
-     131,    0,  895,    2, 0x08 /* Private */,
-     132,    0,  896,    2, 0x08 /* Private */,
-     133,    0,  897,    2, 0x08 /* Private */,
-     134,    0,  898,    2, 0x08 /* Private */,
-     135,    0,  899,    2, 0x08 /* Private */,
-     136,    1,  900,    2, 0x08 /* Private */,
-     138,    1,  903,    2, 0x08 /* Private */,
-     139,    1,  906,    2, 0x08 /* Private */,
-     140,    1,  909,    2, 0x08 /* Private */,
-     141,    1,  912,    2, 0x08 /* Private */,
-     142,    1,  915,    2, 0x08 /* Private */,
-     143,    0,  918,    2, 0x08 /* Private */,
-      96,    1,  919,    2, 0x08 /* Private */,
-     145,    1,  922,    2, 0x08 /* Private */,
-     148,    1,  925,    2, 0x08 /* Private */,
-      97,    1,  928,    2, 0x08 /* Private */,
-     149,    1,  931,    2, 0x08 /* Private */,
-     150,    1,  934,    2, 0x08 /* Private */,
-     151,    1,  937,    2, 0x08 /* Private */,
-     152,    0,  940,    2, 0x08 /* Private */,
-     153,    0,  941,    2, 0x08 /* Private */,
-     154,    0,  942,    2, 0x08 /* Private */,
-     155,    1,  943,    2, 0x08 /* Private */,
+       1,    0,  759,    2, 0x08 /* Private */,
+       3,    0,  760,    2, 0x08 /* Private */,
+       4,    0,  761,    2, 0x08 /* Private */,
+       5,    0,  762,    2, 0x08 /* Private */,
+       6,    0,  763,    2, 0x08 /* Private */,
+       7,    0,  764,    2, 0x08 /* Private */,
+       8,    0,  765,    2, 0x08 /* Private */,
+       9,    0,  766,    2, 0x08 /* Private */,
+      10,    0,  767,    2, 0x08 /* Private */,
+      11,    0,  768,    2, 0x08 /* Private */,
+      12,    0,  769,    2, 0x08 /* Private */,
+      13,    0,  770,    2, 0x08 /* Private */,
+      14,    0,  771,    2, 0x08 /* Private */,
+      15,    0,  772,    2, 0x08 /* Private */,
+      16,    0,  773,    2, 0x08 /* Private */,
+      17,    0,  774,    2, 0x08 /* Private */,
+      18,    0,  775,    2, 0x08 /* Private */,
+      19,    0,  776,    2, 0x08 /* Private */,
+      20,    0,  777,    2, 0x08 /* Private */,
+      21,    0,  778,    2, 0x08 /* Private */,
+      22,    0,  779,    2, 0x08 /* Private */,
+      23,    0,  780,    2, 0x08 /* Private */,
+      24,    0,  781,    2, 0x08 /* Private */,
+      25,    0,  782,    2, 0x08 /* Private */,
+      26,    0,  783,    2, 0x08 /* Private */,
+      27,    0,  784,    2, 0x08 /* Private */,
+      28,    0,  785,    2, 0x08 /* Private */,
+      29,    0,  786,    2, 0x08 /* Private */,
+      30,    0,  787,    2, 0x08 /* Private */,
+      31,    0,  788,    2, 0x08 /* Private */,
+      32,    0,  789,    2, 0x08 /* Private */,
+      33,    0,  790,    2, 0x08 /* Private */,
+      34,    0,  791,    2, 0x08 /* Private */,
+      35,    0,  792,    2, 0x08 /* Private */,
+      36,    0,  793,    2, 0x08 /* Private */,
+      37,    0,  794,    2, 0x08 /* Private */,
+      38,    0,  795,    2, 0x08 /* Private */,
+      39,    0,  796,    2, 0x08 /* Private */,
+      40,    0,  797,    2, 0x08 /* Private */,
+      41,    0,  798,    2, 0x08 /* Private */,
+      42,    0,  799,    2, 0x08 /* Private */,
+      43,    0,  800,    2, 0x08 /* Private */,
+      44,    0,  801,    2, 0x08 /* Private */,
+      45,    0,  802,    2, 0x08 /* Private */,
+      46,    0,  803,    2, 0x08 /* Private */,
+      47,    0,  804,    2, 0x08 /* Private */,
+      48,    0,  805,    2, 0x08 /* Private */,
+      49,    0,  806,    2, 0x08 /* Private */,
+      50,    0,  807,    2, 0x08 /* Private */,
+      51,    0,  808,    2, 0x08 /* Private */,
+      52,    0,  809,    2, 0x08 /* Private */,
+      53,    0,  810,    2, 0x08 /* Private */,
+      54,    0,  811,    2, 0x08 /* Private */,
+      55,    0,  812,    2, 0x08 /* Private */,
+      56,    0,  813,    2, 0x08 /* Private */,
+      57,    0,  814,    2, 0x08 /* Private */,
+      58,    0,  815,    2, 0x08 /* Private */,
+      59,    0,  816,    2, 0x08 /* Private */,
+      60,    0,  817,    2, 0x08 /* Private */,
+      61,    0,  818,    2, 0x08 /* Private */,
+      62,    0,  819,    2, 0x08 /* Private */,
+      63,    0,  820,    2, 0x08 /* Private */,
+      64,    0,  821,    2, 0x08 /* Private */,
+      65,    0,  822,    2, 0x08 /* Private */,
+      66,    0,  823,    2, 0x08 /* Private */,
+      67,    0,  824,    2, 0x08 /* Private */,
+      68,    0,  825,    2, 0x08 /* Private */,
+      69,    0,  826,    2, 0x08 /* Private */,
+      70,    0,  827,    2, 0x08 /* Private */,
+      71,    0,  828,    2, 0x08 /* Private */,
+      72,    0,  829,    2, 0x08 /* Private */,
+      73,    0,  830,    2, 0x08 /* Private */,
+      74,    0,  831,    2, 0x08 /* Private */,
+      75,    0,  832,    2, 0x08 /* Private */,
+      76,    0,  833,    2, 0x08 /* Private */,
+      77,    0,  834,    2, 0x08 /* Private */,
+      78,    0,  835,    2, 0x08 /* Private */,
+      79,    2,  836,    2, 0x08 /* Private */,
+      84,    0,  841,    2, 0x08 /* Private */,
+      85,    0,  842,    2, 0x08 /* Private */,
+      86,    0,  843,    2, 0x08 /* Private */,
+      87,    0,  844,    2, 0x08 /* Private */,
+      88,    0,  845,    2, 0x08 /* Private */,
+      89,    0,  846,    2, 0x08 /* Private */,
+      90,    0,  847,    2, 0x08 /* Private */,
+      91,    0,  848,    2, 0x08 /* Private */,
+      92,    0,  849,    2, 0x08 /* Private */,
+      93,    0,  850,    2, 0x08 /* Private */,
+      94,    1,  851,    2, 0x08 /* Private */,
+      96,    1,  854,    2, 0x08 /* Private */,
+      97,    1,  857,    2, 0x08 /* Private */,
+      98,    1,  860,    2, 0x08 /* Private */,
+      99,    0,  863,    2, 0x08 /* Private */,
+     100,    0,  864,    2, 0x08 /* Private */,
+     101,    1,  865,    2, 0x08 /* Private */,
+     102,    0,  868,    2, 0x08 /* Private */,
+     103,    1,  869,    2, 0x08 /* Private */,
+     104,    0,  872,    2, 0x08 /* Private */,
+     105,    0,  873,    2, 0x08 /* Private */,
+     106,    0,  874,    2, 0x08 /* Private */,
+     107,    0,  875,    2, 0x08 /* Private */,
+     108,    0,  876,    2, 0x08 /* Private */,
+     109,    0,  877,    2, 0x08 /* Private */,
+     110,    0,  878,    2, 0x08 /* Private */,
+     111,    0,  879,    2, 0x08 /* Private */,
+     112,    0,  880,    2, 0x08 /* Private */,
+     113,    0,  881,    2, 0x08 /* Private */,
+     114,    0,  882,    2, 0x08 /* Private */,
+     115,    0,  883,    2, 0x08 /* Private */,
+     116,    0,  884,    2, 0x08 /* Private */,
+     117,    0,  885,    2, 0x08 /* Private */,
+     118,    1,  886,    2, 0x08 /* Private */,
+     119,    1,  889,    2, 0x08 /* Private */,
+     120,    1,  892,    2, 0x08 /* Private */,
+     121,    0,  895,    2, 0x08 /* Private */,
+     122,    0,  896,    2, 0x08 /* Private */,
+     123,    0,  897,    2, 0x08 /* Private */,
+     124,    0,  898,    2, 0x08 /* Private */,
+     125,    0,  899,    2, 0x08 /* Private */,
+     126,    0,  900,    2, 0x08 /* Private */,
+     127,    0,  901,    2, 0x08 /* Private */,
+     128,    0,  902,    2, 0x08 /* Private */,
+     129,    0,  903,    2, 0x08 /* Private */,
+     130,    0,  904,    2, 0x08 /* Private */,
+     131,    0,  905,    2, 0x08 /* Private */,
+     132,    0,  906,    2, 0x08 /* Private */,
+     133,    0,  907,    2, 0x08 /* Private */,
+     134,    0,  908,    2, 0x08 /* Private */,
+     135,    0,  909,    2, 0x08 /* Private */,
+     136,    0,  910,    2, 0x08 /* Private */,
+     137,    1,  911,    2, 0x08 /* Private */,
+     139,    1,  914,    2, 0x08 /* Private */,
+     140,    1,  917,    2, 0x08 /* Private */,
+     141,    1,  920,    2, 0x08 /* Private */,
+     142,    1,  923,    2, 0x08 /* Private */,
+     143,    1,  926,    2, 0x08 /* Private */,
+     144,    0,  929,    2, 0x08 /* Private */,
+      97,    1,  930,    2, 0x08 /* Private */,
+     146,    1,  933,    2, 0x08 /* Private */,
+     149,    1,  936,    2, 0x08 /* Private */,
+      98,    1,  939,    2, 0x08 /* Private */,
+     150,    1,  942,    2, 0x08 /* Private */,
+     151,    1,  945,    2, 0x08 /* Private */,
+     152,    1,  948,    2, 0x08 /* Private */,
+     153,    0,  951,    2, 0x08 /* Private */,
+     154,    0,  952,    2, 0x08 /* Private */,
+     155,    0,  953,    2, 0x08 /* Private */,
+     156,    1,  954,    2, 0x08 /* Private */,
+     157,    1,  957,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -534,7 +540,8 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 79, 0x80000000 | 81,   80,   82,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 80, 0x80000000 | 82,   81,   83,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -545,32 +552,15 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::QModelIndex,   94,
-    QMetaType::Void, QMetaType::Int,   94,
-    QMetaType::Void, QMetaType::Int,   94,
-    QMetaType::Void, QMetaType::Int,   94,
+    QMetaType::Void, QMetaType::QModelIndex,   95,
+    QMetaType::Void, QMetaType::Int,   95,
+    QMetaType::Void, QMetaType::Int,   95,
+    QMetaType::Void, QMetaType::Int,   95,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::QModelIndex,   94,
+    QMetaType::Void, QMetaType::QModelIndex,   95,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::QModelIndex,   94,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::QModelIndex,   94,
-    QMetaType::Void, QMetaType::QModelIndex,   94,
-    QMetaType::Void, QMetaType::Int,   94,
+    QMetaType::Void, QMetaType::QModelIndex,   95,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -585,26 +575,44 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Bool,  137,
-    QMetaType::Void, QMetaType::Bool,  137,
-    QMetaType::Void, QMetaType::Bool,  137,
-    QMetaType::Void, QMetaType::Int,   94,
-    QMetaType::Void, QMetaType::Bool,  137,
-    QMetaType::Void, QMetaType::Bool,  137,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::QString,  144,
-    QMetaType::Void, 0x80000000 | 146,  147,
-    QMetaType::Void, QMetaType::Bool,  137,
-    QMetaType::Void, QMetaType::QString,  144,
-    QMetaType::Void, 0x80000000 | 146,  147,
-    QMetaType::Void, QMetaType::QString,  144,
-    QMetaType::Void, 0x80000000 | 146,  147,
+    QMetaType::Void, QMetaType::QModelIndex,   95,
+    QMetaType::Void, QMetaType::QModelIndex,   95,
+    QMetaType::Void, QMetaType::Int,   95,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Bool,  137,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,  138,
+    QMetaType::Void, QMetaType::Bool,  138,
+    QMetaType::Void, QMetaType::Bool,  138,
+    QMetaType::Void, QMetaType::Int,   95,
+    QMetaType::Void, QMetaType::Bool,  138,
+    QMetaType::Void, QMetaType::Bool,  138,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::QString,  145,
+    QMetaType::Void, 0x80000000 | 147,  148,
+    QMetaType::Void, QMetaType::Bool,  138,
+    QMetaType::Void, QMetaType::QString,  145,
+    QMetaType::Void, 0x80000000 | 147,  148,
+    QMetaType::Void, QMetaType::QString,  145,
+    QMetaType::Void, 0x80000000 | 147,  148,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,  138,
+    QMetaType::Void, QMetaType::Bool,  138,
 
        0        // eod
 };
@@ -688,85 +696,87 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 71: _t->changeToCommunitiesGraphs(); break;
         case 72: _t->changeToCorrelationBetweenComms(); break;
         case 73: _t->changeToPDBVisualization(); break;
-        case 74: _t->setLibPath(); break;
-        case 75: _t->changeToAlphabetReduction(); break;
-        case 76: _t->graphClicked((*reinterpret_cast< QCPAbstractPlottable*(*)>(_a[1])),(*reinterpret_cast< QMouseEvent*(*)>(_a[2]))); break;
-        case 77: _t->on_cmdStartWizard_clicked(); break;
-        case 78: _t->on_cmdMain_clicked(); break;
-        case 79: _t->on_cmdBack_clicked(); break;
-        case 80: _t->on_cmdAdvance_clicked(); break;
-        case 81: _t->on_cmdOpen_clicked(); break;
-        case 82: _t->on_cmdFetch_clicked(); break;
-        case 83: _t->on_cmdApplyFilter_clicked(); break;
-        case 84: _t->on_cmdConservation_clicked(); break;
-        case 85: _t->on_cmdMinss_clicked(); break;
-        case 86: _t->on_cmdCorrelation_clicked(); break;
-        case 87: _t->on_listWidget_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 88: _t->on_cmbRefSeq_activated((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 89: _t->on_cmbRefSeq_2_activated((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 90: _t->on_cmbRefSeq_3_activated((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 91: _t->on_lstRefSeqs_2_itemSelectionChanged(); break;
-        case 92: _t->on_cmdSaveResults_clicked(); break;
-        case 93: _t->on_listWidget2_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 94: _t->on_cmdShow_clicked(); break;
-        case 95: _t->on_lstProteinsFiltered_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 96: _t->on_cmdNextComm_clicked(); break;
-        case 97: _t->on_cmdBackComm_clicked(); break;
-        case 98: _t->on_cmdNextComm_2_clicked(); break;
-        case 99: _t->on_cmdBackComm_2_clicked(); break;
-        case 100: _t->on_cmdNextResult_clicked(); break;
-        case 101: _t->on_cmdBackResult_clicked(); break;
-        case 102: _t->on_cmdNextResComm_clicked(); break;
-        case 103: _t->on_cmdBackResComm_clicked(); break;
-        case 104: _t->on_cmdRemoveFilter_clicked(); break;
-        case 105: _t->on_cmdRemoveAlignment_clicked(); break;
-        case 106: _t->on_cmdUploadConsRefsSeqs_clicked(); break;
-        case 107: _t->on_cmdLook_clicked(); break;
-        case 108: _t->on_cmdLookNone_clicked(); break;
-        case 109: _t->on_cmdLookAll_clicked(); break;
-        case 110: _t->on_lstProteinsMined_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 111: _t->on_treeMinerComms_clicked((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 112: _t->on_cmbComm_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 113: _t->on_cmdAddResComm_clicked(); break;
-        case 114: _t->on_cmdDelResComm_clicked(); break;
-        case 115: _t->on_cmdNewComm_clicked(); break;
-        case 116: _t->on_cmdAddFileRefSeq_clicked(); break;
-        case 117: _t->on_cmdAddAllRefSeq_clicked(); break;
-        case 118: _t->on_cmdRemoveAllRefSeq_clicked(); break;
-        case 119: _t->on_cmdAddOneRefSeq_clicked(); break;
-        case 120: _t->on_cmdRemoveOneRefSeq_clicked(); break;
-        case 121: _t->on_cmdSaveRefSeqs_clicked(); break;
-        case 122: _t->on_cmdUpdateComms_clicked(); break;
-        case 123: _t->on_txtMinssFraction_editingFinished(); break;
-        case 124: _t->on_cmdHideShowAntiCorr_clicked(); break;
-        case 125: _t->on_cmdNexCommGraph_clicked(); break;
-        case 126: _t->on_cmdBackCommGraph_clicked(); break;
-        case 127: _t->on_txtGraphCutoff_editingFinished(); break;
-        case 128: _t->on_cmdCorrCommCutoff_clicked(); break;
-        case 129: _t->on_chkApplyMinCover_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 130: _t->on_chkApplyMinId_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 131: _t->on_chkApplyMaxId_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 132: _t->on_cmbAlphabetList_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 133: _t->on_radioAlphabetCurrent_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 134: _t->on_radioAlphabetNew_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 135: _t->on_cmdApplyAlphabetReduction_clicked(); break;
-        case 136: _t->on_cmbRefSeq_2_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 137: _t->on_lstRecomendedPDBs_itemActivated((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 138: _t->on_chkRemoveContactResidues_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 139: _t->on_cmbRefSeq_3_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 140: _t->on_lstPDBsLoaded_2_itemActivated((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 141: _t->on_cmbRefSeq_4_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 142: _t->on_lstRecommendedPDBs_itemActivated((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
-        case 143: _t->on_cmdPDBFile_clicked(); break;
-        case 144: _t->on_cmdPDBFetch_clicked(); break;
-        case 145: _t->on_cmdLoadPDB_clicked(); break;
-        case 146: _t->on_chkGenerateConsPDB_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 74: _t->changeToPDBVisualization2(); break;
+        case 75: _t->setLibPath(); break;
+        case 76: _t->changeToAlphabetReduction(); break;
+        case 77: _t->graphClicked((*reinterpret_cast< QCPAbstractPlottable*(*)>(_a[1])),(*reinterpret_cast< QMouseEvent*(*)>(_a[2]))); break;
+        case 78: _t->on_cmdStartWizard_clicked(); break;
+        case 79: _t->on_cmdMain_clicked(); break;
+        case 80: _t->on_cmdBack_clicked(); break;
+        case 81: _t->on_cmdAdvance_clicked(); break;
+        case 82: _t->on_cmdOpen_clicked(); break;
+        case 83: _t->on_cmdFetch_clicked(); break;
+        case 84: _t->on_cmdApplyFilter_clicked(); break;
+        case 85: _t->on_cmdConservation_clicked(); break;
+        case 86: _t->on_cmdMinss_clicked(); break;
+        case 87: _t->on_cmdCorrelation_clicked(); break;
+        case 88: _t->on_listWidget_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 89: _t->on_cmbRefSeq_activated((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 90: _t->on_cmbRefSeq_2_activated((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 91: _t->on_cmbRefSeq_3_activated((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 92: _t->on_lstRefSeqs_2_itemSelectionChanged(); break;
+        case 93: _t->on_cmdSaveResults_clicked(); break;
+        case 94: _t->on_listWidget2_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 95: _t->on_cmdShow_clicked(); break;
+        case 96: _t->on_lstProteinsFiltered_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 97: _t->on_cmdNextComm_clicked(); break;
+        case 98: _t->on_cmdBackComm_clicked(); break;
+        case 99: _t->on_cmdNextComm_2_clicked(); break;
+        case 100: _t->on_cmdBackComm_2_clicked(); break;
+        case 101: _t->on_cmdNextResult_clicked(); break;
+        case 102: _t->on_cmdBackResult_clicked(); break;
+        case 103: _t->on_cmdNextResComm_clicked(); break;
+        case 104: _t->on_cmdBackResComm_clicked(); break;
+        case 105: _t->on_cmdRemoveFilter_clicked(); break;
+        case 106: _t->on_cmdRemoveAlignment_clicked(); break;
+        case 107: _t->on_cmdUploadConsRefsSeqs_clicked(); break;
+        case 108: _t->on_cmdLook_clicked(); break;
+        case 109: _t->on_cmdLookNone_clicked(); break;
+        case 110: _t->on_cmdLookAll_clicked(); break;
+        case 111: _t->on_lstProteinsMined_activated((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 112: _t->on_treeMinerComms_clicked((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 113: _t->on_cmbComm_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 114: _t->on_cmdAddResComm_clicked(); break;
+        case 115: _t->on_cmdDelResComm_clicked(); break;
+        case 116: _t->on_cmdNewComm_clicked(); break;
+        case 117: _t->on_cmdAddFileRefSeq_clicked(); break;
+        case 118: _t->on_cmdAddAllRefSeq_clicked(); break;
+        case 119: _t->on_cmdRemoveAllRefSeq_clicked(); break;
+        case 120: _t->on_cmdAddOneRefSeq_clicked(); break;
+        case 121: _t->on_cmdRemoveOneRefSeq_clicked(); break;
+        case 122: _t->on_cmdSaveRefSeqs_clicked(); break;
+        case 123: _t->on_cmdUpdateComms_clicked(); break;
+        case 124: _t->on_txtMinssFraction_editingFinished(); break;
+        case 125: _t->on_cmdHideShowAntiCorr_clicked(); break;
+        case 126: _t->on_cmdNexCommGraph_clicked(); break;
+        case 127: _t->on_cmdBackCommGraph_clicked(); break;
+        case 128: _t->on_txtGraphCutoff_editingFinished(); break;
+        case 129: _t->on_cmdCorrCommCutoff_clicked(); break;
+        case 130: _t->on_chkApplyMinCover_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 131: _t->on_chkApplyMinId_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 132: _t->on_chkApplyMaxId_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 133: _t->on_cmbAlphabetList_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 134: _t->on_radioAlphabetCurrent_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 135: _t->on_radioAlphabetNew_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 136: _t->on_cmdApplyAlphabetReduction_clicked(); break;
+        case 137: _t->on_cmbRefSeq_2_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 138: _t->on_lstRecomendedPDBs_itemActivated((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 139: _t->on_chkRemoveContactResidues_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 140: _t->on_cmbRefSeq_3_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 141: _t->on_lstPDBsLoaded_2_itemActivated((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 142: _t->on_cmbRefSeq_4_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 143: _t->on_lstRecommendedPDBs_itemActivated((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 144: _t->on_cmdPDBFile_clicked(); break;
+        case 145: _t->on_cmdPDBFetch_clicked(); break;
+        case 146: _t->on_cmdLoadPDB_clicked(); break;
+        case 147: _t->on_chkGenerateConsPDB_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 148: _t->on_chkCommVisualization_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
         default: *reinterpret_cast<int*>(_a[0]) = -1; break;
-        case 76:
+        case 77:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
             case 0:
@@ -802,13 +812,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 147)
+        if (_id < 149)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 147;
+        _id -= 149;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 147)
+        if (_id < 149)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 147;
+        _id -= 149;
     }
     return _id;
 }

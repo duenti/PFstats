@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     libpath = ""; //NO windows começar com dir raiz
 
+    this->loadConfigurationFile();
+
     ui->menuBar->setNativeMenuBar(false);
 
     //Seta Wizard como false
@@ -116,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCommunities_Graphs,SIGNAL(triggered()),this,SLOT(changeToCommunitiesGraphs()));
     connect(ui->actionCorrelationBetweenCommunities,SIGNAL(triggered()),this,SLOT(changeToCorrelationBetweenComms()));
     connect(ui->actionStrutucture_Conserved_Residues_Visualization,SIGNAL(triggered()),SLOT(changeToPDBVisualization()));
+    connect(ui->actionStructure_Communities_Visualization,SIGNAL(triggered()),SLOT(changeToPDBVisualization2()));
     connect(ui->actionSet_Libraries_Path,SIGNAL(triggered()),this,SLOT(setLibPath()));
     connect(ui->actionAlphabet_Reduction,SIGNAL(triggered()),this,SLOT(changeToAlphabetReduction()));
     connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
@@ -127,6 +130,25 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::loadConfigurationFile(){
+    QFileInfo checkFile(CONFIG);
+
+    if(checkFile.exists() && checkFile.isFile()){
+        //LER
+        QFile file(CONFIG);
+        if(!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::warning(0, "error","Unable to read configuration file");
+            return;
+        }
+
+        QTextStream in(&file);
+
+        libpath = in.readLine().toStdString();
+
+        file.close();
+    }
 }
 
 bool MainWindow::isFloat( string myString ) {
@@ -170,6 +192,7 @@ void MainWindow::resetObjects(){
     ui->lstRefSeqs->clear();
     ui->lstRefSeqSelected->clear();
     //PDB
+    ui->txtChainPDB->clear();
     ui->txtFilePathPDB->clear();
     ui->txtPdbId->clear();
     ui->lstRecommendedPDBs->clear();
@@ -191,6 +214,7 @@ void MainWindow::resetObjects(){
     ui->graficMinss->setVisible(false);
     ui->txtNoAlignments->setValue(100);
     //CORRELATION
+    ui->txtChain_2->setText("A");
     ui->chkRemoveContactResidues->setChecked(false);
     ui->txtAtomDistance->setValue(4.5);
     ui->txtPDBName_2->clear();
@@ -434,7 +458,7 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
 
         //pdb->printSeqNumbers();
         vector<float> consvec = currentAlign->createConservationVector(refseq);
-        pdb->exportStructure(filename,consvec);
+        pdb->exportStructure(filename,consvec,chain);
 
         currentAlign->setConsPDBPath(path);
 
@@ -1365,7 +1389,7 @@ void MainWindow::on_cmdCorrCommCutoff_clicked()
     ui->cmdCorrCommCutoff->setEnabled(true);
 }
 
-string MainWindow::makeConservedPDBHTML(string pdb){
+string MainWindow::makeVisPDBHTML(string pdb){
     string html = "";
     html += "<!DOCTYPE html>\n";
     html += "<html>\n";
@@ -1414,11 +1438,53 @@ void MainWindow::consVisualization(){
 
     while(!pdbPath.atEnd()){
         string line = pdbPath.readLine().data();
+        string newline = "";
 
-        pdb += line.substr(0,line.length()-1) + "\\n";
+        //Invert b-factor values
+        if(line.substr(0,4) == "ATOM"){
+            string temp = line.substr(60,6);
+            string strbfactor = "";
+
+            for(unsigned int i = 0; i < temp.size(); i++){
+                if(temp[i] == '.') strbfactor += ',';
+                else if(temp[i] != ' ') strbfactor += temp[i];
+            }
+
+            float bfactor = 100 - atof(strbfactor.c_str());
+            if(bfactor < 0) bfactor = bfactor * -1;
+
+            stringstream stream;
+            stream << fixed << setprecision(2) << bfactor;
+            temp = stream.str();
+
+            newline += line.substr(0,60);
+
+            switch(temp.size()){
+            case 4:
+            {
+                newline += "  " + temp;
+                break;
+            }
+            case 5:
+            {
+                newline += " " + temp;
+                break;
+            }
+            case 6:
+            {
+                newline += temp;
+                break;
+            }
+            }
+
+            newline += line.substr(66);
+
+            pdb += newline.substr(0,newline.length()-1) + "\\n";
+        }else
+            pdb += line.substr(0,line.length()-1) + "\\n";
     }
 
-    string html = this->makeConservedPDBHTML(pdb);
+    string html = this->makeVisPDBHTML(pdb);
 
     //printf("PDB:\n%s",pdb.c_str());
 
@@ -1435,6 +1501,81 @@ void MainWindow::consVisualization(){
     string localUrl = "file:///" + absPath;
     ui->webConservedPDB->load(QUrl(localUrl.c_str()));
 
+}
+
+void MainWindow::commVisualization(){
+    string path = libpath + "/3Dmol/index4.html";
+    QFile indexHTML(path.c_str());
+    indexHTML.open(QIODevice::WriteOnly);
+    QTextStream out(&indexHTML);
+    QFile pdbPath(currentAlign->getCommPDBPath().c_str());
+    pdbPath.open(QIODevice::ReadOnly);
+    string pdb = "";
+
+    while(!pdbPath.atEnd()){
+        string line = pdbPath.readLine().data();
+        string newline = "";
+
+        //Invert B-Factors values
+        if(line.substr(0,4) == "ATOM"){
+            string temp = line.substr(60,6);
+            string strbfactor = "";
+
+            for(unsigned int i = 0; i < temp.size(); i++){
+                if(temp[i] == '.') strbfactor += ',';
+                else if(temp[i] != ' ') strbfactor += temp[i];
+            }
+
+            float bfactor = 100 - atof(strbfactor.c_str());
+            if(bfactor < 0) bfactor = bfactor * -1;
+
+            stringstream stream;
+            stream << fixed << setprecision(2) << bfactor;
+            temp = stream.str();
+
+            newline += line.substr(0,60);
+
+            switch(temp.size()){
+            case 4:
+            {
+                newline += "  " + temp;
+                break;
+            }
+            case 5:
+            {
+                newline += " " + temp;
+                break;
+            }
+            case 6:
+            {
+                newline += temp;
+                break;
+            }
+            }
+
+            newline += line.substr(66);
+
+            pdb += newline.substr(0,newline.length()-1) + "\\n";
+        }else
+            pdb += line.substr(0,line.length()-1) + "\\n";
+    }
+
+    string html = this->makeVisPDBHTML(pdb);
+
+    //printf("PDB:\n%s",pdb.c_str());
+
+
+    out << html.c_str();
+
+    indexHTML.close();
+    pdbPath.close();
+
+    QFile file(path.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webCommunitiesPDB->load(QUrl(localUrl.c_str()));
 }
 
 void MainWindow::on_cmdNexCommGraph_clicked()
@@ -2751,6 +2892,7 @@ void MainWindow::on_cmdCorrelation_clicked()
 {
     ui->cmdCorrelation->setEnabled(false);
     string msg = "";
+    char chain = ui->txtChain_2->text()[0].toLatin1();
 
     //Validação de dados
     if(ui->listWidget->selectedItems().size() == 0){
@@ -2801,7 +2943,7 @@ void MainWindow::on_cmdCorrelation_clicked()
            return;
        }
 
-       contactResidues = pdb->getResiduesInContact(ui->txtAtomDistance->value());
+       contactResidues = pdb->getResiduesInContact(ui->txtAtomDistance->value(),chain);
     }
 
     //Chamar PCalc
@@ -2863,7 +3005,8 @@ void MainWindow::on_cmdCorrelation_clicked()
 
         QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),"",tr("TEXT Files (*.pdb)"));
         vector<float> commvec = currentAlign->createCommuntitiesVector(ui->cmbRefSeq_3->currentIndex());
-        pdb->exportStructure(filename,commvec);
+        pdb->exportStructure(filename,commvec,chain);
+        currentAlign->setCommPDBPath(filename.toStdString());
     }
 
     msg += "All correlations were calculated.";
@@ -5944,6 +6087,24 @@ void MainWindow::changeToPDBVisualization(){
     ui->stackedWidget2->setCurrentIndex(16);
 }
 
+void MainWindow::changeToPDBVisualization2(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    if(currentAlign->getCommPDBPath() == ""){
+        QMessageBox::warning(this,"Warning","You must run correlation method and send a PDB file.");
+        return;
+    }
+
+    this->commVisualization();
+
+    ui->stackedWidget->setCurrentIndex(8);
+    ui->stackedWidget2->setCurrentIndex(17);
+}
+
 void MainWindow::changeToAlphabetReduction(){
     //Validação
     if(!ui->listWidget->currentItem()){
@@ -6288,6 +6449,14 @@ void MainWindow::setLibPath(){
     dialog.setOption(QFileDialog::ShowDirsOnly);
 
     libpath = dialog.getExistingDirectory().toStdString();
+
+    QFile file(CONFIG);
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+
+    out << libpath.c_str();
+
+    file.close();
 
     string msg = "The libraries directory is set.\n" + libpath;
     QMessageBox::information(this,"Setting lib path",msg.c_str());
@@ -6872,8 +7041,17 @@ void MainWindow::on_cmbRefSeq_2_activated(const QString &arg1)
 
 void MainWindow::on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item)
 {
-    string pdb = item->text().toStdString();
-    ui->txtPDBName->setText(pdb.c_str());
+    string strpdb = item->text().toStdString();
+    ui->txtPDBName->setText(strpdb.c_str());
+
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        Pdb* pdb = pdbs[i];
+        if(pdb->getId() == strpdb){
+            string chain = std::string(1,pdb->getRefseq_chain());
+            ui->txtChain->setText(QString::fromStdString(chain));
+            break;
+        }
+    }
 }
 
 void MainWindow::on_chkRemoveContactResidues_clicked(bool checked)
@@ -6882,14 +7060,17 @@ void MainWindow::on_chkRemoveContactResidues_clicked(bool checked)
     if(checked){
         ui->txtAtomDistance->setEnabled(true);
         ui->txtPDBName_2->setEnabled(true);
+        ui->txtChain_2->setEnabled(true);
         ui->lstPDBsLoaded_2->setEnabled(true);
     }else{
         ui->txtAtomDistance->setEnabled(false);
         if(ui->chkCommVisualization->isChecked()){
             ui->txtPDBName_2->setEnabled(true);
+            ui->txtChain_2->setEnabled(true);
             ui->lstPDBsLoaded_2->setEnabled(true);
         }else{
             ui->txtPDBName_2->setEnabled(false);
+            ui->txtChain_2->setEnabled(false);
             ui->lstPDBsLoaded_2->setEnabled(false);
         }
     }
@@ -6910,8 +7091,17 @@ void MainWindow::on_cmbRefSeq_3_activated(const QString &arg1)
 
 void MainWindow::on_lstPDBsLoaded_2_itemActivated(QListWidgetItem *item)
 {
-    string pdb = item->text().toStdString();
-    ui->txtPDBName_2->setText(pdb.c_str());
+    string strpdb = item->text().toStdString();
+    ui->txtPDBName_2->setText(strpdb.c_str());
+
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        Pdb* pdb = pdbs[i];
+        if(pdb->getId() == strpdb){
+            string chain = std::string(1,pdb->getRefseq_chain());
+            ui->txtChain_2->setText(QString::fromStdString(chain));
+            break;
+        }
+    }
 }
 
 void MainWindow::on_cmbRefSeq_4_activated(const QString &arg1)
@@ -6930,6 +7120,10 @@ void MainWindow::on_lstRecommendedPDBs_itemActivated(QListWidgetItem *item)
 {
     string pdbchain = item->text().toStdString();
     string pdb = split(pdbchain,' ')[0];
+    char chain = pdbchain[pdbchain.size()-2];
+    string strchain = std::string(1,chain);
+
+    ui->txtChainPDB->setText(strchain.c_str());
     ui->txtPdbId->setText(pdb.c_str());
 
     string interval = currentAlign->getPDBInterval(pdb);
@@ -7057,16 +7251,18 @@ void MainWindow::on_cmdLoadPDB_clicked()
 
     if(pdb != NULL){
         string pdbname = pdb->getId();
+        char chain = ui->txtChainPDB->text().toStdString()[0];
 
         pdb->setRefseq(refseq);
+        pdb->setRefseq_chain(chain);
         pdb->setIntervals(intervalFrom,intervalTo);
-        pdb->setResiduesSeqNumber();
+        pdb->setResiduesSeqNumber(chain);
 
         //Verify if pdb and sequence align
         string currseq = currentAlign->getNoGAPSequence(ui->cmbRefSeq_3->currentIndex()-1);
 
         if(ui->chkPDBSWS->isChecked()){
-            string pdbseq = pdb->getSWSSeq();
+            string pdbseq = pdb->getSWSSeq(ui->txtChainPDB->text().toStdString()[0]);
             printf("%s\n%s\n",currseq.c_str(),pdbseq.c_str());
             if(pdbseq != currseq){
                 for(unsigned int i = 0; i < currseq.size(); i++){
@@ -7079,7 +7275,7 @@ void MainWindow::on_cmdLoadPDB_clicked()
                 }
             }
         }else{
-            string pdbseq = pdb->getPDBSequence().substr(intervalFrom-1,intervalTo-1);
+            string pdbseq = pdb->getPDBSequence(ui->txtChainPDB->text().toStdString()[0]).substr(intervalFrom-1,intervalTo-1);
             if(pdbseq != currseq){
                 for(unsigned int i = 0; i < currseq.size(); i++){
                     if(pdbseq[i] != currseq[i]){
@@ -7110,6 +7306,7 @@ void MainWindow::on_cmdLoadPDB_clicked()
 void MainWindow::on_chkGenerateConsPDB_clicked(bool checked)
 {
     ui->txtPDBName->setEnabled(checked);
+    ui->txtChain->setEnabled(checked);
     ui->lstRecomendedPDBs->setEnabled(checked);
 }
 
@@ -7117,6 +7314,7 @@ void MainWindow::on_chkCommVisualization_clicked(bool checked)
 {
     if(checked){
         ui->txtPDBName_2->setEnabled(true);
+        ui->txtChain_2->setEnabled(true);
         ui->lstPDBsLoaded_2->setEnabled(true);
         if(ui->chkRemoveContactResidues->isChecked())
             ui->txtAtomDistance->setEnabled(true);
@@ -7125,10 +7323,12 @@ void MainWindow::on_chkCommVisualization_clicked(bool checked)
     }else{
         if(ui->chkRemoveContactResidues->isChecked()){
             ui->txtPDBName_2->setEnabled(true);
+            ui->txtChain_2->setEnabled(true);
             ui->lstPDBsLoaded_2->setEnabled(true);
             ui->txtAtomDistance->setEnabled(true);
         }else{
             ui->txtPDBName_2->setEnabled(false);
+            ui->txtChain_2->setEnabled(false);
             ui->lstPDBsLoaded_2->setEnabled(false);
             ui->txtAtomDistance->setEnabled(false);
         }

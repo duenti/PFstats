@@ -56,8 +56,7 @@ SOURCES       = ../Pfstats/main.cpp \
 		../Pfstats/uniprot.cpp \
 		../Pfstats/feature.cpp \
 		../Pfstats/pdb.cpp \
-		../Pfstats/pdbatom.cpp \
-		../Pfstats/externalfiles.cpp moc_mainwindow.cpp \
+		../Pfstats/pdbatom.cpp moc_mainwindow.cpp \
 		moc_qcustomplot.cpp \
 		moc_about.cpp
 OBJECTS       = main.o \
@@ -69,7 +68,6 @@ OBJECTS       = main.o \
 		feature.o \
 		pdb.o \
 		pdbatom.o \
-		externalfiles.o \
 		moc_mainwindow.o \
 		moc_qcustomplot.o \
 		moc_about.o
@@ -199,8 +197,7 @@ DIST          = ../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../Pfstats/uniprot.h \
 		../Pfstats/feature.h \
 		../Pfstats/pdb.h \
-		../Pfstats/pdbatom.h \
-		../Pfstats/externalfiles.h ../Pfstats/main.cpp \
+		../Pfstats/pdbatom.h ../Pfstats/main.cpp \
 		../Pfstats/mainwindow.cpp \
 		../Pfstats/qcustomplot.cpp \
 		../Pfstats/alignment.cpp \
@@ -208,8 +205,7 @@ DIST          = ../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../Pfstats/uniprot.cpp \
 		../Pfstats/feature.cpp \
 		../Pfstats/pdb.cpp \
-		../Pfstats/pdbatom.cpp \
-		../Pfstats/externalfiles.cpp
+		../Pfstats/pdbatom.cpp
 QMAKE_TARGET  = Pfstats
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Pfstats
@@ -509,8 +505,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../Pfstats/mainwindow.h ../Pfstats/qcustomplot.h ../Pfstats/alignment.h ../Pfstats/about.h ../Pfstats/uniprot.h ../Pfstats/feature.h ../Pfstats/pdb.h ../Pfstats/pdbatom.h ../Pfstats/externalfiles.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Pfstats/main.cpp ../Pfstats/mainwindow.cpp ../Pfstats/qcustomplot.cpp ../Pfstats/alignment.cpp ../Pfstats/about.cpp ../Pfstats/uniprot.cpp ../Pfstats/feature.cpp ../Pfstats/pdb.cpp ../Pfstats/pdbatom.cpp ../Pfstats/externalfiles.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Pfstats/mainwindow.h ../Pfstats/qcustomplot.h ../Pfstats/alignment.h ../Pfstats/about.h ../Pfstats/uniprot.h ../Pfstats/feature.h ../Pfstats/pdb.h ../Pfstats/pdbatom.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Pfstats/main.cpp ../Pfstats/mainwindow.cpp ../Pfstats/qcustomplot.cpp ../Pfstats/alignment.cpp ../Pfstats/about.cpp ../Pfstats/uniprot.cpp ../Pfstats/feature.cpp ../Pfstats/pdb.cpp ../Pfstats/pdbatom.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Pfstats/mainwindow.ui ../Pfstats/about.ui $(DISTDIR)/
 
 
@@ -4564,9 +4560,6 @@ pdbatom.o: ../Pfstats/pdbatom.cpp ../Pfstats/pdbatom.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qvector2d.h \
 		../../../Qt/5.4/gcc_64/include/QtGui/qtouchdevice.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pdbatom.o ../Pfstats/pdbatom.cpp
-
-externalfiles.o: ../Pfstats/externalfiles.cpp ../Pfstats/externalfiles.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o externalfiles.o ../Pfstats/externalfiles.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

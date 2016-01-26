@@ -140,8 +140,29 @@ void Pdb::setRefseq(string seq){
     refseq = seq;
 }
 
+char Pdb::getRefseq_chain(){
+    return this->refseq_chain;
+}
+
+void Pdb::setRefseq_chain(char c){
+    this->refseq_chain = c;
+}
+
 vector<PdbAtom *> Pdb::getAllAtoms(){
     return atoms;
+}
+
+vector<PdbAtom*> Pdb::getAllAtoms(char chain){
+    vector<PdbAtom*> vec;
+
+    for(unsigned int i = 0; i < atoms.size(); i++){
+        PdbAtom* atom = atoms[i];
+
+        if(atom->getChain() == chain)
+            vec.push_back(atom);
+    }
+
+    return vec;
 }
 
 int Pdb::countAtoms(){
@@ -160,13 +181,13 @@ void Pdb::addAtom(PdbAtom *atom){
     atoms.push_back(atom);
 }
 
-void Pdb::setResiduesSeqNumber(){
+void Pdb::setResiduesSeqNumber(char chain){
     unsigned int i = 0;
 
     for(i = 0; i < atoms.size(); i++){
         PdbAtom* atom = atoms[i];
 
-        if(atom->getResidueNumber() == interval1){
+        if(atom->getResidueNumber() == interval1 && atom->getChain() == chain){
             break;
         }
     }
@@ -175,45 +196,51 @@ void Pdb::setResiduesSeqNumber(){
     unsigned int actualresn = interval1;
     for(i; i < atoms.size(); i++){
         PdbAtom* atom = atoms[i];
-        if(atom->getResidueNumber() == actualresn)
-            atom->setSeqnumber(seqcount);
-        else if(atom->getResidueNumber() > interval2){
-            break;
-        }else{
-            seqcount ++;
-            actualresn = atom->getResidueNumber();
-            atom->setSeqnumber(seqcount);
+        if(atom->getChain() == chain){
+            if(atom->getResidueNumber() == actualresn)
+                atom->setSeqnumber(seqcount);
+            else if(atom->getResidueNumber() > interval2){
+                break;
+            }else{
+                seqcount ++;
+                actualresn = atom->getResidueNumber();
+                atom->setSeqnumber(seqcount);
+            }
         }
     }
 }
 
-vector<tuple<string, string> > Pdb::getResiduesInContact(float dist){
+vector<tuple<string, string> > Pdb::getResiduesInContact(float dist, char chain){
     vector<tuple<string,string> > contacts;
     set<tuple<string, string> > tempset;
 
     for(unsigned int i = 0; i < atoms.size(); i++){
         PdbAtom *atom1 = atoms[i];
-        for(unsigned int j = 0; j < atoms.size(); j++){
-            if(i != j){
-                PdbAtom *atom2 = atoms[j];
-                float x1 = atom1->getX();
-                float x2 = atom2->getX();
-                float y1 = atom1->getY();
-                float y2 = atom2->getY();
-                float z1 = atom1->getZ();
-                float z2 = atom2->getZ();
+        if(atom1->getChain() == chain){
+            for(unsigned int j = 0; j < atoms.size(); j++){
+                if(i != j){
+                    PdbAtom *atom2 = atoms[j];
+                    if(atom2->getChain() == chain){
+                        float x1 = atom1->getX();
+                        float x2 = atom2->getX();
+                        float y1 = atom1->getY();
+                        float y2 = atom2->getY();
+                        float z1 = atom1->getZ();
+                        float z2 = atom2->getZ();
 
-                float distance = sqrt(((x2-x1)*(x2-x1)) + ((y2-y1)*(y2-y1)) + ((z2-z1)*(z2-z1)));
+                        float distance = sqrt(((x2-x1)*(x2-x1)) + ((y2-y1)*(y2-y1)) + ((z2-z1)*(z2-z1)));
 
-                string res1 = atom1->getResidueCode() + to_string(atom1->getSeqnumber());
-                string res2 = atom2->getResidueCode() + to_string(atom2->getSeqnumber());
-                if(distance <= dist && res1 != res2 && atom1->getSeqnumber() != 0 && atom2->getSeqnumber() != 0){
-                    if(res1 > res2){
-                        tuple<string,string> tup(res1,res2);
-                        tempset.insert(tup);
-                    }else{
-                        tuple<string,string> tup(res2,res1);
-                        tempset.insert(tup);
+                        string res1 = atom1->getResidueCode() + to_string(atom1->getSeqnumber());
+                        string res2 = atom2->getResidueCode() + to_string(atom2->getSeqnumber());
+                        if(distance <= dist && res1 != res2 && atom1->getSeqnumber() != 0 && atom2->getSeqnumber() != 0){
+                            if(res1 > res2){
+                                tuple<string,string> tup(res1,res2);
+                                tempset.insert(tup);
+                            }else{
+                                tuple<string,string> tup(res2,res1);
+                                tempset.insert(tup);
+                            }
+                        }
                     }
                 }
             }
@@ -228,28 +255,33 @@ vector<tuple<string, string> > Pdb::getResiduesInContact(float dist){
     return contacts;
 }
 
-string Pdb::getPDBSequence(){
+string Pdb::getPDBSequence(char chain){
     string sequence = "";
     int currentPos = 0;
 
     for(unsigned int i = 0; i < atoms.size(); i++){
         PdbAtom* atom = atoms[i];
 
-        if(currentPos != atom->getResidueNumber()){
-            sequence += atom->getResidueCode();
-            currentPos = atom->getResidueNumber();
+        if(atom->getChain() == chain){
+            if(currentPos != atom->getResidueNumber()){
+                sequence += atom->getResidueCode();
+                currentPos = atom->getResidueNumber();
+            }
         }
     }
 
     return sequence;
 }
 
-bool Pdb::SWSalign(int offset){
+bool Pdb::SWSalign(int offset, char chain){
     map<int,int> swsmap;
+    string strchain = std::string(1,chain);
+
 
     //Montar URL
     QString url = "http://www.bioinf.org.uk/cgi-bin/pdbsws/query.pl?qtype=pdb;";
     url += "id=" + QString::fromStdString(this->id.c_str()) + ";";
+    url += "chain=" + QString::fromStdString(strchain.c_str()) + ";";
     url += "all=yes&pretty=0";
 
     //Faz a conexão
@@ -297,33 +329,37 @@ bool Pdb::SWSalign(int offset){
         for(unsigned int i = 0; i < atoms.size(); i++){
             PdbAtom* atom = atoms[i];
 
-            if(swsmap[atom->getResidueNumber()] > 0)
-                atom->setSeqnumber(swsmap[atom->getResidueNumber()]);
-            else
-                atom->setSeqnumber(0);
+            if(atom->getChain() == chain){
+                if(swsmap[atom->getResidueNumber()] > 0)
+                    atom->setSeqnumber(swsmap[atom->getResidueNumber()]);
+                else
+                    atom->setSeqnumber(0);
+            }
         }
     }
 
     return true;
 }
 
-string Pdb::getSWSSeq(){
+string Pdb::getSWSSeq(char chain){
     string sequence = "";
     int currentPos = 0;
 
     for(unsigned int i = 0; i < atoms.size(); i++){
         PdbAtom* atom = atoms[i];
 
-        if(currentPos != atom->getResidueNumber()){
-            if(atom->getSeqnumber() > 0) sequence += atom->getResidueCode();
-            currentPos = atom->getResidueNumber();
+        if(atom->getChain() == chain){
+            if(currentPos != atom->getResidueNumber()){
+                if(atom->getSeqnumber() > 0) sequence += atom->getResidueCode();
+                currentPos = atom->getResidueNumber();
+            }
         }
     }
 
     return sequence;
 }
 
-bool Pdb::exportStructure(QString filepath, vector<float> bfactors){
+bool Pdb::exportStructure(QString filepath, vector<float> bfactors, char chain){
     //Salva em arquivo
     QFile f(filepath);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -335,7 +371,7 @@ bool Pdb::exportStructure(QString filepath, vector<float> bfactors){
 
     for(unsigned int i = 0; i < atoms.size(); i++){
         PdbAtom* atom = atoms[i];
-        if(atom->getSeqnumber() > 0){
+        if(atom->getSeqnumber() > 0 && atom->getChain() == chain){
             float bf = bfactors[atom->getSeqnumber()-1];
             out << atom->to_string(bf).c_str() << "\n";
         }else

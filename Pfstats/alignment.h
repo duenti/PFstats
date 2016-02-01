@@ -16,6 +16,7 @@ class Alignment
 {
 
 private:
+    string BIOCOMP_ADRESS = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/";
     string filepath;
     string refSeqName;
     string conservedPDBpath;
@@ -233,10 +234,11 @@ public:
     unsigned int SeqSize(int seq); //[OK]
     void alignment2UpperCase();
     void IdentityMatrixCalculation();
-    void IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
-    void IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
-    void AlignmentTrimming(float minocc, int refseq, string refseqName, string refSeq,bool intermediate = true, string newalignmentfilename="");//[OK]
-    void AlignmentTrimming(float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive, bool inter);
+    void taxonTrimming(string taxon, string refseqName, string refSeq, bool intermediate = true);
+    void IdentityTrimming(string taxon, float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq,bool intermediate = true, string newalignmentfilename="");//[OK]
+    void AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive, bool inter);
     void UniprotList(string uniprotlistfilename, string newalignmentfilename);
     void IdentityStatistics(string familyid);
     void dGCalculation();//[OK]

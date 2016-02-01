@@ -125,6 +125,34 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Configura parametros
     //ui->cmbRefSeq->setCompleter(ui->cmbRefSeq->completer());
+
+    //Adciona os taxons
+    //QStringList CompletionList;
+    //CompletionList << "Neli" << "José" << "Fonseca" << "Junior" << "Nulo";
+
+    string filepath = libpath + "taxons.txt";
+    printf("%s",filepath.c_str());
+    QFile file (filepath.c_str());
+    if(!file.open(QIODevice::ReadOnly)) {
+        //SE NÃO ENCONTRAR O ARQUIVO PUXAR POR WEBSERVICE
+        return;
+    }
+
+    QTextStream in(&file);
+
+    QStringList taxlist;
+    while(!in.atEnd()) {
+        QString line = in.readLine();
+        taxlist.append(line);
+        //printf("%s\n",line.toStdString().c_str());
+    }
+
+    taxonsCompleter = new QCompleter(taxlist,this);
+    taxonsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    ui->txtTaxons->setCompleter(taxonsCompleter);
+
+
+    file.close();
 }
 
 MainWindow::~MainWindow()
@@ -370,7 +398,7 @@ bool MainWindow::checkfile(const string &name){
     return false;
 }
 
-void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1, bool filter2, bool filter3){
+void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1, bool filter2, bool filter3, bool taxfilter){
     QString msg = "The filters were successfully applied\n";
     int seqSize;
     int seqCut;
@@ -381,6 +409,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     //Calculate
     string firstrefseq = currentAlign->sequences[refseq];
     string firstrefseqname = currentAlign->sequencenames[refseq];
+    string taxon = ui->txtTaxons->text().toStdString();
     //printf("%s: %s\n",firstrefseq.c_str(),firstrefseqname.c_str());
     currentAlign->sequences.insert(currentAlign->sequences.begin(),firstrefseq);
     currentAlign->sequencenames.insert(currentAlign->sequencenames.begin(),firstrefseqname);
@@ -389,8 +418,16 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
     //currentAlign->AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
 
+    if(taxfilter){
+        currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq,inter);
+
+        seqCut = seqSize - currentAlign->getSequencesSize();
+        seqSize = currentAlign->getSequencesSize();
+        msg += "Taxons filter removed " + QString::number(seqCut) + " sequences.\n";
+    }
+
     if(filter1){
-        currentAlign->AlignmentTrimming(occupancy,0,firstrefseq,firstrefseqname,true,inter);
+        currentAlign->AlignmentTrimming(taxon,occupancy,0,firstrefseq,firstrefseqname,true,inter);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -398,7 +435,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 //QMessageBox::information(this,"a","teste4");
     if(filter2){
-        currentAlign->IdentityMinimum(minId,0,occupancy,firstrefseqname,firstrefseq,inter);
+        currentAlign->IdentityMinimum(taxon,minId,0,occupancy,firstrefseqname,firstrefseq,inter);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -406,7 +443,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 //QMessageBox::information(this,"a","teste5");
     if(filter3){
-        currentAlign->IdentityTrimming(maxId,occupancy,minId,0,firstrefseqname,firstrefseq,true);
+        currentAlign->IdentityTrimming(taxon,maxId,occupancy,minId,0,firstrefseqname,firstrefseq,true);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -858,6 +895,7 @@ void MainWindow::listSequences(){
     //Parametros
     if(ui->listWidget2->currentItem() == NULL){
         ui->lblRefSeq1->setText(" Reference Sequence: Full Alignment");
+        ui->lblTaxon->setVisible(false);
         ui->lblOccupancy->setVisible(false);
         ui->lblMaxId->setVisible(false);
         ui->lblMinId->setVisible(false);
@@ -867,13 +905,15 @@ void MainWindow::listSequences(){
 
         if(vecPars[0] == "Full" && vecPars[1] == "Alignment"){
             ui->lblRefSeq1->setText("Reference Sequence: Full Alignment");
+            ui->lblTaxon->setVisible(false);
             ui->lblOccupancy->setVisible(false);
             ui->lblMaxId->setVisible(false);
             ui->lblMinId->setVisible(false);
-        }else{
+        }else if(vecPars.size()== 4){
             ui->lblOccupancy->setVisible(true);
             ui->lblMaxId->setVisible(true);
             ui->lblMinId->setVisible(true);
+            ui->lblTaxon->setVisible(false);
             string occ = "Occupancy: " + vecPars[0];
             string minId = "Minimum Identity: " + vecPars[1];
             string maxId = "Maximum Identity: " + vecPars[2];
@@ -882,6 +922,26 @@ void MainWindow::listSequences(){
             ui->lblMinId->setText(minId.c_str());
             ui->lblMaxId->setText(maxId.c_str());
             ui->lblRefSeq1->setText(refSeq.c_str());
+        }else if(vecPars.size() == 5){
+            ui->lblOccupancy->setVisible(true);
+            ui->lblMaxId->setVisible(true);
+            ui->lblMinId->setVisible(true);
+            ui->lblTaxon->setVisible(true);
+            string taxon = "Taxon: " + vecPars[0];
+            string occ = "Occupancy: " + vecPars[1];
+            string minId = "Minimum Identity: " + vecPars[2];
+            string maxId = "Maximum Identity: " + vecPars[3];
+            string refSeq = "Reference Sequence: " + vecPars[4];
+            ui->lblTaxon->setText(taxon.c_str());
+            ui->lblOccupancy->setText(occ.c_str());
+            ui->lblMinId->setText(minId.c_str());
+            ui->lblMaxId->setText(maxId.c_str());
+            ui->lblRefSeq1->setText(refSeq.c_str());
+        }else{
+            ui->lblOccupancy->setVisible(false);
+            ui->lblMaxId->setVisible(false);
+            ui->lblMinId->setVisible(false);
+            ui->lblTaxon->setVisible(false);
         }
     }
 
@@ -1043,7 +1103,7 @@ void MainWindow::correlationList(){
 
 void MainWindow::createCorrelationJSON(){
     unsigned int nrows = currentAlign->getCorrGraphSize();
-    string pathJSON = libpath + "/abor/in1.json";
+    string pathJSON = libpath + "abor/in1.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
@@ -1088,7 +1148,7 @@ void MainWindow::createCorrelationJSON(){
     out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
 
 
-    string path = libpath + "/abor/index.html";
+    string path = libpath + "abor/index.html";
     QFile file(path.c_str());
     file.open(QIODevice::ReadOnly);
     QFileInfo info(file);
@@ -1113,7 +1173,7 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
 
 
     unsigned int nrows = currentAlign->getCorrGraphSize();
-    string path = libpath + "/abor/in1.json";
+    string path = libpath + "abor/in1.json";
     QFile fileJSON(path.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
@@ -1181,7 +1241,7 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
 }
 
 void MainWindow::communitiesGraphs(){
-    string pathJSON = libpath + "/abor/in2.json";
+    string pathJSON = libpath + "abor/in2.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
@@ -1226,7 +1286,7 @@ void MainWindow::communitiesGraphs(){
 
     fileJSON.close();
 
-    string path = libpath + "/abor/index2.html";
+    string path = libpath + "abor/index2.html";
     QFile file(path.c_str());
     file.open(QIODevice::ReadOnly);
     QFileInfo info(file);
@@ -1236,7 +1296,7 @@ void MainWindow::communitiesGraphs(){
 }
 
 void MainWindow::corrBetweenComms(){
-    string pathJSON = libpath + "/abor/in3.json";
+    string pathJSON = libpath + "abor/in3.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
@@ -1294,7 +1354,7 @@ void MainWindow::corrBetweenComms(){
     }
     out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
 
-    string path = libpath + "/abor/index3.html";
+    string path = libpath + "abor/index3.html";
     QFile file(path.c_str());
     file.open(QIODevice::ReadOnly);
     QFileInfo info(file);
@@ -1326,7 +1386,7 @@ void MainWindow::on_cmdCorrCommCutoff_clicked()
     }
 
     float cutoff = ui->txtGraphCutoff->text().toFloat();
-    string pathJSON = libpath + "/abor/in3.json";
+    string pathJSON = libpath + "abor/in3.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
@@ -1428,7 +1488,7 @@ string MainWindow::makeVisPDBHTML(string pdb){
 }
 
 void MainWindow::consVisualization(){
-    string path = libpath + "/3Dmol/index.html";
+    string path = libpath + "3Dmol/index.html";
     QFile indexHTML(path.c_str());
     indexHTML.open(QIODevice::WriteOnly);
     QTextStream out(&indexHTML);
@@ -1504,7 +1564,7 @@ void MainWindow::consVisualization(){
 }
 
 void MainWindow::commVisualization(){
-    string path = libpath + "/3Dmol/index4.html";
+    string path = libpath + "3Dmol/index4.html";
     QFile indexHTML(path.c_str());
     indexHTML.open(QIODevice::WriteOnly);
     QTextStream out(&indexHTML);
@@ -1607,7 +1667,7 @@ void MainWindow::on_cmdNexCommGraph_clicked()
     temp = "Community " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade_4->setText(temp.c_str());
 
-    string pathJSON = libpath + "/abor/in2.json";
+    string pathJSON = libpath + "abor/in2.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
@@ -1684,7 +1744,7 @@ void MainWindow::on_cmdBackCommGraph_clicked()
     temp = "Community " + QString::number(currComm).toStdString();
     ui->lblComunidade_4->setText(temp.c_str());
 
-    string pathJSON = libpath + "/abor/in2.json";
+    string pathJSON = libpath + "abor/in2.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
@@ -2665,6 +2725,12 @@ void MainWindow::on_cmdApplyFilter_clicked()
         return;
     }
 
+    if(ui->chkApplyTaxonFilter->isChecked() && ui->txtTaxons->text() == ""){
+        QMessageBox::warning(this,"Error","If you're going to filter by taxons, you must inform the taxon.");
+        ui->cmdApplyFilter->setEnabled(true);
+        return;
+    }
+
     ui->cmbRefSeq_2->setCurrentIndex(ui->cmbRefSeq->currentIndex());
     ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
     ui->cmbRefSeq_3->setCurrentIndex(ui->cmbRefSeq->currentIndex());
@@ -2683,97 +2749,13 @@ void MainWindow::on_cmdApplyFilter_clicked()
 
     refseq = ui->cmbRefSeq->currentIndex()-1;
 
-    this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked());
+    this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     ui->cmdApplyFilter->setEnabled(true);
 }
-
-/*
-void MainWindow::on_cmdFetchPDB_clicked()
-{
-    ui->cmdFetchPDB->setEnabled(false);
-
-    //Validação de Dados
-    if(ui->txtPDBName->text() == ""){
-        QMessageBox::warning(this,"Error","You must fill all fields");
-        ui->cmdFetchPDB->setEnabled(true);
-        return ;
-    }
-
-    //Montar URL
-    QString url = "http://www.rcsb.org/pdb/files/" + ui->txtPDBName->text() + ".pdb";
-    //printf("\n%s\n",url.toStdString().c_str());
-
-    //Faz a conexão
-    QUrl qurl = url;
-    QNetworkAccessManager manager;
-    QNetworkRequest request(qurl);
-    QNetworkReply *reply(manager.get(request));
-    QEventLoop loop;
-    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
-    //qDebug(reply->readAll());
-    QString pdb = reply->readAll();
-
-    if(pdb.contains("302 Found") || pdb.contains("301 Moved") || pdb == ""){
-        //printf("\n%s",pdb.toStdString().c_str());
-        QMessageBox::warning(this,"Fetching Failed","PDB not found");
-        ui->cmdFetchPDB->setEnabled(true);
-        return ;
-    }else{
-        //Abre janela para salvar arquivo atualmente aberto
-        QString finalName = ui->txtPDBName->text() + ".pdb";
-        QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pdb)"));
-
-        if(filename == ""){
-            ui->cmdFetchPDB->setEnabled(true);
-            return;
-        }
-
-        vector<string> tempFN = split(filename.toStdString(),'.');
-        if(tempFN[tempFN.size()-1] != "pdb" && tempFN[tempFN.size()-1] != "PDB")
-            filename += ".pdb";
-
-        //Salva em arquivo
-        QFile f(filename);
-        if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-            ui->cmdFetch->setEnabled(true);
-            return;
-        }
-
-        QTextStream out(&f);
-        out << pdb;
-        f.close();
-
-        ui->txtPDBfilepath->setText(filename);
-
-        this->pdbweb = url.toStdString();
-    }
-
-    ui->cmdFetchPDB->setEnabled(true);
-}
-void MainWindow::on_cmdPDBfromFile_clicked()
-{
-    ui->cmdPDBfromFile->setEnabled(false);
-
-    //Abre arquivo
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pdb)"));
-    QFile file(fileName);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        ui->cmdPDBfromFile->setEnabled(true);
-        return;
-    }
-
-    ui->txtPDBfilepath->setText(fileName);
-    this->pdbweb = "";
-
-    ui->cmdPDBfromFile->setEnabled(true);
-}
-*/
 
 void MainWindow::on_cmdConservation_clicked()
 {
@@ -2913,8 +2895,8 @@ void MainWindow::on_cmdCorrelation_clicked()
         return;
     }
     float minssfraction = ui->txtMinssFraction->text().toFloat();
-    if(minssfraction < 0 || minssfraction > 1){
-        QMessageBox::warning(this,"Error","Minss fraction must be in the 0.1 - 1.0 interval.");
+    if(minssfraction < 0.05 || minssfraction > 0.9){
+        QMessageBox::warning(this,"Error","Minss fraction must be in the 0.05 - 0.9 interval.");
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
@@ -3320,7 +3302,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
             //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
-            ui->lstProteinsFiltered->addItem(QString::fromStdString(splitVec[0]));
+            ui->lstProteinsFiltered->addItem(QString::fromStdString(fullAlignment[j]));
         }
     }else{
         for(unsigned int j = 0; j < filterList.size(); j++){
@@ -3336,7 +3318,7 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
                     //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
                     //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
-                    ui->lstProteinsFiltered->addItem(QString::fromStdString(splitVec[0]));
+                    ui->lstProteinsFiltered->addItem(QString::fromStdString(filterList[j][k]));
                     currentAlign->sequencenames.push_back(filterList[j][k]);
                     currentAlign->sequences.push_back(filterSeq[j][k]);
                 }
@@ -4016,38 +3998,20 @@ void MainWindow::Open_XML_triggered(){
     reader.readNext();
 
     while(!reader.atEnd()){
-        //<FILE>
-        if(reader.isStartElement() && reader.name() == "file"){
-            while(!reader.atEnd()){
-                reader.readNext();
-
-                if(reader.isStartElement()){
-                    if( reader.name() == "type")
-                        align.setType(reader.readElementText().toInt());
-                    else if(reader.name() == "pdb")
-                        align.setLocalPDBDir(reader.readElementText().toStdString());
-                    else{
-                        QMessageBox::critical(this,"ERROR","Error parsing this XML file. It may be corrupted");
-                        //LIBERAR DA MEMORIA E DELETAR O NOVO ALINHAMENTO
-                        return;
-                    }
-                }else if(reader.isEndElement() && reader.name() == "file"){
-                    break;
-                }
-            }
-        }
-
         //FILTER
         if(reader.isStartElement() && reader.name() == "filters"){
             while(!reader.atEnd()){
                 reader.readNext();
 
                 if(reader.isStartElement() && reader.name() == "filter"){
+                    string taxon = reader.attributes().value("taxon").toString().toStdString();
                     string occ = reader.attributes().value("occ").toString().toStdString();
                     string minid = reader.attributes().value("minid").toString().toStdString();
                     string maxid = reader.attributes().value("maxid").toString().toStdString();
                     string refSeq = reader.attributes().value("refseq").toString().toStdString();
-                    string parameters = occ + " " + minid + " " + maxid + " " + refSeq;
+                    string parameters;
+                    if(taxon == "0") parameters = occ + " " + minid + " " + maxid + " " + refSeq;
+                    else parameters = taxon + " " + occ + " " + minid + " " + maxid + " " + refSeq;
                     vector<string> namesVec;
                     vector<string> sequencesVec;
                     namesVec.push_back(parameters);
@@ -6448,7 +6412,7 @@ void MainWindow::setLibPath(){
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOption(QFileDialog::ShowDirsOnly);
 
-    libpath = dialog.getExistingDirectory().toStdString();
+    libpath = dialog.getExistingDirectory().toStdString() + "/";
 
     QFile file(CONFIG);
     file.open(QIODevice::WriteOnly);
@@ -6462,12 +6426,30 @@ void MainWindow::setLibPath(){
     QMessageBox::information(this,"Setting lib path",msg.c_str());
 }
 
+void MainWindow::on_chkApplyTaxonFilter_clicked(bool checked)
+{
+    ui->label_78->setEnabled(checked);
+    ui->txtTaxons->setEnabled(checked);
+
+    if(checked || ui->chkApplyMaxId->isChecked() || ui->chkApplyMinId->isChecked() || ui->chkApplyMinCover->isChecked()){
+        ui->chkIntermediateFilter->setEnabled(true);
+        ui->label_61->setEnabled(true);
+        ui->cmdApplyFilter->setChecked(true);
+    }else{
+        ui->chkIntermediateFilter->setEnabled(false);
+        ui->label_61->setEnabled(false);
+        ui->cmdApplyFilter->setChecked(false);
+
+    }
+}
+
+
 void MainWindow::on_chkApplyMinCover_clicked(bool checked)
 {
     ui->label_11->setEnabled(checked);
     ui->txtMinCover->setEnabled(checked);
 
-    if(checked || ui->chkApplyMinId->isChecked() || ui->chkApplyMaxId->isChecked()){
+    if(checked || ui->chkApplyMinId->isChecked() || ui->chkApplyMaxId->isChecked() || ui->chkApplyTaxonFilter->isChecked()){
         ui->chkIntermediateFilter->setEnabled(true);
         ui->label_61->setEnabled(true);
         ui->cmdApplyFilter->setEnabled(true);
@@ -6483,7 +6465,7 @@ void MainWindow::on_chkApplyMinId_clicked(bool checked)
     ui->label_12->setEnabled(checked);
     ui->txtMinId->setEnabled(checked);
 
-    if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMaxId->isChecked()){
+    if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMaxId->isChecked() || ui->chkApplyTaxonFilter->isChecked()){
         ui->chkIntermediateFilter->setEnabled(true);
         ui->label_61->setEnabled(true);
         ui->cmdApplyFilter->setEnabled(true);
@@ -6500,7 +6482,7 @@ void MainWindow::on_chkApplyMaxId_clicked(bool checked)
     ui->label_13->setEnabled(checked);
     ui->txtMaxId->setEnabled(checked);
 
-    if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMinId->isChecked()){
+    if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMinId->isChecked() || ui->chkApplyTaxonFilter->isChecked()){
         ui->chkIntermediateFilter->setEnabled(true);
         ui->label_61->setEnabled(true);
         ui->cmdApplyFilter->setEnabled(true);
@@ -7242,7 +7224,11 @@ void MainWindow::on_cmdLoadPDB_clicked()
 
     if(ui->txtPdbId->text() != ""){
         //Já está na memoria
-        //printf("%s",currentPDBContent.c_str());
+        if(currentPDBContent == ""){
+            QMessageBox::warning(this,"Warning","You must fetch your PDB before load.");
+            ui->cmdLoadPDB->setEnabled(true);
+            return;
+        }
         pdb = new Pdb(currentPDBContent);
     }else if(ui->txtFilePathPDB->text() != ""){
         QString filepath = ui->txtFilePathPDB->text();
@@ -7333,4 +7319,143 @@ void MainWindow::on_chkCommVisualization_clicked(bool checked)
             ui->txtAtomDistance->setEnabled(false);
         }
     }
+}
+
+
+void MainWindow::on_cmbFilterRefseq_activated(int index)
+{
+    switch(index){
+    case 0:
+    {
+        ui->txtFilterRefSeq->setEnabled(false);
+        break;
+    }
+    case 1:
+    {
+        ui->txtFilterRefSeq->setEnabled(true);
+        QStringList strCompleter;
+        strCompleter.append("1");
+        strCompleter.append("2");
+        strCompleter.append("3");
+        strCompleter.append("4");
+        strCompleter.append("5");
+        QCompleter* completer = new QCompleter(strCompleter);
+        completer->setCaseSensitivity(Qt::CaseInsensitive);
+        ui->txtFilterRefSeq->setCompleter(completer);
+        break;
+    }
+    case 2:
+    {
+        ui->txtFilterRefSeq->setEnabled(true);
+        ui->txtFilterRefSeq->setCompleter(taxonsCompleter);
+        break;
+    }
+    }
+}
+
+void MainWindow::on_cmdFilterRefSeqs_clicked()
+{
+    ui->cmdFilterRefSeqs->setEnabled(false);
+
+    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/";
+    string post_content = "";
+
+    switch(ui->cmbFilterRefseq->currentIndex()){
+    case 0:
+    {
+        url += "haspdb";
+
+        break;
+    }
+    case 1:
+    {
+        QString strScore = ui->txtFilterRefSeq->text();
+        bool ok;
+        int score = strScore.toInt(&ok);
+
+        //Validação
+        if(!ok){
+            QMessageBox::warning(this,"Error","The annotation score value must be numeric");
+            ui->cmdFilterRefSeqs->setEnabled(true);
+            return;
+        }else{
+            if(score < 1 || score > 5){
+                QMessageBox::warning(this,"Error","The annotation score must be a value between 1 and 5");
+                ui->cmdFilterRefSeqs->setEnabled(true);
+                return;
+            }
+        }
+
+        url += "annotation-filter/" + strScore.toStdString();
+
+        break;
+    }
+    case 2:
+    {
+        //Validação
+        if(ui->txtFilterRefSeq->text() == ""){
+            QMessageBox::warning(this,"Error","You must inform what taxon to filter.");
+            ui->cmdFilterRefSeqs->setEnabled(true);
+            return;
+        }
+
+        url += "taxon-filter/" + ui->txtFilterRefSeq->text().toStdString();
+
+        break;
+    }
+    }
+
+    for(unsigned int i = 0; i < ui->lstRefSeqs->count(); i++){
+        string seqname = ui->lstRefSeqs->item(i)->text().toStdString();
+        post_content += seqname + "\n";
+    }
+
+    QByteArray const data = QString::fromStdString(post_content).toUtf8();
+
+    QNetworkRequest request(QUrl(QString::fromStdString(url)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      QStringLiteral("text/plain; charset=utf-8"));
+    QNetworkAccessManager manager;
+    QNetworkReply *response(manager.post(request,data));
+    //QNetworkReply* response(manager.get(request));
+    QEventLoop event;
+    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
+    event.exec();
+    QString result = response->readAll();
+
+    vector<string> filtered = this->split(result.toStdString(),'\n');
+
+    int count = 0;
+    if(ui->cmbFilterRefseq->currentIndex() == 0){
+        for(unsigned int i = 0; i < filtered.size(); i++){
+            string protname = this->split(filtered[i],'\t')[0];
+            printf("%s\n",protname.c_str());
+            for(unsigned int j = 0; j < ui->lstRefSeqs->count(); j++){
+                if(protname == ui->lstRefSeqs->item(j)->text().toStdString()){
+                    ui->lstRefSeqSelected->addItem(protname.c_str());
+                    delete ui->lstRefSeqs->item(j);
+                    if(j > 0) j--;
+                    count ++;
+                    break;
+                }
+            }
+        }
+    }else{
+        for(unsigned int i = 0; i < filtered.size(); i++){
+            for(unsigned int j = 0; j < ui->lstRefSeqs->count(); j++){
+                if(filtered[i] == ui->lstRefSeqs->item(j)->text().toStdString()){
+                    ui->lstRefSeqSelected->addItem(filtered[i].c_str());
+                    delete ui->lstRefSeqs->item(j);
+                    if(j > 0) j--;
+                    count ++;
+                    break;
+                }
+            }
+        }
+    }
+
+    string msg = std::to_string(count) + " sequences were selected.";
+    QMessageBox::information(this,"Sequences selected",msg.c_str());
+
+    ui->cmdFilterRefSeqs->setEnabled(true);
 }

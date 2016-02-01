@@ -1060,6 +1060,7 @@ moc_mainwindow.cpp: ../../../Qt/5.4/gcc_64/include/QtWidgets/QMainWindow \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qsslcipher.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qsslkey.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qtnetworkversion.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QCompleter \
 		../Pfstats/mainwindow.h
 	/home/neli/Qt/5.4/gcc_64/bin/moc $(DEFINES) -I/home/neli/Qt/5.4/gcc_64/mkspecs/linux-g++ -I'/home/neli/Dropbox/Pfstats UI/Pfstats' -I/home/neli/Qt/5.4/gcc_64/include -I/home/neli/Qt/5.4/gcc_64/include/QtWebKitWidgets -I/home/neli/Qt/5.4/gcc_64/include/QtPrintSupport -I/home/neli/Qt/5.4/gcc_64/include/QtWidgets -I/home/neli/Qt/5.4/gcc_64/include/QtWebKit -I/home/neli/Qt/5.4/gcc_64/include/QtGui -I/home/neli/Qt/5.4/gcc_64/include/QtNetwork -I/home/neli/Qt/5.4/gcc_64/include/QtCore -I. ../Pfstats/mainwindow.h -o moc_mainwindow.cpp
 
@@ -2679,6 +2680,7 @@ main.o: ../Pfstats/main.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qsslcipher.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qsslkey.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qtnetworkversion.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QCompleter \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QApplication \
 		../../../Qt/5.4/gcc_64/include/QtWidgets/QDesktopWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Pfstats/main.cpp
@@ -3211,6 +3213,7 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qsslcipher.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qsslkey.h \
 		../../../Qt/5.4/gcc_64/include/QtNetwork/qtnetworkversion.h \
+		../../../Qt/5.4/gcc_64/include/QtWidgets/QCompleter \
 		ui_mainwindow.h \
 		../../../Qt/5.4/gcc_64/include/QtWebKitWidgets/QWebView \
 		../../../Qt/5.4/gcc_64/include/QtWebKitWidgets/qwebview.h \

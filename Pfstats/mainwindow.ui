@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>7</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="page">
      <layout class="QFormLayout" name="formLayout">
@@ -447,7 +447,7 @@
         <x>130</x>
         <y>264</y>
         <width>351</width>
-        <height>213</height>
+        <height>248</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -464,6 +464,50 @@
           <widget class="QComboBox" name="cmbRefSeq">
            <property name="editable">
             <bool>true</bool>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_14">
+         <item>
+          <widget class="QCheckBox" name="chkApplyTaxonFilter">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_78">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Taxon Filter (WEB):</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_17">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="txtTaxons">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -725,9 +769,9 @@
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>120</y>
+        <y>180</y>
         <width>258</width>
-        <height>391</height>
+        <height>331</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -761,7 +805,7 @@
       <property name="geometry">
        <rect>
         <x>330</x>
-        <y>190</y>
+        <y>240</y>
         <width>62</width>
         <height>240</height>
        </rect>
@@ -870,9 +914,9 @@
       <property name="geometry">
        <rect>
         <x>410</x>
-        <y>120</y>
+        <y>180</y>
         <width>258</width>
-        <height>391</height>
+        <height>331</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_23">
@@ -890,6 +934,70 @@
            <width>256</width>
            <height>16777215</height>
           </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>150</y>
+        <width>541</width>
+        <height>29</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_18">
+       <item>
+        <widget class="QLabel" name="label_79">
+         <property name="text">
+          <string>Select by filtering:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="cmbFilterRefseq">
+         <property name="minimumSize">
+          <size>
+           <width>130</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1666666</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>Has PDB</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Annotation Score (1 to 5)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Taxon</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="txtFilterRefSeq">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cmdFilterRefSeqs">
+         <property name="text">
+          <string>Select</string>
          </property>
         </widget>
        </item>
@@ -2005,7 +2113,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>17</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_8">
        <widget class="QGroupBox" name="groupBox_5">
@@ -2225,8 +2333,8 @@
         <property name="geometry">
          <rect>
           <x>210</x>
-          <y>50</y>
-          <width>351</width>
+          <y>80</y>
+          <width>411</width>
           <height>17</height>
          </rect>
         </property>
@@ -2238,8 +2346,8 @@
         <property name="geometry">
          <rect>
           <x>210</x>
-          <y>80</y>
-          <width>161</width>
+          <y>140</y>
+          <width>211</width>
           <height>17</height>
          </rect>
         </property>
@@ -2250,7 +2358,7 @@
        <widget class="QLabel" name="lblMinId">
         <property name="geometry">
          <rect>
-          <x>210</x>
+          <x>430</x>
           <y>110</y>
           <width>191</width>
           <height>17</height>
@@ -2263,7 +2371,7 @@
        <widget class="QLabel" name="lblMaxId">
         <property name="geometry">
          <rect>
-          <x>210</x>
+          <x>430</x>
           <y>140</y>
           <width>191</width>
           <height>17</height>
@@ -2271,6 +2379,19 @@
         </property>
         <property name="text">
          <string>Maximum Identity: </string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblTaxon">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>110</y>
+          <width>211</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Taxon:</string>
         </property>
        </widget>
       </widget>

@@ -1170,13 +1170,6 @@ void Alignment::generateXML(string outputXML){
 
     out << "<?xml version=\"1.0\"?>\n\n";
     out << "<PFStats>\n";
-    out << "<file>\n";
-    out << "   <type>" << QString::number(this->type) << "</type>\n";
-    if(this->localpdbdir != "")
-        out << "   <pdb>" << this->localpdbdir.c_str() << "</pdb>\n";
-    out << "</file>\n";
-
-    //QMessageBox::warning(NULL,"teste",QString::number(this->filtersList.size()));
 
     if(filtersList.size() > 0){
 
@@ -1185,12 +1178,26 @@ void Alignment::generateXML(string outputXML){
         for(unsigned int i = 0; i < filtersList.size(); i++){
             string parameters = filtersList[i][0];
             vector<string> parsVec = this->split(parameters,' ');
-            string occ = parsVec[0];
-            string minid = parsVec[1];
-            string maxid = parsVec[2];
-            string refseq = parsVec[3];
+            string taxon = "0";
+            string occ = "0";
+            string minid = "0";
+            string maxid = "0";
+            string refseq = "0";
 
-            out << "<filter occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
+            if(parsVec.size() == 4){
+                occ = parsVec[0];
+                minid = parsVec[1];
+                maxid = parsVec[2];
+                refseq = parsVec[3];
+            }else if(parsVec.size() == 5){
+                taxon = parsVec[0];
+                occ = parsVec[1];
+                minid = parsVec[2];
+                maxid = parsVec[3];
+                refseq = parsVec[4];
+            }
+
+            out << "<filter taxon='" << taxon.c_str() << "' occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
             for(unsigned int j = 1; j < filtersList[i].size(); j++){
                 vector<string> vecSplit = this->split(filtersList[i][j],'/');
                 out << "   <entry id='" << j-1 << "' offset='" << vecSplit[1].c_str() << "' name='" << vecSplit[0].c_str() << "'>" << filterSequences[i][j].c_str() << "</entry>\n";
@@ -1904,8 +1911,11 @@ string Alignment::getSequence(string seqname){
     */
 
     for(unsigned int i = 0; i < sequencenames.size(); i++){
+        //QMessageBox::information(NULL,"a",sequencenames[i].c_str());
+        //QMessageBox::information(NULL,"a",seqname.c_str());
         if(sequencenames[i] == seqname) return sequences[i];
     }
+    return "";
 }
 
 void Alignment::CalculateFrequencies(){
@@ -2018,7 +2028,70 @@ int Alignment::seqname2seqint2(string refseqcode){
     return 0;
 }
 
-void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, string refseqName, bool casesensitive, bool intermediate){
+void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq, bool intermediate){
+    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxon-filter/" + taxon;
+    string text = "";
+    for(unsigned int i = 0; i < sequencenames.size(); i++){
+        text += split(sequencenames[i],'/')[0] + "\n";
+    }
+
+    //printf("%s\n",text.c_str());
+
+    QByteArray const data = QString::fromStdString(text).toUtf8();
+
+    QNetworkRequest request(QUrl(QString::fromStdString(url)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      QStringLiteral("text/plain; charset=utf-8"));
+    QNetworkAccessManager manager;
+    QNetworkReply *response(manager.post(request,data));
+    //QNetworkReply* response(manager.get(request));
+    QEventLoop event;
+    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
+    event.exec();
+    QString html = response->readAll();
+    //printf("%s\n",html.toStdString().c_str());
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        string protname = split(sequencenames[i],'/')[0];
+        if(!html.contains(protname.c_str())){
+            sequences[i].clear();
+            sequencenames[i].clear();
+            sequences.erase(sequences.begin()+i);
+            sequencenames.erase(sequencenames.begin()+i);
+            if(i > 0) i--;
+        }//else printf("%s\n",protname.c_str());
+    }
+
+    if(sequencenames[0] != refseqName){
+        sequences.insert(sequences.begin(),refSeq);
+        sequencenames.insert(sequencenames.begin(),refseqName);
+    }
+
+
+    if(intermediate){
+        vector<string> filterVec;
+        string parameters = taxon + " 0 0 0 " + refseqName;
+        filterVec.push_back(parameters);
+        filterVec.push_back(refseqName);
+
+        for(unsigned int i = 0; i < sequencenames.size(); i++){
+            if(sequencenames[i] != refseqName)
+                filterVec.push_back(sequencenames[i]);
+        }
+
+        vector<string> sequenceVec;
+        sequenceVec.push_back(parameters);
+        sequenceVec.push_back(refseqName);
+        for(unsigned int i = 0; i < sequences.size(); i++){
+            if(sequencenames[i] != refseqName)
+                sequenceVec.push_back(sequences[i]);
+        }
+
+        filtersList.push_back(filterVec);
+        filterSequences.push_back(sequenceVec);
+    }
+}
+
+void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string refseqName, bool casesensitive, bool intermediate){
     int c1,c2,totalseq,totalaln;
     string referencesequence=sequences[refseq];
     vector<int> seqstoremove;
@@ -2069,7 +2142,9 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
 
     if(intermediate){
         vector<string> filterVec;
-        string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        string parameters;
+        if(taxon == "") parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        else parameters = taxon + " " + QString::number(minocc).toStdString() + " 0 0 " + refseqName;
         filterVec.push_back(parameters);
         filterVec.push_back(refseqName);
         for(unsigned int i = 0; i < sequencenames.size(); i++){
@@ -2092,7 +2167,7 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
     progress.setValue(sequences.size());
 }
 
-void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
+void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -2127,7 +2202,10 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, s
 
     if(intermediate){
         vector<string> filterVec;
-        string parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        string parameters;
+        if(taxon == "") parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        else parameters = taxon + " " + QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+
         filterVec.push_back(parameters);
         filterVec.push_back(refseqName);
         for(unsigned int i = 0; i < sequencenames.size(); i++){
@@ -2152,7 +2230,7 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refseqName, s
 
 }
 
-void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate, string newalignmentfilename){
+void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Culling Minimum Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -2179,7 +2257,10 @@ void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string re
 
     if(intermediate){
         vector<string> filterVec;
-        string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
+        string parameters;
+        if(taxon == "") parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
+        else parameters = taxon + " " + QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
+
         filterVec.push_back(parameters);
         filterVec.push_back(refSeqName);
         for(unsigned int i = 0; i < sequencenames.size(); i++){
@@ -2203,7 +2284,7 @@ void Alignment::IdentityMinimum(float minid, int refseq, float minocc, string re
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 }
 
-void Alignment::IdentityTrimming(float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
+void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -2242,7 +2323,10 @@ void Alignment::IdentityTrimming(float maxid, float minocc, float minid, int ref
 
     if(intermediate){
         vector<string> filterVec;
-        string parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
+        string parameters;
+        if(taxon == "") parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
+        else parameters = taxon + " " + QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
+
         filterVec.push_back(parameters);
         filterVec.push_back(refseqName);
         for(unsigned int i = 0; i < sequencenames.size(); i++){

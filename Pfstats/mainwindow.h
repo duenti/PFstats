@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pdb.h"
+#include <QCompleter>
 
 using namespace std;
 
@@ -241,6 +242,12 @@ private slots:
 
     void on_chkCommVisualization_clicked(bool checked);
 
+    void on_chkApplyTaxonFilter_clicked(bool checked);
+
+    void on_cmbFilterRefseq_activated(int index);
+
+    void on_cmdFilterRefSeqs_clicked();
+
 private:
     Ui::MainWindow *ui;
     Alignment *currentAlign;
@@ -251,6 +258,7 @@ private:
     string libpath;
     bool wizard;
     string pdbweb = "";
+    QCompleter* taxonsCompleter;
     int stackBeforeShowResults = 0;
     int currentStackPos = 0;
     vector<int> resultsStackList;
@@ -264,7 +272,7 @@ private:
     string makeNewPath(string oldPath, string fileSufix);
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
-    void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true);
+    void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true, bool taxfilter=false);
     void conservation(int refseq, int offset, char chain, float minCons, string pdbid = "");
     void conservedresidues(float minconservation);
     vector<float> minss(int repetitions); //from 100 to 1;

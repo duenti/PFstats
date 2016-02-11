@@ -229,7 +229,6 @@ void MainWindow::resetObjects(){
     ui->txtPDBFrom->setValue(0);
     ui->txtPDBTo->setValue(0);
     ui->cmbRefSeq_4->clear();
-    ui->chkPDBSWS->setChecked(false);
     //CONSERVATION
     ui->txtPDBName->clear();
     ui->lstRecomendedPDBs->clear();
@@ -7242,11 +7241,14 @@ void MainWindow::on_cmdLoadPDB_clicked()
         pdb->setRefseq(refseq);
         pdb->setRefseq_chain(chain);
         pdb->setIntervals(intervalFrom,intervalTo);
-        pdb->setResiduesSeqNumber(chain);
+        //pdb->setResiduesSeqNumber(chain);
+
 
         //Verify if pdb and sequence align
         string currseq = currentAlign->getNoGAPSequence(ui->cmbRefSeq_3->currentIndex()-1);
-
+        string pdbseq = pdb->getPDBSequence(chain);
+        int score = pdb->setResiduesSeqNumber(currseq,chain);
+/*
         if(ui->chkPDBSWS->isChecked()){
             string pdbseq = pdb->getSWSSeq(ui->txtChainPDB->text().toStdString()[0]);
             printf("%s\n%s\n",currseq.c_str(),pdbseq.c_str());
@@ -7261,8 +7263,13 @@ void MainWindow::on_cmdLoadPDB_clicked()
                 }
             }
         }else{
-            string pdbseq = pdb->getPDBSequence(ui->txtChainPDB->text().toStdString()[0]).substr(intervalFrom-1,intervalTo-1);
+
+            //string pdbseq = pdb->getPDBSequence(ui->txtChainPDB->text().toStdString()[0]).substr(intervalFrom-1,intervalTo-1);
+            string pdbseq = pdb->getPDBSequence(ui->txtChainPDB->text().toStdString()[0]);
+            pdb->needleman_wunsch(currseq,pdbseq);
+
             if(pdbseq != currseq){
+                //printf("PDB: %s\nSEQ: %s\n\n",pdbseq.c_str(),currseq.c_str());
                 for(unsigned int i = 0; i < currseq.size(); i++){
                     if(pdbseq[i] != currseq[i]){
                         //printf("%c - %c - %d",pdbseq[i],currseq[i],i);
@@ -7273,7 +7280,9 @@ void MainWindow::on_cmdLoadPDB_clicked()
                     }
                 }
             }
+
         }
+*/
 
         ui->lstPDBsInMemory->addItem(pdbname.c_str());
 
@@ -7283,7 +7292,9 @@ void MainWindow::on_cmdLoadPDB_clicked()
         emit ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
         emit ui->cmbRefSeq_3->activated(ui->cmbRefSeq_3->currentText());
 
-        QMessageBox::information(this,"Structure loaded","The Structure file has been load.");
+        string msg = "The structure file has been load and aligned with the reference sequence scoring " + to_string(score) + "/" + to_string(currseq.length() + pdbseq.length()) + ".";
+
+        QMessageBox::information(this,"Structure loaded",msg.c_str());
     }
 
     ui->cmdLoadPDB->setEnabled(true);

@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <QtNetwork>
 #include <QMessageBox>
+#include <stack>
 
 using namespace std;
 
@@ -50,12 +51,14 @@ public:
     PdbAtom* getAtom(int i);
     void addAtom(PdbAtom* atom);
     void setResiduesSeqNumber(char chain);
+    int setResiduesSeqNumber(string pfamsequence, char chain); //IMPLEMENTAR
     vector<tuple<string,string> > getResiduesInContact(float dist, char chain);
     string getPDBSequence(char chain);
     bool SWSalign(int offset, char chain);
     string getSWSSeq(char chain);
     bool exportStructure(QString filepath, vector<float> bfactors, char chain);
     void printSeqNumbers();
+    tuple<string, string, int> needleman_wunsch(string a, string b); //ALIGN_A, ALIGN_B, SCORE
 };
 
 #endif // PDB_H

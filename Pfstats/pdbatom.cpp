@@ -334,20 +334,25 @@ string PdbAtom::to_string(float bf){
     switch(this->atomName.size()){
     case 0:
     {
-        line += "   ";
+        line += "    ";
         break;
     }
     case 1:
     {
-        line += this->atomName + "  ";
+        line += this->atomName + "   ";
         break;
     }
     case 2:
     {
-        line += this->atomName + " ";
+        line += this->atomName + "  ";
         break;
     }
     case 3:
+    {
+        line += this->atomName + " ";
+        break;
+    }
+    case 4:
     {
         line += this->atomName;
         break;

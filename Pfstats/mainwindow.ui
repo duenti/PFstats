@@ -1310,13 +1310,6 @@
           </layout>
          </item>
          <item>
-          <widget class="QCheckBox" name="chkPDBSWS">
-           <property name="text">
-            <string>Use PDB-SWS to align *Requires Internet</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_51">
            <item>
             <spacer name="horizontalSpacer_28">

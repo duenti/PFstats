@@ -286,7 +286,6 @@ public:
     QHBoxLayout *horizontalLayout_54;
     QLabel *label_74;
     QComboBox *cmbRefSeq_4;
-    QCheckBox *chkPDBSWS;
     QHBoxLayout *horizontalLayout_51;
     QSpacerItem *horizontalSpacer_28;
     QPushButton *cmdLoadPDB;
@@ -1579,11 +1578,6 @@ public:
 
 
         verticalLayout_10->addLayout(horizontalLayout_54);
-
-        chkPDBSWS = new QCheckBox(layoutWidget5);
-        chkPDBSWS->setObjectName(QStringLiteral("chkPDBSWS"));
-
-        verticalLayout_10->addWidget(chkPDBSWS);
 
         horizontalLayout_51 = new QHBoxLayout();
         horizontalLayout_51->setSpacing(6);
@@ -3295,7 +3289,6 @@ public:
         label_72->setText(QApplication::translate("MainWindow", "Intervals:", 0));
         label_73->setText(QApplication::translate("MainWindow", "<html><head/><body><p align=\"center\">-</p></body></html>", 0));
         label_74->setText(QApplication::translate("MainWindow", "Main Reference:", 0));
-        chkPDBSWS->setText(QApplication::translate("MainWindow", "Use PDB-SWS to align *Requires Internet", 0));
         cmdLoadPDB->setText(QApplication::translate("MainWindow", "Load", 0));
         label_14->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Conservation</span></p><p align=\"justify\">This step calculates simple frequency-based statistics. Optionally, a PDB file can be supplied in order to map positional conservation as B-factors.</p></body></html>", 0));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "PDB File (Optional)", 0));

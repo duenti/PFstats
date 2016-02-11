@@ -210,6 +210,57 @@ void Pdb::setResiduesSeqNumber(char chain){
     }
 }
 
+//Não requer intervalos
+int Pdb::setResiduesSeqNumber(string pfamsequence, char chain){
+
+    string pdbsequence = this->getPDBSequence(chain);
+    tuple<string,string,int> tup = this->needleman_wunsch(pfamsequence,pdbsequence);
+    string alignedPFAM = get<0>(tup);
+    string alignedPDB = get<1>(tup);
+    //string newpdbseq = "";
+    vector<int> nums;
+    unsigned int actualresn = atoms[0]->getResidueNumber();
+    unsigned int seqcount = 1;
+    unsigned int vetcount = 0;
+
+    /*
+    for(int i = 0; i < alignedPDB.size(); i++){
+        if(alignedPFAM[i] == '-') newpdbseq += "-";
+        else if(alignedPDB[i] == '-') newpdbseq += ".";
+        else newpdbseq += alignedPDB[i];
+    }
+    */
+
+    for(int i = 0; i < alignedPDB.size(); i++){
+        if(alignedPFAM[i] == '-') nums.push_back(0);
+        else if(alignedPDB[i] == '-') seqcount++;
+        else{
+            nums.push_back(seqcount);
+            seqcount++;
+        }
+    }
+
+    for(int i = 0; i < atoms.size(); i++){
+        PdbAtom* atom = atoms[i];
+        if(atom->getChain() == chain){
+            if(atom->getResidueNumber() == actualresn){
+                //if(nums[vetcount] == -1) vetcount += 2;
+                atom->setSeqnumber(nums[vetcount]);
+            }else{
+                vetcount++;
+                actualresn = atom->getResidueNumber();
+                atom->setSeqnumber(nums[vetcount]);
+            }
+        }
+
+        //printf("%d\n",atom->getSeqnumber());
+    }
+
+
+    return get<2>(tup);
+
+}
+
 vector<tuple<string, string> > Pdb::getResiduesInContact(float dist, char chain){
     vector<tuple<string,string> > contacts;
     set<tuple<string, string> > tempset;
@@ -389,4 +440,74 @@ void Pdb::printSeqNumbers(){
 
         printf("%d\n",atom->getSeqnumber());
     }
+}
+
+tuple<string,string,int> Pdb::needleman_wunsch(string a, string b){
+    int dp[1001][1001];
+    int n = a.length();
+    int m = b.length();
+    int match_score = 2;
+    int mismatch_score = 1;
+    int gap_score = 1;
+    tuple<string,string,int> tup;
+
+    if(n > 1000 || m > 1000) return tup;
+
+    for (unsigned int i = 0; i <= n; i++) dp[i][0] = dp[0][i] = -i * gap_score;
+
+    for (unsigned int i = 1; i <= n; i++){
+        for (unsigned int j = 1; j <= m; j++){
+            int S = (a[i-1] == b[j-1]) ? match_score : -mismatch_score;
+            dp[i][j] = max(dp[i-1][j-1] + S, max(dp[i-1][j] - gap_score, dp[i][j-1] - gap_score));
+        }
+    }
+
+    //dp[n][m] is the best score
+    get<2>(tup) = dp[n][m];
+
+    string retA, retB;
+    stack<char> SA, SB;
+    int ii = n, jj = m;
+
+    while (ii != 0 || jj != 0){
+        if (ii == 0){
+            SA.push('-');
+            SB.push(b[jj-1]);
+            jj--;
+        }else if (jj == 0){
+            SA.push(a[ii-1]);
+            SB.push('-');
+            ii--;
+        }else{
+            int S = (a[ii-1] == b[jj-1]) ? match_score : -mismatch_score;
+            if (dp[ii][jj] == dp[ii-1][jj-1] + S){
+                SA.push(a[ii-1]);
+                SB.push(b[jj-1]);
+                ii--; jj--;
+            }else if (dp[ii-1][jj] > dp[ii][jj-1]){
+                SA.push(a[ii-1]);
+                SB.push('-');
+                ii--;
+            }else{
+                SA.push('-');
+                SB.push(b[jj-1]);
+                jj--;
+            }
+        }
+    }
+
+    while (!SA.empty()){
+        retA += SA.top();
+        retB += SB.top();
+        SA.pop();
+        SB.pop();
+    }
+
+    get<0>(tup) = retA;
+    get<1>(tup) = retB;
+
+    printf("%d\n%s\n%s\n\n",dp[n][m],retA.c_str(),retB.c_str());
+
+    return tup;
+
 }

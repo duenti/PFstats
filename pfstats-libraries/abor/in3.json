@@ -11,6 +11,9 @@
 			},
 		"C4": {
 			"alignName": "C4"
+			},
+		"C5": {
+			"alignName": "C5"
 		}
 	},
 	"edges":{
@@ -19,26 +22,31 @@
 		},
 		"C2": {
 			"C1": {
-				"value": 2.27
+				"value": 5.85
+				},
+			"C3": {
+				"value": 1.50
 				}
 		},
 		"C3": {
 			"C1": {
-				"value": 3.58
-				},
-			"C2": {
-				"value": -23.66
-				},
-			"C4": {
-				"value": 27.25
+				"value": 5.35
 				}
 		},
 		"C4": {
 			"C1": {
-				"value": 2.94
+				"value": 4.50
 				},
-			"C2": {
-				"value": -15.33
+			"C3": {
+				"value": -10.75
+				},
+			"C5": {
+				"value": 5.75
+				}
+		},
+		"C5": {
+			"C1": {
+				"value": 7.78
 				}
 		}	},
 "_": "zebra finch bk42w74 syllable transition graph"

@@ -248,7 +248,43 @@ private slots:
 
     void on_cmdFilterRefSeqs_clicked();
 
+    void on_cmbLookingFilter_activated(int index);
+
+    void on_cmdLookingFilter_clicked();
+
 private:
+    enum Constants{
+        STACK_MAIN = 0,
+        STACK_ALIGNMENT = 1,
+        STACK_FILTER = 2,
+        STACK_REFSEQS = 3,
+        STACK_PDB = 4,
+        STACK_CONSERVATION = 5,
+        STACK_MINSS = 6,
+        STACK_CORRELATION = 7,
+        STACK_RESULTS = 8,
+        STACK_UNIPROT = 9,
+        STACK_MANAGE_COMMS = 10,
+        STACK_ALPHABET = 11,
+        STACK_RESULT_SEQLIST = 1,
+        STACK_RESULT_CONSFREQ = 2,
+        STACK_RESULT_FREQPERC = 3,
+        STACK_RESULT_CONSRES = 4,
+        STACK_RESULT_CORRLIST = 5,
+        STACK_RESULT_COMMLIST = 6,
+        STACK_RESULT_CORRPERC = 7,
+        STACK_RESULT_CORRLOG = 8,
+        STACK_RESULT_ADHERENCE = 9,
+        STACK_RESULT_RESCOMM = 10,
+        STACK_RESULT_UNIPROT_PROTEINS = 11,
+        STACK_RESULT_UNIPROT_COMMS = 12,
+        STACK_RESULT_CORRGRAPH = 13,
+        STACK_RESULT_COMMGRAPH = 14,
+        STACK_RESULT_DELTAGRAPH = 15,
+        STACK_RESULT_CONSPDB = 16,
+        STACK_RESULT_COMMPDB = 17
+    };
+
     Ui::MainWindow *ui;
     Alignment *currentAlign;
     string currentPDBContent;

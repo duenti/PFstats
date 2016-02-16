@@ -235,7 +235,7 @@ public:
     void alignment2UpperCase();
     void IdentityMatrixCalculation();
     void taxonTrimming(string taxon, string refseqName, string refSeq, bool intermediate = true);
-    void IdentityTrimming(string taxon, float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
     void IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
     void AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq,bool intermediate = true, string newalignmentfilename="");//[OK]
     void AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive, bool inter);
@@ -277,7 +277,7 @@ public:
     void SuccessiveRandomElimination(string outputfilename, int step, int repetitions, int endvalue=100);
     vector<float> DTRandomElimination(int repetitions, int max, int min, int step); //[OK]
     void calculateShenkin(int numseqs);
-    vector<float> ShenkinEntropy(int repetitions, int gapFilter);
+    vector<float> ShenkinEntropy(int repetitions);
     void Cluster2SCM(string clusterfilename, string path, bool renumber, int seqnumber, int offset, bool html, bool text); //[OK]
     void Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset); //[10%]
     void Cluster2PymolScript(string clusterfilename, string familyID, int seqnumber, int offset);

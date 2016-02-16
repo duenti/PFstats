@@ -13,6 +13,7 @@
 #include <QtNetwork>
 #include <set>
 
+
 Alignment::Alignment()
 {
     refSeqName = "";
@@ -491,9 +492,9 @@ vector<tuple<string,string,float> > Alignment::getDeltasEdges(float cutoff){
         float weight1 = std::get<2>(edge);
         float weight2 = 0;
         bool ok = false;
-        int j;
+        int j = 0;
 
-        for(j = 0; j < graph.size(); j++){
+        for(unsigned int j = 0; j < graph.size(); j++){
             tuple<string,string,float> edge2 = graph[j];
             if(c1 == std::get<1>(edge2) && std::get<0>(edge2) == c2){
                 ok = true;
@@ -733,10 +734,10 @@ void Alignment::addParameter(string tag, string filter, int minlog, float minssf
 vector<vector<int> > Alignment::createBlankIntMatrix(int i1, int j1, int v){
     vector<vector<int> > matrix;
 
-    for(unsigned int i = 0; i < i1; i++){
+    for(int i = 0; i < i1; i++){
         vector<int> vec
                 ;
-        for(unsigned int j = 0; j < j1; j++){
+        for(int j = 0; j < j1; j++){
             vec.push_back(v);
         }
         matrix.push_back(vec);
@@ -793,7 +794,7 @@ void Alignment::setFilepath(string path){
 
 void Alignment::resetCommunities(){
     if (Communities.size()>0){
-        for (int c1=0;c1<=Communities.size()-1;c1++){
+        for (unsigned int c1=0;c1<=Communities.size()-1;c1++){
             Communities[c1].pos.clear();
             Communities[c1].aa.clear();
         }
@@ -849,7 +850,7 @@ unsigned int Alignment::freqmatrixposition(char c){
 
 unsigned int Alignment::getresn(string line){
     line=line.substr(22,4);
-    for(unsigned int c1=3;c1>=0;c1--) if(line[c1]==' ') line.erase(c1,1);
+    for(int c1=3;c1>=0;c1--) if(line[c1]==' ') line.erase(c1,1);
     return atoi(line.c_str());
 }
 
@@ -1026,6 +1027,7 @@ string Alignment::aa1lto3l(char c){
         return "TRP";
         break;
     }
+    return "-";
 }
 
 long double Alignment::lnbdf(int N, int nx, float px){
@@ -1061,7 +1063,7 @@ long double Alignment::cbd_tietjen(int N, int n, float freq, bool right){
 
     float u=freq/(1-freq);
 
-    for(unsigned int i=2;i<=N+1;i++){
+    for(int i=2;i<=N+1;i++){
         a=a*u*((float)(N+2-i))/((float)(i-1));
         if(((!right)&&(i<=n+1))||((right)&&(i-1>=n)))
             sum+=a;
@@ -1517,7 +1519,7 @@ void Alignment::generateXML(string outputXML){
                     Uniprot* entryprot = uniprotMined[i];
 
                     if(protName == entryprot->getName()){
-                        for(unsigned int j = 0; j < entryprot->countFeatures(); j++){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
                             Feature *f = entryprot->getFeature(j);
 
                             if(f->getAgregate() == 0) out << "      <feature agregate=\"CONS\" ";
@@ -1581,7 +1583,7 @@ void Alignment::readSTO(){
 
         if(line[0] == '#'){
             vector<string> splittedLine = this->split(line,' ');
-            for(int i = 0; i < splittedLine.size(); i++){
+            for(unsigned int i = 0; i < splittedLine.size(); i++){
                 if(splittedLine[i] == "PDB;"){
                     string protein = splittedLine[1];
                     string pdb = splittedLine[i+1];
@@ -1598,7 +1600,7 @@ void Alignment::readSTO(){
             string protein = splittedLine[0];
             string sequence;
 
-            for(int i = 1; i < splittedLine.size(); i++){
+            for(unsigned int i = 1; i < splittedLine.size(); i++){
                 if(splittedLine[i] != ""){
                     sequence = splittedLine[i];
                     printf("%s\n",splittedLine[i].c_str());
@@ -1622,7 +1624,7 @@ void Alignment::readSTO(vector<string> pfam){
 
         if(line[0] == '#'){
             vector<string> splittedLine = this->split(line,' ');
-            for(int i = 0; i < splittedLine.size(); i++){
+            for(unsigned int i = 0; i < splittedLine.size(); i++){
                 if(splittedLine[i] == "PDB;"){
                     string protein = splittedLine[1];
                     string pdb = splittedLine[i+1];
@@ -1639,7 +1641,7 @@ void Alignment::readSTO(vector<string> pfam){
             string protein = splittedLine[0];
             string sequence;
 
-            for(int i = 1; i < splittedLine.size(); i++){
+            for(unsigned int i = 1; i < splittedLine.size(); i++){
                 if(splittedLine[i] != ""){
                     sequence = splittedLine[i];
                     printf("%s\n",splittedLine[i].c_str());
@@ -1671,7 +1673,7 @@ void Alignment::readPFAM(){
             //printf("%s\n",line.c_str());
             sequencenames.push_back("");
             sequences.push_back("");
-            for (int c1=0;c1<=line.size()-1;c1++){
+            for (unsigned int c1=0;c1<=line.size()-1;c1++){
                  if(flag2) sequences[sequences.size()-1]+=line.substr(c1,1);
                  if((flag1)&&(!flag2)){
                     if (validposition(line[c1])){
@@ -1703,7 +1705,7 @@ void Alignment::readPFAM(vector<string> pfam){
             //printf("%s\n",line.c_str());
             sequencenames.push_back("");
             sequences.push_back("");
-            for (int c1=0;c1<=line.size()-1;c1++){
+            for (unsigned int c1=0;c1<=line.size()-1;c1++){
                  if(flag2) sequences[sequences.size()-1]+=line.substr(c1,1);
                  if((flag1)&&(!flag2)){
                     if (validposition(line[c1])){
@@ -1724,7 +1726,7 @@ void Alignment::readPFAM(vector<string> pfam){
 bool Alignment::GetFromFile(){
     fstream alignmentfile;
     string line;
-    int c1,c2;
+    unsigned int c1,c2;
     //string fseqname; // temporary sequence name from file
 
     if (sequences.size()>0) for(c1=0;c1<=sequences.size()-1;c1++) sequences[c1]="";
@@ -1834,7 +1836,7 @@ bool Alignment::getFromStd(string text){
 }
 
 bool Alignment::checkConsistency(){
-    int c1,c2;
+    unsigned int c1,c2;
 
     SortOrder.clear();
     if (subsetfrequencies.size()>0) for(c1=0;c1<=subsetfrequencies.size()-1;c1++)
@@ -1861,6 +1863,8 @@ bool Alignment::checkConsistency(){
         this->fullAlignment.push_back(sequencenames[i]);
         this->fullSequences.push_back(sequences[i]);
     }
+
+    return true;
 }
 
 void Alignment::updateFullAlignment(){
@@ -1920,7 +1924,7 @@ string Alignment::getSequence(string seqname){
 
 void Alignment::CalculateFrequencies(){
     long double partialresult;
-    int c1,c2;
+    unsigned int c1,c2;
 
     frequencies.clear();
 
@@ -1948,7 +1952,7 @@ void Alignment::CalculateFrequencies(){
 
 unsigned int Alignment::SeqSize(int seq){
     int size=0;
-    for (int i=0;i<=sequences[seq].size()-1;i++)
+    for (unsigned int i=0;i<=sequences[seq].size()-1;i++)
         if(isaa(sequences[seq][i])) size++;
 
     return size;
@@ -1993,7 +1997,8 @@ float Alignment::Identity(int seq1, int seq2){
 
 int Alignment::seqcode2seqint(string refseqcode){
     short int maxcompare;
-    unsigned int c1,c2;
+    unsigned int c1;
+    int c2;
     bool seqfound;
 
     for(c1=0;c1<=sequencenames.size()-1;c1++){
@@ -2092,7 +2097,8 @@ void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq, bo
 }
 
 void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string refseqName, bool casesensitive, bool intermediate){
-    int c1,c2,totalseq,totalaln;
+    int c1,totalseq,totalaln;
+    unsigned int c2;
     string referencesequence=sequences[refseq];
     vector<int> seqstoremove;
 
@@ -2171,7 +2177,8 @@ void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
-    int c1,c2,totalseq,totalaln;
+    unsigned int c1,c2;
+    int totalseq,totalaln;
 
     //QMessageBox::information(NULL,"ok","CERTO");
 
@@ -2234,7 +2241,7 @@ void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float min
     //printf("%d",sequences.size());
     QProgressDialog progress("Culling Minimum Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
-    int c1;
+    unsigned int c1;
 
     //QMessageBox::information(NULL,"a",sequencenames[0].c_str());
 
@@ -2284,11 +2291,11 @@ void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float min
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 }
 
-void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float minid, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
+void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
-    int seq1,seq2;
+    unsigned int seq1,seq2;
     seq1=0;
     //printf("%d",sequences.size());
     while(true){ //for(seq1=0;seq1<=sequences.size()-2;seq1++)
@@ -2352,7 +2359,7 @@ void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float 
 
 void Alignment::AlignmentWrite(string outputfilename){
     //FILE *outputfile;
-    int c1;
+    unsigned int c1;
 
     QFile f(outputfilename.c_str());
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -2373,7 +2380,7 @@ void Alignment::AlignmentWrite(string outputfilename){
 }
 
 void Alignment::dGCalculation(){
-    int c1,c2;
+    unsigned int c1,c2;
     long double partialresult;
     for(c1=0;c1<=sequences[0].size()-1;c1++){
         partialresult=0;
@@ -2420,7 +2427,7 @@ void Alignment::dGWrite(){
 void Alignment::FreqWrite(){
     consfreqPerc.clear();
     consvfreq.clear();
-    for (int i=0;i<=sequences[0].size();i++){//-1 para não incluir o ALL
+    for (unsigned int i=0;i<=sequences[0].size();i++){//-1 para não incluir o ALL
         vector<int> freqs;
         for (int j=0;j<=20;j++){
             freqs.push_back(frequencies[i][j]);
@@ -2428,9 +2435,9 @@ void Alignment::FreqWrite(){
         consvfreq.push_back(freqs);
     }
 
-     for (int i=0;i<=sequences[0].size()-1;i++){
+     for (unsigned int i=0;i<=sequences[0].size()-1;i++){
          vector<float> freqpercs;
-         for (int j=1;j<=20;j++){
+         for (unsigned int j=1;j<=20;j++){
              if(frequencies[i][j]!=sequences.size()){
                 freqpercs.push_back(100.0*(float)frequencies[i][j]/((float)sequences.size()));
              }else freqpercs.push_back(100.00);
@@ -2440,7 +2447,7 @@ void Alignment::FreqWrite(){
 }
 
 void Alignment::CalculateReferenceVector(int seqnumber){
-    int c1;
+    unsigned int c1;
     //QMessageBox::information(NULL,"ok",QString::number(seqnumber));
     referencesequence=seqnumber;
     if(referencevector.size()>0) referencevector.clear();
@@ -2449,7 +2456,7 @@ void Alignment::CalculateReferenceVector(int seqnumber){
 }
 
 void Alignment::CalculateReferenceVector2(int seqnumber){
-    int c1;
+    unsigned int c1;
     //QMessageBox::information(NULL,"ok",QString::number(seqnumber));
     referencesequence=seqnumber;
     if(referencevector.size()>0) referencevector.clear();
@@ -2473,7 +2480,7 @@ unsigned int Alignment::AlignNumbering2Sequence2(int seqnumber, int position){
 }
 
 void Alignment::NormalizedG(){
-    int c1;
+    unsigned int c1;
     float maxdG=-1;
 
     if(normalizeddG.size()>0) normalizeddG.clear();
@@ -2516,7 +2523,8 @@ void Alignment::writedGtoPDB(string PDBfilename, string dgPDBfilename, int initr
 }
 
 void Alignment::dGDTCalculation(int numseqs){
-    int c1,c2,c3,c4, Ci;
+    unsigned int c1,c2,c4, Ci;
+    int c3;
     if (dGDT.size()>0) dGDT.clear();
     long double partialresult;
 
@@ -2548,11 +2556,11 @@ void Alignment::dGDTCalculation(int numseqs){
 
 void Alignment::calculateShenkin(int numseqs){
     //long double partialSum = 0;
-    for (int i = 0; i < subsetfrequencies.size(); i++)
+    for (unsigned int i = 0; i < subsetfrequencies.size(); i++)
         for(unsigned int j = 0; j < subsetfrequencies[0].size(); j++)
             subsetfrequencies[i][j]=0;
 
-    for(unsigned int i = 0; i < numseqs; i++){
+    for(int i = 0; i < numseqs; i++){
         for(unsigned int j = 0; j < sequences[0].size(); j++){
             subsetfrequencies[j][freqmatrixposition(sequences[SortOrder[i]][j])]++;
             subsetfrequencies[sequences[0].size()][freqmatrixposition(sequences[SortOrder[i]][j])]++;
@@ -2562,14 +2570,14 @@ void Alignment::calculateShenkin(int numseqs){
 }
 
 vector<float> Alignment::DTRandomElimination(int repetitions, int max, int min, int step){
-    int c1,c3;
+    unsigned int c1,c3;
     long double partialresult=0;
     long double partialsum=0;
     //vector<int> SortOrder;
     vector<int> populatedpos;
     vector<float> outputVec;
     int currentsize; // current size of sub-alignment
-    int i;
+    unsigned int i;
 
     //progress.setValue(0);
     //QMessageBox::information(NULL,"a",QString::number(min));
@@ -2635,7 +2643,7 @@ vector<float> Alignment::DTRandomElimination(int repetitions, int max, int min, 
 
 }
 
-vector<float> Alignment::ShenkinEntropy(int repetitions, int gapFilter){
+vector<float> Alignment::ShenkinEntropy(int repetitions){
     vector<int> populatedpos;
     vector<float> outputVec;
     vector<vector<int> > subsetTemp;
@@ -2697,7 +2705,7 @@ vector<float> Alignment::ShenkinEntropy(int repetitions, int gapFilter){
         omp_set_num_threads(8);
         #pragma omp parallel for firstprivate(subsetTemp) reduction (+:partialsum)
         //Teste sem filtro
-        for(unsigned int j = 0; j < repetitions; j++){
+        for(int j = 0; j < repetitions; j++){
             random_shuffle(SortOrder.begin(),SortOrder.end());
 
             /*
@@ -2714,11 +2722,11 @@ vector<float> Alignment::ShenkinEntropy(int repetitions, int gapFilter){
             }*/
 
             //Calcula frequência do subalinhamento
-            for (int i1 = 0; i1 < subsetTemp.size(); i1++)
+            for (unsigned int i1 = 0; i1 < subsetTemp.size(); i1++)
                 for(unsigned int j1 = 0; j1 < subsetTemp[0].size(); j1++)
                     subsetTemp[i1][j1]=0;
 
-            for(unsigned int i1 = 0; i1 < currentsize; i1++){
+            for(int i1 = 0; i1 < currentsize; i1++){
                 for(unsigned int j1 = 0; j1 < sequences[0].size(); j1++){
                     subsetTemp[j1][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
                     subsetTemp[sequences[0].size()][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
@@ -2753,7 +2761,7 @@ vector<float> Alignment::ShenkinEntropy(int repetitions, int gapFilter){
 }
 
 void Alignment::SubAlignmentIndices(char aa, int pos){
-    int c1;
+    unsigned int c1;
 
     if(subalignmentseqs.size()>0) subalignmentseqs.clear();
 
@@ -2795,7 +2803,8 @@ int Alignment::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
 }
 
 void Alignment::SympvalueCalculation(int minlogp, float minssfraction, float mindeltafreq){
-    int c2,pos1,pos2,aa1,aa2,aa2pos2count,aa1pos1count;
+    int aa1,aa2,aa2pos2count,aa1pos1count;
+    unsigned int c2,pos1,pos2;
     short int pvalue1,pvalue2;
     bool mindeltafreqok;
     this->corrGraph.clear();
@@ -3001,7 +3010,7 @@ void Alignment::DeltaCommunitiesCalculation(){
 }
 
 void Alignment::DeltaCommunitiesOutput(string deltaoutputfilename){
-    int c1,c2;
+    unsigned int c1,c2;
 
     if(Deltas.size()>0){
         FILE *deltafile;
@@ -3028,7 +3037,7 @@ void Alignment::DeltaCommunitiesOutput(string deltaoutputfilename){
 }
 
 void Alignment::ElementRanking(string path, bool renumber, int seqnumber, int offset){
-    int c1,c2,c3,c4;
+    unsigned int c1,c2,c3;
     int worseelement;
     float worseelementdeviation;
     vector <float> elementdeviation;
@@ -3098,7 +3107,7 @@ void Alignment::ElementRanking(string path, bool renumber, int seqnumber, int of
 }
 
 void Alignment::SelfCorrelationMatrixCalculation(const std::vector<char> &aalist, const std::vector<int> &poslist){
-    int i, j;
+    unsigned int i, j;
 
     if(selfcorrelationmatrix.size()!=0){
         for (i=0;i<=selfcorrelationmatrix.size()-1;i++){
@@ -3127,7 +3136,7 @@ void Alignment::SelfCorrelationMatrixCalculation(const std::vector<char> &aalist
 }
 
 void Alignment::SCM2HTML(string scmfilename, const std::vector<char> &aalist, const std::vector<int> &poslist, bool renumber, int seqnumber, int offset){
-    int i,j;
+    unsigned int i,j;
     FILE *scmfile;
 
     scmfile=fopen(scmfilename.c_str(),"w+");
@@ -3164,7 +3173,7 @@ void Alignment::SCM2HTML(string scmfilename, const std::vector<char> &aalist, co
 }
 
 void Alignment::Write_SCM(string scmfilename, const std::vector<char> &aalist, const std::vector<int> &poslist){
-    int i,j;
+    unsigned int i,j;
 
     FILE *scmfile;
     scmfile=fopen(scmfilename.c_str(),"w+");
@@ -3189,7 +3198,7 @@ void Alignment::Write_SCM(string scmfilename, const std::vector<char> &aalist, c
 
 void Alignment::pMatrix2HTML(string path, bool renumber, int seqnumber){
     char pmfilename[50];
-    int i,j,c1;
+    unsigned int i,j,c1;
     FILE *pmfile;
 
     for(c1=0;c1<=Communities.size()-1;c1++){
@@ -3270,7 +3279,7 @@ void Alignment::pMatrix2HTMLRAM(bool renumber, int seqnumber){
 }
 
 float Alignment::PSA(int seqnumber, int communitynumber){
-    int i,j;
+    unsigned int i,j;
     float sum=0;
 
     //QMessageBox::information(NULL,"a",QString::number(sequences.size()));
@@ -3339,7 +3348,7 @@ void Alignment::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
     this->residuesComm.clear();
 
 
-    for(unsigned int i = 0; i < nclusters; i++){
+    for(int i = 0; i < nclusters; i++){
         aalist.clear();
         poslist.clear();
         vector<float> clusterXAll;
@@ -3606,7 +3615,7 @@ void Alignment::exportFreq(QString filename, int type, bool perc){
             }else{
                 out << "pos  GAP   ALA   CYS   ASP   GLU   PHE   GLY   HIS   ILE   LYS   LEU   MET   ASN   PRO   GLN   ARG   SER   THR   VAL   TRP   TYR\n";
                 for(unsigned int i = 0; i < consvfreq.size()-1; i++){
-                    if(i >= 0 && i <= 8)
+                    if(i <= 8)
                         out << i+1 << "    ";
                     else if(i >=9 && i <= 98)
                         out << i+1 << "   ";
@@ -4069,13 +4078,13 @@ void Alignment::exportConsRes(QString filename, int type, float mincons, vector<
 
             out << "<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th><b>Sequence</b></th>";
 
-            for (int c1=0;c1<=conservedaa.size()-1;c1++){
+            for (unsigned int c1=0;c1<=conservedaa.size()-1;c1++){
                 out << "<th><b>" << conservedaa[c1] << conservedpos[c1]+1 << " (" << conservedfreq[c1] <<")</b></th>";
             }
             out << "</tr>\n";
-            for (int c1=0;c1<=refSeqs.size()-1;c1++){
+            for (unsigned int c1=0;c1<=refSeqs.size()-1;c1++){
                 out << "<tr><th><b>" << fullAlignment[refSeqs[c1]].c_str();
-                for (int c2=0;c2<=conservedaa.size()-1;c2++){
+                for (unsigned int c2=0;c2<=conservedaa.size()-1;c2++){
                     if(AlignNumbering2Sequence2(refSeqs[c1]+1,conservedpos[c2]) ==0){
                         out << "<th><font color=#FF0000>-</font></th>";
                     }else{
@@ -5057,7 +5066,7 @@ void Alignment::exportLookProt(QString filename, int type){
 
                     if(protName == entryprot->getName()){
 
-                        for(unsigned int j = 0; j < entryprot->countFeatures(); j++){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
                             Feature* f = entryprot->getFeature(j);
 
                             if(f->getResidueColigated() == "") out << "UNKNOWN ";
@@ -5117,7 +5126,7 @@ void Alignment::exportLookProt(QString filename, int type){
                     Uniprot* entryprot = uniprotMined[i];
 
                     if(protName == entryprot->getName()){
-                        for(unsigned int j = 0; j < entryprot->countFeatures(); j++){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
                             Feature* f = entryprot->getFeature(j);
 
                             if(f->getResidueColigated() == "") out << "UNKNOWN,";
@@ -5195,7 +5204,7 @@ void Alignment::exportLookProt(QString filename, int type){
                     Uniprot* entryprot = uniprotMined[i];
 
                     if(protName == entryprot->getName()){
-                        for(unsigned int j = 0; j < entryprot->countFeatures(); j++){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
                             Feature *f = entryprot->getFeature(j);
 
                             if(f->getAgregate() == 0) out << "\t\t<feature agregate=\"CONS\" ";
@@ -5274,7 +5283,7 @@ void Alignment::exportLookProt(QString filename, int type){
                     Uniprot* entryprot = uniprotMined[i];
 
                     if(protName == entryprot->getName()){
-                        for(unsigned int j = 0; j < entryprot->countFeatures(); j++){
+                        for(int j = 0; j < entryprot->countFeatures(); j++){
                             out << "<tr>\n";
 
                             Feature* f = entryprot->getFeature(j);
@@ -6023,7 +6032,7 @@ void Alignment::uniprotLook(bool cons, bool comm, vector<string> proteins, vecto
         out->setDataset(entry->getDataset());
         printf("ENTRY: %s\nOUT:%s\n\n",entry->getName().c_str(),out->getName().c_str());
 
-        for(unsigned int j = 0; j < entry->countAccession(); j++)
+        for(int j = 0; j < entry->countAccession(); j++)
             out->addAccession(entry->getAcesssionAt(j));
 
         progress2.setValue(i + 5);
@@ -6032,7 +6041,7 @@ void Alignment::uniprotLook(bool cons, bool comm, vector<string> proteins, vecto
 
         //printf("%s\n",entry->toString().c_str());
 
-        for(unsigned int j = 0; j < entry->countFeatures(); j++){
+        for(int j = 0; j < entry->countFeatures(); j++){
             Feature *f = entry->getFeature(j);
             //printf("%s\n",f->toString().c_str());
             if(f->getType() != "chain"){
@@ -6169,7 +6178,7 @@ vector<Uniprot *> Alignment::getAllResidueFeatures(string res){
     vector<Uniprot*> outVec;
 
     for(unsigned int i = 0; i < uniprotMined.size(); i++){
-        for(unsigned int j = 0; j < uniprotMined[i]->countFeatures(); j++){
+        for(int j = 0; j < uniprotMined[i]->countFeatures(); j++){
             Feature *f = uniprotMined[i]->getFeature(j);
 
             if(f->getAlignResidue() == res){

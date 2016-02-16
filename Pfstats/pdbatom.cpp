@@ -328,7 +328,7 @@ string PdbAtom::to_string(float bf){
     }
     }
 
-    line += "  ";
+    line += " ";
 
     //ATOM NAME
     switch(this->atomName.size()){

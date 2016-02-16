@@ -16,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    QMainWindow::showFullScreen();
+
     currentAlign = nullptr;
 
     libpath = ""; //NO windows começar com dir raiz
@@ -188,11 +191,22 @@ bool MainWindow::isFloat( string myString ) {
 }
 
 void MainWindow::startStacked(){
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(STACK_MAIN);
     ui->lblHidden->setVisible(false);
 }
 
+//Reset UI Objects
 void MainWindow::resetObjects(){
+    //VARIABLE OBJECTS
+    currentAlign = NULL;
+    currentPDBContent = "";
+    pdbweb = "";
+    stackBeforeShowResults = 0;
+    currentStackPos = 0;
+    resultsStackList.clear();
+
+
+    //UI OBJECTS
     //MAIN WINDOW
     ui->listWidget->clear();
     ui->listWidget2->clear();
@@ -212,11 +226,14 @@ void MainWindow::resetObjects(){
     ui->chkDownloadAlignment->setChecked(false);
     //FILTER
     ui->cmbRefSeq->clear();
+    ui->txtTaxons->clear();
     ui->txtMinCover->setValue(0.8);
     ui->txtMinId->setValue(0.15);
     ui->txtMaxId->setValue(0.8);
     ui->chkIntermediateFilter->setChecked(false);
     //REFSEQS
+    ui->cmbFilterRefseq->setCurrentIndex(0);
+    ui->txtFilterRefSeq->clear();
     ui->lstRefSeqs->clear();
     ui->lstRefSeqSelected->clear();
     //PDB
@@ -241,17 +258,23 @@ void MainWindow::resetObjects(){
     ui->graficMinss->setVisible(false);
     ui->txtNoAlignments->setValue(100);
     //CORRELATION
-    ui->txtChain_2->setText("A");
     ui->chkRemoveContactResidues->setChecked(false);
     ui->txtAtomDistance->setValue(4.5);
+    ui->txtAtomDistance->setEnabled(false);
     ui->txtPDBName_2->clear();
+    ui->txtPDBName_2->setEnabled(false);
+    ui->txtChain_2->setText("A");
+    ui->txtChain_2->setEnabled(false);
     ui->lstPDBsLoaded_2->clear();
+    ui->lstPDBsLoaded_2->setEnabled(false);
+    ui->chkCommVisualization->setChecked(false);
     ui->txtMinScore->setValue(10);
     ui->txtMinssFraction->clear();
     ui->txtMinDeltaFreq->setValue(0.3);
     ui->txtOffset_2->setText("0");
     ui->cmbRefSeq_3->clear();
     //RESULTS
+    //MAIN RESULT PAGE
     ui->checkResults1->setChecked(false);
     ui->checkResults2->setChecked(false);
     ui->checkResults3->setChecked(false);
@@ -265,20 +288,79 @@ void MainWindow::resetObjects(){
     ui->checkResults11->setChecked(false);
     ui->checkResults12->setChecked(false);
     ui->lblHidden->setText(0);
+    //LIST SEQUENCES
     ui->lstProteinsFiltered->clear();
     ui->txtSequence->clear();
+    ui->lblRefSeq->setText("Reference Sequence:");
+    ui->lblTaxon->setText("Taxon:");
+    ui->lblMinId->setText("Minimum Identity: ");
+    ui->lblOccupancy->setText("Occupancy: ");
+    ui->lblMaxId->setText("Maximum Identity: ");
+    //FREQ CONSERVATION
+    ui->lblFilter->setText("Filter: ");
+    ui->lblRefSeq->setText("Reference Sequence: ");
+    ui->lblOffset->setText("Offset: ");
+    ui->lblChain->setText("Chain: ");
     ui->tableFreq->clearContents();
+    //PERC CONSERVATION
+    ui->lblFilter_2->setText("Filter: ");
+    ui->lblRefSeq_2->setText("Reference Sequence: ");
+    ui->lblOffset_2->setText("Offset: ");
+    ui->lblChain_2->setText("Chain: ");
     ui->tableFreqPerc->clearContents();
+    //CONSERVED RESIDUES
+    ui->lblFilter_8->setText("Filter: ");
+    ui->lblMinCons->setText("Minimum Conservation: ");
     ui->tableConsRes->clear();
+    //CORRELATION LIST
+    ui->lblFilter_3->setText("Filter: ");
+    ui->lblMinLogP->setText("Minimum Score: ");
+    ui->lblMinss->setText("Minss Fraction: ");
+    ui->lblDeltaFreq->setText("Delta Frequence: ");
     ui->treeCorrelation->clear();
+    //LIST OF COMMUNITIES
+    ui->lblFilter_4->setText("Filter: ");
+    ui->lblMinLogP_2->setText("Minimum Score: ");
+    ui->lblMinss_2->setText("Minss Fraction: ");
+    ui->lblDeltaFreq_2->setText("Delta Frequence: ");
     ui->treeCorrelationComm->clear();
+    //CORRELATION TABLES %
+    ui->lblFilter_5->setText("Filter: ");
+    ui->lblComunidade->setText("Communitie: ");
+    ui->lblMinLogP_3->setText("Minimum Score: ");
+    ui->lblMinss_3->setText("Minss Fraction: ");
+    ui->lblDeltaFreq_3->setText("Delta Frequence: ");
     ui->tableComm1->clear();
+    //CORRELATION TABLES LOG P
+    ui->lblFilter_6->setText("Filter: ");
+    ui->lblComunidade_2->setText("Communitie: ");
+    ui->lblMinLogP_4->setText("Minimum Score: ");
+    ui->lblMinss_4->setText("Minss Fraction: ");
+    ui->lblDeltaFreq_4->setText("Delta Frequence: ");
     ui->tableComm2->clear();
+    //ADHERENCE
+    ui->lblFilter_7->setText("Filter: ");
     ui->tableAdherence->clear();
+    //RESIDUES OF COMMUNITIE
+    ui->lblFilter_9->setText("Filter: ");
+    ui->lblComunidade_3->setText("Communitie: ");
     ui->tableResiduesComm->clear();
+    //RESULTS UNIPROT 1
+    ui->lstProteinsMined->clear();
+    ui->tableProteinsMined1->clearContents();
+    //RESULTS UNIPROT 2
+    ui->treeMinerComms->clear();
+    ui->tableProteinsMined2->clearContents();
+    //COMM GRAPHS
+    ui->lblComunidade_4->setText("Communitie ");
+    //CORRELATION BETWEEN COMMS GRAPH
+    ui->txtGraphCutoff->setText("1.5");
     //Uniprot Looking Tool
     ui->chkConserveds->setChecked(false);
     ui->chkComm->setChecked(false);
+    ui->cmbLookingFilter->setCurrentIndex(0);
+    ui->txtLookingFilter->clear();
+    ui->txtLookingFilter->setEnabled(false);
     ui->lstLookingRefs->clear();
     //Manage Communities
     ui->cmbComm->clear();
@@ -442,7 +524,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 //QMessageBox::information(this,"a","teste5");
     if(filter3){
-        currentAlign->IdentityTrimming(taxon,maxId,occupancy,minId,0,firstrefseqname,firstrefseq,true);
+        currentAlign->IdentityTrimming(taxon,maxId,occupancy,minId,firstrefseqname,firstrefseq,true);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -573,7 +655,7 @@ vector<float> MainWindow::minss(int repetitions){
     vector<float> outputVec;
     currentAlign->CalculateFrequencies();
     //outputVec = currentAlign->DTRandomElimination(repetitions,99,1,1);
-    outputVec = currentAlign->ShenkinEntropy(repetitions,0.5);
+    outputVec = currentAlign->ShenkinEntropy(repetitions);
 
 
     if(ui->listWidget2->currentItem() == NULL)
@@ -2206,7 +2288,7 @@ void MainWindow::on_cmdMain_clicked()
         alinhamentos.shrink_to_fit();
 
         //Muda para tela 0
-        ui->stackedWidget->setCurrentIndex(0);
+        ui->stackedWidget->setCurrentIndex(STACK_MAIN);
 
     }
 
@@ -2224,62 +2306,48 @@ void MainWindow::on_cmdBack_clicked()
     int ctIx = ui->stackedWidget->currentIndex();
 
     switch(ctIx){
-    case 0:
+    case STACK_MAIN:
     {
         return;
         break;
     }
-    case 1:
+    case STACK_ALIGNMENT:
     {
-        ui->stackedWidget->setCurrentIndex(0);
+        ui->stackedWidget->setCurrentIndex(STACK_MAIN);
 
         //Apaga botões do Wizard
         changeWizardCmds(false);
         break;
     }
-    case 2:
+    case STACK_FILTER:
     {
-        ui->stackedWidget->setCurrentIndex(1);
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
         ui->cmdBack->setEnabled(false);
         ui->cmdAdvance->setEnabled(true);
         break;
     }
-    case 3:
-    {
-        if(currentAlign->getRefSeqsSize() == 0){
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, "Reference sequences not saved",
-                                            "Are you sure you want to leave this form without save the reference sequences?",
-                                            QMessageBox::Yes|QMessageBox::No);
-            if (reply == QMessageBox::Yes){
-                ui->cmdBack->setEnabled(true);
-                ui->cmdAdvance->setEnabled(true);
-                ui->stackedWidget->setCurrentIndex(2);
-            }
-            else
-                return;
-        }else{
-            ui->cmdBack->setEnabled(true);
-            ui->cmdAdvance->setEnabled(true);
-            ui->stackedWidget->setCurrentIndex(2);
-        }
-        break;
-    }
-    case 4:
+    case STACK_REFSEQS:
     {
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(3);
+        ui->stackedWidget->setCurrentIndex(STACK_FILTER);
         break;
     }
-    case 5:
+    case STACK_PDB:
     {
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(4);
+        ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
         break;
     }
-    case 6:
+    case STACK_CONSERVATION:
+    {
+        ui->cmdBack->setEnabled(true);
+        ui->cmdAdvance->setEnabled(true);
+        ui->stackedWidget->setCurrentIndex(STACK_PDB);
+        break;
+    }
+    case STACK_MINSS:
     {
         if(pdbs.size() == 0){
             ui->chkGenerateConsPDB->setChecked(false);
@@ -2287,14 +2355,14 @@ void MainWindow::on_cmdBack_clicked()
         }
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(5);
+        ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
         break;
     }
-    case 7:
+    case STACK_CORRELATION:
     {
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(6);
+        ui->stackedWidget->setCurrentIndex(STACK_MINSS);
         break;
     }
     default:
@@ -2302,7 +2370,7 @@ void MainWindow::on_cmdBack_clicked()
         changeWizardCmds(true);
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(3);
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
         break;
     }
     }
@@ -2316,14 +2384,14 @@ void MainWindow::on_cmdAdvance_clicked()
     int ctIx = ui->stackedWidget->currentIndex();
 
     switch(ctIx){
-    case 0:
+    case STACK_MAIN:
     {
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(1);
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
         break;
     }
-    case 1:
+    case STACK_ALIGNMENT:
     {
         if(ui->listWidget->count() == 0){
             QMessageBox::warning(this,"Warning","You must fetch an alignment before goes on.");
@@ -2332,10 +2400,10 @@ void MainWindow::on_cmdAdvance_clicked()
 
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(2);
+        ui->stackedWidget->setCurrentIndex(STACK_FILTER);
         break;
     }
-    case 2:
+    case STACK_FILTER:
     {
         if(ui->listWidget2->count() < 2){
             QMessageBox::StandardButton reply;
@@ -2350,10 +2418,10 @@ void MainWindow::on_cmdAdvance_clicked()
 
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(3);
+        ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
         break;
     }
-    case 3:
+    case STACK_REFSEQS:
     {
         if(currentAlign->getRefSeqsSize() == 0){
             QMessageBox::StandardButton reply;
@@ -2363,18 +2431,18 @@ void MainWindow::on_cmdAdvance_clicked()
             if (reply == QMessageBox::Yes){
                 ui->cmdBack->setEnabled(true);
                 ui->cmdAdvance->setEnabled(true);
-                ui->stackedWidget->setCurrentIndex(4);
+                ui->stackedWidget->setCurrentIndex(STACK_PDB);
             }
             else
                 return;
         }else{
             ui->cmdBack->setEnabled(true);
             ui->cmdAdvance->setEnabled(true);
-            ui->stackedWidget->setCurrentIndex(4);
+            ui->stackedWidget->setCurrentIndex(STACK_PDB);
         }
         break;
     }
-    case 4:
+    case STACK_PDB:
     {
         if(pdbs.size() == 0){
             QMessageBox::StandardButton reply;
@@ -2386,16 +2454,16 @@ void MainWindow::on_cmdAdvance_clicked()
                 emit ui->chkGenerateConsPDB->clicked(false);
                 ui->cmdBack->setEnabled(true);
                 ui->cmdAdvance->setEnabled(true);
-                ui->stackedWidget->setCurrentIndex(5);
+                ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             }else return;
         }else{
             ui->cmdBack->setEnabled(true);
             ui->cmdAdvance->setEnabled(true);
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
         }
         break;
     }
-    case 5:
+    case STACK_CONSERVATION:
     {
         if(currentAlign->getConsFreqSize() == 0){
             QMessageBox::StandardButton reply;
@@ -2407,10 +2475,10 @@ void MainWindow::on_cmdAdvance_clicked()
 
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
-        ui->stackedWidget->setCurrentIndex(6);
+        ui->stackedWidget->setCurrentIndex(STACK_MINSS);
         break;
     }
-    case 6:
+    case STACK_MINSS:
     {
         if(currentAlign->getMinssVectorSize() == 0){
             QMessageBox::StandardButton reply;
@@ -2425,7 +2493,7 @@ void MainWindow::on_cmdAdvance_clicked()
             emit ui->chkRemoveContactResidues->clicked(false);
         }
 
-        ui->stackedWidget->setCurrentIndex(7);
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         ui->cmdAdvance->setEnabled(false);
         ui->cmdBack->setEnabled(true);
         break;
@@ -2435,7 +2503,7 @@ void MainWindow::on_cmdAdvance_clicked()
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
         changeWizardCmds(true);
-        ui->stackedWidget->setCurrentIndex(4);
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
     }
     }
 }
@@ -2998,7 +3066,7 @@ void MainWindow::on_cmdCorrelation_clicked()
 
 void MainWindow::updateResultsViews(){
     switch(ui->stackedWidget2->currentIndex()){
-    case 1:
+    case STACK_RESULT_SEQLIST:
     {
         //Resetar campos de resultado
         ui->lstProteinsFiltered->clear();
@@ -3008,11 +3076,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 2:
+    case STACK_RESULT_CONSFREQ:
     {
         if(currentAlign->getConsFreqSize() == 0){
             QMessageBox::warning(this,"Warning","You must run conservation method.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             return;
         }
 
@@ -3023,11 +3091,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 3:
+    case STACK_RESULT_FREQPERC:
     {
         if(currentAlign->getConsFreqPercSize() == 0){
             QMessageBox::warning(this,"Warning","You must run conservation method.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             return;
         }
 
@@ -3038,11 +3106,17 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 4:
+    case STACK_RESULT_CONSRES:
     {
         if(currentAlign->getRefSeqsSize() == 0){
             QMessageBox::warning(this,"Warning","You must select some reference sequences.");
-            ui->stackedWidget->setCurrentIndex(3);
+            ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
+            return;
+        }
+
+        if(currentAlign->getConsFreqPercSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run conservation method.");
+            ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             return;
         }
 
@@ -3053,11 +3127,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 5:
+    case STACK_RESULT_CORRLIST:
     {
         if(currentAlign->getCorrGraphSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
 
@@ -3068,11 +3142,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 6:
+    case STACK_RESULT_COMMLIST:
     {
         if(currentAlign->getCommListSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
 
@@ -3083,11 +3157,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 7:
+    case STACK_RESULT_CORRPERC:
     {
         if(currentAlign->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
 
@@ -3098,11 +3172,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 8:
+    case STACK_RESULT_CORRLOG:
     {
         if(currentAlign->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
 
@@ -3113,11 +3187,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 9:
+    case STACK_RESULT_ADHERENCE:
     {
         if(currentAlign->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
 
@@ -3128,11 +3202,17 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 10:
+    case STACK_RESULT_RESCOMM:
     {
-        if(currentAlign->getRefSeqsSize() == 0 || currentAlign->getNumOfUtilComms() == 0){
+        if(currentAlign->getRefSeqsSize() == 0){
             QMessageBox::warning(this,"Warning","You must have some reference sequences selected.");
-            ui->stackedWidget->setCurrentIndex(5);
+            ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
+            return;
+        }
+
+        if(currentAlign->getNumOfUtilComms() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
 
@@ -3143,11 +3223,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 11:
+    case STACK_RESULT_UNIPROT_PROTEINS:
     {
         if(currentAlign->getUniprotMinedSize() == 0){
             QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
-            ui->stackedWidget->setCurrentIndex(7);
+            ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
         }
 
@@ -3159,11 +3239,11 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case 12:
+    case STACK_RESULT_UNIPROT_COMMS:
     {
         if(currentAlign->getUniprotMinedSize() == 0){
             QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
-            ui->stackedWidget->setCurrentIndex(7);
+            ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
         }
 
@@ -3172,6 +3252,66 @@ void MainWindow::updateResultsViews(){
         ui->tableProteinsMined2->clearContents();
 
         this->showUniprotGroupByComms();
+
+        break;
+    }
+    case STACK_RESULT_CONSPDB:
+    {
+        if(currentAlign->getConsPDBPath() == ""){
+            QMessageBox::warning(this,"Warning","You must run conservation with a PDB for this alignment.");
+            ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
+            return;
+        }
+
+        this->consVisualization();
+
+        break;
+    }
+    case STACK_RESULT_COMMPDB:
+    {
+        if(currentAlign->getCommPDBPath() == ""){
+            QMessageBox::warning(this,"Warning","You must run correlation with a PDB for this alignment.");
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+            return;
+        }
+
+        this->commVisualization();
+
+        break;
+    }
+    case STACK_RESULT_CORRGRAPH:
+    {
+        if(currentAlign->getCorrGraphSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+            return;
+        }
+
+        this->createCorrelationJSON();
+
+        break;
+    }
+    case STACK_RESULT_COMMGRAPH:
+    {
+        if(currentAlign->getCorrGraphSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+            return;
+        }
+
+        this->communitiesGraphs();
+
+        break;
+    }
+    case STACK_RESULT_DELTAGRAPH:
+    {
+        if(currentAlign->getDeltasSize() == 0){
+            QMessageBox::warning(this,"Warning","You must run correlation method.");
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+            return;
+        }
+
+        this->corrBetweenComms();
 
         break;
     }
@@ -3212,6 +3352,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->lstLookingRefs->clear();
     ui->cmbComm->clear();
     ui->lstManageComms->clear();
+    ui->graficMinss->setVisible(false);
 
     //printf("SIZE: %d",sequences.size());
     vector<string> fullAlign = currentAlign->getFullAlignment();
@@ -3240,12 +3381,13 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
         }
     }
 
-    if(ui->stackedWidget->currentIndex() == 8){
+    if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
+        ui->cmbComm->clear();
         unsigned int nOfComms = currentAlign->getCommListSize();
 
         for(unsigned int j = 1; j <= nOfComms; j++)
             ui->cmbComm->addItem(QString::number(j));
-    }else if(ui->stackedWidget->currentIndex() == 6){
+    }else if(ui->stackedWidget->currentIndex() == STACK_RESULTS){
         this->updateResultsViews();
     }
 
@@ -3332,12 +3474,13 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
     }
 
-    if(ui->stackedWidget->currentIndex() == 9){
+    if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
         unsigned int nOfComms = currentAlign->getCommListSize();
+        ui->cmbComm->clear();
 
         for(unsigned int j = 1; j <= nOfComms; j++)
             ui->cmbComm->addItem(QString::number(j));
-    }else if(ui->stackedWidget->currentIndex() == 7){
+    }else if(ui->stackedWidget->currentIndex() == STACK_RESULTS){
         this->updateResultsViews();
     }
 
@@ -4458,7 +4601,7 @@ void MainWindow::Open_XML_triggered(){
     ui->listWidget->addItem(fileName);
     alinhamentos.push_back(align);
 
-    if(ui->stackedWidget->currentIndex() == 0){
+    if(ui->stackedWidget->currentIndex() == STACK_MAIN){
         //Desativa botões do Wizard
         changeWizardCmds(false);
         wizard = false;
@@ -4466,7 +4609,7 @@ void MainWindow::Open_XML_triggered(){
         //Desativa botao voltar
         ui->cmdBack->setEnabled(false);
 
-        ui->stackedWidget->setCurrentIndex(1);
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
     }
 
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -5127,7 +5270,7 @@ void MainWindow::startWizard(){
     ui->cmdBack->setEnabled(false);
 
     //Muda para tela 1
-    ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
 }
 
 void MainWindow::inputAlignment_triggered(){
@@ -5138,7 +5281,7 @@ void MainWindow::inputAlignment_triggered(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
 }
 
 void MainWindow::changetoFilterStack(){
@@ -5149,7 +5292,7 @@ void MainWindow::changetoFilterStack(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(2);
+    ui->stackedWidget->setCurrentIndex(STACK_FILTER);
 }
 
 void MainWindow::changeToRefSeqs(){
@@ -5160,7 +5303,7 @@ void MainWindow::changeToRefSeqs(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(3);
+    ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
 }
 
 void MainWindow::changeToLoadPDBs(){
@@ -5171,7 +5314,7 @@ void MainWindow::changeToLoadPDBs(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(4);
+    ui->stackedWidget->setCurrentIndex(STACK_PDB);
 }
 
 void MainWindow::changeToConservationStack(){
@@ -5187,7 +5330,7 @@ void MainWindow::changeToConservationStack(){
         emit ui->chkGenerateConsPDB->clicked(false);
     }
 
-    ui->stackedWidget->setCurrentIndex(5);
+    ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
 }
 
 void MainWindow::changetoMinssStack(){
@@ -5198,7 +5341,7 @@ void MainWindow::changetoMinssStack(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(STACK_MINSS);
 }
 
 void MainWindow::changetoCorrelationStack(){
@@ -5214,7 +5357,7 @@ void MainWindow::changetoCorrelationStack(){
         emit ui->chkRemoveContactResidues->clicked(false);
     }
 
-    ui->stackedWidget->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
 }
 
 void MainWindow::changetoShowResultsStack(){
@@ -5231,8 +5374,8 @@ void MainWindow::changetoShowResultsStack(){
 
     stackBeforeShowResults = ui->stackedWidget->currentIndex();
 
-    ui->stackedWidget2->setCurrentIndex(0);
-    ui->stackedWidget->setCurrentIndex(8);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_SEQLIST);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
 
     ui->listWidget->setEnabled(false);
     ui->listWidget2->setEnabled(false);
@@ -5325,7 +5468,7 @@ void MainWindow::changeToUniprotLookingTool(){
 
     this->changeWizardCmds(false);
 
-    ui->stackedWidget->setCurrentIndex(9);
+    ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
 }
 
 void MainWindow::graphClicked(QCPAbstractPlottable *plot, QMouseEvent *mouse){
@@ -5396,7 +5539,7 @@ void MainWindow::closeAlignment(){
     alinhamentos.erase(alinhamentos.begin() + i);
     delete ui->listWidget->item(i);
     ui->listWidget2->clear();
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(STACK_MAIN);
 }
 
 void MainWindow::showAbout(){
@@ -5755,7 +5898,7 @@ void MainWindow::changeToCreateCommunity(){
     for(unsigned int j = 1; j <= nOfComms; j++)
         ui->cmbComm->addItem(QString::number(j));
 
-    ui->stackedWidget->setCurrentIndex(10);
+    ui->stackedWidget->setCurrentIndex(STACK_MANAGE_COMMS);
 }
 
 
@@ -5874,8 +6017,8 @@ void MainWindow::changeToListOfSequences(){
 
     this->listSequences();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(1);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_SEQLIST);
 }
 
 void MainWindow::changeToConservationFrequence(){
@@ -5898,8 +6041,8 @@ void MainWindow::changeToConservationFrequence(){
 
     this->tableFreq();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(2);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_CONSFREQ);
 }
 
 void MainWindow::changeToConservationPercentage(){
@@ -5922,8 +6065,8 @@ void MainWindow::changeToConservationPercentage(){
 
     this->tableFreqPerc();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(3);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_FREQPERC);
 }
 
 void MainWindow::changeToConservedResidues(){
@@ -5946,8 +6089,8 @@ void MainWindow::changeToConservedResidues(){
 
     this->showConservedResidues();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(4);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_CONSRES);
 }
 
 void MainWindow::changetoCorrelationList(){
@@ -5970,8 +6113,8 @@ void MainWindow::changetoCorrelationList(){
 
     this->correlationList();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(5);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_CORRLIST);
 }
 
 void MainWindow::changeToCorrelationGraph(){
@@ -5991,8 +6134,8 @@ void MainWindow::changeToCorrelationGraph(){
 
     createCorrelationJSON();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(13);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_CORRGRAPH);
 }
 
 void MainWindow::changeToCommunitiesGraphs(){
@@ -6009,8 +6152,8 @@ void MainWindow::changeToCommunitiesGraphs(){
 
     this->communitiesGraphs();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(14);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_COMMGRAPH);
 }
 
 void MainWindow::changeToCorrelationBetweenComms(){
@@ -6027,8 +6170,8 @@ void MainWindow::changeToCorrelationBetweenComms(){
 
     this->corrBetweenComms();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(15);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_DELTAGRAPH);
 
 }
 
@@ -6046,8 +6189,8 @@ void MainWindow::changeToPDBVisualization(){
 
     this->consVisualization();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(16);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_CONSPDB);
 }
 
 void MainWindow::changeToPDBVisualization2(){
@@ -6064,8 +6207,8 @@ void MainWindow::changeToPDBVisualization2(){
 
     this->commVisualization();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(17);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_COMMPDB);
 }
 
 void MainWindow::changeToAlphabetReduction(){
@@ -6076,7 +6219,7 @@ void MainWindow::changeToAlphabetReduction(){
     }
 
     emit ui->cmbAlphabetList->currentIndexChanged(0);
-    ui->stackedWidget->setCurrentIndex(11);
+    ui->stackedWidget->setCurrentIndex(STACK_ALPHABET);
 }
 
 void MainWindow::changeToCommunitiesList(){
@@ -6099,8 +6242,8 @@ void MainWindow::changeToCommunitiesList(){
 
     this->communitiesList();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(6);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_COMMLIST);
 }
 
 void MainWindow::changeToCorrelationInPerc(){
@@ -6123,8 +6266,8 @@ void MainWindow::changeToCorrelationInPerc(){
 
     this->corrTable1();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(7);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_CORRPERC);
 }
 
 void MainWindow::changeToCorrelationInLogP(){
@@ -6147,8 +6290,8 @@ void MainWindow::changeToCorrelationInLogP(){
 
     this->corrTable2();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(8);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_CORRLOG);
 }
 
 void MainWindow::changeToAdherenceMatrix(){
@@ -6171,8 +6314,8 @@ void MainWindow::changeToAdherenceMatrix(){
 
     this->adh();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(9);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_ADHERENCE);
 }
 
 void MainWindow::changeToResiduesOfCommunities(){
@@ -6195,8 +6338,8 @@ void MainWindow::changeToResiduesOfCommunities(){
 
     this->showResiduesComm();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(10);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_RESCOMM);
 }
 
 void MainWindow::changeToULGroupedByProteins(){
@@ -6220,8 +6363,8 @@ void MainWindow::changeToULGroupedByProteins(){
 
     this->showUniprotGroupByProteins();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(11);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_UNIPROT_PROTEINS);
 }
 
 void MainWindow::changeToULGroupedByComms(){
@@ -6245,8 +6388,8 @@ void MainWindow::changeToULGroupedByComms(){
 
     this->showUniprotGroupByComms();
 
-    ui->stackedWidget->setCurrentIndex(8);
-    ui->stackedWidget2->setCurrentIndex(12);
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_UNIPROT_COMMS);
 }
 
 void MainWindow::on_cmdAddFileRefSeq_clicked()
@@ -7062,7 +7205,7 @@ void MainWindow::on_cmbRefSeq_3_activated(const QString &arg1)
     //Atualizar Recommended PDBS
     ui->lstPDBsLoaded_2->clear();
 
-    for(int i = 0; i < pdbs.size(); i++){
+    for(unsigned int i = 0; i < pdbs.size(); i++){
         Pdb* pdb = pdbs[i];
 
         if(pdb->getRefseq() == arg1.toStdString())
@@ -7416,7 +7559,7 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     }
     }
 
-    for(unsigned int i = 0; i < ui->lstRefSeqs->count(); i++){
+    for(int i = 0; i < ui->lstRefSeqs->count(); i++){
         string seqname = ui->lstRefSeqs->item(i)->text().toStdString();
         post_content += seqname + "\n";
     }
@@ -7441,7 +7584,7 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
         for(unsigned int i = 0; i < filtered.size(); i++){
             string protname = this->split(filtered[i],'\t')[0];
             printf("%s\n",protname.c_str());
-            for(unsigned int j = 0; j < ui->lstRefSeqs->count(); j++){
+            for(int j = 0; j < ui->lstRefSeqs->count(); j++){
                 if(protname == ui->lstRefSeqs->item(j)->text().toStdString()){
                     ui->lstRefSeqSelected->addItem(protname.c_str());
                     delete ui->lstRefSeqs->item(j);
@@ -7453,7 +7596,7 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
         }
     }else{
         for(unsigned int i = 0; i < filtered.size(); i++){
-            for(unsigned int j = 0; j < ui->lstRefSeqs->count(); j++){
+            for(int j = 0; j < ui->lstRefSeqs->count(); j++){
                 if(filtered[i] == ui->lstRefSeqs->item(j)->text().toStdString()){
                     ui->lstRefSeqSelected->addItem(filtered[i].c_str());
                     delete ui->lstRefSeqs->item(j);
@@ -7469,4 +7612,140 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     QMessageBox::information(this,"Sequences selected",msg.c_str());
 
     ui->cmdFilterRefSeqs->setEnabled(true);
+}
+
+void MainWindow::on_cmbLookingFilter_activated(int index)
+{
+    switch(index){
+    case 0:
+    {
+        ui->txtLookingFilter->setEnabled(false);
+        break;
+    }
+    case 1:
+    {
+        ui->txtLookingFilter->setEnabled(true);
+        QStringList strCompleter;
+        strCompleter.append("1");
+        strCompleter.append("2");
+        strCompleter.append("3");
+        strCompleter.append("4");
+        strCompleter.append("5");
+        QCompleter* completer = new QCompleter(strCompleter);
+        completer->setCaseSensitivity(Qt::CaseInsensitive);
+        ui->txtLookingFilter->setCompleter(completer);
+        break;
+    }
+    case 2:
+    {
+        ui->txtFilterRefSeq->setEnabled(true);
+        ui->txtFilterRefSeq->setCompleter(taxonsCompleter);
+        break;
+    }
+    }
+}
+
+
+void MainWindow::on_cmdLookingFilter_clicked()
+{
+    ui->cmdLookingFilter->setEnabled(false);
+
+    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/";
+    string post_content = "";
+
+    switch(ui->cmbLookingFilter->currentIndex()){
+    case 0:
+    {
+        url += "haspdb";
+
+        break;
+    }
+    case 1:
+    {
+        QString strScore = ui->txtLookingFilter->text();
+        bool ok;
+        int score = strScore.toInt(&ok);
+
+        //Validação
+        if(!ok){
+            QMessageBox::warning(this,"Error","The annotation score value must be numeric");
+            ui->cmdLookingFilter->setEnabled(true);
+            return;
+        }else{
+            if(score < 1 || score > 5){
+                QMessageBox::warning(this,"Error","The annotation score must be a value between 1 and 5");
+                ui->cmdLookingFilter->setEnabled(true);
+                return;
+            }
+        }
+
+        url += "annotation-filter/" + strScore.toStdString();
+
+        break;
+    }
+    case 2:
+    {
+        //Validação
+        if(ui->txtLookingFilter->text() == ""){
+            QMessageBox::warning(this,"Error","You must inform what taxon to filter.");
+            ui->cmdLookingFilter->setEnabled(true);
+            return;
+        }
+
+        url += "taxon-filter/" + ui->txtLookingFilter->text().toStdString();
+
+        break;
+    }
+    }
+
+    for(int i = 0; i < ui->lstLookingRefs->count(); i++){
+        string seqname = ui->lstLookingRefs->item(i)->text().toStdString();
+        post_content += seqname + "\n";
+    }
+
+    QByteArray const data = QString::fromStdString(post_content).toUtf8();
+    QNetworkRequest request(QUrl(QString::fromStdString(url)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      QStringLiteral("text/plain; charset=utf-8"));
+    QNetworkAccessManager manager;
+    QNetworkReply *response(manager.post(request,data));
+    //QNetworkReply* response(manager.get(request));
+    QEventLoop event;
+    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
+    event.exec();
+    QString result = response->readAll();
+
+    vector<string> filtered = this->split(result.toStdString(),'\n');
+
+    int count = 0;
+    if(ui->cmbLookingFilter->currentIndex() == 0){
+        for(unsigned int i = 0; i < filtered.size(); i++){
+            string protname = this->split(filtered[i],'\t')[0];
+            //printf("%s\n",protname.c_str());
+            for(int j = 0; j < ui->lstLookingRefs->count(); j++){
+                if(protname == ui->lstLookingRefs->item(j)->text().toStdString()){
+                    //ui->lstRefSeqSelected->addItem(protname.c_str());
+                    ui->lstLookingRefs->item(j)->setSelected(true);
+                    count ++;
+                    break;
+                }
+            }
+        }
+    }else{
+        for(unsigned int i = 0; i < filtered.size(); i++){
+            for(int j = 0; j < ui->lstLookingRefs->count(); j++){
+                if(filtered[i] == ui->lstLookingRefs->item(j)->text().toStdString()){
+                    //ui->lstRefSeqSelected->addItem(filtered[i].c_str());
+                    ui->lstLookingRefs->item(j)->setSelected(true);
+                    count ++;
+                    break;
+                }
+            }
+        }
+    }
+
+    string msg = std::to_string(count) + " sequences were selected.";
+    QMessageBox::information(this,"Sequences selected",msg.c_str());
+
+    ui->cmdLookingFilter->setEnabled(true);
 }

@@ -185,7 +185,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>8</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -2597,7 +2597,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>0</number>
+             <number>18</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -4416,6 +4416,207 @@
               </item>
              </layout>
             </widget>
+            <widget class="QWidget" name="page_31">
+             <layout class="QGridLayout" name="gridLayout_3">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;View Alignment&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_72">
+                <item>
+                 <widget class="QLabel" name="label_80">
+                  <property name="text">
+                   <string>Color by alphabet:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="cmbAlphabetColor">
+                  <item>
+                   <property name="text">
+                    <string>T20</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>T2</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>T5</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>T6</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>3IMG</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>5IMG</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>11IMG</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Murphy15</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Murphy10</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Murphy8</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Murphy4</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Murphy2</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Wang5</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Wang5v</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Wang3</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Wang2</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Li10</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Li5</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Li4</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Li3</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_81">
+                  <property name="text">
+                   <string>Show columns: </string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="cmbViewColumns">
+                  <property name="minimumSize">
+                   <size>
+                    <width>150</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>All Columns</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Only Perfect Conservation</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Strong Conservation</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Hide Weak Conservation</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="cmdApplyViewAlignment">
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_48">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="2" column="0">
+               <widget class="QTableWidget" name="tableFullAlignment">
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                 </font>
+                </property>
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <attribute name="horizontalHeaderMinimumSectionSize">
+                 <number>20</number>
+                </attribute>
+                <attribute name="verticalHeaderMinimumSectionSize">
+                 <number>18</number>
+                </attribute>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -5155,6 +5356,8 @@
      <addaction name="actionGrouped_By_Proteins"/>
      <addaction name="actionGrouped_By_Communities"/>
     </widget>
+    <addaction name="actionFull_Alignment"/>
+    <addaction name="separator"/>
     <addaction name="actionList_Of_Sequences"/>
     <addaction name="separator"/>
     <addaction name="menuConservation_Table"/>
@@ -5784,6 +5987,11 @@
   <action name="actionStructure_Communities_Visualization">
    <property name="text">
     <string>Structure Communities Visualization</string>
+   </property>
+  </action>
+  <action name="actionFull_Alignment">
+   <property name="text">
+    <string>View Alignment</string>
    </property>
   </action>
  </widget>

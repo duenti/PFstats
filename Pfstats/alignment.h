@@ -17,6 +17,7 @@ class Alignment
 
 private:
     string BIOCOMP_ADRESS = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/";
+    string currentAlphabet = "T20";
     string filepath;
     string refSeqName;
     string conservedPDBpath;
@@ -86,6 +87,8 @@ public:
     Alignment();
     Alignment(string path);
     ~Alignment();
+    void setCurrentAlphabet(string alphabet);
+    string getCurrentAlphabet();
     void setConsPDBPath(string path);
     string getConsPDBPath();
     void setCommPDBPath(string path);

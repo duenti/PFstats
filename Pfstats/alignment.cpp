@@ -37,6 +37,14 @@ Alignment::~Alignment()
     this->clear();
 }
 
+void Alignment::setCurrentAlphabet(string alphabet){
+    this->currentAlphabet = alphabet;
+}
+
+string Alignment::getCurrentAlphabet(){
+    return this->currentAlphabet;
+}
+
 void Alignment::setConsPDBPath(string path){
     this->conservedPDBpath = path;
 }
@@ -6230,13 +6238,16 @@ void Alignment::applyAlphabetReduction(string name, vector<string> oldChars, vec
             for(unsigned int j = 0; j < sequences[i].size(); j++){
                 char c = toupper(sequences[i][j]);
                 for(unsigned int k = 0; k < oldChars.size(); k++){
-                    if(c == '-') newSeq += '-';
-                    else if(oldChars[k].find(c) != std::string::npos){
+                    if(c == '-'){
+                        newSeq += '-';
+                        break;
+                    }else if(oldChars[k].find(c) != std::string::npos){
                         newSeq += newChars[k];
                         break;
                     }
                 }
             }
+            printf("%d\n",newSeq.size());
             sequences[i] = newSeq;
             newFilterSeq.push_back(newSeq);
             newFilterList.push_back(filtersList[filterIndex][i+1]);

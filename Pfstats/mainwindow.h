@@ -102,6 +102,7 @@ private slots:
     void changeToCorrelationBetweenComms();
     void changeToPDBVisualization();
     void changeToPDBVisualization2();
+    void changeToFullAlignment();
     void setLibPath();
     void changeToAlphabetReduction();
     void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
@@ -252,6 +253,8 @@ private slots:
 
     void on_cmdLookingFilter_clicked();
 
+    void on_cmdApplyViewAlignment_clicked();
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -282,7 +285,8 @@ private:
         STACK_RESULT_COMMGRAPH = 14,
         STACK_RESULT_DELTAGRAPH = 15,
         STACK_RESULT_CONSPDB = 16,
-        STACK_RESULT_COMMPDB = 17
+        STACK_RESULT_COMMPDB = 17,
+        STACK_RESULT_FULLALIGN = 18
     };
 
     Ui::MainWindow *ui;
@@ -336,12 +340,15 @@ private:
     void showResiduesComm();
     void showUniprotGroupByProteins();
     void showUniprotGroupByComms();
+    void showFullAlignment(int colorIndex, int columnsIndex);
     bool isaa(char c);
     bool isInt(string v);
     void updateResultsViews();
     bool isFloat(string myString);
     string makeVisPDBHTML(string PDB);
     void loadConfigurationFile();
+    vector<float> generateAMCL(int alfabetIndex);//Alfabetical Conservative Maximum List
+    string findCurrentAlphabet();
 };
 
 #endif // MAINWINDOW_H

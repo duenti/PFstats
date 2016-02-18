@@ -122,6 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCorrelationBetweenCommunities,SIGNAL(triggered()),this,SLOT(changeToCorrelationBetweenComms()));
     connect(ui->actionStrutucture_Conserved_Residues_Visualization,SIGNAL(triggered()),SLOT(changeToPDBVisualization()));
     connect(ui->actionStructure_Communities_Visualization,SIGNAL(triggered()),SLOT(changeToPDBVisualization2()));
+    connect(ui->actionFull_Alignment,SIGNAL(triggered()),this,SLOT(changeToFullAlignment()));
     connect(ui->actionSet_Libraries_Path,SIGNAL(triggered()),this,SLOT(setLibPath()));
     connect(ui->actionAlphabet_Reduction,SIGNAL(triggered()),this,SLOT(changeToAlphabetReduction()));
     connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
@@ -2231,6 +2232,977 @@ void MainWindow::showUniprotGroupByComms(){
     }
 }
 
+vector<float> MainWindow::generateAMCL(int alfabetIndex){
+    /*switch(alfabetIndex){
+    case 0:
+    {
+
+        break;
+    }
+    }*/
+    int alignCoulumnsSize = currentAlign->sequences[0].size();
+    int countMatrix[alignCoulumnsSize][21] = {0};//21 is the total size without gaps
+    vector<float> maxValues;
+
+    switch(alfabetIndex){
+    case 0:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'A') countMatrix[j][0] ++;
+                else if(c == 'C') countMatrix[j][1] ++;
+                else if(c == 'D') countMatrix[j][2] ++;
+                else if(c == 'E') countMatrix[j][3] ++;
+                else if(c == 'F') countMatrix[j][4] ++;
+                else if(c == 'G') countMatrix[j][5] ++;
+                else if(c == 'H') countMatrix[j][6] ++;
+                else if(c == 'I') countMatrix[j][7] ++;
+                else if(c == 'K') countMatrix[j][8] ++;
+                else if(c == 'L') countMatrix[j][9] ++;
+                else if(c == 'M') countMatrix[j][10] ++;
+                else if(c == 'N') countMatrix[j][11] ++;
+                else if(c == 'P') countMatrix[j][12] ++;
+                else if(c == 'Q') countMatrix[j][13] ++;
+                else if(c == 'R') countMatrix[j][14] ++;
+                else if(c == 'S') countMatrix[j][15] ++;
+                else if(c == 'T') countMatrix[j][16] ++;
+                else if(c == 'V') countMatrix[j][17] ++;
+                else if(c == 'W') countMatrix[j][18] ++;
+                else if(c == 'Y') countMatrix[j][19] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 1:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'A' || c == 'G' || c == 'T' || c == 'S' || c == 'N' || c == 'Q' || c == 'D' || c == 'E' || c == 'H' || c == 'R' || c == 'K' || c == 'P')
+                    countMatrix[j][0] ++;
+                else if(c == 'C' || c == 'M' || c == 'F' || c == 'I' || c == 'L' || c == 'V' || c == 'W' || c == 'Y')
+                    countMatrix[j][1] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 2:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'I' || c == 'V' || c == 'L')
+                    countMatrix[j][0] ++;
+                else if(c == 'F' || c == 'Y' || c == 'W' || c == 'H')
+                    countMatrix[j][1] ++;
+                else if(c == 'K' || c == 'R' || c == 'D' || c == 'E')
+                    countMatrix[j][2] ++;
+                else if(c == 'G' || c == 'A' || c == 'C' || c == 'S')
+                    countMatrix[j][3] ++;
+                else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
+                    countMatrix[j][4] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 3:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'I' || c == 'V' || c == 'L')
+                    countMatrix[j][0] ++;
+                else if(c == 'F' || c == 'Y' || c == 'W' || c == 'H')
+                    countMatrix[j][1] ++;
+                else if(c == 'K' || c == 'R')
+                    countMatrix[j][2] ++;
+                else if(c == 'D' || c == 'E')
+                    countMatrix[j][3] ++;
+                else if(c == 'G' || c == 'A' || c == 'C' || c == 'S')
+                    countMatrix[j][4] ++;
+                else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
+                    countMatrix[j][5] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 4:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'I' || c == 'V' || c == 'L' || c == 'F' || c == 'C' || c == 'M' || c == 'A' || c == 'W')
+                    countMatrix[j][0] ++;
+                else if(c == 'G' || c == 'T' || c == 'S' || c == 'Y' || c == 'P' || c == 'M')
+                    countMatrix[j][1] ++;
+                else if(c == 'D' || c == 'N' || c == 'E' || c == 'Q' || c == 'K' || c == 'R')
+                    countMatrix[j][2] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 5:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'G' || c == 'A' || c == 'S')
+                    countMatrix[j][0] ++;
+                else if(c == 'C' || c == 'D' || c == 'P' || c == 'N' || c == 'T')
+                    countMatrix[j][1] ++;
+                else if(c == 'E' || c == 'V' || c == 'Q' || c == 'H')
+                    countMatrix[j][2] ++;
+                else if(c == 'M' || c == 'I' || c == 'L' || c == 'K' || c == 'R')
+                    countMatrix[j][3] ++;
+                else if(c == 'F' || c == 'Y' || c == 'W')
+                    countMatrix[j][4] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 6:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'A' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
+                else if(c == 'G') countMatrix[j][1] ++;
+                else if(c == 'P') countMatrix[j][2] ++;
+                else if(c == 'F') countMatrix[j][3] ++;
+                else if(c == 'W') countMatrix[j][4] ++;
+                else if(c == 'Y') countMatrix[j][5] ++;
+                else if(c == 'D' || c == 'E') countMatrix[j][6] ++;
+                else if(c == 'H' || c == 'K' || c == 'R') countMatrix[j][7] ++;
+                else if(c == 'T' || c == 'S') countMatrix[j][8] ++;
+                else if(c == 'C' || c == 'M') countMatrix[j][9] ++;
+                else if(c == 'Q' || c == 'N') countMatrix[j][10] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 7:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
+                else if(c == 'A') countMatrix[j][1] ++;
+                else if(c == 'G') countMatrix[j][2] ++;
+                else if(c == 'P') countMatrix[j][3] ++;
+                else if(c == 'F' || c == 'Y') countMatrix[j][4] ++;
+                else if(c == 'W') countMatrix[j][5] ++;
+                else if(c == 'E') countMatrix[j][6] ++;
+                else if(c == 'D') countMatrix[j][7] ++;
+                else if(c == 'K' || c == 'R') countMatrix[j][8] ++;
+                else if(c == 'T') countMatrix[j][9] ++;
+                else if(c == 'S') countMatrix[j][10] ++;
+                else if(c == 'C') countMatrix[j][11] ++;
+                else if(c == 'Q') countMatrix[j][12] ++;
+                else if(c == 'N') countMatrix[j][13] ++;
+                else if(c == 'H') countMatrix[j][14] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 8:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
+                else if(c == 'A') countMatrix[j][1] ++;
+                else if(c == 'G') countMatrix[j][2] ++;
+                else if(c == 'P') countMatrix[j][3] ++;
+                else if(c == 'F' || c == 'Y' || c == 'W') countMatrix[j][4] ++;
+                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q') countMatrix[j][5] ++;
+                else if(c == 'K' || c == 'R') countMatrix[j][6] ++;
+                else if(c == 'T' || c == 'S') countMatrix[j][7] ++;
+                else if(c == 'C') countMatrix[j][8] ++;
+                else if(c == 'H') countMatrix[j][9] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 9:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
+                else if(c == 'A' || c == 'G') countMatrix[j][1] ++;
+                else if(c == 'P') countMatrix[j][2] ++;
+                else if(c == 'F' || c == 'Y' || c == 'W') countMatrix[j][3] ++;
+                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q') countMatrix[j][4] ++;
+                else if(c == 'K' || c == 'R') countMatrix[j][5] ++;
+                else if(c == 'T' || c == 'S') countMatrix[j][6] ++;
+                else if(c == 'H') countMatrix[j][7] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 10:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
+                else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') countMatrix[j][1] ++;
+                else if(c == 'F' || c == 'Y' || c == 'W') countMatrix[j][2] ++;
+                else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') countMatrix[j][3] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 11:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'W' || c == 'Y' || c == 'F' || c == 'P' || c == 'T' || c == 'S' || c == 'G' || c == 'A' || c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
+                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q' || c == 'K' || c == 'R' || c == 'H') countMatrix[j][1] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 12:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    countMatrix[j][0] ++;
+                else if(c == 'A' || c == 'T' || c == 'H')
+                    countMatrix[j][1] ++;
+                else if(c == 'G' || c == 'P')
+                    countMatrix[j][2] ++;
+                else if(c == 'D' || c == 'E')
+                    countMatrix[j][3] ++;
+                else if(c == 'S' || c == 'N' || c == 'Q' || c == 'R' || c == 'K')
+                    countMatrix[j][4] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 13:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    countMatrix[j][0] ++;
+                else if(c == 'L' || c == 'V' || c == 'W' || c == 'Y')
+                    countMatrix[j][1] ++;
+                else if(c == 'A' || c == 'T' || c == 'G' || c == 'S')
+                    countMatrix[j][2] ++;
+                else if(c == 'N' || c == 'Q' || c == 'D' || c == 'E')
+                    countMatrix[j][3] ++;
+                else if(c == 'H' || c == 'P' || c == 'R' || c == 'K')
+                    countMatrix[j][4] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 14:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    countMatrix[j][0] ++;
+                else if(c == 'G' || c == 'P' || c == 'R' || c == 'A' || c == 'T' || c == 'H')
+                    countMatrix[j][1] ++;
+                else if(c == 'K' || c == 'Q' || c == 'N' || c == 'S' || c == 'D' || c == 'E')
+                    countMatrix[j][2] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 15:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    countMatrix[j][0] ++;
+                else if(c == 'A' || c == 'T' || c == 'H' || c == 'G' || c == 'P' || c == 'R' || c == 'D' || c == 'E' || c == 'N' || c == 'S' || c == 'Q' || c == 'K')
+                    countMatrix[j][1] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 16:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'M' || c == 'L') countMatrix[j][0] ++;
+                else if(c == 'C') countMatrix[j][1] ++;
+                else if(c == 'I' || c == 'V') countMatrix[j][2] ++;
+                else if(c == 'P') countMatrix[j][3] ++;
+                else if(c == 'F' || c == 'Y' || c == 'W') countMatrix[j][4] ++;
+                else if(c == 'E' || c == 'D' || c == 'Q') countMatrix[j][5] ++;
+                else if(c == 'K' || c == 'R') countMatrix[j][6] ++;
+                else if(c == 'A' || c == 'T' || c == 'S') countMatrix[j][7] ++;
+                else if(c == 'G') countMatrix[j][8] ++;
+                else if(c == 'N' || c == 'H') countMatrix[j][9] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 17:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'Y' || c == 'C' || c == 'W' || c == 'F')
+                    countMatrix[j][0] ++;
+                else if(c == 'L' || c == 'V' || c == 'M' || c == 'I')
+                    countMatrix[j][1] ++;
+                else if(c == 'G')
+                    countMatrix[j][2] ++;
+                else if(c == 'P' || c == 'A' || c == 'T' || c == 'S')
+                    countMatrix[j][3] ++;
+                else if(c == 'H' || c == 'N' || c == 'Q' || c == 'E' || c == 'D' || c == 'R' || c == 'K')
+                    countMatrix[j][4] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 18:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'C' || c == 'F' || c == 'Y' || c == 'W') countMatrix[j][0] ++;
+                else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') countMatrix[j][1] ++;
+                else if(c == 'M' || c == 'L' || c == 'I' || c == 'V') countMatrix[j][2] ++;
+                else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') countMatrix[j][3] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    case 19:
+    {
+        for(int j = 0; j < alignCoulumnsSize; j++){
+            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+                char c = toupper(currentAlign->sequences[i][j]);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    countMatrix[j][0] ++;
+                else if(c == 'G' || c == 'P' || c == 'S' || c == 'A' || c == 'T')
+                    countMatrix[j][1] ++;
+                else if(c == 'K' || c == 'Q' || c == 'N' || c == 'H' || c == 'D' || c == 'E' || c == 'R')
+                    countMatrix[j][2] ++;
+                if(c != '-') countMatrix[j][20] ++;
+            }
+        }
+        break;
+    }
+    }
+
+    for(int i = 0; i < alignCoulumnsSize; i++){
+        //Desconsiderar sequências com mais de 95% de gap
+        if(countMatrix[i][20] < currentAlign->sequences.size()*0.05) maxValues.push_back(0);
+        else{
+            float maxFreq = (float)*max_element(countMatrix[i],countMatrix[i]+20)/(float)countMatrix[i][20];
+            maxValues.push_back(maxFreq);
+            //printf("%d/%d = %f\n",*max_element(countMatrix[i],countMatrix[i]+20),countMatrix[i][20],maxFreq);
+        }
+    }
+
+    return maxValues;
+}
+
+void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
+    unsigned int nrows = currentAlign->sequences.size();
+
+    if(currentAlign->getCurrentAlphabet() == "T20"){
+        ui->cmbAlphabetColor->setEnabled(true);
+    }else{
+        ui->cmbAlphabetColor->setCurrentText(currentAlign->getCurrentAlphabet().c_str());
+        colorIndex = ui->cmbAlphabetColor->currentIndex();
+        ui->cmbAlphabetColor->setEnabled(false);
+    }
+
+    ui->tableFullAlignment->clear();
+    ui->tableFullAlignment->setColumnCount(currentAlign->sequences[0].size());
+    ui->tableFullAlignment->setRowCount(nrows);
+
+    QProgressDialog progress("Calculating...", "Abort", 0,nrows-1);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    vector<float> colorFreq = this->generateAMCL(colorIndex);
+
+    for(unsigned int i = 0; i < currentAlign->sequences[0].size(); i++){
+        QTableWidgetItem *item = new QTableWidgetItem(QString::number(i+1));
+        item->setTextAlignment(Qt::AlignCenter);
+        QFont font;
+
+        if(colorFreq[i] > 0.98){
+            font.setBold(true);
+
+            ui->tableFullAlignment->showColumn(i);
+
+        }else if(colorFreq[i] > 0.75){
+            font.setUnderline(true);
+
+            if(columnsIndex == 1) ui->tableFullAlignment->hideColumn(i);
+            else ui->tableFullAlignment->showColumn(i);
+
+        }else if(colorFreq[i] < 0.20){
+            font.setItalic(true);
+
+            if(columnsIndex == 0) ui->tableFullAlignment->showColumn(i);
+            else ui->tableFullAlignment->hideColumn(i);
+        }else{
+            if(columnsIndex == 1 || columnsIndex == 2) ui->tableFullAlignment->hideColumn(i);
+            else ui->tableFullAlignment->showColumn(i);
+        }
+
+        item->setFont(font);
+
+        ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
+    }
+
+    /*
+    if(currentAlign->getConsFreqPercSize() > 0){
+        for(unsigned int i = 0; i < currentAlign->sequences[0].size(); i++){
+            vector<float> freqs = currentAlign->getConsFreqPercRow(i);
+            auto bestfreq = std::max_element(freqs.begin(),freqs.end());
+
+            if(*bestfreq >= 99){
+                //*
+                QTableWidgetItem *item = new QTableWidgetItem("*");
+                item->setTextAlignment(Qt::AlignCenter);
+                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
+            }else if(*bestfreq > 80){
+                //:
+                QTableWidgetItem *item = new QTableWidgetItem(":");
+                item->setTextAlignment(Qt::AlignCenter);
+                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
+            }else if(*bestfreq < 20){
+                //.
+                QTableWidgetItem *item = new QTableWidgetItem(".");
+                item->setTextAlignment(Qt::AlignCenter);
+                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
+            }else{
+                //
+                QTableWidgetItem *item = new QTableWidgetItem(" ");
+                item->setTextAlignment(Qt::AlignCenter);
+                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
+            }
+        }
+    }
+    */
+
+    for(unsigned int i = 0; i < nrows; i++){
+        if(progress.wasCanceled()) break;
+        progress.setValue(i);
+
+        QTableWidgetItem *item = new QTableWidgetItem(currentAlign->sequencenames[i].c_str());
+        ui->tableFullAlignment->setVerticalHeaderItem(i,item);
+
+        switch(colorIndex){
+        case 0:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'A') item2->setBackgroundColor(QColor(102,0,0));
+                else if(c == 'G') item2->setBackgroundColor(QColor(153,0,0));
+                else if(c == 'I') item2->setBackgroundColor(QColor(204,0,0));
+                else if(c == 'L') item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'P') item2->setBackgroundColor(QColor(255,102,102));
+                else if(c == 'V') item2->setBackgroundColor(QColor(255,153,153));
+                else if(c == 'F') item2->setBackgroundColor(QColor(51,102,0));
+                else if(c == 'W') item2->setBackgroundColor(QColor(201,204,0));
+                else if(c == 'Y') item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'D') item2->setBackgroundColor(QColor(255,128,0));
+                else if(c == 'E') item2->setBackgroundColor(QColor(255,178,102));
+                else if(c == 'R') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'H') item2->setBackgroundColor(QColor(153,153,255));
+                else if(c == 'K') item2->setBackgroundColor(QColor(51,153,255));
+                else if(c == 'S') item2->setBackgroundColor(QColor(204,0,204));
+                else if(c == 'T') item2->setBackgroundColor(QColor(255,0,255));
+                else if(c == 'C') item2->setBackgroundColor(QColor(204,204,0));
+                else if(c == 'M') item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'N') item2->setBackgroundColor(QColor(51,0,102));
+                else if(c == 'Q') item2->setBackgroundColor(QColor(0,51,102));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 1:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'A' || c == 'G' || c == 'T' || c == 'S' || c == 'N' || c == 'Q' || c == 'D' || c == 'E' || c == 'H' || c == 'R' || c == 'K' || c == 'P')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'C' || c == 'M' || c == 'F' || c == 'I' || c == 'L' || c == 'V' || c == 'W' || c == 'Y')
+                    item2->setBackgroundColor(QColor(0,0,255));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 2:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'I' || c == 'V' || c == 'L')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'F' || c == 'Y' || c == 'W' || c == 'H')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'K' || c == 'R' || c == 'D' || c == 'E')
+                    item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'G' || c == 'A' || c == 'C' || c == 'S')
+                    item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
+                    item2->setBackgroundColor(QColor(128,128,128));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 3:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'I' || c == 'V' || c == 'L')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'F' || c == 'Y' || c == 'W' || c == 'H')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'K' || c == 'R')
+                    item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'D' || c == 'E')
+                    item2->setBackgroundColor(QColor(255,128,0));
+                else if(c == 'G' || c == 'A' || c == 'C' || c == 'S')
+                    item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
+                    item2->setBackgroundColor(QColor(128,128,128));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 4:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'I' || c == 'V' || c == 'L' || c == 'F' || c == 'C' || c == 'M' || c == 'A' || c == 'W')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'G' || c == 'T' || c == 'S' || c == 'Y' || c == 'P' || c == 'M')
+                    item2->setBackgroundColor(QColor(128,128,128));
+                else if(c == 'D' || c == 'N' || c == 'E' || c == 'Q' || c == 'K' || c == 'R')
+                    item2->setBackgroundColor(QColor(0,0,255));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 5:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'G' || c == 'A' || c == 'S')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'C' || c == 'D' || c == 'P' || c == 'N' || c == 'T')
+                    item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'E' || c == 'V' || c == 'Q' || c == 'H')
+                    item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'M' || c == 'I' || c == 'L' || c == 'K' || c == 'R')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'F' || c == 'Y' || c == 'W')
+                    item2->setBackgroundColor(QColor(255,128,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 6:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'A' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'G') item2->setBackgroundColor(QColor(0,255,255));
+                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
+                else if(c == 'F') item2->setBackgroundColor(QColor(255,0,255));
+                else if(c == 'W') item2->setBackgroundColor(QColor(255,0,127));
+                else if(c == 'Y') item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'D' || c == 'E') item2->setBackgroundColor(QColor(255,128,0));
+                else if(c == 'H' || c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'T' || c == 'S') item2->setBackgroundColor(QColor(128,128,128));
+                else if(c == 'C' || c == 'M') item2->setBackgroundColor(QColor(102,51,0));
+                else if(c == 'Q' || c == 'N') item2->setBackgroundColor(QColor(255,255,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 7:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'A') item2->setBackgroundColor(QColor(102,102,0));
+                else if(c == 'G') item2->setBackgroundColor(QColor(255,0,255));
+                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
+                else if(c == 'F' || c == 'Y') item2->setBackgroundColor(QColor(0,255,255));
+                else if(c == 'W') item2->setBackgroundColor(QColor(102,0,51));
+                else if(c == 'E') item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'D') item2->setBackgroundColor(QColor(255,128,0));
+                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'T') item2->setBackgroundColor(QColor(128,128,128));
+                else if(c == 'S') item2->setBackgroundColor(QColor(0,102,0));
+                else if(c == 'C') item2->setBackgroundColor(QColor(102,51,0));
+                else if(c == 'Q') item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'N') item2->setBackgroundColor(QColor(102,0,102));
+                else if(c == 'H') item2->setBackgroundColor(QColor(255,0,127));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 8:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'A') item2->setBackgroundColor(QColor(102,102,0));
+                else if(c == 'G') item2->setBackgroundColor(QColor(255,0,255));
+                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
+                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,255,255));
+                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'T' || c == 'S') item2->setBackgroundColor(QColor(128,128,128));
+                else if(c == 'C') item2->setBackgroundColor(QColor(102,51,0));
+                else if(c == 'H') item2->setBackgroundColor(QColor(255,0,127));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 9:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'A' || c == 'G') item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
+                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,255,255));
+                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'T' || c == 'S') item2->setBackgroundColor(QColor(128,128,128));
+                else if(c == 'H') item2->setBackgroundColor(QColor(255,0,127));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 10:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,255,255));
+                else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(0,255,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 11:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'W' || c == 'Y' || c == 'F' || c == 'P' || c == 'T' || c == 'S' || c == 'G' || c == 'A' || c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q' || c == 'K' || c == 'R' || c == 'H') item2->setBackgroundColor(QColor(255,0,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 12:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'A' || c == 'T' || c == 'H')
+                    item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'G' || c == 'P')
+                    item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'D' || c == 'E')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'S' || c == 'N' || c == 'Q' || c == 'R' || c == 'K')
+                    item2->setBackgroundColor(QColor(255,128,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 13:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'L' || c == 'V' || c == 'W' || c == 'Y')
+                    item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'A' || c == 'T' || c == 'G' || c == 'S')
+                    item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'N' || c == 'Q' || c == 'D' || c == 'E')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'H' || c == 'P' || c == 'R' || c == 'K')
+                    item2->setBackgroundColor(QColor(255,128,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 14:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'G' || c == 'P' || c == 'R' || c == 'A' || c == 'T' || c == 'H')
+                    item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'K' || c == 'Q' || c == 'N' || c == 'S' || c == 'D' || c == 'E')
+                    item2->setBackgroundColor(QColor(0,255,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 15:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'A' || c == 'T' || c == 'H' || c == 'G' || c == 'P' || c == 'R' || c == 'D' || c == 'E' || c == 'N' || c == 'S' || c == 'Q' || c == 'K')
+                    item2->setBackgroundColor(QColor(255,255,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 16:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'M' || c == 'L') item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'C') item2->setBackgroundColor(QColor(255,0,127));
+                else if(c == 'I' || c == 'V') item2->setBackgroundColor(QColor(0,255,255));
+                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
+                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'E' || c == 'D' || c == 'Q') item2->setBackgroundColor(QColor(255,255,0));
+                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,0,255));
+                else if(c == 'A' || c == 'T' || c == 'S') item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'G') item2->setBackgroundColor(QColor(128,128,128));
+                else if(c == 'N' || c == 'H') item2->setBackgroundColor(QColor(255,128,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 17:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'Y' || c == 'C' || c == 'W' || c == 'F')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'L' || c == 'V' || c == 'M' || c == 'I')
+                    item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'G')
+                    item2->setBackgroundColor(QColor(128,128,128));
+                else if(c == 'P' || c == 'A' || c == 'T' || c == 'S')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'H' || c == 'N' || c == 'Q' || c == 'E' || c == 'D' || c == 'R' || c == 'K')
+                    item2->setBackgroundColor(QColor(255,255,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 18:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'C' || c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'M' || c == 'L' || c == 'I' || c == 'V') item2->setBackgroundColor(QColor(0,255,0));
+                else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(255,255,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        case 19:
+        {
+            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+                char c = toupper(currentAlign->sequences[i][j]);
+                string aa(1,c);
+                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
+                item2->setTextAlignment(Qt::AlignCenter);
+
+                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
+                    item2->setBackgroundColor(QColor(0,0,255));
+                else if(c == 'G' || c == 'P' || c == 'S' || c == 'A' || c == 'T')
+                    item2->setBackgroundColor(QColor(255,0,0));
+                else if(c == 'K' || c == 'Q' || c == 'N' || c == 'H' || c == 'D' || c == 'E' || c == 'R')
+                    item2->setBackgroundColor(QColor(255,255,0));
+
+                ui->tableFullAlignment->setItem(i,j,item2);
+
+            }
+            break;
+        }
+        }
+    }
+
+    //Ajusta tamanho das colunas
+    ui->tableFullAlignment->resizeColumnsToContents();
+    ui->tableFullAlignment->resizeRowsToContents();
+}
+
 void MainWindow::addAlignment(string path){
     Alignment align;
     align.setFilepath(path);
@@ -3315,6 +4287,14 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
+    case STACK_RESULT_FULLALIGN:
+    {
+        ui->tableFullAlignment->clear();
+
+        this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
+
+        break;
+    }
     }
 }
 
@@ -3444,9 +4424,11 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
             //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
             //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
             ui->lstProteinsFiltered->addItem(QString::fromStdString(fullAlignment[j]));
+
         }
     }else{
         for(unsigned int j = 0; j < filterList.size(); j++){
+            printf("%s %s\n",filterList[j][0].c_str(),filterPars.c_str());
             if(filterList[j][0] == filterPars){
                 currentAlign->sequences.clear();
                 currentAlign->sequencenames.clear();
@@ -3473,6 +4455,9 @@ void MainWindow::on_listWidget2_activated(const QModelIndex &index)
         vector<string> splitVec = this->split(fullAlignment[j],'/');
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
     }
+
+    string alphabet = this->findCurrentAlphabet();
+    currentAlign->setCurrentAlphabet(alphabet);
 
     if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
         unsigned int nOfComms = currentAlign->getCommListSize();
@@ -6392,6 +7377,21 @@ void MainWindow::changeToULGroupedByComms(){
     ui->stackedWidget2->setCurrentIndex(STACK_RESULT_UNIPROT_COMMS);
 }
 
+void MainWindow::changeToFullAlignment(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    ui->tableFullAlignment->clear();
+
+    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
+    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_FULLALIGN);
+
+    this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
+}
+
 void MainWindow::on_cmdAddFileRefSeq_clicked()
 {
     ui->cmdAddFileRefSeq->setEnabled(false);
@@ -6641,121 +7641,121 @@ void MainWindow::on_cmbAlphabetList_currentIndexChanged(int index)
     case 0:
     {
         ui->lblAlphabetName->setText("Name: Complete Alphabet");
-        ui->lblAlphabetChanges->setText("Changes: None");
+        ui->lblAlphabetChanges->setText("Changes:\nNone");
         break;
     }
     case 1:
     {
         ui->lblAlphabetName->setText("Name: Two Letters Alphabet");
-        ui->lblAlphabetChanges->setText("Changes: AGTSNQDEHRKP => P: Hydrophilic\nCMFILVWY =>H: Hydrophobic");
+        ui->lblAlphabetChanges->setText("Changes:\nAGTSNQDEHRKP => P: Hydrophilic\nCMFILVWY =>H: Hydrophobic");
         break;
     }
     case 2:
     {
         ui->lblAlphabetName->setText("Name: Five letters alphabet: Chemical / structural properties");
-        ui->lblAlphabetChanges->setText("IVL   => A: Aliphatic\nFYWH  => R: Aromatic\nKRDE  => C: Charged\nGACS  => T: Tiny\nTMQNP => D: Diverse");
+        ui->lblAlphabetChanges->setText("Changes:\nIVL   => I: Aliphatic\nFYWH  => F: Aromatic\nKRDE  => K: Charged\nGACS  => G: Tiny\nTMQNP => T: Diverse");
         break;
     }
     case 3:
     {
         ui->lblAlphabetName->setText("Name: Six letters alphabet: Chemical / structural properties #2");
-        ui->lblAlphabetChanges->setText("Changes: A: Aliphatic\nFYWH  => R: Aromatic\nKR    => P: Pos. charged\nDE    => N: Neg. charged\nGACS  => T: Tiny\nTMQNP => D: Diverse");
+        ui->lblAlphabetChanges->setText("Changes:\nIVL   =>I: Aliphatic\nFYWH  => F: Aromatic\nKR    => K: Pos. charged\nDE    => D: Neg. charged\nGACS  => G: Tiny\nTMQNP => T: Diverse");
         break;
     }
     case 4:
     {
         ui->lblAlphabetName->setText("Name: 3 IMGT amino acid hydropathy alphabet");
-        ui->lblAlphabetChanges->setText("Changes: IVLFCMAW => P: Hydrophilic\nGTSYPM => N: Neutral\nDNEQKR =>H: Hydrophobic");
+        ui->lblAlphabetChanges->setText("Changes:\nIVLFCMAW => I: Hydrophilic\nGTSYPM => G: Neutral\nDNEQKR =>D: Hydrophobic");
         break;
     }
     case 5:
     {
         ui->lblAlphabetName->setText("Name: 5 IMGT amino acid volume alphabet");
-        ui->lblAlphabetChanges->setText("Changes: GAS   => G: 60-90\nCDPNT => C: 108-117\nEVQH  => E: 138-154\nMILKR => M: 162-174\nFYW   => F: 189-228");
+        ui->lblAlphabetChanges->setText("Changes:\nGAS   => G: 60-90\nCDPNT => C: 108-117\nEVQH  => E: 138-154\nMILKR => M: 162-174\nFYW   => F: 189-228");
         break;
     }
     case 6:
     {
         ui->lblAlphabetName->setText("Name: 11 IMGT amino acid chemical characteristics alphabet");
-        ui->lblAlphabetChanges->setText("Changes: AVIL => A: Aliphatic\nF    => F: Phenylalanine\nCM   => C: Sulfur\nG    => G: Glycine\nST   => S: Hydroxyl\nW    => W: Tryptophan\nY    => Y: Tyrosine\nP    => P: Proline\nDE   => D: Acidic\nNQ   => N: Amide\nHKR  => H: Basic");
+        ui->lblAlphabetChanges->setText("Changes:\nAVIL => A: Aliphatic\nF    => F: Phenylalanine\nCM   => C: Sulfur\nG    => G: Glycine\nST   => S: Hydroxyl\nW    => W: Tryptophan\nY    => Y: Tyrosine\nP    => P: Proline\nDE   => D: Acidic\nNQ   => N: Amide\nHKR  => H: Basic");
         break;
     }
     case 7:
     {
         ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 15 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: L: Large hydrophobic\nC    => C\nA    => A\nG    => G\nS    => S\nT    => T\nP    => P\nFY   => F: Hydrophobic/aromatic sidechains\nW    => W\nE    => E\nD    => D\nN    => N\nQ    => Q\nKR   => K: Long-chain positively charged\nH    => H");
+        ui->lblAlphabetChanges->setText("Changes:\nL: Large hydrophobic\nC    => C\nA    => A\nG    => G\nS    => S\nT    => T\nP    => P\nFY   => F: Hydrophobic/aromatic sidechains\nW    => W\nE    => E\nD    => D\nN    => N\nQ    => Q\nKR   => K: Long-chain positively charged\nH    => H");
         break;
     }
     case 8:
     {
         ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 10 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: LVIM => L: Large hydrophobic\nC    => C\nA    => A\nG    => G\nST   => S: Polar\nP    => P\nFYW  => F:Hydrophobic/aromatic sidechains\nEDNQ => E: Charged / polar\nKR   => K: Long-chain positively charged\nH    =>H");
+        ui->lblAlphabetChanges->setText("Changes:\nLVIM => L: Large hydrophobic\nC    => C\nA    => A\nG    => G\nST   => S: Polar\nP    => P\nFYW  => F:Hydrophobic/aromatic sidechains\nEDNQ => E: Charged / polar\nKR   => K: Long-chain positively charged\nH    =>H");
         break;
     }
     case 9:
     {
         ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 8 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: LVIMC => L: Hydrophobic\nAG    => A\nST    => S: Polar\nP     => P\nFYW   => F: Hydrophobic/aromatic sidechains\nEDNQ  => E\nKR    => K: Long-chain positively charged\nH     => H");
+        ui->lblAlphabetChanges->setText("Changes:\nLVIMC => L: Hydrophobic\nAG    => A\nST    => S: Polar\nP     => P\nFYW   => F: Hydrophobic/aromatic sidechains\nEDNQ  => E\nKR    => K: Long-chain positively charged\nH     => H");
         break;
     }
     case 10:
     {
         ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 4 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: LVIMC   => L: Hydrophobic\nAGSTP   => A\nFYW     => F: Hydrophobic/aromatic sidechains\nEDNQKRH =>E");
+        ui->lblAlphabetChanges->setText("Changes:\nLVIMC   => L: Hydrophobic\nAGSTP   => A\nFYW     => F: Hydrophobic/aromatic sidechains\nEDNQKRH =>E");
         break;
     }
     case 11:
     {
         ui->lblAlphabetName->setText("Name: Murphy et al, 2000; 2 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: LVIMCAGSTPFYW => P: Hydrophobic\nEDNQKRH       => E: Hydrophilic");
+        ui->lblAlphabetChanges->setText("Changes:\nLVIMCAGSTPFYW => P: Hydrophobic\nEDNQKRH       => E: Hydrophilic");
         break;
     }
     case 12:
     {
         ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 5 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: CMFILVWY => I\nATH      => A\nGP       => G\nDE       => E\nSNQRK    => K");
+        ui->lblAlphabetChanges->setText("Changes:\nCMFILVWY => I\nATH      => A\nGP       => G\nDE       => E\nSNQRK    => K");
         break;
     }
     case 13:
     {
         ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 5 letters variant alphabet");
-        ui->lblAlphabetChanges->setText("Changes: CMFI => I\nLVWY => L\nATGS => A\nNQDE => E\nHPRK => K");
+        ui->lblAlphabetChanges->setText("Changes:\nCMFI => I\nLVWY => L\nATGS => A\nNQDE => E\nHPRK => K");
         break;
     }
     case 14:
     {
         ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 3 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: CMFILVWY => I\nATHGPR   => A\nDESNQK   => E");
+        ui->lblAlphabetChanges->setText("Changes:\nCMFILVWY => I\nATHGPR   => A\nDESNQK   => E");
         break;
     }
     case 15:
     {
         ui->lblAlphabetName->setText("Name: Wang & Wang, 1999; 2 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: CMFILVWY     => I\nATHGPRDESNQK => A");
+        ui->lblAlphabetChanges->setText("Changes:\nCMFILVWY     => I\nATHGPRDESNQK => A");
         break;
     }
     case 16:
     {
         ui->lblAlphabetName->setText("Name: Li et al, 2003; 10 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: C   => C\nFYW => Y\nML  => L\nIV  => V\nG   => G\nP   => P\nATS => S\nNH  => N\nQED => E\nRK  => K");
+        ui->lblAlphabetChanges->setText("Changes:\nC   => C\nFYW => Y\nML  => L\nIV  => V\nG   => G\nP   => P\nATS => S\nNH  => N\nQED => E\nRK  => K");
         break;
     }
     case 17:
     {
         ui->lblAlphabetName->setText("Name: Li et al, 2003; 5 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: CFYW    => Y\nMLIV    => I\nG       => G\nPATS    => S\nNHQEDRK => E");
+        ui->lblAlphabetChanges->setText("Changes:\nCFYW    => Y\nMLIV    => I\nG       => G\nPATS    => S\nNHQEDRK => E");
         break;
     }
     case 18:
     {
         ui->lblAlphabetName->setText("Name: Li et al, 2003; 4 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: CFYW    => Y\nMLIV    => I\nGPATS   => S\nNHQEDRK => E");
+        ui->lblAlphabetChanges->setText("Changes:\nCFYW    => Y\nMLIV    => I\nGPATS   => S\nNHQEDRK => E");
         break;
     }
     case 19:
     {
         ui->lblAlphabetName->setText("Name: Li et al, 2003; 3 letters alphabet");
-        ui->lblAlphabetChanges->setText("Changes: CFYWMLIV => I\nGPATS    => S\nNHQEDRK  => E");
+        ui->lblAlphabetChanges->setText("Changes:\nCFYWMLIV => I\nGPATS    => S\nNHQEDRK  => E");
         break;
     }
     }
@@ -6786,8 +7786,11 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     int alphabet = ui->cmbAlphabetList->currentIndex();
     int filterIndex = ui->listWidget2->currentIndex().row();
     string currentFilter = ui->listWidget2->currentItem()->text().toStdString();
-    string param = currentFilter + " T2";
+    string param;// = currentFilter + " T2";
     string type = "";
+
+    if(currentFilter == "Full Alignment") param = "0 0 0 0 " + ui->cmbAlphabetList->currentText().toStdString();
+    else param = currentFilter + " " + ui->cmbAlphabetList->currentText().toStdString();
 
     bool newFilter;
 
@@ -6806,7 +7809,7 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
         oldChars.push_back("AGTSNQDEHRKP");
         newChars.push_back('P');
         oldChars.push_back("CMFILVWY");
-        newChars.push_back('H');
+        newChars.push_back('Y');
 
         break;
     }
@@ -6814,15 +7817,15 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     {
         type = "T5";
         oldChars.push_back("IVL");
-        newChars.push_back('A');
+        newChars.push_back('I');
         oldChars.push_back("FYWH");
-        newChars.push_back('R');
+        newChars.push_back('F');
         oldChars.push_back("KRDE");
-        newChars.push_back('C');
+        newChars.push_back('K');
         oldChars.push_back("GACS");
-        newChars.push_back('T');
+        newChars.push_back('G');
         oldChars.push_back("TMQNP");
-        newChars.push_back('D');
+        newChars.push_back('T');
 
         break;
     }
@@ -6830,17 +7833,17 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     {
         type = "T6";
         oldChars.push_back("IVL");
-        newChars.push_back('A');
+        newChars.push_back('I');
         oldChars.push_back("FYWH");
-        newChars.push_back('R');
+        newChars.push_back('F');
         oldChars.push_back("KR");
-        newChars.push_back('P');
+        newChars.push_back('K');
         oldChars.push_back("DE");
-        newChars.push_back('N');
-        oldChars.push_back("GACS");
-        newChars.push_back('T');
-        oldChars.push_back("TMQNP");
         newChars.push_back('D');
+        oldChars.push_back("GACS");
+        newChars.push_back('G');
+        oldChars.push_back("TMQNP");
+        newChars.push_back('T');
 
         break;
     }
@@ -6848,11 +7851,11 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     {
         type = "3IMG";
         oldChars.push_back("IVLFCMAW");
-        newChars.push_back('P');
+        newChars.push_back('I');
         oldChars.push_back("GTSYPM");
-        newChars.push_back('N');
+        newChars.push_back('G');
         oldChars.push_back("DNEQKR");
-        newChars.push_back('H');
+        newChars.push_back('D');
 
         break;
     }
@@ -7098,12 +8101,8 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
         newChars.push_back('G');
         oldChars.push_back("PATS");
         newChars.push_back('S');
-        oldChars.push_back("NH");
+        oldChars.push_back("NHQEDRK");
         newChars.push_back('N');
-        oldChars.push_back("QED");
-        newChars.push_back('E');
-        oldChars.push_back("RK");
-        newChars.push_back('K');
 
         break;
     }
@@ -7748,4 +8747,114 @@ void MainWindow::on_cmdLookingFilter_clicked()
     QMessageBox::information(this,"Sequences selected",msg.c_str());
 
     ui->cmdLookingFilter->setEnabled(true);
+}
+
+string MainWindow::findCurrentAlphabet(){
+    set<char> singleResidues;
+
+    for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
+        for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
+            singleResidues.insert(currentAlign->sequences[i][j]);
+        }
+    }
+
+    bool a = (singleResidues.find('A') != singleResidues.end()) || (singleResidues.find('a') != singleResidues.end());
+    bool g = (singleResidues.find('G') != singleResidues.end()) || (singleResidues.find('g') != singleResidues.end());
+    bool i = (singleResidues.find('I') != singleResidues.end()) || (singleResidues.find('i') != singleResidues.end());
+    bool l = (singleResidues.find('L') != singleResidues.end()) || (singleResidues.find('l') != singleResidues.end());
+    bool p = (singleResidues.find('P') != singleResidues.end()) || (singleResidues.find('p') != singleResidues.end());
+    bool v = (singleResidues.find('V') != singleResidues.end()) || (singleResidues.find('v') != singleResidues.end());
+    bool f = (singleResidues.find('F') != singleResidues.end()) || (singleResidues.find('f') != singleResidues.end());
+    bool w = (singleResidues.find('W') != singleResidues.end()) || (singleResidues.find('w') != singleResidues.end());
+    bool y = (singleResidues.find('Y') != singleResidues.end()) || (singleResidues.find('y') != singleResidues.end());
+    bool d = (singleResidues.find('D') != singleResidues.end()) || (singleResidues.find('d') != singleResidues.end());
+    bool e = (singleResidues.find('E') != singleResidues.end()) || (singleResidues.find('e') != singleResidues.end());
+    bool r = (singleResidues.find('R') != singleResidues.end()) || (singleResidues.find('r') != singleResidues.end());
+    bool h = (singleResidues.find('H') != singleResidues.end()) || (singleResidues.find('h') != singleResidues.end());
+    bool k = (singleResidues.find('K') != singleResidues.end()) || (singleResidues.find('k') != singleResidues.end());
+    bool s = (singleResidues.find('S') != singleResidues.end()) || (singleResidues.find('s') != singleResidues.end());
+    bool t = (singleResidues.find('T') != singleResidues.end()) || (singleResidues.find('t') != singleResidues.end());
+    bool c = (singleResidues.find('C') != singleResidues.end()) || (singleResidues.find('c') != singleResidues.end());
+    bool m = (singleResidues.find('M') != singleResidues.end()) || (singleResidues.find('m') != singleResidues.end());
+    bool n = (singleResidues.find('N') != singleResidues.end()) || (singleResidues.find('n') != singleResidues.end());
+    bool q = (singleResidues.find('G') != singleResidues.end()) || (singleResidues.find('g') != singleResidues.end());
+
+    //Smpre um caracter a mais pq do GAP
+    switch(singleResidues.size()){
+    case 3:
+    {
+        //T2(P,Y), Murphy2(P,E), Wang2(I,A)
+        if(p){
+            if(y) return "T2";
+            if(e) return "Murphy2";
+        }else if(i && a) return "Wang2";
+    }
+    case 4:
+    {
+        //3IMG(I,G,D), Wang3(I,A,E), Li3(I,S,E)
+        if(i){
+            if(e){
+                if(a) return "Wang3";
+                if(s) return "Li3";
+            }else if(g && d) return "3IMG";
+        }
+    }
+    case 5:
+    {
+        //Murphy4(LAFE), Li4(YISE)
+        if(e){
+            if(l && a && f) return "Murphy4";
+            if(y && i && s) return "Li4";
+        }
+    }
+    case 6:
+    {
+        //T5(IFKGT), 5IMG(GCEMF), Wang5(IAGEK), Wang5v(ILAEK), Li5(YIGSN)
+        if(i && f && k && g && t) return "T5";
+        if(g && c && e && m && f) return "5IMG";
+        if(i && a && g && e && k) return "Wang5";
+        if(i && l && a && e && k) return "Wang5v";
+        if(y && i && g && s && n) return "Li5";
+    }
+    case 7:
+    {
+        //T6
+        if(i && f && k && d && g && t)
+            return "T6";
+    }
+    case 9:
+    {
+        //Murphy8
+        if(l && a && s && p && f && e && k && h)
+            return "Murphy8";
+    }
+    case 11:
+    {
+        //Murphy10(LCAGSPFEKH), Li10(CYLVGPSNEK)
+        if(l && c && g && s && p && e && k){
+            if(a && f && h) return "Murphy10";
+            if(y && v && n) return "Li10";
+        }
+
+    }
+    case 12:
+    {
+        //11IMG
+        if(a && f && c && g && s && w && y && p && d && n && h)
+            return "11IMG";
+    }
+    case 16:
+    {
+        //Murphy15
+        if(l && c && a && g && s && t && p && f && w && e && d && n && q && k && h)
+            return "Murphy15";
+    }
+    }
+
+    return "T20";
+}
+
+void MainWindow::on_cmdApplyViewAlignment_clicked()
+{
+    this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
 }

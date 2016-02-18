@@ -136,6 +136,7 @@ public:
     QAction *actionAlphabet_Reduction;
     QAction *actionLoadPDB;
     QAction *actionStructure_Communities_Visualization;
+    QAction *actionFull_Alignment;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QHBoxLayout *horizontalLayout_9;
@@ -618,6 +619,17 @@ public:
     QGridLayout *gridLayout_28;
     QLabel *label_77;
     QWebView *webCommunitiesPDB;
+    QWidget *page_31;
+    QGridLayout *gridLayout_3;
+    QLabel *label_27;
+    QHBoxLayout *horizontalLayout_72;
+    QLabel *label_80;
+    QComboBox *cmbAlphabetColor;
+    QLabel *label_81;
+    QComboBox *cmbViewColumns;
+    QPushButton *cmdApplyViewAlignment;
+    QSpacerItem *horizontalSpacer_48;
+    QTableWidget *tableFullAlignment;
     QWidget *page_19;
     QGridLayout *gridLayout_30;
     QLabel *label_47;
@@ -905,6 +917,8 @@ public:
         actionLoadPDB->setObjectName(QStringLiteral("actionLoadPDB"));
         actionStructure_Communities_Visualization = new QAction(MainWindow);
         actionStructure_Communities_Visualization->setObjectName(QStringLiteral("actionStructure_Communities_Visualization"));
+        actionFull_Alignment = new QAction(MainWindow);
+        actionFull_Alignment->setObjectName(QStringLiteral("actionFull_Alignment"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -3599,6 +3613,65 @@ public:
         gridLayout_28->addWidget(webCommunitiesPDB, 1, 0, 1, 1);
 
         stackedWidget2->addWidget(page_30);
+        page_31 = new QWidget();
+        page_31->setObjectName(QStringLiteral("page_31"));
+        gridLayout_3 = new QGridLayout(page_31);
+        gridLayout_3->setSpacing(6);
+        gridLayout_3->setContentsMargins(11, 11, 11, 11);
+        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+        label_27 = new QLabel(page_31);
+        label_27->setObjectName(QStringLiteral("label_27"));
+
+        gridLayout_3->addWidget(label_27, 0, 0, 1, 1);
+
+        horizontalLayout_72 = new QHBoxLayout();
+        horizontalLayout_72->setSpacing(6);
+        horizontalLayout_72->setObjectName(QStringLiteral("horizontalLayout_72"));
+        label_80 = new QLabel(page_31);
+        label_80->setObjectName(QStringLiteral("label_80"));
+
+        horizontalLayout_72->addWidget(label_80);
+
+        cmbAlphabetColor = new QComboBox(page_31);
+        cmbAlphabetColor->setObjectName(QStringLiteral("cmbAlphabetColor"));
+
+        horizontalLayout_72->addWidget(cmbAlphabetColor);
+
+        label_81 = new QLabel(page_31);
+        label_81->setObjectName(QStringLiteral("label_81"));
+
+        horizontalLayout_72->addWidget(label_81);
+
+        cmbViewColumns = new QComboBox(page_31);
+        cmbViewColumns->setObjectName(QStringLiteral("cmbViewColumns"));
+        cmbViewColumns->setMinimumSize(QSize(150, 0));
+
+        horizontalLayout_72->addWidget(cmbViewColumns);
+
+        cmdApplyViewAlignment = new QPushButton(page_31);
+        cmdApplyViewAlignment->setObjectName(QStringLiteral("cmdApplyViewAlignment"));
+
+        horizontalLayout_72->addWidget(cmdApplyViewAlignment);
+
+        horizontalSpacer_48 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_72->addItem(horizontalSpacer_48);
+
+
+        gridLayout_3->addLayout(horizontalLayout_72, 1, 0, 1, 1);
+
+        tableFullAlignment = new QTableWidget(page_31);
+        tableFullAlignment->setObjectName(QStringLiteral("tableFullAlignment"));
+        QFont font;
+        font.setPointSize(8);
+        tableFullAlignment->setFont(font);
+        tableFullAlignment->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        tableFullAlignment->horizontalHeader()->setMinimumSectionSize(20);
+        tableFullAlignment->verticalHeader()->setMinimumSectionSize(18);
+
+        gridLayout_3->addWidget(tableFullAlignment, 2, 0, 1, 1);
+
+        stackedWidget2->addWidget(page_31);
 
         verticalLayout_19->addWidget(stackedWidget2);
 
@@ -4046,6 +4119,8 @@ public:
         menuMethod->addSeparator();
         menuMethod->addAction(actionUniprotLooking);
         menuHelp->addAction(actionAbout);
+        menuShow->addAction(actionFull_Alignment);
+        menuShow->addSeparator();
         menuShow->addAction(actionList_Of_Sequences);
         menuShow->addSeparator();
         menuShow->addAction(menuConservation_Table->menuAction());
@@ -4132,8 +4207,8 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(1);
-        stackedWidget2->setCurrentIndex(0);
+        stackedWidget->setCurrentIndex(8);
+        stackedWidget2->setCurrentIndex(18);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -4232,6 +4307,7 @@ public:
         actionAlphabet_Reduction->setText(QApplication::translate("MainWindow", "Alphabet Reduction", 0));
         actionLoadPDB->setText(QApplication::translate("MainWindow", "Load PDB Structure", 0));
         actionStructure_Communities_Visualization->setText(QApplication::translate("MainWindow", "Structure Communities Visualization", 0));
+        actionFull_Alignment->setText(QApplication::translate("MainWindow", "View Alignment", 0));
         cmdMain->setText(QApplication::translate("MainWindow", "Main", 0));
         cmdBack->setText(QApplication::translate("MainWindow", "Back", 0));
         cmdAdvance->setText(QApplication::translate("MainWindow", "Advance", 0));
@@ -4561,6 +4637,40 @@ public:
         cmdCorrCommCutoff->setText(QApplication::translate("MainWindow", "Enter", 0));
         label_60->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Structure file colored by conservation:</span></p></body></html>", 0));
         label_77->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Structure file colored by correlation communities:</span></p></body></html>", 0));
+        label_27->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">View Alignment</span></p></body></html>", 0));
+        label_80->setText(QApplication::translate("MainWindow", "Color by alphabet:", 0));
+        cmbAlphabetColor->clear();
+        cmbAlphabetColor->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "T20", 0)
+         << QApplication::translate("MainWindow", "T2", 0)
+         << QApplication::translate("MainWindow", "T5", 0)
+         << QApplication::translate("MainWindow", "T6", 0)
+         << QApplication::translate("MainWindow", "3IMG", 0)
+         << QApplication::translate("MainWindow", "5IMG", 0)
+         << QApplication::translate("MainWindow", "11IMG", 0)
+         << QApplication::translate("MainWindow", "Murphy15", 0)
+         << QApplication::translate("MainWindow", "Murphy10", 0)
+         << QApplication::translate("MainWindow", "Murphy8", 0)
+         << QApplication::translate("MainWindow", "Murphy4", 0)
+         << QApplication::translate("MainWindow", "Murphy2", 0)
+         << QApplication::translate("MainWindow", "Wang5", 0)
+         << QApplication::translate("MainWindow", "Wang5v", 0)
+         << QApplication::translate("MainWindow", "Wang3", 0)
+         << QApplication::translate("MainWindow", "Wang2", 0)
+         << QApplication::translate("MainWindow", "Li10", 0)
+         << QApplication::translate("MainWindow", "Li5", 0)
+         << QApplication::translate("MainWindow", "Li4", 0)
+         << QApplication::translate("MainWindow", "Li3", 0)
+        );
+        label_81->setText(QApplication::translate("MainWindow", "Show columns: ", 0));
+        cmbViewColumns->clear();
+        cmbViewColumns->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "All Columns", 0)
+         << QApplication::translate("MainWindow", "Only Perfect Conservation", 0)
+         << QApplication::translate("MainWindow", "Strong Conservation", 0)
+         << QApplication::translate("MainWindow", "Hide Weak Conservation", 0)
+        );
+        cmdApplyViewAlignment->setText(QApplication::translate("MainWindow", "Apply", 0));
         label_47->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Uniprot Looking Tool</span></p></body></html>", 0));
         label_48->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#ff0000;\">This method requires internet connection.</span></p></body></html>", 0));
         groupBox_6->setTitle(QApplication::translate("MainWindow", "Target Residues", 0));

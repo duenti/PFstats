@@ -492,6 +492,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     string firstrefseq = currentAlign->sequences[refseq];
     string firstrefseqname = currentAlign->sequencenames[refseq];
     string taxon = ui->txtTaxons->text().toStdString();
+    string alphabet = this->findCurrentAlphabet();
     //printf("%s: %s\n",firstrefseq.c_str(),firstrefseqname.c_str());
     currentAlign->sequences.insert(currentAlign->sequences.begin(),firstrefseq);
     currentAlign->sequencenames.insert(currentAlign->sequencenames.begin(),firstrefseqname);
@@ -501,7 +502,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     //currentAlign->AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
 
     if(taxfilter){
-        currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq,inter);
+        currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq,alphabet,inter);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -509,7 +510,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 
     if(filter1){
-        currentAlign->AlignmentTrimming(taxon,occupancy,0,firstrefseq,firstrefseqname,true,inter);
+        currentAlign->AlignmentTrimming(taxon,occupancy,0,firstrefseq,firstrefseqname,true,alphabet,inter);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -517,7 +518,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 //QMessageBox::information(this,"a","teste4");
     if(filter2){
-        currentAlign->IdentityMinimum(taxon,minId,0,occupancy,firstrefseqname,firstrefseq,inter);
+        currentAlign->IdentityMinimum(taxon,minId,0,occupancy,firstrefseqname,firstrefseq,alphabet,inter);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -525,7 +526,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 //QMessageBox::information(this,"a","teste5");
     if(filter3){
-        currentAlign->IdentityTrimming(taxon,maxId,occupancy,minId,firstrefseqname,firstrefseq,true);
+        currentAlign->IdentityTrimming(taxon,maxId,occupancy,minId,firstrefseqname,firstrefseq,alphabet,true);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
         seqSize = currentAlign->getSequencesSize();
@@ -540,7 +541,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     ui->listWidget2->clear();
 
     for(unsigned int j = 0; j < filterList.size(); j++){
-        if(filterList[j][0] == "0 0 0 0") ui->listWidget2->addItem("Full Alignment");
+        if(filterList[j][0] == "0 0 0 0 0 T20") ui->listWidget2->addItem("Full Alignment");
         else ui->listWidget2->addItem(filterList[j][0].c_str());
     }
 
@@ -991,28 +992,15 @@ void MainWindow::listSequences(){
             ui->lblOccupancy->setVisible(false);
             ui->lblMaxId->setVisible(false);
             ui->lblMinId->setVisible(false);
-        }else if(vecPars.size()== 4){
-            ui->lblOccupancy->setVisible(true);
-            ui->lblMaxId->setVisible(true);
-            ui->lblMinId->setVisible(true);
-            ui->lblTaxon->setVisible(false);
-            string occ = "Occupancy: " + vecPars[0];
-            string minId = "Minimum Identity: " + vecPars[1];
-            string maxId = "Maximum Identity: " + vecPars[2];
-            string refSeq = "Reference Sequence: " + vecPars[3];
-            ui->lblOccupancy->setText(occ.c_str());
-            ui->lblMinId->setText(minId.c_str());
-            ui->lblMaxId->setText(maxId.c_str());
-            ui->lblRefSeq1->setText(refSeq.c_str());
-        }else if(vecPars.size() == 5){
+        }else if(vecPars.size() == 6){
             ui->lblOccupancy->setVisible(true);
             ui->lblMaxId->setVisible(true);
             ui->lblMinId->setVisible(true);
             ui->lblTaxon->setVisible(true);
-            string taxon = "Taxon: " + vecPars[0];
-            string occ = "Occupancy: " + vecPars[1];
-            string minId = "Minimum Identity: " + vecPars[2];
-            string maxId = "Maximum Identity: " + vecPars[3];
+            string taxon = "Taxon: " + vecPars[3];
+            string occ = "Occupancy: " + vecPars[0];
+            string minId = "Minimum Identity: " + vecPars[1];
+            string maxId = "Maximum Identity: " + vecPars[2];
             string refSeq = "Reference Sequence: " + vecPars[4];
             ui->lblTaxon->setText(taxon.c_str());
             ui->lblOccupancy->setText(occ.c_str());
@@ -2007,6 +1995,8 @@ void MainWindow::corrTable2(){
 }
 
 void MainWindow::adh(){
+    string filter = "Filter: " + ui->listWidget2->currentItem()->text().toStdString();
+    ui->lblFilter_7->setText(filter.c_str());
 
     unsigned int nComm = currentAlign->getNumOfUtilComms();
     unsigned int nSequences = currentAlign->sequences.size()-1;
@@ -3513,11 +3503,10 @@ void MainWindow::on_cmdOpen_clicked()
     }
     ui->listWidget->addItem(fileName);
 
-
     //Salva Full Alignment
     vector<string> filterSequence;
     vector<string> filterList;
-    string params = "0 0 0 0";
+    string params = "0 0 0 0 0 T20";
     filterSequence.push_back(params);
     filterList.push_back(params);
 
@@ -3672,7 +3661,7 @@ void MainWindow::on_cmdFetch_clicked()
         //Salva Full Alignment
         vector<string> filterSequence;
         vector<string> filterList;
-        string params = "0 0 0 0";
+        string params = "0 0 0 0 0 T20";
         filterSequence.push_back(params);
         filterList.push_back(params);
 
@@ -3739,18 +3728,24 @@ void MainWindow::on_cmdApplyFilter_clicked()
         string filtered = ui->listWidget2->item(i)->text().toStdString();
         vector<string> vecFilter = this->split(filtered,' ');
         //QMessageBox::information(this,"a",QString::number(filtered.size()));
-        if(vecFilter.size() == 4){
+        if(vecFilter.size() == 6){
             //QMessageBox::information(this,"a","ok");
             float minCov = atof(vecFilter[0].c_str());
             float minId = atof(vecFilter[1].c_str());
             float maxId = atof(vecFilter[2].c_str());
-            string refSeq = vecFilter[3];
+            string refSeq = split(vecFilter[4],'/')[0];
+            string taxon = vecFilter[3];
+            string alphabet = vecFilter[5];
             float minCov2 = ui->txtMinCover->text().toFloat();
             float minId2 = ui->txtMinId->text().toFloat();
             float maxId2 = ui->txtMaxId->text().toFloat();
             string refSeq2 = ui->cmbRefSeq->currentText().toStdString();
-
-            if(minCov == minCov2 && minId == minId2 && maxId == maxId2 && refSeq == refSeq2){
+            string taxon2;
+            if(ui->txtTaxons->text() == "") taxon2 = "0";
+            else taxon2 = ui->txtTaxons->text().toStdString();
+            string alphabet2 = currentAlign->getCurrentAlphabet();
+            //printf("AQUI: %s-%s %s-%s\n",taxon.c_str(),taxon2.c_str(),alphabet.c_str(),alphabet2.c_str());
+            if(minCov == minCov2 && minId == minId2 && maxId == maxId2 && refSeq == refSeq2 && taxon == taxon2 && alphabet == alphabet2){
                 QMessageBox::warning(this,"Filter applied","This filter is already saved.");
                 ui->cmdApplyFilter->setEnabled(true);
                 return;
@@ -3768,6 +3763,18 @@ void MainWindow::on_cmdApplyFilter_clicked()
         QMessageBox::warning(this,"Error","If you're going to filter by taxons, you must inform the taxon.");
         ui->cmdApplyFilter->setEnabled(true);
         return;
+    }
+
+    string currentFilter = ui->listWidget2->currentItem()->text().toStdString();
+    if(currentFilter != "Full Alignment" && currentFilter.substr(0,7) != "0 0 0 0"){
+        QMessageBox::StandardButton confirm;
+        confirm = QMessageBox::warning(this,"Filter","This alignment is already filtered. DO you really want apply sub-filters?",QMessageBox::Yes|QMessageBox::No);
+
+        if(confirm == QMessageBox::No){
+            ui->cmdApplyFilter->setEnabled(true);
+            return;
+        }
+
     }
 
     ui->cmbRefSeq_2->setCurrentIndex(ui->cmbRefSeq->currentIndex());
@@ -4378,7 +4385,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     vector<vector<string> > filterList = currentAlign->getAllFilters();
 
     for(unsigned int j = 0; j < filterList.size(); j++){
-        if(filterList[j][0] == "0 0 0 0") ui->listWidget2->addItem("Full Alignment");
+        if(filterList[j][0].substr(0,9) == "0 0 0 0 0") ui->listWidget2->addItem("Full Alignment");
         else ui->listWidget2->addItem(filterList[j][0].c_str());
     }
 
@@ -5136,9 +5143,8 @@ void MainWindow::Open_XML_triggered(){
                     string minid = reader.attributes().value("minid").toString().toStdString();
                     string maxid = reader.attributes().value("maxid").toString().toStdString();
                     string refSeq = reader.attributes().value("refseq").toString().toStdString();
-                    string parameters;
-                    if(taxon == "0") parameters = occ + " " + minid + " " + maxid + " " + refSeq;
-                    else parameters = taxon + " " + occ + " " + minid + " " + maxid + " " + refSeq;
+                    string alphabet = reader.attributes().value("alphabet").toString().toStdString();
+                    string parameters = occ + " " + minid + " " + maxid + " " + taxon + " " + refSeq + " " + alphabet;
                     vector<string> namesVec;
                     vector<string> sequencesVec;
                     namesVec.push_back(parameters);
@@ -6495,9 +6501,11 @@ void MainWindow::saveResults(){
         path += ".xml";
     }
 
-    currentAlign->generateXML(path);
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Saving results file"),path.c_str(),QObject::tr("XML Files (*.xml)"));
 
-    string msg = "XML file was generated in the above path:\n" + path;
+    currentAlign->generateXML(filename.toStdString());
+
+    string msg = "XML file was generated in the above path:\n\n" + filename.toStdString();
     QMessageBox::information(this,"Save Results",msg.c_str());
 
     ui->cmdSaveResults->setEnabled(true);
@@ -7789,8 +7797,27 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     string param;// = currentFilter + " T2";
     string type = "";
 
-    if(currentFilter == "Full Alignment") param = "0 0 0 0 " + ui->cmbAlphabetList->currentText().toStdString();
-    else param = currentFilter + " " + ui->cmbAlphabetList->currentText().toStdString();
+    if(currentFilter == "Full Alignment") param = "0 0 0 0 0 " + ui->cmbAlphabetList->currentText().toStdString();
+    else{
+        vector<string> params = split(currentFilter,' ');
+        param = params[0] + " " + params[1] + " " + params[2] + " " + params[3] + " " + params[4] + " " + ui->cmbAlphabetList->currentText().toStdString();
+    }
+
+    //Verificação
+    if(currentAlign->getCurrentAlphabet() != "T20"){
+        QMessageBox::warning(this,"Warning","You cannot reduce an alphabet from a already reduced alignment. Please choose a T20 filter");
+        ui->cmdApplyAlphabetReduction->setEnabled(true);
+        return;
+    }
+
+    for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
+        if(ui->listWidget2->item(i)->text().toStdString() == param){
+            QMessageBox::warning(this,"Warning","This alignment filter is already loaded");
+            ui->cmdApplyAlphabetReduction->setEnabled(true);
+            return;
+        }
+    }
+
 
     bool newFilter;
 
@@ -8134,7 +8161,7 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     }
     }
 
-    currentAlign->applyAlphabetReduction(type,oldChars,newChars,filterIndex,newFilter);
+    currentAlign->applyAlphabetReduction(param,oldChars,newChars,filterIndex,newFilter);
 
     if(newFilter){
         ui->listWidget2->addItem(param.c_str());

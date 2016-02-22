@@ -1193,21 +1193,18 @@ void Alignment::generateXML(string outputXML){
             string minid = "0";
             string maxid = "0";
             string refseq = "0";
+            string alphabet = "T20";
 
-            if(parsVec.size() == 4){
+            if(parsVec.size() == 6){
                 occ = parsVec[0];
                 minid = parsVec[1];
                 maxid = parsVec[2];
-                refseq = parsVec[3];
-            }else if(parsVec.size() == 5){
-                taxon = parsVec[0];
-                occ = parsVec[1];
-                minid = parsVec[2];
-                maxid = parsVec[3];
+                taxon = parsVec[3];
                 refseq = parsVec[4];
+                alphabet = parsVec[5];
             }
 
-            out << "<filter taxon='" << taxon.c_str() << "' occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
+            out << "<filter taxon='" << taxon.c_str() << "' occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' alphabet='" << alphabet.c_str() << "' >\n";
             for(unsigned int j = 1; j < filtersList[i].size(); j++){
                 vector<string> vecSplit = this->split(filtersList[i][j],'/');
                 out << "   <entry id='" << j-1 << "' offset='" << vecSplit[1].c_str() << "' name='" << vecSplit[0].c_str() << "'>" << filterSequences[i][j].c_str() << "</entry>\n";
@@ -2041,7 +2038,7 @@ int Alignment::seqname2seqint2(string refseqcode){
     return 0;
 }
 
-void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq, bool intermediate){
+void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq, string alphabet, bool intermediate){
     string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxon-filter/" + taxon;
     string text = "";
     for(unsigned int i = 0; i < sequencenames.size(); i++){
@@ -2082,7 +2079,7 @@ void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq, bo
 
     if(intermediate){
         vector<string> filterVec;
-        string parameters = taxon + " 0 0 0 " + refseqName;
+        string parameters = "0 0 0 " + taxon + " " + refseqName + " " + alphabet;
         filterVec.push_back(parameters);
         filterVec.push_back(refseqName);
 
@@ -2104,7 +2101,7 @@ void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq, bo
     }
 }
 
-void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string refseqName, bool casesensitive, bool intermediate){
+void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string refseqName, bool casesensitive, string alphabet, bool intermediate){
     int c1,totalseq,totalaln;
     unsigned int c2;
     string referencesequence=sequences[refseq];
@@ -2157,8 +2154,8 @@ void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string
     if(intermediate){
         vector<string> filterVec;
         string parameters;
-        if(taxon == "") parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
-        else parameters = taxon + " " + QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        if(taxon == "") parameters = QString::number(minocc).toStdString() + " 0 0 0 " + " " + refseqName + alphabet;
+        else parameters = QString::number(minocc).toStdString() + " 0 0 " + taxon + " " + refseqName + " " + alphabet;
         filterVec.push_back(parameters);
         filterVec.push_back(refseqName);
         for(unsigned int i = 0; i < sequencenames.size(); i++){
@@ -2181,7 +2178,7 @@ void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string
     progress.setValue(sequences.size());
 }
 
-void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
+void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq, string alphabet, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -2218,8 +2215,8 @@ void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string
     if(intermediate){
         vector<string> filterVec;
         string parameters;
-        if(taxon == "") parameters = QString::number(minocc).toStdString() + " 0 0 " + refseqName;
-        else parameters = taxon + " " + QString::number(minocc).toStdString() + " 0 0 " + refseqName;
+        if(taxon == "") parameters = QString::number(minocc).toStdString() + " 0 0 0 " + refseqName + " " + alphabet;
+        else parameters = QString::number(minocc).toStdString() + " 0 0 " + taxon + " " + refseqName + "" + alphabet;
 
         filterVec.push_back(parameters);
         filterVec.push_back(refseqName);
@@ -2245,7 +2242,7 @@ void Alignment::AlignmentTrimming(string taxon, float minocc, int refseq, string
 
 }
 
-void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate, string newalignmentfilename){
+void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, string alphabet, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Culling Minimum Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -2273,8 +2270,10 @@ void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float min
     if(intermediate){
         vector<string> filterVec;
         string parameters;
-        if(taxon == "") parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
-        else parameters = taxon + " " + QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + refSeqName;
+        if(taxon == "")
+            parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 0 " + refSeqName + " " + alphabet;
+        else
+            parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " 0 " + taxon + " " + refSeqName + " " + alphabet;
 
         filterVec.push_back(parameters);
         filterVec.push_back(refSeqName);
@@ -2299,7 +2298,7 @@ void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float min
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 }
 
-void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, bool intermediate, string newalignmentfilename){
+void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, string alphabet, bool intermediate, string newalignmentfilename){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -2339,8 +2338,8 @@ void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float 
     if(intermediate){
         vector<string> filterVec;
         string parameters;
-        if(taxon == "") parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
-        else parameters = taxon + " " + QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + refseqName;
+        if(taxon == "") parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " 0 " + refseqName + " " + alphabet;
+        else parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + taxon + " " + refseqName + " " + alphabet;
 
         filterVec.push_back(parameters);
         filterVec.push_back(refseqName);
@@ -6224,10 +6223,9 @@ void Alignment::addDeltaLine(vector<float> line){
     Deltas.push_back(line);
 }
 
-void Alignment::applyAlphabetReduction(string name, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter){
+void Alignment::applyAlphabetReduction(string params, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter){
     vector<string> newFilterList;
     vector<string> newFilterSeq;
-    string params = filterSequences[filterIndex][0] + " " + name;
 
     newFilterSeq.push_back(params);
     newFilterList.push_back(params);

@@ -237,11 +237,11 @@ public:
     unsigned int SeqSize(int seq); //[OK]
     void alignment2UpperCase();
     void IdentityMatrixCalculation();
-    void taxonTrimming(string taxon, string refseqName, string refSeq, bool intermediate = true);
-    void IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
-    void IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, bool intermediate = true, string newalignmentfilename="");//[OK]
-    void AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq,bool intermediate = true, string newalignmentfilename="");//[OK]
-    void AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive, bool inter);
+    void taxonTrimming(string taxon, string refseqName, string refSeq, string alphabet, bool intermediate = true);
+    void IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, string alphabet, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, string alphabet, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq, string alphabet, bool intermediate = true, string newalignmentfilename="");//[OK]
+    void AlignmentTrimming(string taxon, float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive, string alphabet, bool inter);
     void UniprotList(string uniprotlistfilename, string newalignmentfilename);
     void IdentityStatistics(string familyid);
     void dGCalculation();//[OK]
@@ -302,7 +302,7 @@ public:
     void uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins);
     vector<string> getConsRes();
     vector<Uniprot*> getAllResidueFeatures(string res);
-    void applyAlphabetReduction(string name, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter=false);
+    void applyAlphabetReduction(string params, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter=false);
     vector<string> getRecommendsPDBs(string protein);
     string getPDBInterval(string pdbid);
     string getNoGAPSequence(int refseq);

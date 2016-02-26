@@ -82,6 +82,7 @@ private:
     void readPFAM(vector<string> pfam);
     void readSTO();
     void readSTO(vector<string> pfam);
+    Feature* parseFeature(string feature);
 
 public:
     Alignment();
@@ -143,6 +144,7 @@ public:
     string getUniprotEntryName(int i);
     unsigned int getUniprotEntryNofFeatures(int i);
     Feature* getUniprotFeature(int i, int j);
+    string getUniprotFunction(int i);
     string uniprotEntryToString(int i);
     void setMinssVector(vector<float> minss);
     unsigned int getMinssVectorSize();
@@ -302,6 +304,7 @@ public:
     void uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins);
     vector<string> getConsRes();
     vector<Uniprot*> getAllResidueFeatures(string res);
+    int getResidueFeaturesByCommCount(string res);
     void applyAlphabetReduction(string params, vector<string> oldChars, vector<char> newChars, int filterIndex, bool newFilter=false);
     vector<string> getRecommendsPDBs(string protein);
     string getPDBInterval(string pdbid);

@@ -570,12 +570,14 @@ public:
     QSpacerItem *horizontalSpacer_54;
     QTableWidget *tableResiduesComm;
     QWidget *page_20;
-    QGridLayout *gridLayout_22;
+    QGridLayout *gridLayout_4;
     QLabel *label_50;
+    QListWidget *lstProteinsMined;
+    QVBoxLayout *verticalLayout_3;
+    QLabel *lblUniprotFunction;
     QVBoxLayout *verticalLayout_35;
     QLabel *label_51;
     QTableWidget *tableProteinsMined1;
-    QListWidget *lstProteinsMined;
     QWidget *page_21;
     QGridLayout *gridLayout_23;
     QTreeWidget *treeMinerComms;
@@ -723,10 +725,10 @@ public:
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
-    QButtonGroup *buttonGroup_3;
-    QButtonGroup *buttonGroup_4;
-    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_2;
+    QButtonGroup *buttonGroup_3;
+    QButtonGroup *buttonGroup;
+    QButtonGroup *buttonGroup_4;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -3336,16 +3338,30 @@ public:
         stackedWidget2->addWidget(page_18);
         page_20 = new QWidget();
         page_20->setObjectName(QStringLiteral("page_20"));
-        gridLayout_22 = new QGridLayout(page_20);
-        gridLayout_22->setSpacing(6);
-        gridLayout_22->setContentsMargins(11, 11, 11, 11);
-        gridLayout_22->setObjectName(QStringLiteral("gridLayout_22"));
+        gridLayout_4 = new QGridLayout(page_20);
+        gridLayout_4->setSpacing(6);
+        gridLayout_4->setContentsMargins(11, 11, 11, 11);
+        gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
         label_50 = new QLabel(page_20);
         label_50->setObjectName(QStringLiteral("label_50"));
         label_50->setMinimumSize(QSize(0, 0));
         label_50->setMaximumSize(QSize(150, 16777215));
 
-        gridLayout_22->addWidget(label_50, 0, 0, 1, 1);
+        gridLayout_4->addWidget(label_50, 0, 0, 1, 1);
+
+        lstProteinsMined = new QListWidget(page_20);
+        lstProteinsMined->setObjectName(QStringLiteral("lstProteinsMined"));
+        lstProteinsMined->setMaximumSize(QSize(175, 16777215));
+
+        gridLayout_4->addWidget(lstProteinsMined, 1, 0, 1, 1);
+
+        verticalLayout_3 = new QVBoxLayout();
+        verticalLayout_3->setSpacing(6);
+        verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
+        lblUniprotFunction = new QLabel(page_20);
+        lblUniprotFunction->setObjectName(QStringLiteral("lblUniprotFunction"));
+
+        verticalLayout_3->addWidget(lblUniprotFunction);
 
         verticalLayout_35 = new QVBoxLayout();
         verticalLayout_35->setSpacing(6);
@@ -3356,8 +3372,8 @@ public:
         verticalLayout_35->addWidget(label_51);
 
         tableProteinsMined1 = new QTableWidget(page_20);
-        if (tableProteinsMined1->columnCount() < 9)
-            tableProteinsMined1->setColumnCount(9);
+        if (tableProteinsMined1->columnCount() < 8)
+            tableProteinsMined1->setColumnCount(8);
         QTableWidgetItem *__qtablewidgetitem43 = new QTableWidgetItem();
         tableProteinsMined1->setHorizontalHeaderItem(0, __qtablewidgetitem43);
         QTableWidgetItem *__qtablewidgetitem44 = new QTableWidgetItem();
@@ -3374,20 +3390,15 @@ public:
         tableProteinsMined1->setHorizontalHeaderItem(6, __qtablewidgetitem49);
         QTableWidgetItem *__qtablewidgetitem50 = new QTableWidgetItem();
         tableProteinsMined1->setHorizontalHeaderItem(7, __qtablewidgetitem50);
-        QTableWidgetItem *__qtablewidgetitem51 = new QTableWidgetItem();
-        tableProteinsMined1->setHorizontalHeaderItem(8, __qtablewidgetitem51);
         tableProteinsMined1->setObjectName(QStringLiteral("tableProteinsMined1"));
 
         verticalLayout_35->addWidget(tableProteinsMined1);
 
 
-        gridLayout_22->addLayout(verticalLayout_35, 0, 1, 2, 1);
+        verticalLayout_3->addLayout(verticalLayout_35);
 
-        lstProteinsMined = new QListWidget(page_20);
-        lstProteinsMined->setObjectName(QStringLiteral("lstProteinsMined"));
-        lstProteinsMined->setMaximumSize(QSize(175, 16777215));
 
-        gridLayout_22->addWidget(lstProteinsMined, 1, 0, 1, 1);
+        gridLayout_4->addLayout(verticalLayout_3, 1, 1, 1, 1);
 
         stackedWidget2->addWidget(page_20);
         page_21 = new QWidget();
@@ -3404,26 +3415,22 @@ public:
         gridLayout_23->addWidget(treeMinerComms, 0, 0, 1, 1);
 
         tableProteinsMined2 = new QTableWidget(page_21);
-        if (tableProteinsMined2->columnCount() < 9)
-            tableProteinsMined2->setColumnCount(9);
+        if (tableProteinsMined2->columnCount() < 7)
+            tableProteinsMined2->setColumnCount(7);
+        QTableWidgetItem *__qtablewidgetitem51 = new QTableWidgetItem();
+        tableProteinsMined2->setHorizontalHeaderItem(0, __qtablewidgetitem51);
         QTableWidgetItem *__qtablewidgetitem52 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(0, __qtablewidgetitem52);
+        tableProteinsMined2->setHorizontalHeaderItem(1, __qtablewidgetitem52);
         QTableWidgetItem *__qtablewidgetitem53 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(1, __qtablewidgetitem53);
+        tableProteinsMined2->setHorizontalHeaderItem(2, __qtablewidgetitem53);
         QTableWidgetItem *__qtablewidgetitem54 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(2, __qtablewidgetitem54);
+        tableProteinsMined2->setHorizontalHeaderItem(3, __qtablewidgetitem54);
         QTableWidgetItem *__qtablewidgetitem55 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(3, __qtablewidgetitem55);
+        tableProteinsMined2->setHorizontalHeaderItem(4, __qtablewidgetitem55);
         QTableWidgetItem *__qtablewidgetitem56 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(4, __qtablewidgetitem56);
+        tableProteinsMined2->setHorizontalHeaderItem(5, __qtablewidgetitem56);
         QTableWidgetItem *__qtablewidgetitem57 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(5, __qtablewidgetitem57);
-        QTableWidgetItem *__qtablewidgetitem58 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(6, __qtablewidgetitem58);
-        QTableWidgetItem *__qtablewidgetitem59 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(7, __qtablewidgetitem59);
-        QTableWidgetItem *__qtablewidgetitem60 = new QTableWidgetItem();
-        tableProteinsMined2->setHorizontalHeaderItem(8, __qtablewidgetitem60);
+        tableProteinsMined2->setHorizontalHeaderItem(6, __qtablewidgetitem57);
         tableProteinsMined2->setObjectName(QStringLiteral("tableProteinsMined2"));
 
         gridLayout_23->addWidget(tableProteinsMined2, 0, 1, 1, 1);
@@ -4207,8 +4214,8 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(2);
-        stackedWidget2->setCurrentIndex(9);
+        stackedWidget->setCurrentIndex(8);
+        stackedWidget2->setCurrentIndex(11);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -4586,45 +4593,40 @@ public:
         cmdBackResComm->setText(QApplication::translate("MainWindow", "<", 0));
         cmdNextResComm->setText(QApplication::translate("MainWindow", ">", 0));
         label_50->setText(QApplication::translate("MainWindow", "Proteins:", 0));
+        lblUniprotFunction->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600;\">Function: </span></p></body></html>", 0));
         label_51->setText(QApplication::translate("MainWindow", "Features:", 0));
         QTableWidgetItem *___qtablewidgetitem43 = tableProteinsMined1->horizontalHeaderItem(0);
-        ___qtablewidgetitem43->setText(QApplication::translate("MainWindow", "Residue", 0));
+        ___qtablewidgetitem43->setText(QApplication::translate("MainWindow", "Alignment Residue", 0));
         QTableWidgetItem *___qtablewidgetitem44 = tableProteinsMined1->horizontalHeaderItem(1);
-        ___qtablewidgetitem44->setText(QApplication::translate("MainWindow", "Comm", 0));
+        ___qtablewidgetitem44->setText(QApplication::translate("MainWindow", "Sequence Residue", 0));
         QTableWidgetItem *___qtablewidgetitem45 = tableProteinsMined1->horizontalHeaderItem(2);
-        ___qtablewidgetitem45->setText(QApplication::translate("MainWindow", "Type", 0));
+        ___qtablewidgetitem45->setText(QApplication::translate("MainWindow", "Comm", 0));
         QTableWidgetItem *___qtablewidgetitem46 = tableProteinsMined1->horizontalHeaderItem(3);
-        ___qtablewidgetitem46->setText(QApplication::translate("MainWindow", "Description", 0));
+        ___qtablewidgetitem46->setText(QApplication::translate("MainWindow", "Type", 0));
         QTableWidgetItem *___qtablewidgetitem47 = tableProteinsMined1->horizontalHeaderItem(4);
-        ___qtablewidgetitem47->setText(QApplication::translate("MainWindow", "Position", 0));
+        ___qtablewidgetitem47->setText(QApplication::translate("MainWindow", "Description", 0));
         QTableWidgetItem *___qtablewidgetitem48 = tableProteinsMined1->horizontalHeaderItem(5);
-        ___qtablewidgetitem48->setText(QApplication::translate("MainWindow", "Begin", 0));
+        ___qtablewidgetitem48->setText(QApplication::translate("MainWindow", "Position", 0));
         QTableWidgetItem *___qtablewidgetitem49 = tableProteinsMined1->horizontalHeaderItem(6);
-        ___qtablewidgetitem49->setText(QApplication::translate("MainWindow", "End", 0));
+        ___qtablewidgetitem49->setText(QApplication::translate("MainWindow", "Begin", 0));
         QTableWidgetItem *___qtablewidgetitem50 = tableProteinsMined1->horizontalHeaderItem(7);
-        ___qtablewidgetitem50->setText(QApplication::translate("MainWindow", "Original", 0));
-        QTableWidgetItem *___qtablewidgetitem51 = tableProteinsMined1->horizontalHeaderItem(8);
-        ___qtablewidgetitem51->setText(QApplication::translate("MainWindow", "Variation", 0));
+        ___qtablewidgetitem50->setText(QApplication::translate("MainWindow", "End", 0));
         QTreeWidgetItem *___qtreewidgetitem2 = treeMinerComms->headerItem();
         ___qtreewidgetitem2->setText(0, QApplication::translate("MainWindow", "Communities", 0));
-        QTableWidgetItem *___qtablewidgetitem52 = tableProteinsMined2->horizontalHeaderItem(0);
-        ___qtablewidgetitem52->setText(QApplication::translate("MainWindow", "Protein", 0));
-        QTableWidgetItem *___qtablewidgetitem53 = tableProteinsMined2->horizontalHeaderItem(1);
-        ___qtablewidgetitem53->setText(QApplication::translate("MainWindow", "Sequence No", 0));
-        QTableWidgetItem *___qtablewidgetitem54 = tableProteinsMined2->horizontalHeaderItem(2);
-        ___qtablewidgetitem54->setText(QApplication::translate("MainWindow", "Type", 0));
-        QTableWidgetItem *___qtablewidgetitem55 = tableProteinsMined2->horizontalHeaderItem(3);
-        ___qtablewidgetitem55->setText(QApplication::translate("MainWindow", "Description", 0));
-        QTableWidgetItem *___qtablewidgetitem56 = tableProteinsMined2->horizontalHeaderItem(4);
-        ___qtablewidgetitem56->setText(QApplication::translate("MainWindow", "Position", 0));
-        QTableWidgetItem *___qtablewidgetitem57 = tableProteinsMined2->horizontalHeaderItem(5);
-        ___qtablewidgetitem57->setText(QApplication::translate("MainWindow", "Begin", 0));
-        QTableWidgetItem *___qtablewidgetitem58 = tableProteinsMined2->horizontalHeaderItem(6);
-        ___qtablewidgetitem58->setText(QApplication::translate("MainWindow", "End", 0));
-        QTableWidgetItem *___qtablewidgetitem59 = tableProteinsMined2->horizontalHeaderItem(7);
-        ___qtablewidgetitem59->setText(QApplication::translate("MainWindow", "Original", 0));
-        QTableWidgetItem *___qtablewidgetitem60 = tableProteinsMined2->horizontalHeaderItem(8);
-        ___qtablewidgetitem60->setText(QApplication::translate("MainWindow", "Variation", 0));
+        QTableWidgetItem *___qtablewidgetitem51 = tableProteinsMined2->horizontalHeaderItem(0);
+        ___qtablewidgetitem51->setText(QApplication::translate("MainWindow", "Protein", 0));
+        QTableWidgetItem *___qtablewidgetitem52 = tableProteinsMined2->horizontalHeaderItem(1);
+        ___qtablewidgetitem52->setText(QApplication::translate("MainWindow", "Sequence No", 0));
+        QTableWidgetItem *___qtablewidgetitem53 = tableProteinsMined2->horizontalHeaderItem(2);
+        ___qtablewidgetitem53->setText(QApplication::translate("MainWindow", "Type", 0));
+        QTableWidgetItem *___qtablewidgetitem54 = tableProteinsMined2->horizontalHeaderItem(3);
+        ___qtablewidgetitem54->setText(QApplication::translate("MainWindow", "Description", 0));
+        QTableWidgetItem *___qtablewidgetitem55 = tableProteinsMined2->horizontalHeaderItem(4);
+        ___qtablewidgetitem55->setText(QApplication::translate("MainWindow", "Position", 0));
+        QTableWidgetItem *___qtablewidgetitem56 = tableProteinsMined2->horizontalHeaderItem(5);
+        ___qtablewidgetitem56->setText(QApplication::translate("MainWindow", "Begin", 0));
+        QTableWidgetItem *___qtablewidgetitem57 = tableProteinsMined2->horizontalHeaderItem(6);
+        ___qtablewidgetitem57->setText(QApplication::translate("MainWindow", "End", 0));
         label_57->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Correlations Graph Visualization</span></p></body></html>", 0));
         cmdHideShowAntiCorr->setText(QApplication::translate("MainWindow", "Hide Anti-Correlations", 0));
         label_58->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Communities Graphs Visualization</span></p></body></html>", 0));

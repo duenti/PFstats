@@ -2187,7 +2187,8 @@ void MainWindow::showUniprotGroupByProteins(){
 
     ui->lstProteinsMined->clear();
     for(unsigned int i = 0; i < currentAlign->getUniprotMinedSize(); i++){
-        ui->lstProteinsMined->addItem(currentAlign->getUniprotEntryName(i).c_str());
+        string prot = currentAlign->getUniprotEntryName(i) + " [" + to_string(currentAlign->getUniprotEntryNofFeatures(i)) + "]";
+        ui->lstProteinsMined->addItem(prot.c_str());
     }
 }
 
@@ -2200,11 +2201,13 @@ void MainWindow::showUniprotGroupByComms(){
         vector<string> residues = currentAlign->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeMinerComms);
 
-        string text = "Comm " + QString::number(i).toStdString();
+        string text = "Comm " + QString::number(i+1).toStdString();
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < residues.size(); j++){
-            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(residues[j].c_str()))));
+            int nOfResidues = currentAlign->getResidueFeaturesByCommCount(residues[j]);
+            string child = residues[j] + " [" + to_string(nOfResidues) + "]";
+            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
         }
     }
 
@@ -2217,7 +2220,9 @@ void MainWindow::showUniprotGroupByComms(){
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < consRes.size(); j++){
-            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(consRes[j].c_str()))));
+            int nOfResidues = currentAlign->getResidueFeaturesByCommCount(consRes[j]);
+            string child = consRes[j] + " [" + to_string(nOfResidues) + "]";
+            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
         }
     }
 }
@@ -6596,7 +6601,7 @@ void MainWindow::on_cmdLookAll_clicked()
 void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
 {
     ui->tableProteinsMined1->clearContents();
-    string name = index.data().toString().toStdString();
+    string name = index.data().toString().split(' ')[0].toStdString();
 
     //Acha a entrada uniprot selecionada
     unsigned int j = 0;
@@ -6606,6 +6611,10 @@ void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
         }
     }
 
+    string function = "Function: " + currentAlign->getUniprotFunction(j);
+    ui->lblUniprotFunction->setText(function.c_str());
+    ui->lblUniprotFunction->setWordWrap(true);
+
     ui->tableProteinsMined1->setRowCount(currentAlign->getUniprotEntryNofFeatures(j));
     for(unsigned int k = 0; k < currentAlign->getUniprotEntryNofFeatures(j); k++){
         Feature *f = currentAlign->getUniprotFeature(j,k);
@@ -6613,49 +6622,45 @@ void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
         printf("\nRES: %s\nAGREG:%d\n",f->getResidueColigated().c_str(),f->getAgregate());
 
         if(f->getResidueColigated() != "" && f->getAgregate() != -1){
+            QTableWidgetItem *itemA = new QTableWidgetItem();
+            itemA->setText(f->getAlignResidue().c_str());
+            ui->tableProteinsMined1->setItem(k,0,itemA);
+
             QTableWidgetItem *item = new QTableWidgetItem();
+            if(f->getAlignResidue()[0] != f->getResidueColigated()[0])
+                item->setTextColor(QColor(255,0,0));
             item->setText(f->getResidueColigated().c_str());
-            ui->tableProteinsMined1->setItem(k,0,item);
+            ui->tableProteinsMined1->setItem(k,1,item);
 
             QTableWidgetItem *item2 = new QTableWidgetItem();
             if(f->getAgregate() == 0) item2->setText("CONS");
             else item2->setText(QString::number(f->getAgregate()));
-            ui->tableProteinsMined1->setItem(k,1,item2);
+            ui->tableProteinsMined1->setItem(k,2,item2);
 
             QTableWidgetItem *item3 = new QTableWidgetItem();
             item3->setText(f->getType().c_str());
-            ui->tableProteinsMined1->setItem(k,2,item3);
+            ui->tableProteinsMined1->setItem(k,3,item3);
 
             QTableWidgetItem *item4 = new QTableWidgetItem();
             item4->setText(f->getDescription().c_str());
-            ui->tableProteinsMined1->setItem(k,3,item4);
+            ui->tableProteinsMined1->setItem(k,4,item4);
 
             if(f->getPosition() != -1){
                 QTableWidgetItem *item5 = new QTableWidgetItem();
                 item5->setText(QString::number(f->getPosition()));
-                ui->tableProteinsMined1->setItem(k,4,item5);
+                ui->tableProteinsMined1->setItem(k,5,item5);
             }
 
             if(f->getBegin() != -1){
                 QTableWidgetItem *item6 = new QTableWidgetItem();
                 item6->setText(QString::number(f->getBegin()));
-                ui->tableProteinsMined1->setItem(k,5,item6);
+                ui->tableProteinsMined1->setItem(k,6,item6);
             }
 
             if(f->getEnd() != -1){
                 QTableWidgetItem *item7 = new QTableWidgetItem();
                 item7->setText(QString::number(f->getEnd()));
-                ui->tableProteinsMined1->setItem(k,6,item7);
-            }
-
-            if(f->getOriginal() != ""){
-                QTableWidgetItem *item8 = new QTableWidgetItem();
-                item8->setText(f->getOriginal().c_str());
-                ui->tableProteinsMined1->setItem(k,7,item8);
-
-                QTableWidgetItem *item9 = new QTableWidgetItem();
-                item9->setText(f->getVariation().c_str());
-                ui->tableProteinsMined1->setItem(k,8,item9);
+                ui->tableProteinsMined1->setItem(k,7,item7);
             }
         }
     }
@@ -6667,7 +6672,7 @@ void MainWindow::on_treeMinerComms_clicked(const QModelIndex &index)
 {
     ui->tableProteinsMined2->clearContents();
 
-    QString item = index.data().toString();
+    QString item = index.data().toString().split(' ')[0];
 
     if(!item.startsWith("Comm") && !item.startsWith("Conservation")){
         vector<Uniprot*> features = currentAlign->getAllResidueFeatures(item.toStdString());
@@ -6681,6 +6686,8 @@ void MainWindow::on_treeMinerComms_clicked(const QModelIndex &index)
             Feature *f = features[j]->getFeature(0);
 
             QTableWidgetItem *item1 = new QTableWidgetItem();
+            if(index.data().toString().toStdString()[0] != f->getResidueColigated()[0])
+                item1->setTextColor(QColor(255,0,0));
             item1->setText(f->getResidueColigated().c_str());
             ui->tableProteinsMined2->setItem(j,1,item1);
 
@@ -7560,9 +7567,14 @@ void MainWindow::on_txtGraphCutoff_editingFinished()
 void MainWindow::setLibPath(){
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
+    dialog.setDirectory(libpath.c_str());
     dialog.setOption(QFileDialog::ShowDirsOnly);
 
-    libpath = dialog.getExistingDirectory().toStdString() + "/";
+    string temp = dialog.getExistingDirectory().toStdString() + "/";
+
+    if(temp == "/") return;
+
+    libpath = temp;
 
     QFile file(CONFIG);
     file.open(QIODevice::WriteOnly);

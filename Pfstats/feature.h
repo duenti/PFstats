@@ -14,8 +14,8 @@ private:
     int begin;
     int end;
     string id;
-    string original;
-    string variation;
+    string original;//old
+    string variation;//old
     string residueColigated;//SeqNumber
     string residueColigatedAlign; //AlignNumber
     int aggregate; //-1: NOT AGGREGATED, 0: CONS, N > 0: N OF COMM

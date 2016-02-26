@@ -596,6 +596,10 @@ Feature* Alignment::getUniprotFeature(int i, int j){
     return uniprotMined[i]->getFeature(j);
 }
 
+string Alignment::getUniprotFunction(int i){
+    return uniprotMined[i]->getFunction();
+}
+
 string Alignment::uniprotEntryToString(int i){
     return uniprotMined[i]->toString();
 }
@@ -5850,6 +5854,239 @@ void Alignment::exportLookComm(QString filename, int type){
     QMessageBox::information(NULL,"Exporting Data","Uniprot Mined data was exported succesfully.");
 }
 
+Feature* Alignment::parseFeature(string feature){
+    Feature *f = new Feature();
+    vector<string> vecFilter = split(feature,' ');
+
+    f->setType("");
+    if(vecFilter[1] == "ACT_SITE") f->setType("Active Site");
+    else if(vecFilter[1] == "BINDING") f->setType("Binding Site");
+    else if(vecFilter[1] == "CA_BIND") f->setType("Calcium Bind");
+    else if(vecFilter[1] == "DNA_BIND") f->setType("DNA Bind");
+    else if(vecFilter[1] == "METAL") f->setType("Metal Bind");
+    else if(vecFilter[1] == "NP_BIND") f->setType("Nucleotide Bind");
+    else if(vecFilter[1] == "SITE") f->setType("Site");
+    else if(vecFilter[1] == "CROSSLNK") f->setType("Cross-Link");
+    else if(vecFilter[1] == "DISULFID") f->setType("Disulfide Bond");
+    else if(vecFilter[1] == "CARBOHYD") f->setType("Glycosylation");
+    else if(vecFilter[1] == "LIPID") f->setType("Lipidation");
+    else if(vecFilter[1] == "MOD_RES") f->setType("Modified Residue");
+
+    if(f->getType() == "") return f;
+
+    if(vecFilter[2] == vecFilter[3]) f->setPosition(atoi(vecFilter[2].c_str()));
+    else{
+        f->setBegin(atoi(vecFilter[2].c_str()));
+        f->setEnd(atoi(vecFilter[3].c_str()));
+    }
+
+    string description = "";
+
+    for(unsigned int i = 4; i < vecFilter.size(); i++)
+        description += vecFilter[i] + " ";
+
+    f->setDescription(description);
+
+    return f;
+}
+
+void Alignment::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<int> idproteins){
+    QProgressDialog progress("Reading data from webservice (1/2","Abort",10,100);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    vector<Uniprot*> dataprot;
+    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/uniprot/look/";
+    string post_content = "";
+
+    //Monta a string POST
+    for(unsigned int i = 0; i < proteins.size(); i++){
+        post_content += proteins[i] + "\n";
+    }
+
+    if(progress.wasCanceled()) return;
+    progress.setValue(20);
+
+    QByteArray const data = QString::fromStdString(post_content).toUtf8();
+    QNetworkRequest request(QUrl(QString::fromStdString(url)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      QStringLiteral("text/plain; charset=utf-8"));
+    QNetworkAccessManager manager;
+    QNetworkReply *response(manager.post(request,data));
+    //QNetworkReply* response(manager.get(request));
+    QEventLoop event;
+    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
+    event.exec();
+    QString result = response->readAll();
+    //printf("%s",result.toStdString().c_str());
+    progress.setValue(50);
+    if(progress.wasCanceled()) return;
+
+    vector<string> lines = split(result.toStdString(),'\n');
+
+    //Percorre linhas de proteínas
+    for(unsigned int i = 0; i < lines.size(); i++){
+        vector<string> featVec = split(lines[i],'\t');
+        if(featVec.size() > 2){
+            string function = "";
+            if(featVec[1].substr(0,11) == " FUNCTION: ") function = featVec[1].substr(11);
+            else if(featVec[1].substr(0,10) == "FUNCTION: ") function = featVec[1].substr(10);
+            else function = featVec[1];
+            Uniprot *unientry = new Uniprot(featVec[0],function);
+
+            //Percorre cada tipo de feature de um grupo
+            for(unsigned int j = 2; j < featVec.size(); j++){
+                string kindOfFeature = featVec[j];
+
+                if(kindOfFeature != "null" && kindOfFeature != " "){
+                    vector<string> featVec2 = split(kindOfFeature,';');
+
+                    for(unsigned int k = 0; k < featVec2.size(); k++){
+                        Feature* f = this->parseFeature(featVec2[k]);
+
+                        if(f->getType() != "")
+                            unientry->addFeature(f);
+                    }
+                }
+            }
+
+            dataprot.push_back(unientry);
+        }
+    }
+    //QMessageBox::information(NULL,"a","1");
+    progress.setValue(65);
+    if(progress.wasCanceled()) return;
+
+    //QMessageBox::information(NULL,"A","PRIMERA PARTE OK");
+    //SEGUNDA PARTE => TRABALHAR OS DADOS OBTIDOS
+    vector<vector<string> > residuesList;
+    vector<vector<string> > alignResiduesList;
+
+    if(cons){
+        //Calculate Conserved Residues
+        vector<char> conservedaa;
+        vector<int> conservedpos;
+
+        this->CalculateFrequencies();
+
+        for(unsigned int i = 0; i < frequencies.size()-2; i++){
+            for(unsigned int j = 1; j <= 20; j++){
+                float freq = frequencies[i][j]/((float)sequences.size());
+                //printf("freq=%f / minCons=%f\n",freq,minCons);
+                if(freq >= minCons){
+                    conservedaa.push_back(num2aa(j));
+                    conservedpos.push_back(i+1);
+                }
+            }
+        }
+        progress.setValue(70);
+        if(progress.wasCanceled()) return;
+
+        for(unsigned int i = 0; i < idproteins.size(); i++){
+            vector<string> vec;
+            vector<string> vec2;
+            residuesList.push_back(vec);
+            alignResiduesList.push_back(vec2);
+            for(unsigned int j = 0; j < conservedaa.size(); j++){
+                //if(fullAlignment[idproteins[i]][conservedpos[j]-1]==conservedaa[j]){
+                    //printf("%s - %s\n", proteins[i].c_str(), fullAlignment[idproteins[i]].c_str());
+                    //string oldres = conservedaa[j] + QString::number(AlignNumbering2Sequence(idproteins[i]+1,conservedpos[j]) + GetOffsetFromSeqName(fullAlignment[idproteins[i]])).toStdString();
+                    string res = fullSequences[idproteins[i]][conservedpos[j]-1] + QString::number(AlignNumbering2Sequence2(idproteins[i]+1,conservedpos[j]) + GetOffsetFromSeqName(fullAlignment[idproteins[i]])-1).toStdString();
+                    residuesList[i].push_back(res);
+                    string res2 = conservedaa[j] + QString::number(conservedpos[j]).toStdString();
+                    alignResiduesList[i].push_back(res2);
+                    //printf("%s - %s\n",res2.c_str(),res.c_str());
+                //}
+            }
+        }
+    }
+
+   progress.setValue(75);
+    if(progress.wasCanceled()) return;
+
+    uniprotMined.clear();
+
+    for(unsigned int i = 0; i < dataprot.size(); i++){
+        Uniprot *entry = new Uniprot(*dataprot[i]);
+        Uniprot *out = new Uniprot();
+        out->setName(entry->getName());
+        //printf("FUNCTION: %s\n",entry->getFunction().c_str());
+        out->setFunction(entry->getFunction());
+
+        if(progress.wasCanceled()) return;
+
+        //printf("%s\n",entry->toString().c_str());
+
+        for(int j = 0; j < entry->countFeatures(); j++){
+            Feature *f = entry->getFeature(j);
+            //printf("%s\n",f->toString().c_str());
+
+            if(cons){
+                for(unsigned int k = 0; k < residuesList[i].size(); k++){
+                    string respos = residuesList[i][k];
+                    string resAlign = alignResiduesList[i][k];
+                    int pos = stoi(respos.substr(1));
+
+                    if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
+                        Feature *f1 = new Feature();
+                        f1->setAggregation(0);
+                        f1->setBegin(f->getBegin());
+                        f1->setDescription(f->getDescription());
+                        f1->setEnd(f->getEnd());
+                        f1->setId(f->getId());
+                        f1->setOriginal(f->getOriginal());
+                        f1->setPosition(f->getPosition());
+                        f1->setResidueColigated(respos);
+                        f1->setAlignResidue(resAlign);
+                        f1->setType(f->getType());
+                        f1->setVariation(f->getVariation());
+                        //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                        out->addFeature(f1);
+                    }
+                }
+            }
+
+            if(comm){
+                for(unsigned int k = 0; k < comunidades.size(); k++){
+                    for(unsigned int l = 0; l < comunidades[k].size(); l++){
+                        string respos = comunidades[k][l];
+                        char aa = respos[0];
+                        int alignPos = stoi(respos.substr(1));
+                        int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]) -1;
+                        string newResPos = fullSequences[idproteins[i]][alignPos-1] + QString::number(pos).toStdString();
+                        string newAlignPos = aa + QString::number(alignPos).toStdString();
+                        //printf("SEQUENCE: %s - ALIGNN: %s - SEQN: %s\n",fullAlignment[idproteins[i]].c_str(),newAlignPos.c_str(),newResPos.c_str());
+
+                        if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
+                            Feature *f1 = new Feature();
+                            f1->setAggregation(k+1);
+                            f1->setBegin(f->getBegin());
+                            f1->setDescription(f->getDescription());
+                            f1->setEnd(f->getEnd());
+                            f1->setId(f->getId());
+                            f1->setOriginal(f->getOriginal());
+                            f1->setPosition(f->getPosition());
+                            f1->setResidueColigated(newResPos);
+                            f1->setAlignResidue(newAlignPos);
+                            f1->setType(f->getType());
+                            f1->setVariation(f->getVariation());
+                            //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                            out->addFeature(f1);
+                        }
+                    }
+                }
+            }
+            f->kill();
+        }
+        entry->kill();
+        uniprotMined.push_back(out);
+    }
+    progress.setValue(100);
+
+    QMessageBox::information(NULL,"Uniprot Looking","Uniprot Looking has finished successfully");
+}
+
+/*
 void Alignment::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<int> idproteins){
     QProgressDialog progress("Reading data from Uniprot... (1/2)", "Abort", 0, proteins.size()+1);
     progress.setWindowModality(Qt::WindowModal);
@@ -6145,15 +6382,15 @@ void Alignment::uniprotLook(bool cons, bool comm, vector<string> proteins, vecto
         uniprotMined.push_back(out);
     }
 
-/*
-    for(unsigned int i = 0; i < uniprotMined.size(); i++){
-        printf("%s\n",uniprotMined[i]->toString().c_str());
-    }
-*/
+
+//    for(unsigned int i = 0; i < uniprotMined.size(); i++){
+//        printf("%s\n",uniprotMined[i]->toString().c_str());
+//    }
+
 
     QMessageBox::information(NULL,"Uniprot Looking","Uniprot Looking has finished successfully");
 }
-
+*/
 vector<string> Alignment::getConsRes(){
     vector<char> conservedaa;
     vector<int> conservedpos;
@@ -6166,7 +6403,7 @@ vector<string> Alignment::getConsRes(){
             //printf("freq=%f / minCons=%f\n",freq,minCons);
             if(freq >= minCons){
                 conservedaa.push_back(num2aa(j));
-                conservedpos.push_back(i);
+                conservedpos.push_back(i+1);
             }
         }
     }
@@ -6200,6 +6437,20 @@ vector<Uniprot *> Alignment::getAllResidueFeatures(string res){
     }
 
     return outVec;
+}
+
+int Alignment::getResidueFeaturesByCommCount(string res){
+    int total = 0;
+
+    for(unsigned int i = 0; i < uniprotMined.size(); i++){
+        for(int j = 0; j < uniprotMined[i]->countFeatures(); j++){
+            Feature *f = uniprotMined[i]->getFeature(j);
+
+            if(f->getAlignResidue() == res) total ++;
+        }
+    }
+
+    return total;
 }
 
 unsigned int Alignment::getDeltasSize(){

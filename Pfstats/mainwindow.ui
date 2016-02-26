@@ -185,7 +185,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>8</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -2597,7 +2597,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>9</number>
+             <number>11</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -3984,7 +3984,7 @@
              </layout>
             </widget>
             <widget class="QWidget" name="page_20">
-             <layout class="QGridLayout" name="gridLayout_22">
+             <layout class="QGridLayout" name="gridLayout_4">
               <item row="0" column="0">
                <widget class="QLabel" name="label_50">
                 <property name="minimumSize">
@@ -4004,66 +4004,6 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="1" rowspan="2">
-               <layout class="QVBoxLayout" name="verticalLayout_35">
-                <item>
-                 <widget class="QLabel" name="label_51">
-                  <property name="text">
-                   <string>Features:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QTableWidget" name="tableProteinsMined1">
-                  <column>
-                   <property name="text">
-                    <string>Residue</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Comm</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Type</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Description</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Position</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Begin</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>End</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Original</string>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Variation</string>
-                   </property>
-                  </column>
-                 </widget>
-                </item>
-               </layout>
-              </item>
               <item row="1" column="0">
                <widget class="QListWidget" name="lstProteinsMined">
                 <property name="maximumSize">
@@ -4073,6 +4013,72 @@
                  </size>
                 </property>
                </widget>
+              </item>
+              <item row="1" column="1">
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QLabel" name="lblUniprotFunction">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Function: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_35">
+                  <item>
+                   <widget class="QLabel" name="label_51">
+                    <property name="text">
+                     <string>Features:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QTableWidget" name="tableProteinsMined1">
+                    <column>
+                     <property name="text">
+                      <string>Alignment Residue</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Sequence Residue</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Comm</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Type</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Description</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Position</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Begin</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>End</string>
+                     </property>
+                    </column>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -4134,16 +4140,6 @@
                 <column>
                  <property name="text">
                   <string>End</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string>Original</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string>Variation</string>
                  </property>
                 </column>
                </widget>
@@ -6012,9 +6008,9 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup_4"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

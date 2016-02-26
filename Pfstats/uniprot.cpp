@@ -10,6 +10,7 @@ Uniprot::Uniprot()
 Uniprot::Uniprot(Uniprot &prot){
     name = prot.getName();
     dataset = prot.getDataset();
+    function = prot.getFunction();
 
     for(int i = 0; i < prot.countFeatures(); i++)
         feats.push_back(prot.getFeature(i));
@@ -18,6 +19,11 @@ Uniprot::Uniprot(Uniprot &prot){
 Uniprot::Uniprot(string name, int dataset){
     this->name = name;
     this->dataset = dataset;
+}
+
+Uniprot::Uniprot(string name, string function){
+    this->name = name;
+    this->function = function;
 }
 
 Uniprot::~Uniprot()
@@ -59,6 +65,14 @@ string Uniprot::getName(){
 
 void Uniprot::setName(string n){
     name = n;
+}
+
+string Uniprot::getFunction(){
+    return function;
+}
+
+void Uniprot::setFunction(string func){
+    this->function = func;
 }
 
 void Uniprot::addFeature(Feature *f){

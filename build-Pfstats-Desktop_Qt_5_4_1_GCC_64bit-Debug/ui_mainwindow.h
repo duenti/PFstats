@@ -218,8 +218,13 @@ public:
     QWidget *page_3;
     QGridLayout *gridLayout_5;
     QLabel *label_9;
-    QHBoxLayout *horizontalLayout_68;
+    QHBoxLayout *horizontalLayout_89;
     QSpacerItem *horizontalSpacer_11;
+    QVBoxLayout *verticalLayout_25;
+    QHBoxLayout *horizontalLayout_68;
+    QLabel *label_82;
+    QComboBox *cmbFilterMethod;
+    QSpacerItem *horizontalSpacer_70;
     QVBoxLayout *verticalLayout_4;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_10;
@@ -725,9 +730,9 @@ public:
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
+    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup_3;
-    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_4;
 
     void setupUi(QMainWindow *MainWindow)
@@ -1198,6 +1203,7 @@ public:
         buttonGroup_2->setObjectName(QStringLiteral("buttonGroup_2"));
         buttonGroup_2->addButton(radioButton_3);
         radioButton_3->setObjectName(QStringLiteral("radioButton_3"));
+        radioButton_3->setEnabled(false);
         radioButton_3->setMinimumSize(QSize(64, 0));
 
         horizontalLayout_3->addWidget(radioButton_3);
@@ -1270,7 +1276,7 @@ public:
         radioButton_8 = new QRadioButton(groupBox_2);
         buttonGroup_4->addButton(radioButton_8);
         radioButton_8->setObjectName(QStringLiteral("radioButton_8"));
-        radioButton_8->setEnabled(false);
+        radioButton_8->setEnabled(true);
 
         horizontalLayout_5->addWidget(radioButton_8);
 
@@ -1287,7 +1293,7 @@ public:
         radioButton_9 = new QRadioButton(groupBox_2);
         buttonGroup_4->addButton(radioButton_9);
         radioButton_9->setObjectName(QStringLiteral("radioButton_9"));
-        radioButton_9->setEnabled(false);
+        radioButton_9->setEnabled(true);
 
         horizontalLayout_7->addWidget(radioButton_9);
 
@@ -1382,13 +1388,38 @@ public:
 
         gridLayout_5->addWidget(label_9, 0, 0, 1, 1);
 
+        horizontalLayout_89 = new QHBoxLayout();
+        horizontalLayout_89->setSpacing(6);
+        horizontalLayout_89->setObjectName(QStringLiteral("horizontalLayout_89"));
+        horizontalLayout_89->setContentsMargins(-1, 50, -1, -1);
+        horizontalSpacer_11 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_89->addItem(horizontalSpacer_11);
+
+        verticalLayout_25 = new QVBoxLayout();
+        verticalLayout_25->setSpacing(6);
+        verticalLayout_25->setObjectName(QStringLiteral("verticalLayout_25"));
         horizontalLayout_68 = new QHBoxLayout();
         horizontalLayout_68->setSpacing(6);
         horizontalLayout_68->setObjectName(QStringLiteral("horizontalLayout_68"));
-        horizontalLayout_68->setContentsMargins(-1, 50, -1, -1);
-        horizontalSpacer_11 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        label_82 = new QLabel(page_3);
+        label_82->setObjectName(QStringLiteral("label_82"));
+        label_82->setMinimumSize(QSize(155, 0));
 
-        horizontalLayout_68->addItem(horizontalSpacer_11);
+        horizontalLayout_68->addWidget(label_82);
+
+        cmbFilterMethod = new QComboBox(page_3);
+        cmbFilterMethod->setObjectName(QStringLiteral("cmbFilterMethod"));
+        cmbFilterMethod->setMinimumSize(QSize(180, 0));
+
+        horizontalLayout_68->addWidget(cmbFilterMethod);
+
+        horizontalSpacer_70 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_68->addItem(horizontalSpacer_70);
+
+
+        verticalLayout_25->addLayout(horizontalLayout_68);
 
         verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(6);
@@ -1398,12 +1429,14 @@ public:
         horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
         label_10 = new QLabel(page_3);
         label_10->setObjectName(QStringLiteral("label_10"));
+        label_10->setEnabled(false);
         label_10->setMinimumSize(QSize(155, 0));
 
         horizontalLayout_10->addWidget(label_10);
 
         cmbRefSeq = new QComboBox(page_3);
         cmbRefSeq->setObjectName(QStringLiteral("cmbRefSeq"));
+        cmbRefSeq->setEnabled(false);
         cmbRefSeq->setMinimumSize(QSize(180, 0));
         cmbRefSeq->setEditable(true);
         cmbRefSeq->setFrame(true);
@@ -1483,6 +1516,7 @@ public:
         horizontalLayout_12->setObjectName(QStringLiteral("horizontalLayout_12"));
         chkApplyMinId = new QCheckBox(page_3);
         chkApplyMinId->setObjectName(QStringLiteral("chkApplyMinId"));
+        chkApplyMinId->setEnabled(false);
 
         horizontalLayout_12->addWidget(chkApplyMinId);
 
@@ -1586,14 +1620,17 @@ public:
         verticalLayout_4->addLayout(horizontalLayout_34);
 
 
-        horizontalLayout_68->addLayout(verticalLayout_4);
+        verticalLayout_25->addLayout(verticalLayout_4);
+
+
+        horizontalLayout_89->addLayout(verticalLayout_25);
 
         horizontalSpacer_69 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_68->addItem(horizontalSpacer_69);
+        horizontalLayout_89->addItem(horizontalSpacer_69);
 
 
-        gridLayout_5->addLayout(horizontalLayout_68, 1, 0, 1, 1);
+        gridLayout_5->addLayout(horizontalLayout_89, 1, 0, 1, 1);
 
         verticalSpacer_7 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -4214,7 +4251,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(8);
+        stackedWidget->setCurrentIndex(1);
         stackedWidget2->setCurrentIndex(11);
 
 
@@ -4353,6 +4390,12 @@ public:
         chkDownloadAlignment->setText(QApplication::translate("MainWindow", "Download alignment", 0));
         cmdFetch->setText(QApplication::translate("MainWindow", "Fetch", 0));
         label_9->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Alignment Filtering</span></p><p align=\"justify\">In this phase, the alignment is filtered in order to reduce artifacts and biases. The first two filters need a reference sequence (usually, a protein with the usual size for the domain represented by the alignment). &quot;Minimum coverage&quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &quot;Minimum identity&quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &quot;Maximum identity&quot; filter is highly recommended in order to reduce the phylogenetic effect bias. It will compare each sequence to all others, removing those above the specified identity.</p></body></html>", 0));
+        label_82->setText(QApplication::translate("MainWindow", "Method:", 0));
+        cmbFilterMethod->clear();
+        cmbFilterMethod->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "HMM Filter", 0)
+         << QApplication::translate("MainWindow", "Refseq Filter", 0)
+        );
         label_10->setText(QApplication::translate("MainWindow", "Reference Sequence:", 0));
         chkApplyTaxonFilter->setText(QString());
         label_78->setText(QApplication::translate("MainWindow", "Taxon Filter (WEB):", 0));

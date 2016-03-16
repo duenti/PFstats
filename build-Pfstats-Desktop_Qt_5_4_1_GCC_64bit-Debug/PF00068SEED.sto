@@ -1,0 +1,462 @@
+# STOCKHOLM 1.0
+#=GS A7S5K1_NEMVE/17-131   AC A7S5K1.1
+#=GS A7S6G1_NEMVE/3-117    AC A7S6G1.1
+#=GS A7S6H4_NEMVE/6-114    AC A7S6H4.1
+#=GS A7SAU9_NEMVE/7-118    AC A7SAU9.1
+#=GS A7SNJ7_NEMVE/44-152   AC A7SNJ7.1
+#=GS A9C458_DANRE/26-143   AC A9C458.1
+#=GS B3S7T2_TRIAD/10-119   AC B3S7T2.1
+#=GS B7PVR0_IXOSC/50-161   AC B7PVR0.1
+#=GS C3Y4E1_BRAFL/37-150   AC C3Y4E1.1
+#=GS C3Y4E2_BRAFL/298-413  AC C3Y4E2.1
+#=GS C3ZS47_BRAFL/2-119    AC C3ZS47.1
+#=GS D6NKG5_CHICK/20-127   AC D6NKG5.1
+#=GS E1BLF3_BOVIN/22-130   AC E1BLF3.1
+#=GS E1C9K4_CHICK/22-129   AC E1C9K4.2
+#=GS E4WU53_OIKDI/199-318  AC E4WU53.1
+#=GS E4X235_OIKDI/16-134   AC E4X235.1
+#=GS E4X2D3_OIKDI/108-229  AC E4X2D3.1
+#=GS E4XBS7_OIKDI/41-155   AC E4XBS7.1
+#=GS E4XEF5_OIKDI/38-156   AC E4XEF5.1
+#=GS E4XUS4_OIKDI/117-247  AC E4XUS4.1
+#=GS E4XYC0_OIKDI/109-233  AC E4XYC0.1
+#=GS E5SP62_TRISP/50-164   AC E5SP62.1
+#=GS F1N9G4_CHICK/24-138   AC F1N9G4.2
+#=GS F1PW03_CANFA/76-183   AC F1PW03.2
+#=GS F1SUN2_PIG/30-144     AC F1SUN2.1
+#=GS F1SUN4_PIG/22-129     AC F1SUN4.1
+#=GS F1SUN7_PIG/22-130     AC F1SUN7.2
+#=GS F6TK75_XENTR/31-137   AC F6TK75.1
+#=GS F6UHQ4_MONDO/22-129   AC F6UHQ4.1
+#=GS F6URD6_CIOIN/30-148   AC F6URD6.2
+#=GS F6V4Y7_ORNAN/22-130   AC F6V4Y7.1
+#=GS F6VFV8_MONDO/39-153   AC F6VFV8.2
+#=GS F6WR52_HORSE/22-129   AC F6WR52.1
+#=GS F6XCW2_XENTR/25-140   AC F6XCW2.1
+#=GS F6ZQN7_MONDO/20-133   AC F6ZQN7.2
+#=GS F6ZRG6_CIOIN/40-158   AC F6ZRG6.2
+#=GS F6ZRZ5_MONDO/22-130   AC F6ZRZ5.1
+#=GS F7A6K0_MONDO/14-120   AC F7A6K0.1
+#=GS F7BBP1_HORSE/22-130   AC F7BBP1.1
+#=GS F7BNA3_HORSE/21-135   AC F7BNA3.1
+#=GS F7C5D9_ORNAN/71-179   AC F7C5D9.1
+#=GS F7CGN3_HORSE/22-129   AC F7CGN3.1
+#=GS F7CT17_HORSE/318-422  AC F7CT17.1
+#=GS F7E598_ORNAN/22-129   AC F7E598.2
+#=GS F7EBG4_ORNAN/21-135   AC F7EBG4.2
+#=GS F7EJ44_XENTR/361-463  AC F7EJ44.1
+#=GS F7G7D1_MONDO/198-304  AC F7G7D1.2
+#=GS F7GN52_CALJA/21-126   AC F7GN52.1
+#=GS G1KKJ3_ANOCA/350-455  AC G1KKJ3.1
+#=GS G1KKJ3_ANOCA/81-190   AC G1KKJ3.1
+#=GS G1N1R0_MELGA/18-127   AC G1N1R0.2
+#=GS G1N9E7_MELGA/24-136   AC G1N9E7.2
+#=GS G1NUN2_MYOLU/16-123   AC G1NUN2.1
+#=GS G1Q7T3_MYOLU/22-130   AC G1Q7T3.1
+#=GS G1QDI4_MYOLU/22-130   AC G1QDI4.1
+#=GS G1SER5_RABIT/24-138   AC G1SER5.1
+#=GS G1SRA0_RABIT/24-133   AC G1SRA0.1
+#=GS G1SRA2_RABIT/22-130   AC G1SRA2.1
+#=GS G1T1K5_RABIT/22-130   AC G1T1K5.1
+#=GS G1T522_RABIT/22-130   AC G1T522.1
+#=GS G3HU37_CRIGR/23-132   AC G3HU37.1
+#=GS G3I6R7_CRIGR/24-137   AC G3I6R7.1
+#=GS G3PGI7_GASAC/26-139   AC G3PGI7.1
+#=GS G3SX93_LOXAF/24-131   AC G3SX93.1
+#=GS G3T4Q2_LOXAF/22-133   AC G3T4Q2.1
+#=GS G3TNQ0_LOXAF/23-131   AC G3TNQ0.1
+#=GS G3TYR4_LOXAF/24-138   AC G3TYR4.1
+#=GS G3VSJ6_SARHA/22-129   AC G3VSJ6.1
+#=GS G3VUI7_SARHA/22-129   AC G3VUI7.1
+#=GS G3WHN3_SARHA/19-127   AC G3WHN3.1
+#=GS G3WHY8_SARHA/22-132   AC G3WHY8.1
+#=GS G3WIW5_SARHA/22-135   AC G3WIW5.1
+#=GS G5BZK5_HETGA/22-131   AC G5BZK5.1
+#=GS G5BZK7_HETGA/21-128   AC G5BZK7.1
+#=GS G5C4W0_HETGA/40-148   AC G5C4W0.1
+#=GS G5E7D4_LOXAF/17-125   AC G5E7D4.1
+#=GS G7NUT8_MACFA/22-130   AC G7NUT8.1
+#=GS H0VDP1_CAVPO/468-574  AC H0VDP1.1
+#=GS H0W2D4_CAVPO/22-132   AC H0W2D4.1
+#=GS H0XQW0_OTOGA/22-131   AC H0XQW0.1
+#=GS H0ZQL9_TAEGU/278-384  AC H0ZQL9.1
+#=GS H1A002_TAEGU/8-115    AC H1A002.1
+#=GS H2RI52_PANTR/20-134   AC H2RI52.1
+#=GS H2U8D8_TAKRU/30-135   AC H2U8D8.1
+#=GS H2UXE5_TAKRU/23-136   AC H2UXE5.1
+#=GS H3AU65_LATCH/229-333  AC H3AU65.1
+#=GS H3BG53_LATCH/30-144   AC H3BG53.1
+#=GS H3BHG1_LATCH/22-131   AC H3BHG1.1
+#=GS H3BIC9_LATCH/31-140   AC H3BIC9.1
+#=GS H3D1N0_TETNG/30-141   AC H3D1N0.1
+#=GS H9G6L6_ANOCA/29-143   AC H9G6L6.1
+#=GS I3JZ00_ORENI/26-139   AC I3JZ00.1
+#=GS I3JZ02_ORENI/29-145   AC I3JZ02.1
+#=GS I3MGP6_SPETR/318-423  AC I3MGP6.1
+#=GS I3MJ87_SPETR/8-115    AC I3MJ87.1
+#=GS I3N450_SPETR/22-131   AC I3N450.1
+#=GS K1P7E6_CRAGI/23-132   AC K1P7E6.1
+#=GS K7DYR4_MONDO/23-129   AC K7DYR4.1
+#=GS L5JRZ3_PTEAL/108-215  AC L5JRZ3.1
+#=GS L5LN67_MYODS/27-130   AC L5LN67.1
+#=GS L9L022_TUPCH/22-129   AC L9L022.1
+#=GS L9L1C5_TUPCH/22-131   AC L9L1C5.1
+#=GS L9L572_TUPCH/8-122    AC L9L572.1
+#=GS M3VZC4_FELCA/22-136   AC M3VZC4.1
+#=GS M3XIZ3_LATCH/26-140   AC M3XIZ3.1
+#=GS M3YXE4_MUSPF/40-154   AC M3YXE4.1
+#=GS M3YXE8_MUSPF/38-145   AC M3YXE8.1
+#=GS M3ZHP0_XIPMA/25-141   AC M3ZHP0.1
+#=GS M3ZL66_XIPMA/24-137   AC M3ZL66.1
+#=GS M4A4M0_XIPMA/29-134   AC M4A4M0.1
+#=GS PA21B_CAVPO/24-138    AC P43434.1
+#=GS PA21B_HORSE/9-123     AC P00594.1
+#=GS PA21B_HUMAN/24-138    AC P04054.3
+#=GS PA21B_HUMAN/24-138    DR PDB; 3ELO A; 2-116;
+#=GS PA21B_SHEEP/2-116     AC P14419.1
+#=GS PA2GA_BOVIN/22-130    AC Q56JZ2.1
+#=GS PA2GA_CAVPO/22-131    AC P47711.1
+#=GS PA2GA_HUMAN/22-130    AC P14555.2
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1BBC A; 2-118;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 3U8I B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 3U8B A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1AYP E; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1DCY A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1POE A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 3U8H A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1KVO B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1AYP C; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1AYP F; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1J1A B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1J1A A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1KVO C; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 3U8I A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1KQU A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1AYP A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1KVO D; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1N29 A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1AYP B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1KVO A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1KVO E; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1POD A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1DB4 A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1N28 B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1KVO F; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 3U8D A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 3U8D B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1DB5 A; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1AYP D; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 3U8H B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1POE B; 2-110;
+#=GS PA2GA_HUMAN/22-130    DR PDB; 1N28 A; 2-110;
+#=GS PA2GA_MOUSE/23-132    AC P31482.3
+#=GS PA2GC_MOUSE/22-133    AC P48076.1
+#=GS PA2GD_HUMAN/22-129    AC Q9UNK4.2
+#=GS PA2GF_MOUSE/22-131    AC Q9QZT4.1
+#=GS Q0IIC8_BOVIN/22-130   AC Q0IIC8.1
+#=GS Q17790_CAEEL/26-133   AC Q17790.1
+#=GS Q3V5J7_CAEEL/20-130   AC Q3V5J7.1
+#=GS Q6DHQ7_DANRE/30-135   AC Q6DHQ7.1
+#=GS R0LW78_ANAPL/22-132   AC R0LW78.1
+#=GS T1J145_STRMM/28-138   AC T1J145.1
+#=GS T1J463_STRMM/26-138   AC T1J463.1
+#=GS U3JYR0_FICAL/25-138   AC U3JYR0.1
+#=GS U3K7L8_FICAL/21-130   AC U3K7L8.1
+#=GS U3K7M9_FICAL/18-125   AC U3K7M9.1
+#=GS V8NC39_OPHHA/713-817  AC V8NC39.1
+#=GS W4XE93_STRPU/33-151   AC W4XE93.1
+#=GS W4XV13_STRPU/41-171   AC W4XV13.1
+#=GS W4Z1Q5_STRPU/51-181   AC W4Z1Q5.1
+#=GS W4Z3C6_STRPU/39-154   AC W4Z3C6.1
+#=GS W4Z6N6_STRPU/69-187   AC W4Z6N6.1
+#=GS W4ZK50_STRPU/9-137    AC W4ZK50.1
+#=GS W5JYA9_ASTMX/37-153   AC W5JYA9.1
+#=GS W5KDU7_ASTMX/24-137   AC W5KDU7.1
+#=GS W5KYG2_ASTMX/29-134   AC W5KYG2.1
+#=GS W5N4Q7_LEPOC/323-423  AC W5N4Q7.1
+#=GS W5N4Q7_LEPOC/57-164   AC W5N4Q7.1
+#=GS W5PAU1_SHEEP/321-425  AC W5PAU1.1
+#=GS W5PIA3_SHEEP/24-134   AC W5PIA3.1
+A7S5K1_NEMVE/17-131              VWRFASMIAKAT-G--R-----GAWQYTHYGCWC------GL--GGKG--NPVDAVDRCCVCHDVCYNKL--ID--R-GIC---NKS---RIYLVNYYF---TGKKTSGFWRWKKT-VNVSR--------------------CGYEKCKCDAAAVVCFRR--NRFNKKYR
+#=GR A7S5K1_NEMVE/17-131   pAS   ..............................................................*.......................................................................................*...................
+A7S6G1_NEMVE/3-117               LDNFRKMIGCHT-G--N-----SAFDYIDYGCWC------GL--GGNG--SPLDETDECCYIHDKCYDDIIARS-----TC-----GYSFQVYFRDYKH---SC-------------TRCEPLSSYPSDDY--------YRECRVDLCKCDSEAAKCFKQ--ARFNPDL-
+#=GR A7S6G1_NEMVE/3-117    pAS   ..............................................................*.......................................................................................*...................
+A7S6H4_NEMVE/6-114               LVQFGLMIKCTT-G--R-----SAFDYNGYGCWC------GK--GGSG--RAVDATDRCCLIHDRCYDAV--IR--D-RVC---PWGI--NVYTTVYFR------------------KGCNIFGK----TN--------NP-CQYRICQCDSAAVRCFKR--SYYNNRYK
+#=GR A7S6H4_NEMVE/6-114    pAS   ..............................................................*.......................................................................................*...................
+A7SAU9_NEMVE/7-118               ---FYMLSQCIT-G--R-----DPADFNGYGCYC------GL--GGEG--FALDDLDRCCVKHDNCYGII--QD--S-GIC---GLSF--NVYTLPYTY-------------SADC-KTCDEPSVYWFYGK-----------CRHALCLCDLIAAKCFKE--TAYNEKYR
+#=GR A7SAU9_NEMVE/7-118    pAS   ..............................................................*.......................................................................................*...................
+A7SNJ7_NEMVE/44-152              LFDFHAMIKCET-K--R-----NPLDYNYYGCYC------GF--GGRG--SPVDGLDKCCYVHDMCYKAS--RT--S-GIC---WAG---QAYIHLYYR---TGCTGCD---KAKN-SK-----------------------CGQMLCECDAAAAKCFAA--NKIDKKYE
+#=GR A7SNJ7_NEMVE/44-152   pAS   ..............................................................*.......................................................................................*...................
+A9C458_DANRE/26-143              LWQFRAMILCTIPD--S---W-PALDYADYGCYC------GK--GGSG--TPVDELDRCCQVHDQCYSDS--WQ--H-DDC---WGILD-NPYTEIYSF---AC------DKPAKI-VSCNAD------KN--------RP-CEMFICECDRIAAHCFAQ--AGYNPEYE
+#=GR A9C458_DANRE/26-143   pAS   ..............................................................*.......................................................................................*...................
+B3S7T2_TRIAD/10-119              LFNLYYMMKSRNIN--R-----NPAAYYGYGNYC------GW--GSRG-NHTVDKTDICCMNHDKCYQKT---------NCKGLY-----EGKFNFYSW---EV--------QKNE-IICKSSF---------------DT-CDQANCECDKALVLCLEK--APYNCEHV
+#=GR B3S7T2_TRIAD/10-119   pAS   ..............................................................*.......................................................................................*...................
+B7PVR0_IXOSC/50-161              IVQLASMLKCVS-G--C-----NPLSYRGYGCFC------GY--RGDG--MPVDPIDSCCLEHDWCYSQS---------PC------SKLSLYLLPYEW---HC--------LTPGMAHCAYPASLSPHAH-----------CGQQLCQCDLEFASCVSRYPCPRRR---
+#=GR B7PVR0_IXOSC/50-161   pAS   ..............................................................*.......................................................................................*...................
+C3Y4E1_BRAFL/37-150              IFQTMMMLSCIT-E--K-----SSFDYSDYGCYC------GP--GGQG--KPVDILDQCCKVHDECYGTA------E-KNC---FPL---FEYIGVYEY---EC--------KDRK-ISCAIEDK----TK--------LS-CREFLCECDRKVNLCLTKNEKEYNSAYF
+#=GR C3Y4E1_BRAFL/37-150   pAS   ..............................................................*.......................................................................................*...................
+C3Y4E2_BRAFL/298-413             --HLGRLLYCTT-R--R-----NPLDYNGYGCWC------GF--GGGG--EPMDDVDRCCKAHDECYVDV--EK-----SC---GSLFV---YIGSYGY---RC--------KRRE-ITCTSN------SSWFWSQNSTNK-CKTALCNCDKVFAECCAR--YPYNSENY
+#=GR C3Y4E2_BRAFL/298-413  pAS   ..............................................................*.......................................................................................*...................
+C3ZS47_BRAFL/2-119               LLQLGNMMMCAT-G--R-----VPSDYLDYGCFC------GP--GGDMKYAAMDDTDQCCRDHDKCYDDL-------TRRCPGYLFGLIPFPYLAIYSYQYHAY--------KKQSGDKVSAG-------------------CRGLLCSCDRNFSLCLGR--SHYDDRHY
+#=GR C3ZS47_BRAFL/2-119    pAS   ..............................................................*.......................................................................................*...................
+D6NKG5_CHICK/20-127              IAQFGIMIKEKT-G--K-----PALSYNGYGCHC------GL--GGSK--YPVDATDWCCHAHDCCYKRL--SS----VTC---------VPHLATYKF---SI--------KRGQ-ITC---G-----SG--------SS-CQRAACECDKKAAECFKRNLRTFNKSYQ
+#=GR D6NKG5_CHICK/20-127   pAS   ..............................................................*.......................................................................................*...................
+E1BLF3_BOVIN/22-130              LADFQKMIKFTT-G--K---E-PAISYGFYGCHC------GA--GHRG--TPKDATDWCCRVHDCCYENL--RK----RGC---------RTSSQSYNF---IF--------QRGQ-IVC---G-----DQ--------DY-CKRRLCQCDKRAADCLDKNLKTYNKNLQ
+#=GR E1BLF3_BOVIN/22-130   pAS   ..............................................................*.......................................................................................*...................
+E1C9K4_CHICK/22-129              LWQLQEVVTKMT-G--K---N-AVLNYSSYGCYC------GV--GGHG--QPKDATDRCCQLHDTCYDNL--QR----YHC---------NAKKQRYKY---SW--------HSGR-LTC---N-----RD--------SW-CAQLSCECDRSLGLCLQRNRRSYNWRY-
+#=GR E1C9K4_CHICK/22-129   pAS   ..............................................................*.......................................................................................*...................
+E4WU53_OIKDI/199-318             --QLLNMMVRYNPE--F-----DERKYFSYGCNCQFFGDRPMSGPGGG--PPMDPLDRTCREYRNCQKCT--RMEFG-DQC---------RGEFVKYSE----------TQDTQGN-FKCGDEA---------------GT-CARAICECDHRFAKNHVEKTDSYNVDNH
+E4X235_OIKDI/16-134              LADFNSQISCYFGG--M-----MSSQYIGYGCYC------GR--FNAG--FPVDATDQCCFEHDHCYDKT------DATFSSGLFLESVPQSYFKMYNY---IC--------KNEE-VICEDEA---------------DS-YSRALCECDKTAGTCFKKQRHTYNKYFT
+#=GR E4X235_OIKDI/16-134   pAS   ..............................................................*.......................................................................................*...................
+E4X2D3_OIKDI/108-229             ---LKLMIMYLQTL--P-----LFGKFCYYGCYCFPNAGDDF-TVGRG--TPVDEVDKKCRDFSSCYKCV--ANDFK-ETC----------KHTQPYSF------EGREDPVTGTRYLVCKNTP---------------GT-CRRSLCECDKRLAEELAANEWFWVPMNH
+E4XBS7_OIKDI/41-155              --QFESMAKLFDPD--F-----DKKSITDYGCNCPELGDRPLSDPGKG--QPVDELDTVCQKFKQCAKCA--KEEFG-ESC---------ISEMIRYGL----------------RGKTCTDSA---------------GT-CARALCECDLSFAEALSFVDKESNQDQY
+E4XEF5_OIKDI/38-156              ----ADLLEYYIPE--T-----DASQYLSYGCNCNLLESKGLASPGHG--AAVDQIDQACKNYKDCQRCV--QIEDG-SEC-------NLEGPSALYKL-----------GFLSDQ-PYCMNPV---------------KS-CNRHLCECDKQFAEELKQALPFYDSQFS
+E4XUS4_OIKDI/117-247             --EFKHTITSNTEN--EAYAEYTMELYHGYGCHCMPDHSHYIFTGGKG--RPADHVDLNCALLRTCYSCI--EESD--IKC---------DSHTQTYSY---ALNRPVASQNWYDP-ITCTDRE---------------NT-CARKVCECDKQFAINAADLYVKKHWHHE
+E4XYC0_OIKDI/109-233             -LQMKIVILFMQKN--K-----FLGKYCFYGCWCFPRGAGNN--GGFG--QPVDNIDKSCREYSTCYNCIYNQNIGS-QRC--------PENTADRYQI------GGFVDRFGQVQ-IFCTDPW---------------GT-CNRSRCECDRDLAMKLRQHEPEWNMQY-
+E5SP62_TRISP/50-164              -PNLGCMVECTA-H--V---D-GMIYYNNYGCYC------GF--GGSG--TPVDEIDNCCKTHDECYDSA--VD--S-GIC---GKWEQ---YYIWYYW---QC--------NDGN-PTCSSD------KN-------KSK-CAQALCNCDREIAICLGKQPVPKDKKQC
+#=GR E5SP62_TRISP/50-164   pAS   ..............................................................*.......................................................................................*...................
+F1N9G4_CHICK/24-138              LWEFRSMIKCAIPH--S---H-PFLRFDDYGCYC------GL--GGSG--TPVDELDRCCQAHDHCYSEA--QN--K-TIC---SSILD-TPYTEIYKY---SC--------KDEE-ITC-SS------SN--------NE-CEMFVCNCDRTAAMCFSK--APYDPAHH
+#=GR F1N9G4_CHICK/24-138   pAS   ..............................................................*.......................................................................................*...................
+F1PW03_CANFA/76-183              LLQFVSGMKCVA-G--L-----CPRDFEDYGCAC------RF--EMEG--APVDEADSCCFQHRRCYEEA--AE----KDC-------PQDPAKLSIDV---NC--------VSKS-ITCESG----------------DP-CEHLLCTCNKAAIECLAR--SSINSSLN
+F1SUN2_PIG/30-144                FWQFQRMVKHIT-G--W---S-ALFSYYGYGCYC------GL--GGKG--TPVDDTDRCCLAHDCCYERL--KQ----LGC---------QPVLNGYQF---HI--------VSRT-VVCE--CALSPGAS--------CL-CGWRACECDKQYAYCFKENLPTYEKNFK
+#=GR F1SUN2_PIG/30-144     pAS   ..............................................................*.......................................................................................*...................
+F1SUN4_PIG/22-129                ILNLNKMIKQVT-G--K---V-PFFSYWPYGCHC------GI--GGRG--EPKDATDWCCHAHDCCYSHL--KG----HGC---------RTHLDHYRY---TF--------SQGT-VQCS--D-----KG--------SW-CERELCACDKGVAFCMKRNLDSYKKH--
+#=GR F1SUN4_PIG/22-129     pAS   ..............................................................*.......................................................................................*...................
+F1SUN7_PIG/22-130                VLNFHKMIKLKT-G--K---S-PVPNYAFYGCYC------GL--GGKG--SPKDATDWCCAAHDCCYKQL--KK----RGC---------GTKLLSYKI---ST--------ISDL-VFS---E-----PQ--------DD-CRRRLCQCDKIAADCFARNLRTYNVKLQ
+#=GR F1SUN7_PIG/22-130     pAS   ..............................................................*.......................................................................................*...................
+F6TK75_XENTR/31-137              LIQLAGTIQCGT-G--R-----SAVHYIGYGCHC------GL--GGQG--VPKDNTDWCCHSHDCCYEFA--EK----YGC---------KTKLGQYSW---TC--------KDNT-VKCGDMK---------------DW-CQKIVCKCDSKFAECLSK--TRFNSKHI
+#=GR F6TK75_XENTR/31-137   pAS   ..............................................................*.......................................................................................*...................
+F6UHQ4_MONDO/22-129              LKQLEEMIETVT-G--M---N-AEENYGFYGCHC------GF--EGQG--FPKDATDKCCAAQGCCYSKL--MK----EGC---------DPTMVKYNF---TY--------QDKN-IIC---E-----PG--------NM-CQHQTCTCDKTVAYCLQRNLATYDPKY-
+F6URD6_CIOIN/30-148              -IDFHHAIECHQPE--V---I-ILGTYGKYGCYC------GF--GGSG--TPVDATDRCCQLHDLCYEEA--DE--M-EKSLKEKLFSLIGTIMNTYNS---SC--------IDGQ-VVCMEN----------------SP-FKDKVCNCDKDAARCLYRAKPSYNSTYY
+#=GR F6URD6_CIOIN/30-148   pAS   ..............................................................*.......................................................................................*...................
+F6V4Y7_ORNAN/22-130              LLQFGVMIEKAT-G--K---L-AALHYNDYGCYC------GI--GGSK--QPVDQTDWCCHAHDCCYGRM--AE----LGC---------DPKIEKYDF---SV--------TRNN-IVC---A-----GR--------TE-CQRLTCDCDKTAALCFRGNASTYNRKYA
+#=GR F6V4Y7_ORNAN/22-130   pAS   ..............................................................*.......................................................................................*...................
+F6VFV8_MONDO/39-153              VLQFRNMIKCVIPE--S---D-PLKDYNNYGCYC------GL--GGYG--NPVDELDQCCQVHDNCYSEA--KK--L-SSC---KFILD-NPYTKHYSY---SC--------SGNE-ITC-SS------EN--------NE-CKAFICNCDRTAANCFSK--AKYNPDNK
+#=GR F6VFV8_MONDO/39-153   pAS   ..............................................................*.......................................................................................*...................
+F6WR52_HORSE/22-129              ILDLNKMIRQVT-G--K---T-PFFSYWFYGCHC------GL--RGKG--QPKDATDWCCHAHDCCYTHL--KY----HKC---------RRRWDRYHY---TF--------SEGD-VQCP--E-----KG--------SW-CEKQLCACDKELAFCLKSNLDTYQNH--
+#=GR F6WR52_HORSE/22-129   pAS   ..............................................................*.......................................................................................*...................
+F6XCW2_XENTR/25-140              LAQFSNIIKCAIPG--S---Q-PLLEFNDYGCYC------GL--GGSG--TPVDELDRCCQIHDNCYDKA--SL--I-NNC---VPVLQ-NPYTETYSY---TC-------TDNNM-MSC-NK------NN--------SE-CDMHICKCDMNAALCFSR--APYSKKHK
+#=GR F6XCW2_XENTR/25-140   pAS   ..............................................................*.......................................................................................*...................
+F6ZQN7_MONDO/20-133              FWQFGRMIKLMT-G--K---S-AFFSYYGYGCYC------GL--GGRG--NAVDDTDRCCKDHDCCYAEL--KT---CCGC---------QPMFSTYHF---HV--------VNGS-VICYGGR-----NS--------GSRCGSMACECDKRSVHCFKENLPTYKKNYQ
+#=GR F6ZQN7_MONDO/20-133   pAS   ..............................................................*.......................................................................................*...................
+F6ZRG6_CIOIN/40-158              IWQFGVMVQCAE-GLDHQFPMWTMENYNDYGCHC------GM--GGKG--DPLDVIDECCMEHDSCYKETRLRH-----------KVWKWQIYFTHYNY---QC--------HGKR-ITCYNG----------------SS-WKQDLCQCDVKAAGCFATNRAKYNRAYK
+#=GR F6ZRG6_CIOIN/40-158   pAS   ..............................................................*.......................................................................................*...................
+F6ZRZ5_MONDO/22-130              LLQFQNMIGKLT-K--K---N-ALLSYGMYGCYC------GL--GGKG--TPKDATDRCCMAHDCCYSKL--KK----KGC---------NPYAQTYNY---KY--------QAGS-LTC---G-----SG--------TF-CQKQTCGCDVVAARCMQRNLKTYNKKYR
+#=GR F6ZRZ5_MONDO/22-130   pAS   ..............................................................*.......................................................................................*...................
+F7A6K0_MONDO/14-120              LTELATTITCAT-K--S-----SALVYLKYGCYC------GL--GGSG--QPQDQVDWCCQKHDCCYKAA--SD----AGC---------IPKLQTYSW---NC--------VNNT-VECASSQ---------------SK-CAAIACKCDQELSHCLAS--AKYNKKHF
+#=GR F7A6K0_MONDO/14-120   pAS   ..............................................................*.......................................................................................*...................
+F7BBP1_HORSE/22-130              LLDFRKMIRLMT-G--K---E-ATSSYGFYGCHC------GV--GGKG--SPKDATDWCCVAHDCCYYRL--QK----RGC---------GTKLLNYKF---SY--------RGGK-IIC---A-----KQ--------DS-CRSELCQCDKTAASCFARNRKTYSKKYQ
+#=GR F7BBP1_HORSE/22-130   pAS   ..............................................................*.......................................................................................*...................
+F7BNA3_HORSE/21-135              FWQFQRMVKHIT-G--R---S-AFFSYYGYGCYC------GL--GGKG--TPVDDTDRCCLAHDCCYEKL--KQ----LGC---------QPVLNTYQF---HL--------VNGT-VACE--CTLGPGVG--------CL-CGLRACECDKRSAYCFKESLPTYEKNFK
+#=GR F7BNA3_HORSE/21-135   pAS   ..............................................................*.......................................................................................*...................
+F7C5D9_ORNAN/71-179              LLNLKSMVEAIT-G--R---N-AILSFVGYGCYC------GL--GGRG--VPMDEVDWCCHAHDCCYQKL--FD----QGC---------HPFVDRYEY---TI--------ENRT-ILCSEL------NE--------TD-CDKQTCECDKSVVLCLRN--QTYNEEHR
+#=GR F7C5D9_ORNAN/71-179   pAS   ..............................................................*.......................................................................................*...................
+F7CGN3_HORSE/22-129              LLDLRSMIEKVT-G--K---T-ALTNYGFYGCYC------GW--GGRG--TPKDGTDWCCWVHDHCYGQL--EE----KGC---------HIRMQSYKY---RF--------TRGL-VTC---E-----LG--------PL-CQVQLCACDRKLVYCLRRNLWSYNPRY-
+#=GR F7CGN3_HORSE/22-129   pAS   ..............................................................*.......................................................................................*...................
+F7CT17_HORSE/318-422             --QLGEMLFCLT-S--R-----CPEEFESYGCYC------GQ--EGRG--EPRDALDRCCFSHHCCLEQV--RR----LGC--------LLERLSQSPV---LC--------VDGA-PKCVGQ----------------SL-CAKLLCACDQTVAECMAS--AVFNQSLK
+#=GR F7CT17_HORSE/318-422  pAS   ..............................................................*.......................................................................................*...................
+F7E598_ORNAN/22-129              LLEFQRMIKQVT-G--K---N-AVPNYSTYGCHC------GW--GGKG--TPKDATDRCCAAHDCCYFRL--EK----KGC---------RIKTDRYNY---SY--------RSGT-VTC---G-----GG--------SW-CEKMLCACDKTAAYCMRSNLKSYNDKL-
+#=GR F7E598_ORNAN/22-129   pAS   ..............................................................*.......................................................................................*...................
+F7EBG4_ORNAN/21-135              IWQFRGVILCTIPG--S---W-PLFQFNEYGCYC------SF--GGSG--TPGDELDRCCQNHDDCYTQA--WG--I-SKC---SKFLP-NPYSMSYAY---TC--------SETS-IAC-QG------DI--------DP-CQTHICECDGEAALCFSR--VKYNVWHK
+#=GR F7EBG4_ORNAN/21-135   pAS   ..............................................................*.......................................................................................*...................
+F7EJ44_XENTR/361-463             ----GEMLFCLT-G--R-----CPEEFESYGCYC------GQ--DGKG--NPIDALDSCCFSHHCCIEHL--KK----LGC--------QPQRNIRSEV---LC--------LDHK-PTCLGW----------------GI-CDKLLCACDKAAAECMAA--APYNETAR
+#=GR F7EJ44_XENTR/361-463  pAS   ..............................................................*.......................................................................................*...................
+F7G7D1_MONDO/198-304             -PQIGEMLFCLT-A--R-----CPEDFESYGCYC------GQ--EGQG--DPADPLDRCCFSHHCCLEQV--KK----FGCGLERSSRSEDAHYVAFAF-------------LGRG-----------------------QNFCEKLLCSCDQTAAECMAA--ALFNESFR
+#=GR F7G7D1_MONDO/198-304  pAS   ..............................................................*.......................................................................................*...................
+F7GN52_CALJA/21-126              LVQFGVMIEKMT-G--K-----SALQYNDYGCYC------GI--GGSH--WPVDQTDWCCMLTTCCYRRL--EK----LG----------EPNWEKIFF---CS--------TRA--IFC---A-----GR--------TT-CQRLTCECDKRAALCFRDNLGTYNRKYA
+G1KKJ3_ANOCA/350-455             -PQLGEMLYCLT-D--R-----CPEEFELYGCYC------GQ--EGRG--QPSDDLDRCCFSHHCCLEQV--RK----LGC--------HPERNSRSEV---VC--------FDHT-PKCIGW----------------TM-CEKLLCSCDKAAAECMAA--ASFNETFS
+#=GR G1KKJ3_ANOCA/350-455  pAS   ..............................................................*.......................................................................................*...................
+G1KKJ3_ANOCA/81-190              LLNFVNKMKCVT-G--I-----CPRDFEDYGCAC------RF--EMEG--LPVDEVDDCCFQHRKCYEEA--TD----EEC-------MWDPAKLTMDV---SC--------LTKN-LTCAPESE--------------DS-CELFLCNCDKAAIECFLH--SRFNSSMN
+#=GR G1KKJ3_ANOCA/81-190   pAS   ..............................................................*.......................................................................................*...................
+G1N1R0_MELGA/18-127              MLELERMIRVTT-G--K---S-ALLSYSWYGCFC------GI--GGRG--TPVDPTDTCCHAHDCCYRQL--RE----SSC---------SPLITPYQF---DV--------TDGD-ITCG--D-----EQ--------SW-CKKETCLCDRAVASCFASALPSYNVSYR
+#=GR G1N1R0_MELGA/18-127   pAS   ..............................................................*.......................................................................................*...................
+G1N9E7_MELGA/24-136              LWEFRSMIKCTIPD--S---H-PLLEFNDYGCFC------GY--GGSG--TPVDELDRCCQTHDQCYTKA------K-SVC---AASND-TPYTKTYKY---TC--------ENKA-ITC-SS------SN--------NE-CEMLVCNCDRTAAMCFAK--APYNSAHL
+#=GR G1N9E7_MELGA/24-136   pAS   ..............................................................*.......................................................................................*...................
+G1NUN2_MYOLU/16-123              LLQFGVMIEKMT-G--K-----SALQYNDYGCYC------GI--GGSH--WPVDPTDWCCHAHDCCYGRL--QK----LGC---------EPKLERYLF---SA--------SKSN-ILC---S-----GR--------TT-CQQETCECDRTAALCFRQNLDTYDRKYV
+#=GR G1NUN2_MYOLU/16-123   pAS   ..............................................................*.......................................................................................*...................
+G1Q7T3_MYOLU/22-130              LLDFQKMIKSKT-G--K---D-AVSSYAFYGCYC------GL--GGRG--TPKDATDRCCAAHDCCYRRL--EK----QKC---------GTKFLKYNF---AY--------QNGQ-IVC---G-----KQ--------DS-CRRKLCECDKAAASCFARNRKTYKKQYQ
+#=GR G1Q7T3_MYOLU/22-130   pAS   ..............................................................*.......................................................................................*...................
+G1QDI4_MYOLU/22-130              LLDFWKMVWLAT-G--K---D-AVSSYGSYGCYC------GW--GGRG--TPIDATDRCCAEHDCCYEHL--EK----WGC---------GTKSVNYNS---TY--------EKGQ-IIC---G-----DQ--------DY-CRRQVCECDKAAASCFARNLNTYNKEYQ
+#=GR G1QDI4_MYOLU/22-130   pAS   ..............................................................*.......................................................................................*...................
+G1SER5_RABIT/24-138              LWQFRGMIQCTIPG--S---S-PYLEFNGYGCYC------GL--GGSG--TPVDELDRCCQTHDQCYTQA--KK--L-SSC---SFLVD-NPYTNSYSY---SC--------SGTT-VTC-SS------KN--------KE-CEAFICDCDRKAAICFSK--APYNKEYK
+#=GR G1SER5_RABIT/24-138   pAS   ..............................................................*.......................................................................................*...................
+G1SRA0_RABIT/24-133              LIKFAKMIKHTT-G--K---D-ALLNYNGYGCHC------GL--GGKG--TPKDATDRCCLAHDCCYERL--KN----MGC---------GTKLLSYKY---SI--------SEGQ-ITCVS-A-----QQ--------DS-CRSQLCECDKAAAYCFAQNQNSYNTKL-
+#=GR G1SRA0_RABIT/24-133   pAS   ..............................................................*.......................................................................................*...................
+G1SRA2_RABIT/22-130              LLDFRKMIRYTT-G--K---E-ATTSYGAYGCHC------GV--GGRG--APKDATDRCCLAHDCCYRRL--EK----RKC---------GTKFLSYKF---SM--------SRGK-ITC---G-----KQ--------DS-CRSQLCECDKAAAYCFARNRKSYSRKYQ
+#=GR G1SRA2_RABIT/22-130   pAS   ..............................................................*.......................................................................................*...................
+G1T1K5_RABIT/22-130              ILNLNKMVKQVT-N--K---T-PILSYWSYGCHC------GI--GGRG--QPKDATDWCCRVHDCCYARL--KK---THGC---------HPLVDSYRY---TF--------AEGH-VQCS--D-----KG--------SW-CEQQLCACDKEVALCFKRNLDTYQKH--
+#=GR G1T1K5_RABIT/22-130   pAS   ..............................................................*.......................................................................................*...................
+G1T522_RABIT/22-130              LLNFRKMIKFTT-G--K---E-PSTTYGFYGCYC------GL--GGTG--TPLDATDRCCATHDCCYTRL--EN----SGC---------GTKLLNYHY---SL--------SGNT-ITC---E-----DT--------DY-CRSQLCQCDRTAAYCFAANQNTYNKKYE
+#=GR G1T522_RABIT/22-130   pAS   ..............................................................*.......................................................................................*...................
+G3HU37_CRIGR/23-132              IVEFGQMILFKT-G--K---R-PDTSYAFYGCHC------GV--GGKG--TPKDATDRCCVAHDCCYYRL--EK----KGC---------GTKFLTYKF---SA--------RGGK-ITCS--A-----NQ--------NS-CRKQLCQCDKAAAECFARNRKSYSLKYQ
+#=GR G3HU37_CRIGR/23-132   pAS   ..............................................................*.......................................................................................*...................
+G3I6R7_CRIGR/24-137              LWQFGKVIKCSIPG--S---H-PLKDYNNYGCYC------GF--GGSK--TPVDELDRCCQTHDHCYDQA--NE--L-ESC---TFL-D-SPYTTTYSY---SC--------SGNE-ITC-SD------KN--------NA-CEAFICSCDRQAAICFSK--APYNKENK
+#=GR G3I6R7_CRIGR/24-137   pAS   ..............................................................*.......................................................................................*...................
+G3PGI7_GASAC/26-139              LWQFGKMISCIQPG--V-----NPLIYNEYGCWC------GF--GGRG--SPVDELDMCCKVHDKCYEAS--RS--I-PGC---TAVVD-LPHIQVYDY---TC--------SNKQ-VTC-PA------TN--------DK-CQAATCKCDRDAAYCFAN--AEYKPENK
+#=GR G3PGI7_GASAC/26-139   pAS   ..............................................................*.......................................................................................*...................
+G3SX93_LOXAF/24-131              LLELKSMIETIT-G--K---N-ALLNYGFYGCYC------GL--GGQG--TPKDGTDWCCWVHDHCYGLL--EE----KGC---------NIVTQSYKY---KV--------TWGS-VTC---E-----LG--------PF-CQVHLCACDRKLVYCLRRKLRSYDSSY-
+#=GR G3SX93_LOXAF/24-131   pAS   ..............................................................*.......................................................................................*...................
+G3T4Q2_LOXAF/22-133              LLDFRKMIRLVT-G--K---E-PISSYGFYGCHC------GV--GGKG--SPKDATDRCCAEHDCCYKRL--EK----RRC---------GTKFLNYKF---TK--------SGSQ-IVCVISA-----KQ--------DF-CKSQLCQCDRNAAYCFARNQKTYNKKFQ
+#=GR G3T4Q2_LOXAF/22-133   pAS   ..............................................................*.......................................................................................*...................
+G3TNQ0_LOXAF/23-131              LLEFRKMIRLVT-G--K---E-AASSYGFYGCYC------GL--GGKG--SPKDATDWCCAEHDCCYKRL--EK----HGC---------GTKLLSYQF---TY--------RGGQ-IICV--S-----KQ--------GF-CRSQLCECDRKAAYCFAKNRKTYKKRF-
+#=GR G3TNQ0_LOXAF/23-131   pAS   ..............................................................*.......................................................................................*...................
+G3TYR4_LOXAF/24-138              VWQFRNMIKCAIPN--S---N-PLKEYNDYGCYC------GL--GGSG--TPVDELDTCCQTHDQCYDRV--KN--L-SSC---TFLLD-NPYTNNYSY---KC--------SGSD-ITC-SS------SN--------EE-CEAVLCNCDRSAAICFSK--APYNEEHK
+#=GR G3TYR4_LOXAF/24-138   pAS   ..............................................................*.......................................................................................*...................
+G3VSJ6_SARHA/22-129              LLQFGFMIERLT-G--K-----SALDYNDYGCYC------GI--GGSK--WPVDETDWCCHAHDCCYGRM--TK----LGC---------DPKMEKYNF---SI--------TENN-IIC---G-----GR--------TS-CQKLTCECDKNATLCFRDNLSTYNHKYA
+#=GR G3VSJ6_SARHA/22-129   pAS   ..............................................................*.......................................................................................*...................
+G3VUI7_SARHA/22-129              LLQFQNMIGKLT-G--K---N-ALTDYGFYGCHC------GL--GGKG--TPKDATDRCCSTHDCCYFKL--EK----KGC---------KPKTQTYNY---KY--------QSGS-ITC---G-----SG--------SS-CQKAICSCDKAAAYCMKNNLRSYKVKY-
+#=GR G3VUI7_SARHA/22-129   pAS   ..............................................................*.......................................................................................*...................
+G3WHN3_SARHA/19-127              LKELNKMIKQAT-G--K---N-PIFSYLNYGCHC------GL--GGKG--QPKDPTDWCCKIHDCCYKHL--QQ----QRC---------HVLVGRYNY---NY--------NDGN-IVCW--G-----E---------SH-CEKKICQCDKELALCLQRNLESYQKSYS
+#=GR G3WHN3_SARHA/19-127   pAS   ..............................................................*.......................................................................................*...................
+G3WHY8_SARHA/22-132              LWQLRSMLNKAT-G--R---S-AFLNYAFYGCFC------GY--DGKG--QPLDDTDRCCWAHDCCYEKL--EG-----KC---------ESKLQHYSF---TY--------DTGI-ITCSNKN-----DS--------EF-CKSESCICDKALAYCLKEHTSSFNSSYK
+#=GR G3WHY8_SARHA/22-132   pAS   ..............................................................*.......................................................................................*...................
+G3WIW5_SARHA/22-135              LKQLQDIIQKLT-G--K---N-ALVNYGFYGCYC------GL--GGRG--TPKDATDRCCAAHDCCYSRL--VK----NGC---------RPKMEKYNY---TY--------HNDV-ITC---GGLNRRSG--------SK-CQNQICSCDKTVAYCMLRNLRTYNTKYQ
+#=GR G3WIW5_SARHA/22-135   pAS   ..............................................................*.......................................................................................*...................
+G5BZK5_HETGA/22-131              LTQFAEMIKSKT-G--K---N-ALASYGAYGCHC------GV--DGKG--TPKDATDRCCLKHDCCYKRL--VN----RKC---------GTKLLKYDF---TI--------KGSS-ITCK--A-----NQ--------GS-CQKQLCECDKAAASCFAQNLKSYNKKYQ
+#=GR G5BZK5_HETGA/22-131   pAS   ..............................................................*.......................................................................................*...................
+G5BZK7_HETGA/21-128              LVQFGMMIEKMT-G--K-----SALQYNDYGCYC------GL--GGAH--WPVDQTDWCCHAHDCCYGRV--EK----LGC---------EPKMEKYLF---SV--------NQGS-IVC---A-----GR--------TA-CQRQTCECDKKAALCFHHNLDTFDRKYV
+#=GR G5BZK7_HETGA/21-128   pAS   ..............................................................*.......................................................................................*...................
+G5C4W0_HETGA/40-148              LLELKSMIEKVT-G--K---N-ALMHYGFYGCYC------GW--GGQG--TPKDGTDWCCWMHDRCYGQL--ER----KGC---------DTRSQYYNY---RV--------TQGL-VTC---E-----FQ--------SF-CPMQLCSCDQKLVYCLKRNLWSYNPNYQ
+#=GR G5C4W0_HETGA/40-148   pAS   ..............................................................*.......................................................................................*...................
+G5E7D4_LOXAF/17-125              LFNLKSMVEALT-G--R---H-AIWTFVGYGCYC------GL--GGRG--LPMDGVDWCCHAHDCCYQKL--FD----LGC---------HPYVDPYEH---TI--------ENNT-IVCSEL------NQ--------TE-CDKQACECDKSITLCLLN--QSYNETYR
+#=GR G5E7D4_LOXAF/17-125   pAS   ..............................................................*.......................................................................................*...................
+G7NUT8_MACFA/22-130              LLNLRAMVEAVT-G--R---N-AILSFVGYGCYC------GL--GGRG--QPKDEVDWCCHAHDCCYQEL--FD----QGC---------HPYVDHYDH---TI--------ENNTEIVCSDL------NK--------TE-CDKQTCVCDKNVVLCLMN--QTYREEY-
+#=GR G7NUT8_MACFA/22-130   pAS   ..............................................................*.......................................................................................*...................
+H0VDP1_CAVPO/468-574             MVQLGEMLFCLT-S--R-----CPEEFESYGCYC------GQ--EGGG--EPKDVLDRCCLSHHCCLEQV--RR----LGC--------LPERRPRSTV---LC--------VDRT-PKCVGQ----------------SL-CEKLLCACDQTAAECMAS--ASFNQSLK
+#=GR H0VDP1_CAVPO/468-574  pAS   ..............................................................*.......................................................................................*...................
+H0W2D4_CAVPO/22-132              LLQFSKMIKSKT-G--K---N-SVPSYTSYGCFC------GL--GGKG--TPKDGTDRCCLAHDCCYKRL--ER----RGC---I-----NLKTLQYDV---TI--------VGSS-ITCK--I-----NQ--------AP-CKKLLCECDKAAASCFAKNLHSYSLKYQ
+#=GR H0W2D4_CAVPO/22-132   pAS   ..............................................................*.......................................................................................*...................
+H0XQW0_OTOGA/22-131              LFNLRDMVETVT-G--R---K-AILSFVGYGCYC------GL--GGRG--QPKDEVDWCCHAHDCCYEKL--LD----QGC---------RPFVDHYDY---II--------ENDTEIVCSEL------NK--------TE-CDKQTCECDRSVVLCIKD--KPYREKHR
+#=GR H0XQW0_OTOGA/22-131   pAS   ..............................................................*.......................................................................................*...................
+H0ZQL9_TAEGU/278-384             LPQLGEMLFCLT-E--R-----CPEEFEAYGCYC------GQ--EGRG--DPTDALDRCCFSHHCCMEQV--KK----LGC--------HAERNLRSEV---VC--------FDHT-PKCVGW----------------ST-CEKLLCACDTAAAQCMAS--AFFNESMK
+#=GR H0ZQL9_TAEGU/278-384  pAS   ..............................................................*.......................................................................................*...................
+H1A002_TAEGU/8-115               LAQFAVLIKQKT-G--K-----SPLAYNRYGCYC------GW--GGSK--QPLDATDRCCHAHDCCYKKL--VA----SGC---------SPKTATYKY---TL--------KGKQ-ITC---G-----NG--------NS-CQKQTCACDKKAVECFQRAASSYRKSYD
+#=GR H1A002_TAEGU/8-115    pAS   ..............................................................*.......................................................................................*...................
+H2RI52_PANTR/20-134              FWQFQRMVKHIT-G--R---S-AFFSYYGYGCYC------GL--GGKG--IPVDDTDRHSPSSPSCYEKL--KE----FSC---------QPVLNSYQF---HI--------VNGT-VVCG--CTLGPGAS--------CH-CGLKACECDKQSVHCFKESLPTYEKNFK
+H2U8D8_TAKRU/30-135              LLELAGAIKCST-G--R-----SALAYMMYGCYC------GL--GGQG--WPRDRADWCCHRHDCCYGDA--ER----FGC---------HTKTDQYRW---KC--------EEKT-VACDDLK---------------DK-CEKLLCKCDMEAARCLRR--APFSQKY-
+#=GR H2U8D8_TAKRU/30-135   pAS   ..............................................................*.......................................................................................*...................
+H2UXE5_TAKRU/23-136              LWQFGQMIECVQPD--V-----SALWYNEYGCWC------GF--GGSG--TPVDEVDRCCKVHDKCYEAS--RK--L-PGC---TAVGD-LPYIIDYEF---TC--------SNQQ-VTC-SA------TN--------EK-CQAAVCECDRVASHCFAQ--HTYNPENK
+#=GR H2UXE5_TAKRU/23-136   pAS   ..............................................................*.......................................................................................*...................
+H3AU65_LATCH/229-333             --RIGEMIFCLT-G--R-----CPQEFESYGCYC------GQ--IGKG--NPLDQLDRCCFYHQCCLEQT--KR----LGC--------RPDRSISAEI---TC--------VDQT-AYCSGF----------------TL-CDQFLCSCDKAAAECMAD--AFYNETLR
+#=GR H3AU65_LATCH/229-333  pAS   ..............................................................*.......................................................................................*...................
+H3BG53_LATCH/30-144              LWQFRNMILCSLPD--S---W-PLFSYSNYGCYC------GL--GGSG--SPVDDLDRCCQIHDHCYNTA--MA--M-DEC---WPIFD-NPYTEIYTY---SC--------SDGE-IIC-SD------RN--------NP-CEAFICECDRAATLCFSK--AGYDEKFK
+#=GR H3BG53_LATCH/30-144   pAS   ..............................................................*.......................................................................................*...................
+H3BHG1_LATCH/22-131              MFQYGSMIYVTT-R--R---N-ILTDYNSYGCYC------GT--SGRG--QPIDATDRCCQKHDCCYERL--IA----QGC---------KPKTETYKF---HL--------KQGG-ISCIAS------TR--------KR-CEKLIC-CDLAAALCFRRASKSYKKSNH
+#=GR H3BHG1_LATCH/22-131   pAS   ..............................................................*.......................................................................................*...................
+H3BIC9_LATCH/31-140              --DMAMTLKCY--D--KSLKI-PLFKIYNYGCYC------GF--GGSG--NHTDSVDQCCFIHDCCYRYA--RV--N-LRC-------GSKVKWSRYNY---SC--------RKSQ-TKCLGK----------------NI-CSRMACECDRQFAECLTT--VTPNQQYY
+#=GR H3BIC9_LATCH/31-140   pAS   ..............................................................*.......................................................................................*...................
+H3D1N0_TETNG/30-141              LWHFGQMIECVQPG--I-----NALRYNEYGCWC------GV--GGSG--TPVDDVDRCCRTHDKCYEAS--RE--V-PGC---AEI---LPYIIDYEF---TC--------SNQQ-VTC-SA------IN--------DP-CEATVCECDRVAAHCFAQ--YPYNPEYK
+#=GR H3D1N0_TETNG/30-141   pAS   ..............................................................*.......................................................................................*...................
+H9G6L6_ANOCA/29-143              LWQFRNMIKCTMPS--S---D-PLKDYNNYGCYC------GL--GGSG--TPVDYLDTCCQIHDECYSAA--KK--H-PNC---KFILD-NPYTKTYAY---SC--------SDTE-ITC-SE------KN--------NE-CEAFICNCDRNAAICFSG--APYNKDYK
+#=GR H9G6L6_ANOCA/29-143   pAS   ..............................................................*.......................................................................................*...................
+I3JZ00_ORENI/26-139              MWHFGSMIQCAQPG--V-----NPLRYNNYGCYC------GF--GGGG--TPRDGVDACCQVHDKCYADS--RK--I-PGC---GDVDN-LPYIIDFDF---TC--------NNQR-VTC-SA------AN--------NT-CQAAVCECDRAAAHCFAQ--NTYNPENK
+#=GR I3JZ00_ORENI/26-139   pAS   ..............................................................*.......................................................................................*...................
+I3JZ02_ORENI/29-145              LWQFRSMILCTVPD--S---W-PALDYADYGCYC------GL--GGSG--TPVDELDRCCQVHDQCYSDA--MQ--H-DDC---WAILD-NPYTEIYSY---NC------DKASKT-VTC-LD------DN--------DL-CEKFICECDRNAAMCFAE--AGYNEENA
+#=GR I3JZ02_ORENI/29-145   pAS   ..............................................................*.......................................................................................*...................
+I3MGP6_SPETR/318-423             -LPFGEMLFCLT-S--R-----CPEEFESYGCYC------GR--EGRG--EPKDALDRCCVSHHCCLGRV--RR----LGC--------VLERLPPSPV---VC--------EDHT-VKCVGQ----------------SL-CQKLLCACDQTAAECMAS--ASFNQSLK
+#=GR I3MGP6_SPETR/318-423  pAS   ..............................................................*.......................................................................................*...................
+I3MJ87_SPETR/8-115               LVQFGVMIERMT-G--K-----SALQYNDYGCYC------GI--GGSH--WPVDQTDWCCHAHDCCYGRL--GK----LGC---------EPKLEKYLF---SV--------GQQD-IFC---A-----GK--------TT-CQRWTCECDRRAALCFRRYVSTYNRKYA
+#=GR I3MJ87_SPETR/8-115    pAS   ..............................................................*.......................................................................................*...................
+I3N450_SPETR/22-131              LLNFNSMISSVT-K--K---N-GATNYGAYGCHC------GL--GGKG--APKDATDRCCARHDCCYKRL--EK----RGC---------GTKFLSYKF---KY--------QAGK-VICE--A-----NQ--------SY-CRSQLCQCDKTAAYCFAKNRKTYNRKYQ
+#=GR I3N450_SPETR/22-131   pAS   ..............................................................*.......................................................................................*...................
+K1P7E6_CRAGI/23-132              LTQFGHMIYSST-G--R-----DPFEFIDYGNWC------GL--GGNG--SVIDAIDECCFHHDNCYAVI--IG--I-PAC---G-----SVYTTKYNF---NI--------SKGE-IEC-HDE---------------RP-CERALCNCDRRASLCFHANRKAYNSTNK
+#=GR K1P7E6_CRAGI/23-132   pAS   ..............................................................*.......................................................................................*...................
+K7DYR4_MONDO/23-129              LLQLKKMIRQAT-G--K---N-PIFSYLNYGCHC------GP--GGRG--QPIDATDWCCKAHDCCYEHL--AE----QKC---------YAHLDVYKY---KY--------VSGD-IECY--G-----K---------SH-CEKEICQCDKELALCLRRNLETYKKQ--
+#=GR K7DYR4_MONDO/23-129   pAS   ..............................................................*.......................................................................................*...................
+L5JRZ3_PTEAL/108-215             LVQFGVMIEKMT-G--K-----PALQYNDYGCYC------GI--GGSH--WPVDQTDWCCHAHDCCYECL--EK----LGC---------EPKLERYLF---SV--------SRSD-IFC---A-----GK--------TA-CQQQTCKCDKTAALCFRQNLATYNYSYA
+#=GR L5JRZ3_PTEAL/108-215  pAS   ..............................................................*.......................................................................................*...................
+L5LN67_MYODS/27-130              -----EMIEFKT-G--K---D-AFSSYVFYGCYC------SS--GGQG--TPRDATDWCCAEHDCCYERL--QK----EKS---------CSKFLNYNF---TY--------ENGQ-IVC---V-----LQ--------DY-CRRQLCECNKAVADCFARYLNTYQERYQ
+L9L022_TUPCH/22-129              LTNFWNMIRLKT-G--K---E-AASSYGFYGCHC------GA--GGKG--TPKDATDRCCAAHDCCYKRL--VK----RGC---------GTKFLSYKF---SY--------SKGA-IKC---A-----KQ--------GS-CKTQLCECDKAAAYCFAKNKKSYSLKY-
+#=GR L9L022_TUPCH/22-129   pAS   ..............................................................*.......................................................................................*...................
+L9L1C5_TUPCH/22-131              ILNLNKMIKQVT-G--K---T-PILSYWPYGCHC------GL--GGRG--QPKDATDWCCHAHDCCYAYL--KA----HKC---------RIHSDLYKY---SF--------SQGD-IHCS--S-----HG--------TW-CEQQLCACDKEMAFCLQRNLGTYQKSWR
+#=GR L9L1C5_TUPCH/22-131   pAS   ..............................................................*.......................................................................................*...................
+L9L572_TUPCH/8-122               FWQFQRMVKHVT-G--R---S-AFFSYNGYGCYC------GL--GGKG--VPVDDTDRCCLAHDCCYEKL--KE----SGC---------QPVLNSYRF---HV--------ANGT-VVCG--CTLSPGVG--------CL-CGLKACECDKRSVYCFRDSLPTYEKNFK
+#=GR L9L572_TUPCH/8-122    pAS   ..............................................................*.......................................................................................*...................
+M3VZC4_FELCA/22-136              FWQFQRMVKYIT-G--R---S-AFFSYYGYGCYC------GL--GGKG--TPVDDTDRTLCASPSETKGW--RE----FYH---------RPVLNSYQF---HI--------ANGS-VACT--CALGPGVS--------CL-CGLRACECDKQSAYCFRESLPTYKKTFK
+M3XIZ3_LATCH/26-140              VWQFRKMILCTLPN--S---D-PVKDFNDYGCYC------GI--GGSG--TPVDEVDRCCETHDRCYRTA--KK--M-KEC---NRILD-NPYTELYSY---KC--------SGNK-ITC-SS------KN--------NA-CEKFICECDRRGAMCFAT--AQYNDKYK
+#=GR M3XIZ3_LATCH/26-140   pAS   ..............................................................*.......................................................................................*...................
+M3YXE4_MUSPF/40-154              FWQFQRMVKLIT-G--R---S-AFFSYYGYGCYC------GL--GGKG--TPVDDTDRCCLAHDCCYGKL--KQ----FGC---------QPVLNSYEF---HI--------ANGT-VACQ--CALDPSIR--------CL-CGLRACECDRQSAYCFRESLPTYEKNFK
+#=GR M3YXE4_MUSPF/40-154   pAS   ..............................................................*.......................................................................................*...................
+M3YXE8_MUSPF/38-145              ILNLNKMIKQMT-R--K---I-PLVSYWSYGCHC------GP--GGKG--QPKDATDRCCQNHDCCYGYL--RQ----HQC---------RVHTDHYNY---TF--------SDGD-IQCP--D-----KG--------SW-CEQQLCACDKTIALCLKQNLDTYQKH--
+#=GR M3YXE8_MUSPF/38-145   pAS   ..............................................................*.......................................................................................*...................
+M3ZHP0_XIPMA/25-141              LHQFRAMILCMLPD--S---W-PALDYSDYGCYC------GY--GGSG--TPIDDLDRCCQVHDQCYSDA--MQ--H-PEC---WPILD-NPYTEIYSY---TC------DEANRK-LTC-TN------QN--------NE-CEMFICECDRKAAECFSR--SEWNPEHE
+#=GR M3ZHP0_XIPMA/25-141   pAS   ..............................................................*.......................................................................................*...................
+M3ZL66_XIPMA/24-137              LWQFGEMISCAQPG--V-----NPLAYNEYGCWC------GL--GGSG--TPVDDVDRCCEAHDKCYQNS--RK--I-PGC---EGVFD-LPYIIIYGF---SC--------SNRQ-VYC-SA------AN--------EK-CEAAVCECDRVAAHCFAR--HTYDPDNK
+#=GR M3ZL66_XIPMA/24-137   pAS   ..............................................................*.......................................................................................*...................
+M4A4M0_XIPMA/29-134              LLELAGAIKCST-G--R-----SALAYMMYGCYC------GL--GGEG--WPRDRADWCCHKHDCCYGDA--ER----LGC---------YTKTAKYHW---TC--------EDRE-AECEDLE---------------DK-CEKILCKCDKEAAKCLRK--APFIQKY-
+#=GR M4A4M0_XIPMA/29-134   pAS   ..............................................................*.......................................................................................*...................
+PA21B_CAVPO/24-138               LWQFRDMIKCAIPG--S---R-PYSEYNNYGCFC------GL--GGSG--TPVDELDRCCEIHDACYTQA--KH--L-ESC---KSVID-NPYTNSYSF---SC--------SGTN-IIC-SS------KN--------KE-CEEFICNCDRAAAICFSK--APYNENNK
+#=GR PA21B_CAVPO/24-138    AS    ..............................................................*.......................................................................................*...................
+PA21B_HORSE/9-123                VWQFRSMIQCTIPN--S---K-PYLEFNDYGCYC------GL--GGSG--TPVDELDACCQVHDNCYTQA--KE--L-SSC---RFLVD-NPYTESYKF---SC--------SGTE-VTC-SD------KN--------NA-CEAFICNCDRNAAICFSK--APYNPENK
+#=GR PA21B_HORSE/9-123     AS    ..............................................................*.......................................................................................*...................
+PA21B_HUMAN/24-138               VWQFRKMIKCVIPG--S---D-PFLEYNNYGCYC------GL--GGSG--TPVDELDKCCQTHDNCYDQA--KK--L-DSC---KFLLD-NPYTHTYSY---SC--------SGSA-ITC-SS------KN--------KE-CEAFICNCDRNAAICFSK--APYNKAHK
+#=GR PA21B_HUMAN/24-138    SS    SHHHHHHGGGTS-S..G...G.SBTTTSSSS--S......HH..HHHH..HHHHTTSGGGTTTTSSTTS-..-E..E.TEE...TT--H.HHHHHHHHH...HH........GGBX.XXX.XX......XX........XX.XXXXXXXXXXXXXXXXXX..XXXXXXXX
+#=GR PA21B_HUMAN/24-138    AS    ..............................................................*.......................................................................................*...................
+PA21B_SHEEP/2-116                LWQFNGMIKCKIPS--S---E-PLLDFNNYGCYC------GL--GGSG--TPVDDLDRCCQTHDNCYKQA--KK--L-DSC---KVLVD-NPYTNSYSY---SC--------SNKQ-ITC-SS------EN--------NA-CEAFICNCDRNAAICFSE--VPYNNEHK
+#=GR PA21B_SHEEP/2-116     AS    ..............................................................*.......................................................................................*...................
+PA2GA_BOVIN/22-130               LLNFRKMIKLTT-G--K---E-PATRYSFYGCYC------GM--SGRG--TPKDATDWCCRAHDCCYKNL--ES----RGC---------RTKFLKYNV---TY--------QEDQ-IVC---E-----DA--------DD-CKSQVCQCDKIAANCFAANLKTYNKKLR
+#=GR PA2GA_BOVIN/22-130    AS    ..............................................................*.......................................................................................*...................
+PA2GA_CAVPO/22-131               LKQFTEMIKLTT-G--K---N-GLTSYGAYGCHC------GV--GGKG--TPKDATDRCCVRHDCCYDRL--MK----RGC---------GTKFLNYRF---TH--------KGSS-ITCS--V-----KQ--------NS-CQKQLCECDKAAAYCFAANLKSYSRRYQ
+#=GR PA2GA_CAVPO/22-131    AS    ..............................................................*.......................................................................................*...................
+PA2GA_HUMAN/22-130               LVNFHRMIKLTT-G--K---E-AALSYGFYGCHC------GV--GGRG--SPKDATDRCCVTHDCCYKRL--EK----RGC---------GTKFLSYKF---SN--------SGSR-ITC---A-----KQ--------DS-CRSQLCECDKAAATCFARNKTTYNKKYQ
+#=GR PA2GA_HUMAN/22-130    SS    HHHHHHHHHHHH.S..H...T.-TTTSSSS--SS......HH..HHHH..HHHHHTTB-STT----EEEE..EE....SSH.........HHHHHHHHH...G-........XXXX.XXX...X.....XX........XX.XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+#=GR PA2GA_HUMAN/22-130    AS    ..............................................................*.......................................................................................*...................
+PA2GA_MOUSE/23-132               IAQFGEMIRLKT-G--K---R-AELSYAFYGCHC------GL--GGKG--SPKDATDRCCVTHDCCYKSL--EK----SGC---------GTKLLKYKY---SH--------QGGQ-ITCS--A-----NQ--------NS-CQKRLCQCDKAAAECFARNKKTYSLKYQ
+#=GR PA2GA_MOUSE/23-132    AS    ..............................................................*.......................................................................................*...................
+PA2GC_MOUSE/22-133               FWQFQRMVKHVT-G--R---S-AFFSYYGYGCYC------GL--GGKG--LPVDATDRCCWAHDCCYHKL--KE----YGC---------QPILNAYQF---TI--------VNGT-VTCG--CTV--ASS--------CP-CGQKACECDKQSVYCFKENLATYEKAF-
+#=GR PA2GC_MOUSE/22-133    AS    ..............................................................*.......................................................................................*...................
+PA2GD_HUMAN/22-129               ILNLNKMVKQVT-G--K---M-PILSYWPYGCHC------GL--GGRG--QPKDATDWCCQTHDCCYDHL--KT----QGC---------SIYKDYYRY---NF--------SQGN-IHCS--D-----KG--------SW-CEQQLCACDKEVAFCLKRNLDTYQKR--
+#=GR PA2GD_HUMAN/22-129    AS    ..............................................................*.......................................................................................*...................
+PA2GF_MOUSE/22-131               LLNLKSMVEAIT-H--R---N-SILSFVGYGCYC------GL--GGRG--HPMDEVDWCCHAHDCCYEKL--FE----QGC---------RPYVDHYDH---RI--------ENGTMIVCTEL------NE--------TE-CDKQTCECDKSLTLCLKD--HPYRNKYR
+#=GR PA2GF_MOUSE/22-131    AS    ..............................................................*.......................................................................................*...................
+Q0IIC8_BOVIN/22-130              LWDFARMIKHTT-G--K---G-ALLSYSAYGCYC------GV--SGRG--SPKDATDRCCWAHDCCYKKL--KH----HGC---------GTKFLNYNV---SI--------RRGQ-ITC---A-----DQ--------GV-CRRIVCECDKKAALCFARNQKTYNKKLQ
+#=GR Q0IIC8_BOVIN/22-130   pAS   ..............................................................*.......................................................................................*...................
+Q17790_CAEEL/26-133              LWNLEEVAECEL-H--Y-----NALHYNNYGCWC------GI--GGSH--EPVDGIDECCMHHDKCYDAA--VD--N-KVC---MDVE--IEYVDDYSW---SC--------MNST-AIC-SD------KN--------MG-CKAALCDCDKIVVECWKKFPKP------
+#=GR Q17790_CAEEL/26-133   pAS   ..............................................................*.......................................................................................*...................
+Q3V5J7_CAEEL/20-130              LYQLDDMSYCRI-G--Q-----PFDAYRYYGCSC----------SGISPNKPIDGIDRCCQVHNDCYNELLLTK-----KC-----QNSNSPYFCLYKW---EC--------VYQQ-PACNNE----------------SK-CTQSVCQCDEQFINCLAK--YPYPTFSK
+#=GR Q3V5J7_CAEEL/20-130   pAS   ..............................................................*.......................................................................................*...................
+Q6DHQ7_DANRE/30-135              LLELAGVIKCST-G--R-----SALSYVMYGCYC------GL--GGQG--WPRDRADWCCHKHDCCYGDA--EF----AGC---------QTKTDRYHW---TC--------DDEQ-ADCDSLN---------------DR-CAKILCRCDREAARCLRK--APFNPKY-
+#=GR Q6DHQ7_DANRE/30-135   pAS   ..............................................................*.......................................................................................*...................
+R0LW78_ANAPL/22-132              LWDLQKMLTKVT-G--R---N-AFLYYSSYGCYC------GL--GGRG--RPKDATDRCCHAHDCCYSRLKSSS----RGC---------NPVLVPYKY---SI--------QGSQ-IVC---G-----GG--------ST-CQTTACECDKAAAECFKRTLGTYNKSYK
+#=GR R0LW78_ANAPL/22-132   pAS   ..............................................................*.......................................................................................*...................
+T1J145_STRMM/28-138              VFDFKSMTEKIT-G--R-----DAVDYVGYGNWC------GL--GGKG--KPKDRLDVCCKVHDECYTLI--MK--T-NVC------SKFNLYSSQYKW---KI--------RNKI-VKCLPDI---------------NP-CPVALCKCDKQVVKCFAK--NKYHRVNK
+#=GR T1J145_STRMM/28-138   pAS   ..............................................................*.......................................................................................*...................
+T1J463_STRMM/26-138              LLNFQSMISHTT-N--R-----SGWDYHNYGRWC------GL--GGSG--TPVDDVDKCCEIHDNCYDEL--NG----NEC---KGMMQLRAYFVLYEW---NW--------VDNT-IIC-TQ------TT--------DN-CSKELCACDKKAAECFAR--YEYNEKHR
+#=GR T1J463_STRMM/26-138   pAS   ..............................................................*.......................................................................................*...................
+U3JYR0_FICAL/25-138              -WLFRKLIKCTLPK--S---H-PLLDFNGYGCYC------GL--GGSG--TPVDELDRCCQVHDECYSQA--EK--L-ESC---RFLLD-NPYTKFYRY---SC--------SDGE-ITC-SS------KN--------KE-CAMFICNCDRAAAECFAK--APYNPEHK
+#=GR U3JYR0_FICAL/25-138   pAS   ..............................................................*.......................................................................................*...................
+U3K7L8_FICAL/21-130              VLQLERIIRAAT-G--R---S-ALLSYSWYGCFC------GI--GGSG--TPVDPTDRCCQAHDCCYRRL--RE----GSC---------SPLITPYSF---TS--------SDGN-ITCS--D-----EQ--------SW-CDRETCLCDTAVASCFASTLHSYNNSYR
+#=GR U3K7L8_FICAL/21-130   pAS   ..............................................................*.......................................................................................*...................
+U3K7M9_FICAL/18-125              LLQLHQMISKVT-G--K---N-ALLHYGFYGCYC------GL--GGKG--QPKDATDRCCQLHDICYQSL--HM----HHC---------DAKTRIYQY---TR--------HHGR-LSC---R-----PG--------SR-CSYLSCECDRSLALCLRRNLSSYSKHH-
+#=GR U3K7M9_FICAL/18-125   pAS   ..............................................................*.......................................................................................*...................
+V8NC39_OPHHA/713-817             --QLGEMLYCLT-N--R-----CPEEFELYGCFC------GQ--EGRG--HPTDELDRCCFSHQCCLEQI--KR----LGC--------QPEKKSRSEV---VC--------FDHT-PTCVGW----------------TL-CENLLCSCDKAAAECMAA--APFNESWR
+#=GR V8NC39_OPHHA/713-817  pAS   ..............................................................*.......................................................................................*...................
+W4XE93_STRPU/33-151              FVQFAVMVTCAT-S--L-----PGFLFNDYGCHC------GL--GGKG--TPVDDVDRCCQIHDECYDSI--IA----GVC------RNDIVYLTTYKY---TCKYRWPWSSASSS-ITCDSSK---------------NDACRQSLCECDRNAALCFAR--SKYNIGNT
+#=GR W4XE93_STRPU/33-151   pAS   ..............................................................*.......................................................................................*...................
+W4XV13_STRPU/41-171              LVFLGNMMSCTT-N--RTFLE-TLVDFGFYGCYC------GF--GGFG--KPVDGVDRCCQTHDKCYEATNLIE--G-GVC---YLTI--TAYIAPYKYNLHQC------DTEDAH-ITCAG-------IDKYYWYDFLPK-CSVAICKCDRDLAMCIAR--QPFHKKNR
+#=GR W4XV13_STRPU/41-171   pAS   ..............................................................*.......................................................................................*...................
+W4Z1Q5_STRPU/51-181              FLQFAAMIQCTT-K--K-----NPIQYQGYGCHC------GFLNGGSA--KPVDATDQCCMDHDRCLKEL--ET--T-GVC-------TKHAFITTYAVEMKGC------GKKKAANITCKPQADYSPLEATFAFGKVD---CAESLCRCDRDAAVCFSQ--NPFQNRYK
+#=GR W4Z1Q5_STRPU/51-181   pAS   ..............................................................*.......................................................................................*...................
+W4Z3C6_STRPU/39-154              LLEFAIMIKCHT-G--R-----WPLDYNGYGCYC------GM--GGEG--RVIDEVDACCKWHDECYDRL--LD--S-KAC---KNLV--HVYIRPYRFWQRRC------WKKDAE-IKCYSK----------------RP-CSRGLCQCDREAALCFAR--AKYNEELE
+#=GR W4Z3C6_STRPU/39-154   pAS   ..............................................................*.......................................................................................*...................
+W4Z6N6_STRPU/69-187              LLEFSAMISCAT-T--R-----SSLDYISYGCHC------GY--GGSG--ISVDVLDSCCEAHDNCYERI--KNNFD-GQC---------NVYYSSYKY---SLRDCLTTGNSDPQ-IECNGTL---------------NTQCLQELCDCDRTAAFCFAA--ASYNAEYR
+#=GR W4Z6N6_STRPU/69-187   pAS   ..............................................................*.......................................................................................*...................
+W4ZK50_STRPU/9-137               --QFGVMMGCLL-D--MSTIE-AGLDYNGYGCYC------GF--GGQG--VPLDDTDRCCQTHDDCYSVVQNSD-----MC-----RSSNQAYTITYNYNALQC------GTYRAQ-IVCSDASSYDADYK--------YTDCAMAMCACDKAGSECFQRYRPTYNEGYK
+#=GR W4ZK50_STRPU/9-137    pAS   ..............................................................*.......................................................................................*...................
+W5JYA9_ASTMX/37-153              LWQFRDMIICTIPD--S---W-PALDYSDYGCYC------GK--GGSG--TPVDDLDRCCEVHDRCYSDA--MQ--H-NAC---WPILD-NPYTEIYAY---SC------DKENKK-ITC-KS------NN--------NE-CEMFICECDRKAAECFAV--SDYNEEHK
+#=GR W5JYA9_ASTMX/37-153   pAS   ..............................................................*.......................................................................................*...................
+W5KDU7_ASTMX/24-137              LWQFGNMIQCAQPG--V-----NPLIYNNYGCFC------GL--GGSG--SPKDQLDRCCQVHDQCYTNA--KK--L-PEC---TFLD---PYVKVYSH---SC--------SNEK-ASC-SG------SN--------AK-CEAAVCECDRVAAHCFAQYNHVYNSAYK
+#=GR W5KDU7_ASTMX/24-137   pAS   ..............................................................*.......................................................................................*...................
+W5KYG2_ASTMX/29-134              VLELSGVIKCST-G--R-----YALAYSLYGCYC------GL--GGQG--WPRDNADWCCHRHDCCYATA--QD----SGC---------HTKPAQYRW---SC--------STDL-PDCGSLM---------------DS-CEKKVCLCDAEAARCLKK--AAYNLEY-
+#=GR W5KYG2_ASTMX/29-134   pAS   ..............................................................*.......................................................................................*...................
+W5N4Q7_LEPOC/323-423             ------ILHCLT-G--R-----CPHEYEMYGCYC------GQ--EGRG--RPMDELDRCCFFHQCCLEQI--RM----FGC--------RAERKLNIQV---SC--------DNGQ-PACAGA----------------NM-CDKLQCMCDKASAECMAG--AHFNETVA
+#=GR W5N4Q7_LEPOC/323-423  pAS   ..............................................................*.......................................................................................*...................
+W5N4Q7_LEPOC/57-164              LFNFMQKLKCTT-K--L-----CPRDLEDYGCSC------RY--EEED--RPIDDIDSCCSQHRRCYKAA--AE----KDC-------KLQPGRILLNT---TC--------PAGN-ITCDAS----------------DF-CEEFFCLCDKAVIECIAH--SQYNSSLR
+#=GR W5N4Q7_LEPOC/57-164   pAS   ..............................................................*.......................................................................................*...................
+W5PAU1_SHEEP/321-425             --QLGEMLFCMT-S--R-----CPEDFESYGCYC------GR--EGQV--EPRDALDRCCLSHHCCLEQV--RR----LGC--------LLERLPQSPV---LC--------VDGT-PQCVGW----------------NL-CAKLLCACDQSAAECMAS--AFYNQSLQ
+#=GR W5PAU1_SHEEP/321-425  pAS   ..............................................................*.......................................................................................*...................
+W5PIA3_SHEEP/24-134              LWDFAAMIKHTT-G--K---G-AVSNYGAYGCYC------GL--GGRG--TPKDATDWCCWEHDCCYKKL--KY----HGC---------GTKFLGYNV---SI--------RRGQ-IICVS-E-----NQ--------GV-CRRIVCECDKKAAICFAKTQNTYNRKLQ
+#=GR W5PIA3_SHEEP/24-134   pAS   ..............................................................*.......................................................................................*...................
+#=GC SS_cons                     CHHHHHHHHHCC-S..H...C.SCTTTSSSS-SS......HH..HHHH..HHHHCTTCGCTTTTSSCCCE..EE..E.TCC...TT--H.HHHHHHHHH...HH........GGBX.XXX.XX......XX........XX.XXXXXXXXXXXXXXXXXX..XXXXXXXX
+#=GC seq_cons                    lhpFtpMIcphT.G..+.....shhsYssYGCaC......Gl..GGpG..pPhDssDpCCtsHDsCYppl..pc....tuC.........pshhppYpa...sh........pssp.lsC.........tt........s..CpptlCpCD+sAAhCatc..ssYNppap
+//

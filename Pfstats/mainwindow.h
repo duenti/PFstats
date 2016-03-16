@@ -255,6 +255,8 @@ private slots:
 
     void on_cmdApplyViewAlignment_clicked();
 
+    void on_cmbFilterMethod_activated(int index);
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -313,6 +315,7 @@ private:
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
     void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true, bool taxfilter=false);
+    void alignfilter(float occupancy,float maxId,bool filterOcc = true, bool filterMaxId=true, bool filterTaxon = false);
     void conservation(int refseq, int offset, char chain, float minCons, string pdbid = "");
     void conservedresidues(float minconservation);
     vector<float> minss(int repetitions); //from 100 to 1;

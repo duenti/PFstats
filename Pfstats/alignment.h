@@ -51,6 +51,7 @@ private:
     vector<Uniprot*> uniprotMined;//Resetando
     vector<tuple<string,string,char,string> > recommendPdbs; //Resetando -protein,pdb,chain,interval
     vector<string> parameters;
+    vector<int> hmmpositions;
     //function_tag,parameters.
 
 
@@ -68,6 +69,7 @@ private:
     bool isaa(char c);
     bool isaa(char c, bool casesensitive);
     bool isaax(char c);
+    bool isHMMposition(char c);
     char num2aa(int n);
     string aa1lto3l(char c);
     long double lnbdf (int N, int nx, float px);
@@ -161,6 +163,7 @@ public:
     void printResiduesCommPs();
     void printFrequencies();
     void loadFullAlignment();
+    void convertLowerDots();
     void addParameter(string tag, string filter, int refSeq, int offset, char chain, float minCons);//Conservation
     void addParameter(string tag, string filter, int repetitions);//Minss
     void addParameter(string tag, string filter, int minlog, float minssfraction, float mindeltafreq); //Correlation
@@ -233,6 +236,7 @@ public:
     bool getFromStd(string text); //[10%]
     char positions(int i, int j);
     void CalculateFrequencies(); //[OK]
+    void defineHMMpositions ();
     void CalculateAASpecificConservation();
     void WriteAASpecificConservation(string outputfilename);
     float Identity(int seq1, int seq2); //[OK]
@@ -240,6 +244,7 @@ public:
     void alignment2UpperCase();
     void IdentityMatrixCalculation();
     void taxonTrimming(string taxon, string refseqName, string refSeq, string alphabet, bool intermediate = true);
+    void hmmCoverageTrimmimg(string taxon, float occ, string alphabet, bool intermediate = true);
     void IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, string alphabet, bool intermediate = true, string newalignmentfilename="");//[OK]
     void IdentityMinimum(string taxon, float minid, int refseq, float minocc, string refSeqName, string refSeq, string alphabet, bool intermediate = true, string newalignmentfilename="");//[OK]
     void AlignmentTrimming(string taxon, float minocc, int refseq, string refseqName, string refSeq, string alphabet, bool intermediate = true, string newalignmentfilename="");//[OK]
@@ -311,6 +316,8 @@ public:
     string getNoGAPSequence(int refseq);
     vector<float> createConservationVector(int refseq);
     vector<float> createCommuntitiesVector(int refseq);
+    int getKindOfAlignment();
+    void dots2dashs();
 };
 
 #endif // ALIGNMENT_H

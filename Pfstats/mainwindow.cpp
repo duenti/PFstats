@@ -21,9 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     currentAlign = nullptr;
 
-    libpath = ""; //NO windows começar com dir raiz
+    //libpath = ""; //NO windows começar com dir raiz
+    libpath = "/usr/share/pflibs/"; //No linux vai estar neste diretorio
 
-    this->loadConfigurationFile();
+    //this->loadConfigurationFile();
 
     ui->menuBar->setNativeMenuBar(false);
 
@@ -486,6 +487,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     int seqCut;
 
     currentAlign->loadFullAlignment();
+
     bool inter = ui->chkIntermediateFilter->isChecked();
 
     //Calculate
@@ -510,6 +512,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 
     if(filter1){
+        //if(method == 0) currentAlign->hmmCoverageTrimmimg(taxon,occupancy,alphabet,inter);
         currentAlign->AlignmentTrimming(taxon,occupancy,0,firstrefseq,firstrefseqname,true,alphabet,inter);
 
         seqCut = seqSize - currentAlign->getSequencesSize();
@@ -536,6 +539,71 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     msg += "Remaining sequences: " + QString::number(seqSize) + ".";
 
     //currentAlign->alignment2UpperCase();
+
+    vector<vector<string> > filterList = currentAlign->getAllFilters();
+    ui->listWidget2->clear();
+
+    for(unsigned int j = 0; j < filterList.size(); j++){
+        if(filterList[j][0] == "0 0 0 0 0 T20") ui->listWidget2->addItem("Full Alignment");
+        else ui->listWidget2->addItem(filterList[j][0].c_str());
+    }
+
+    ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+
+    QMessageBox::information(this,"Alignment filters",msg);
+}
+
+void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool filterMaxId, bool filterTaxon){
+    QString msg = "The filters were successfully applied\n";
+    int seqSize;
+    int seqCut;
+
+    currentAlign->loadFullAlignment();
+    currentAlign->CalculateFrequencies();
+    currentAlign->defineHMMpositions();
+
+    bool inter = ui->chkIntermediateFilter->isChecked();
+
+    string taxon = ui->txtTaxons->text().toStdString();
+    string alphabet = this->findCurrentAlphabet();
+
+    seqSize = currentAlign->getSequencesSize();
+    msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
+
+    if(filterTaxon){
+        currentAlign->taxonTrimming(taxon,"0","",alphabet,inter);
+
+        seqCut = seqSize - currentAlign->getSequencesSize();
+        seqSize = currentAlign->getSequencesSize();
+        msg += "Taxons filter removed " + QString::number(seqCut) + " sequences.\n";
+    }
+
+    if(filterOcc){
+        currentAlign->hmmCoverageTrimmimg(taxon,occupancy,alphabet,inter);
+
+        if(currentAlign->sequences.size() == 0){
+            QMessageBox::warning(this,"Filter","Your parameters filtered all sequences of the alignment.");
+            return;
+        }
+
+        seqCut = seqSize - currentAlign->getSequencesSize();
+        seqSize = currentAlign->getSequencesSize();
+        msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
+    }
+
+    if(filterMaxId){
+        currentAlign->IdentityTrimming(taxon,maxId,occupancy,0,"0","",alphabet,true);
+
+        seqCut = seqSize - currentAlign->getSequencesSize();
+        seqSize = currentAlign->getSequencesSize();
+        msg += "Maximum identity filter removed " + QString::number(seqCut) + " sequences.\n\n";
+    }
+
+    msg += "Remaining sequences: " + QString::number(seqSize) + ".";
+
+    currentAlign->convertLowerDots();
+
+    currentAlign->dots2dashs();
 
     vector<vector<string> > filterList = currentAlign->getAllFilters();
     ui->listWidget2->clear();
@@ -3532,12 +3600,24 @@ void MainWindow::on_cmdOpen_clicked()
 
     //Configura para alinhamento carregado por arquivo
     align.setType(0);
+    /*
     ui->chkApplyMinCover->setChecked(true);
     emit ui->chkApplyMinCover->clicked(true);
     ui->chkApplyMinId->setChecked(true);
     emit ui->chkApplyMinId->clicked(true);
     ui->chkApplyMaxId->setChecked(true);
     emit ui->chkApplyMaxId->clicked(true);
+    */
+
+    int kind = align.getKindOfAlignment();
+
+    if(kind == 1){
+        ui->cmbFilterMethod->setCurrentIndex(0);
+        emit ui->cmbFilterMethod->activated(0);
+    }else{
+        ui->cmbFilterMethod->setCurrentIndex(1);
+        emit ui->cmbFilterMethod->activated(1);
+    }
 
     alinhamentos.push_back(align);
 
@@ -3684,12 +3764,22 @@ void MainWindow::on_cmdFetch_clicked()
 
         //Configura para alinhamento carregado pela web
         align.setType(1);
+        /*
         ui->chkApplyMinCover->setChecked(true);
         emit ui->chkApplyMinCover->clicked(true);
         ui->chkApplyMinId->setChecked(false);
         emit ui->chkApplyMinId->clicked(false);
         ui->chkApplyMaxId->setChecked(true);
         emit ui->chkApplyMaxId->clicked(true);
+        */
+
+        if(ui->radioButton_8->isChecked() || ui->radioButton_9->isChecked()){
+            ui->cmbFilterMethod->setCurrentIndex(0);
+            emit ui->cmbFilterMethod->activated(0);
+        }else{
+            ui->cmbFilterMethod->setCurrentIndex(1);
+            emit ui->cmbFilterMethod->activated(1);
+        }
 
         alinhamentos.push_back(align);
 
@@ -3716,17 +3806,18 @@ void MainWindow::on_cmdApplyFilter_clicked()
             break;
         }
     }
+    //Refseq deve existir no alinhamento
     if(!exists){
         QMessageBox::warning(this,"Unknown protein","Choose one of the proteins in the family to be the reference sequence");
         ui->cmdApplyFilter->setEnabled(true);
         return;
     }
 
-    if(ui->cmbRefSeq->currentText() == "" || ui->txtMinCover->text() == "" || ui->txtMinId->text() == "" || ui->txtMaxId->text() == ""){
+    //
+    if(ui->cmbFilterMethod->currentIndex() == 1 && ui->cmbRefSeq->currentText() == ""){
+        QMessageBox::warning(this,"Filter error","You must fill reference sequence when using the Refseq Method");
         ui->cmdApplyFilter->setEnabled(true);
-        QMessageBox::warning(this,"Error","All fields must be filled");
-        ui->cmdApplyFilter->setEnabled(true);
-        return ;
+        return;
     }
 
     for(int i = 0; i < ui->listWidget2->count(); i++){
@@ -3800,7 +3891,12 @@ void MainWindow::on_cmdApplyFilter_clicked()
 
     refseq = ui->cmbRefSeq->currentIndex()-1;
 
-    this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
+    int method = ui->cmbFilterMethod->currentIndex();
+
+    if(method == 0)
+        this->alignfilter(occupancy,maxId,ui->chkApplyMinCover->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
+    else if(method == 1)
+        this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
@@ -8276,6 +8372,10 @@ void MainWindow::on_cmbRefSeq_4_activated(const QString &arg1)
     for(unsigned int j = 0; j < pdbs.size(); j++){
         ui->lstRecommendedPDBs->addItem(pdbs[j].c_str());
     }
+
+    int index = ui->cmbRefSeq_4->currentIndex();
+    ui->cmbRefSeq_2->setCurrentIndex(index);
+    emit ui->cmbRefSeq_2->activated(index);
 }
 
 void MainWindow::on_lstRecommendedPDBs_itemActivated(QListWidgetItem *item)
@@ -8896,4 +8996,21 @@ string MainWindow::findCurrentAlphabet(){
 void MainWindow::on_cmdApplyViewAlignment_clicked()
 {
     this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
+}
+
+void MainWindow::on_cmbFilterMethod_activated(int index)
+{
+    if(index == 0){
+        ui->label_10->setEnabled(false);
+        ui->cmbRefSeq->setCurrentText("");
+        ui->cmbRefSeq->setEnabled(false);
+        ui->chkApplyMinId->setEnabled(false);
+        ui->chkApplyMinId->setChecked(false);
+        ui->txtMinId->setEnabled(false);
+    }else if(index == 1){
+        ui->label_10->setEnabled(true);
+        ui->cmbRefSeq->setEnabled(true);
+        ui->chkApplyMinId->setEnabled(true);
+        ui->txtMinId->setEnabled(true);
+    }
 }

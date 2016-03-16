@@ -928,6 +928,13 @@ bool Alignment::isaax(char c){
     else return false;
 }
 
+bool Alignment::isHMMposition(char c){
+    if((c=='A')||(c=='C')||(c=='D')||(c=='E')||(c=='F')||(c=='G')||(c=='H')||(c=='I')||(c=='K')||(c=='L')||
+        (c=='M')||(c=='N')||(c=='P')||(c=='Q')||(c=='R')||(c=='S')||(c=='T')||(c=='V')||(c=='W')||(c=='Y')||
+        (c=='-')) return true;
+    else return false;
+}
+
 char Alignment::num2aa(int n){
     if(n==1) return ('A');
     if(n==2) return ('C');
@@ -1664,6 +1671,15 @@ void Alignment::readSTO(vector<string> pfam){
     }
 }
 
+void Alignment::convertLowerDots(){
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        for(unsigned int j = 0; j < sequences[i].size(); j++){
+            if(sequences[i][j] == '.') sequences[i][j] = '-';
+            else toupper(sequences[i][j]);
+        }
+    }
+}
+
 void Alignment::readPFAM(){
     fstream alignmentfile;
     string line;
@@ -1959,6 +1975,15 @@ void Alignment::CalculateFrequencies(){
     }
 }
 
+void Alignment::defineHMMpositions(){
+    hmmpositions.clear();
+
+    for(unsigned int i = 0; i < sequences[0].size(); i++){
+        if(isHMMposition(sequences[0][i]))
+            hmmpositions.push_back(i);
+    }
+}
+
 unsigned int Alignment::SeqSize(int seq){
     int size=0;
     for (unsigned int i=0;i<=sequences[seq].size()-1;i++)
@@ -2075,9 +2100,12 @@ void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq, st
         }//else printf("%s\n",protname.c_str());
     }
 
-    if(sequencenames[0] != refseqName){
-        sequences.insert(sequences.begin(),refSeq);
-        sequencenames.insert(sequencenames.begin(),refseqName);
+
+    if(refseqName != "0"){
+        if(sequencenames[0] != refseqName){
+            sequences.insert(sequences.begin(),refSeq);
+            sequencenames.insert(sequencenames.begin(),refseqName);
+        }
     }
 
 
@@ -2302,7 +2330,57 @@ void Alignment::IdentityMinimum(string taxon, float minid, int refseq, float min
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
 }
 
+void Alignment::hmmCoverageTrimmimg(string taxon, float occ, string alphabet, bool intermediate){
+    int intProgress = sequences.size()-1;
+    QProgressDialog progress("Trimming Coverage...", "Abort", 0, intProgress);
+    progress.setWindowModality(Qt::WindowModal);
+    int nvalidpositions;
+
+    for(int i = sequences.size()-1; i >= 0; i--){
+        nvalidpositions = 0;
+
+        progress.setValue(intProgress-i);
+        if(progress.wasCanceled()) return;
+
+        for(unsigned int j = 0; j < hmmpositions.size(); j++){
+            if(isaa(sequences[i][hmmpositions[j]],false)) nvalidpositions++;
+        }
+
+        float currentValue = (float)nvalidpositions/(float)hmmpositions.size();
+        if(currentValue < occ){
+            sequencenames.erase(sequencenames.begin()+i);
+            sequences.erase(sequences.begin() + i);
+        }
+    }
+
+    if(sequences.size() == 0) return;
+
+    if(intermediate){
+        vector<string> filterVec;
+        string parameters;
+        if(taxon == "") parameters = QString::number(occ).toStdString() + " 0 0 0 0 " + alphabet;
+        else parameters = QString::number(occ).toStdString() + " 0 0 "  + taxon + " 0 " + " " + alphabet;
+
+        filterVec.push_back(parameters);
+        for(unsigned int i = 0; i < sequencenames.size(); i++){
+            filterVec.push_back(sequencenames[i]);
+        }
+
+        vector<string> sequenceVec;
+        sequenceVec.push_back(parameters);
+        for(unsigned int i = 0; i < sequences.size(); i++){
+            sequenceVec.push_back(sequences[i]);
+        }
+
+        filtersList.push_back(filterVec);
+        filterSequences.push_back(sequenceVec);
+    }
+
+    progress.close();
+}
+
 void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float minid, string refseqName, string refSeq, string alphabet, bool intermediate, string newalignmentfilename){
+    //QMessageBox::information(NULL,"a","TESTE");
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -2346,7 +2424,7 @@ void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float 
         else parameters = QString::number(minocc).toStdString() + " " + QString::number(minid).toStdString() + " " + QString::number(maxid).toStdString() + " " + taxon + " " + refseqName + " " + alphabet;
 
         filterVec.push_back(parameters);
-        filterVec.push_back(refseqName);
+        if(refseqName != "0") filterVec.push_back(refseqName);
         for(unsigned int i = 0; i < sequencenames.size(); i++){
             if(sequencenames[i] != refseqName)
                 filterVec.push_back(sequencenames[i]);
@@ -2354,7 +2432,7 @@ void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float 
 
         vector<string> sequenceVec;
         sequenceVec.push_back(parameters);
-        sequenceVec.push_back(refSeq);
+        if(refseqName != "0") sequenceVec.push_back(refSeq);
         for(unsigned int i = 0; i < sequences.size(); i++){
             if(sequencenames[i] != refseqName)
                 sequenceVec.push_back(sequences[i]);
@@ -2366,6 +2444,7 @@ void Alignment::IdentityTrimming(string taxon, float maxid, float minocc, float 
 
     progress.close();
     if(newalignmentfilename != "") AlignmentWrite(newalignmentfilename);
+
 }
 
 void Alignment::AlignmentWrite(string outputfilename){
@@ -6698,4 +6777,32 @@ vector<float> Alignment::createCommuntitiesVector(int refseq){
     }
 
     return commvec;
+}
+
+//1 for contains .
+//0 elsewhere
+int Alignment::getKindOfAlignment(){
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        for(unsigned int j = 0; j < sequences[i].size(); j++){
+            if(sequences[i][j] == '.') return 1;
+        }
+    }
+
+    return 0;
+}
+
+void Alignment::dots2dashs(){
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        for(unsigned int j = 0; j < sequences[i].size(); j++){
+            if(sequences[i][j] == '.') sequences[i][j] = '-';
+        }
+    }
+
+    for(unsigned int i = 0; i < filterSequences.size(); i++){
+        for(unsigned int j = 1; j < filterSequences[i].size(); j++){
+            for(unsigned int k = 0; k < filterSequences[i][j].size(); k++){
+                if(filterSequences[i][j][k] == '.') filterSequences[i][j][k] = '-';
+            }
+        }
+    }
 }

@@ -316,6 +316,7 @@ private:
     int GetOffsetFromSeqName (string seqname);
     void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true, bool taxfilter=false);
     void alignfilter(float occupancy,float maxId,bool filterOcc = true, bool filterMaxId=true, bool filterTaxon = false);
+    void applyHenikoffFilter();
     void conservation(int refseq, int offset, char chain, float minCons, string pdbid = "");
     void conservedresidues(float minconservation);
     vector<float> minss(int repetitions); //from 100 to 1;

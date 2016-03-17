@@ -829,6 +829,11 @@
                   <string>Refseq Filter</string>
                  </property>
                 </item>
+                <item>
+                 <property name="text">
+                  <string>Henikoff &amp; Henikoff Weights</string>
+                 </property>
+                </item>
                </widget>
               </item>
               <item>
@@ -6074,9 +6079,9 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_4"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
  </buttongroups>
 </ui>

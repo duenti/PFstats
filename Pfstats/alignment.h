@@ -52,6 +52,7 @@ private:
     vector<tuple<string,string,char,string> > recommendPdbs; //Resetando -protein,pdb,chain,interval
     vector<string> parameters;
     vector<int> hmmpositions;
+    vector<float> weights;
     //function_tag,parameters.
 
 
@@ -85,6 +86,7 @@ private:
     void readSTO();
     void readSTO(vector<string> pfam);
     Feature* parseFeature(string feature);
+    int countAA(char aa, int col);
 
 public:
     Alignment();
@@ -318,6 +320,7 @@ public:
     vector<float> createCommuntitiesVector(int refseq);
     int getKindOfAlignment();
     void dots2dashs();
+    void henikoffWeights();
 };
 
 #endif // ALIGNMENT_H

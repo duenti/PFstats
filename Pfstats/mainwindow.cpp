@@ -618,6 +618,10 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     QMessageBox::information(this,"Alignment filters",msg);
 }
 
+void MainWindow::applyHenikoffFilter(){
+    //IMPLEMENTAR
+}
+
 void MainWindow::conservation(int refseq, int offset, char chain, float minCons, string pdbid){
     currentAlign->CalculateFrequencies();
     currentAlign->dGCalculation();
@@ -3897,6 +3901,7 @@ void MainWindow::on_cmdApplyFilter_clicked()
         this->alignfilter(occupancy,maxId,ui->chkApplyMinCover->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
     else if(method == 1)
         this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
+    //else if method == 2 chamar henikoff henikoff
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
@@ -9004,13 +9009,55 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
         ui->label_10->setEnabled(false);
         ui->cmbRefSeq->setCurrentText("");
         ui->cmbRefSeq->setEnabled(false);
+        ui->chkApplyTaxonFilter->setEnabled(true);
+        emit ui->chkApplyTaxonFilter->clicked(ui->chkApplyTaxonFilter->isChecked());
+        ui->chkApplyMinCover->setEnabled(true);
+        ui->chkApplyMinCover->setChecked(true);
+        emit ui->chkApplyMinCover->clicked(true);
         ui->chkApplyMinId->setEnabled(false);
         ui->chkApplyMinId->setChecked(false);
-        ui->txtMinId->setEnabled(false);
+        emit ui->chkApplyMinId->clicked(false);
+        ui->chkApplyMaxId->setEnabled(true);
+        ui->chkApplyMaxId->setChecked(true);
+        emit ui->chkApplyMaxId->clicked(true);
+        ui->chkIntermediateFilter->setEnabled(true);
+        ui->chkIntermediateFilter->setChecked(false);
+        ui->label_61->setEnabled(true);
     }else if(index == 1){
         ui->label_10->setEnabled(true);
         ui->cmbRefSeq->setEnabled(true);
+        ui->chkApplyTaxonFilter->setEnabled(true);
+        emit ui->chkApplyTaxonFilter->clicked(ui->chkApplyTaxonFilter->isChecked());
+        ui->chkApplyMinCover->setEnabled(true);
+        ui->chkApplyMinCover->setChecked(true);
+        emit ui->chkApplyMinCover->clicked(true);
         ui->chkApplyMinId->setEnabled(true);
-        ui->txtMinId->setEnabled(true);
+        emit ui->chkApplyMinId->clicked(true);
+        ui->chkApplyMaxId->setEnabled(true);
+        ui->chkApplyMaxId->setChecked(true);
+        emit ui->chkApplyMaxId->clicked(true);
+        ui->chkIntermediateFilter->setEnabled(true);
+        ui->chkIntermediateFilter->setChecked(false);
+        ui->label_61->setEnabled(true);
+    }else if(index == 2){
+        ui->label_10->setEnabled(false);
+        ui->cmbRefSeq->setCurrentText("");
+        ui->cmbRefSeq->setEnabled(false);
+        ui->chkApplyTaxonFilter->setEnabled(false);
+        ui->chkApplyTaxonFilter->setChecked(false);
+        emit ui->chkApplyTaxonFilter->clicked(false);
+        ui->chkApplyMinCover->setEnabled(false);
+        ui->chkApplyMinCover->setChecked(false);
+        emit ui->chkApplyMinCover->clicked(false);
+        ui->chkApplyMinId->setEnabled(false);
+        ui->chkApplyMinId->setChecked(false);
+        emit ui->chkApplyMinId->clicked(false);
+        ui->chkApplyMaxId->setEnabled(false);
+        ui->chkApplyMaxId->setChecked(false);
+        emit ui->chkApplyMaxId->clicked(false);
+        ui->chkIntermediateFilter->setEnabled(false);
+        ui->chkIntermediateFilter->setChecked(false);
+        ui->label_61->setEnabled(false);
+        ui->cmdApplyFilter->setEnabled(true);
     }
 }

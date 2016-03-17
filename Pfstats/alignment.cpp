@@ -13,7 +13,6 @@
 #include <QtNetwork>
 #include <set>
 
-
 Alignment::Alignment()
 {
     refSeqName = "";
@@ -6804,5 +6803,49 @@ void Alignment::dots2dashs(){
                 if(filterSequences[i][j][k] == '.') filterSequences[i][j][k] = '-';
             }
         }
+    }
+}
+
+int Alignment::countAA(char aa, int col){
+    if(col > sequences[0].size()) return 0;
+
+    int count = 0;
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        if(sequences[i][col] == aa) count ++;
+    }
+
+    return count;
+}
+
+void Alignment::henikoffWeights(){
+    vector<int> typesCount;
+    int length = sequences[0].size();
+
+    weights.clear();
+
+    //Make the list of aa types per position
+    for(unsigned int j = 0; j < length; j++){
+        set<char> types;
+        for(unsigned int i = 0; i < sequences.size(); i++){
+            types.insert(sequences[i][j]);
+        }
+        typesCount.push_back(types.size());
+    }//IMPRIMIR PRA VER SE A LISTA DE TIPOS ESTA CORRETA
+
+    //Para cada sequencia ele vai dar um peso
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        string sequence = sequences[i];
+        int sum = 0;
+
+        //Percorrer colunas para somar
+        for(unsigned j = 0; j < length; j++){
+            char actualAA = sequences[i][j];
+
+            //Conta quantas vezes este AA esta presente na coluna
+            int nxi = countAA(actualAA,j);
+            float calc = 1/(typesCount*nxi);
+            sum += calc;
+        }
+        weights.push_back(sum/length);
     }
 }

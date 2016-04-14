@@ -1,0 +1,15 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\qcustomplot.o
+./debug\alignment.o
+./debug\about.o
+./debug\uniprot.o
+./debug\feature.o
+./debug\pdb.o
+./debug\pdbatom.o
+./debug\filter.o
+./debug\moc_mainwindow.o
+./debug\moc_qcustomplot.o
+./debug\moc_about.o
+);

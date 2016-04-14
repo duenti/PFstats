@@ -797,6 +797,39 @@
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_25">
             <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_90">
+              <item>
+               <widget class="QLabel" name="label_83">
+                <property name="minimumSize">
+                 <size>
+                  <width>155</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Filter Name:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="txtFilterName"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_71">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_68">
               <item>
                <widget class="QLabel" name="label_82">
@@ -827,11 +860,6 @@
                 <item>
                  <property name="text">
                   <string>Refseq Filter</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Henikoff &amp; Henikoff Weights</string>
                  </property>
                 </item>
                </widget>
@@ -1119,46 +1147,6 @@
                 </item>
                 <item>
                  <spacer name="horizontalSpacer_42">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_35">
-                <item>
-                 <widget class="QCheckBox" name="chkIntermediateFilter">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_61">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Generate files for intermediate filters (if not &lt;br/&gt;selected, only the final alignment will be saved)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_43">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -2668,7 +2656,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>11</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -3023,7 +3011,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="lblChain">
+                   <widget class="QLabel" name="lblMinimumCons">
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
@@ -3031,7 +3019,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Chain: </string>
+                     <string>Mininum Conservation: </string>
                     </property>
                    </widget>
                   </item>
@@ -3208,7 +3196,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="lblChain_2">
+                   <widget class="QLabel" name="lblMinimumCons_2">
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
@@ -3216,7 +3204,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Chain: </string>
+                     <string>Minimum Conservation: </string>
                     </property>
                    </widget>
                   </item>
@@ -5369,7 +5357,6 @@
     </property>
     <addaction name="actionOpen_XML"/>
     <addaction name="separator"/>
-    <addaction name="actionInput_Alignment"/>
     <addaction name="actionClose_Alignment"/>
     <addaction name="separator"/>
     <addaction name="actionSave_Results"/>
@@ -6079,9 +6066,9 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_4"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

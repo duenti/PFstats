@@ -27,8 +27,6 @@ public:
     void startStacked();
 
 private slots:
-    void inputAlignment_triggered();
-    void fetchPFAM_triggered();
     void Open_XML_triggered();
     void exportAlignment_PFAM();
     void exportAlignment_TXT();
@@ -79,7 +77,6 @@ private slots:
     void changeToConservationStack();
     void changetoMinssStack();
     void changetoCorrelationStack();
-    void changetoShowResultsStack();
     void changeToUniprotLookingTool();
     void saveResults();
     void closeAlignment();
@@ -129,13 +126,7 @@ private slots:
 
     //void on_lstRefSeqs_itemSelectionChanged();
 
-    void on_lstRefSeqs_2_itemSelectionChanged();
-
     void on_cmdSaveResults_clicked();
-
-    void on_listWidget2_activated(const QModelIndex &index);
-
-    void on_cmdShow_clicked();
 
     void on_lstProteinsFiltered_activated(const QModelIndex &index);
 
@@ -147,10 +138,6 @@ private slots:
 
     void on_cmdBackComm_2_clicked();
 
-    void on_cmdNextResult_clicked();
-
-    void on_cmdBackResult_clicked();
-
     void on_cmdNextResComm_clicked();
 
     void on_cmdBackResComm_clicked();
@@ -158,8 +145,6 @@ private slots:
     void on_cmdRemoveFilter_clicked();
 
     void on_cmdRemoveAlignment_clicked();
-
-    void on_cmdUploadConsRefsSeqs_clicked();
 
     void on_cmdLook_clicked();
 
@@ -257,6 +242,8 @@ private slots:
 
     void on_cmbFilterMethod_activated(int index);
 
+    void on_listWidget2_itemActivated(QListWidgetItem *item);
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -293,7 +280,9 @@ private:
 
     Ui::MainWindow *ui;
     Alignment *currentAlign;
+    Filter *currentFilter;
     string currentPDBContent;
+    string exportPath = "";
     QString CONFIG = "PF_CONFIG.conf";
     void changeWizardCmds(bool bl);
     void resetObjects();
@@ -305,26 +294,20 @@ private:
     int currentStackPos = 0;
     vector<int> resultsStackList;
     QCPItemText *minssLabel;
-    bool compareLocalWebPDB(string local, string web);
     vector<Alignment> alinhamentos;
     vector<Pdb*> pdbs;
     void addAlignment(string path);
-    bool checkfile(const string& name);
     vector<string> split(string text, char sep);
-    string makeNewPath(string oldPath, string fileSufix);
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
     void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true, bool taxfilter=false);
     void alignfilter(float occupancy,float maxId,bool filterOcc = true, bool filterMaxId=true, bool filterTaxon = false);
     void applyHenikoffFilter();
     void conservation(int refseq, int offset, char chain, float minCons, string pdbid = "");
-    void conservedresidues(float minconservation);
     vector<float> minss(int repetitions); //from 100 to 1;
     void pcalc(int minlogp, float minssfraction, float mindeltafreq);
     void trivcomm();
     void output(int seqnumber, int offset);
-    void adherence(Alignment align, string communitiesfilename, string outputfilename);
-    void comm2seqrenumbering(Alignment align, string communitiesfilename, vector<int> referencesequences, string path);
     //Show Results
     void listSequences();
     void tableFreq();
@@ -353,6 +336,7 @@ private:
     void loadConfigurationFile();
     vector<float> generateAMCL(int alfabetIndex);//Alfabetical Conservative Maximum List
     string findCurrentAlphabet();
+    string getDirectory(string path);
 };
 
 #endif // MAINWINDOW_H

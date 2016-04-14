@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     uniprot.cpp \
     feature.cpp \
     pdb.cpp \
-    pdbatom.cpp
+    pdbatom.cpp \
+    filter.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -39,7 +40,8 @@ HEADERS  += mainwindow.h \
     uniprot.h \
     feature.h \
     pdb.h \
-    pdbatom.h
+    pdbatom.h \
+    filter.h
 
 FORMS    += mainwindow.ui \
     about.ui

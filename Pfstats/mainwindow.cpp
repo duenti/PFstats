@@ -21,10 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     currentAlign = nullptr;
 
-    //libpath = ""; //NO windows começar com dir raiz
-    libpath = "/usr/share/pflibs/"; //No linux vai estar neste diretorio
+    libpath = ""; //NO windows começar com dir raiz
+    //libpath = "/usr/share/pflibs/"; //No linux vai estar neste diretorio
 
-    //this->loadConfigurationFile();
+    this->loadConfigurationFile();
 
     ui->menuBar->setNativeMenuBar(false);
 
@@ -38,18 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Configura label do grafico Minss
     minssLabel = new QCPItemText(ui->graficMinss);
 
-    /*
-    QFile file("abor/index.html");
-    file.open(QIODevice::ReadOnly);
-    QFileInfo info(file);
-    string absPath = info.absoluteFilePath().toStdString();
-    string localUrl = "file:///" + absPath;
-    ui->webView->load(QUrl(localUrl.c_str()));
-    */
-
     //Conecta Slots
-    connect(ui->actionInput_Alignment,SIGNAL(triggered()),this,SLOT(inputAlignment_triggered()));
-    connect(ui->actionFetch_From_PFAM,SIGNAL(triggered()),this,SLOT(fetchPFAM_triggered()));
     connect(ui->actionOpen_XML,SIGNAL(triggered()),this,SLOT(Open_XML_triggered()));
     connect(ui->actionAlignmentPFAM,SIGNAL(triggered()),this,SLOT(exportAlignment_PFAM()));
     connect(ui->actionAlignmentTXT,SIGNAL(triggered()),this,SLOT(exportAlignment_TXT()));
@@ -92,7 +81,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionConservation,SIGNAL(triggered()),this,SLOT(changeToConservationStack()));
     connect(ui->actionMinss,SIGNAL(triggered()),this,SLOT(changetoMinssStack()));
     connect(ui->actionCorrelation,SIGNAL(triggered()),this,SLOT(changetoCorrelationStack()));
-    connect(ui->actionShow_Results,SIGNAL(triggered()),this,SLOT(changetoShowResultsStack()));
     connect(ui->actionUniprotLooking,SIGNAL(triggered()),this,SLOT(changeToUniprotLookingTool()));
     connect(ui->actionSave_Results,SIGNAL(triggered()),this,SLOT(saveResults()));
     connect(ui->actionClose_Alignment,SIGNAL(triggered()),this,SLOT(closeAlignment()));
@@ -127,13 +115,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSet_Libraries_Path,SIGNAL(triggered()),this,SLOT(setLibPath()));
     connect(ui->actionAlphabet_Reduction,SIGNAL(triggered()),this,SLOT(changeToAlphabetReduction()));
     connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
-
-    //Configura parametros
-    //ui->cmbRefSeq->setCompleter(ui->cmbRefSeq->completer());
-
-    //Adciona os taxons
-    //QStringList CompletionList;
-    //CompletionList << "Neli" << "José" << "Fonseca" << "Junior" << "Nulo";
 
     string filepath = libpath + "taxons.txt";
     printf("%s",filepath.c_str());
@@ -199,16 +180,6 @@ void MainWindow::startStacked(){
 
 //Reset UI Objects
 void MainWindow::resetObjects(){
-    //VARIABLE OBJECTS
-    currentAlign = NULL;
-    currentPDBContent = "";
-    pdbweb = "";
-    stackBeforeShowResults = 0;
-    currentStackPos = 0;
-    resultsStackList.clear();
-
-
-    //UI OBJECTS
     //MAIN WINDOW
     ui->listWidget->clear();
     ui->listWidget2->clear();
@@ -232,7 +203,6 @@ void MainWindow::resetObjects(){
     ui->txtMinCover->setValue(0.8);
     ui->txtMinId->setValue(0.15);
     ui->txtMaxId->setValue(0.8);
-    ui->chkIntermediateFilter->setChecked(false);
     //REFSEQS
     ui->cmbFilterRefseq->setCurrentIndex(0);
     ui->txtFilterRefSeq->clear();
@@ -302,13 +272,13 @@ void MainWindow::resetObjects(){
     ui->lblFilter->setText("Filter: ");
     ui->lblRefSeq->setText("Reference Sequence: ");
     ui->lblOffset->setText("Offset: ");
-    ui->lblChain->setText("Chain: ");
+    ui->lblMinimumCons->setText("Minimum Conservation: ");
     ui->tableFreq->clearContents();
     //PERC CONSERVATION
     ui->lblFilter_2->setText("Filter: ");
     ui->lblRefSeq_2->setText("Reference Sequence: ");
     ui->lblOffset_2->setText("Offset: ");
-    ui->lblChain_2->setText("Chain: ");
+    ui->lblMinimumCons_2->setText("Minimum Conservation: ");
     ui->tableFreqPerc->clearContents();
     //CONSERVED RESIDUES
     ui->lblFilter_8->setText("Filter: ");
@@ -376,17 +346,6 @@ void MainWindow::resetObjects(){
 
 }
 
-bool MainWindow::compareLocalWebPDB(string local, string web){
-    vector<string> localVec = this->split(local,'/');
-    vector<string> webVec = this->split(web,'/');
-
-    string localfile = localVec[localVec.size()-1];
-    string webfile = webVec[webVec.size()-1];
-
-    if(localfile == webfile) return true;
-    return false;
-}
-
 vector<string> MainWindow::split(string text, char sep){
     int start = 0, end = 0;
     vector<string> tokens;
@@ -398,33 +357,6 @@ vector<string> MainWindow::split(string text, char sep){
     tokens.push_back(text.substr(start));
 
     return tokens;
-}
-
-string MainWindow::makeNewPath(string oldPath, string fileSufix){
-    string finalPath = "";
-    //if(oldPath[0] == '/') finalPath += '/'; //Para linux
-
-    //Trabalha o diretorio
-    vector<string> tokens = this->split(oldPath,'/');
-
-    for(unsigned int i = 0; i < tokens.size()-1; i++){
-        finalPath += tokens[i] + "/";
-    }
-    //QMessageBox::information(this,"a","tokens ");
-
-    //Trabalha o arquivo
-    string file = tokens[tokens.size()-1];
-    vector<string> tkFile = this->split(file,'.');
-
-    for(unsigned int i = 0; i < tkFile.size()-1; i++){
-        finalPath += tkFile[i];
-    }
-    //QMessageBox::information(this,"a","tokensF ");
-
-    //Monta path final
-    finalPath += "_" + fileSufix + "." + tkFile[tkFile.size()-1];
-
-    return finalPath;
 }
 
 char MainWindow::num2aa(int n){
@@ -473,82 +405,80 @@ int MainWindow::GetOffsetFromSeqName(string seqname){
     return(atoi(offsetstr.c_str())-1);
 }
 
-bool MainWindow::checkfile(const string &name){
-    if (FILE *file = fopen(name.c_str(), "r")) {
-        fclose(file);
-        return true;
-    }
-    return false;
-}
-
 void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1, bool filter2, bool filter3, bool taxfilter){
     QString msg = "The filters were successfully applied\n";
     int seqSize;
     int seqCut;
 
-    currentAlign->loadFullAlignment();
-
-    bool inter = ui->chkIntermediateFilter->isChecked();
-
     //Calculate
-    string firstrefseq = currentAlign->sequences[refseq];
-    string firstrefseqname = currentAlign->sequencenames[refseq];
+    string firstrefseq = currentFilter->sequences[refseq];
+    string firstrefseqname = currentFilter->sequencenames[refseq];
     string taxon = ui->txtTaxons->text().toStdString();
-    string alphabet = this->findCurrentAlphabet();
+    string alphabet = currentFilter->getAlphabet();
+    string name = ui->txtFilterName->text().toStdString();
+    int type = ui->cmbFilterMethod->currentIndex();
     //printf("%s: %s\n",firstrefseq.c_str(),firstrefseqname.c_str());
-    currentAlign->sequences.insert(currentAlign->sequences.begin(),firstrefseq);
-    currentAlign->sequencenames.insert(currentAlign->sequencenames.begin(),firstrefseqname);
+    vector<string> sequences = currentFilter->sequences;
+    vector<string> sequencenames = currentFilter->sequencenames;
 
-    seqSize = currentAlign->getSequencesSize();
+    sequences.insert(sequences.begin(),firstrefseq);
+    sequencenames.insert(sequencenames.begin(),firstrefseqname);
+    currentAlign->addSequences(sequences,sequencenames);
+
+    seqSize = currentAlign->sequences.size();
     msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
     //currentAlign->AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
 
     if(taxfilter){
-        currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq,alphabet,inter);
+        currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq);
 
-        seqCut = seqSize - currentAlign->getSequencesSize();
-        seqSize = currentAlign->getSequencesSize();
+        seqCut = seqSize - currentAlign->sequences.size();
+        seqSize = currentAlign->sequences.size();
         msg += "Taxons filter removed " + QString::number(seqCut) + " sequences.\n";
     }
 
     if(filter1){
         //if(method == 0) currentAlign->hmmCoverageTrimmimg(taxon,occupancy,alphabet,inter);
-        currentAlign->AlignmentTrimming(taxon,occupancy,0,firstrefseq,firstrefseqname,true,alphabet,inter);
+        currentAlign->AlignmentTrimming(occupancy,0,firstrefseq,firstrefseqname,true);
 
-        seqCut = seqSize - currentAlign->getSequencesSize();
-        seqSize = currentAlign->getSequencesSize();
+        seqCut = seqSize - currentAlign->sequences.size();
+        seqSize = currentAlign->sequences.size();
         msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
     }
-//QMessageBox::information(this,"a","teste4");
-    if(filter2){
-        currentAlign->IdentityMinimum(taxon,minId,0,occupancy,firstrefseqname,firstrefseq,alphabet,inter);
 
-        seqCut = seqSize - currentAlign->getSequencesSize();
-        seqSize = currentAlign->getSequencesSize();
+    if(filter2){
+        currentAlign->IdentityMinimum(minId,0);
+
+        seqCut = seqSize - currentAlign->sequences.size();
+        seqSize = currentAlign->sequences.size();
         msg += "Minimum identity filter removed " + QString::number(seqCut) + " sequences.\n";
     }
-//QMessageBox::information(this,"a","teste5");
-    if(filter3){
-        currentAlign->IdentityTrimming(taxon,maxId,occupancy,minId,firstrefseqname,firstrefseq,alphabet,true);
 
-        seqCut = seqSize - currentAlign->getSequencesSize();
-        seqSize = currentAlign->getSequencesSize();
+    if(filter3){
+        currentAlign->IdentityTrimming(maxId);
+
+        seqCut = seqSize - currentAlign->sequences.size();
+        seqSize = currentAlign->sequences.size();
         msg += "Maximum identity filter removed " + QString::number(seqCut) + " sequences.\n\n";
     }
 
     msg += "Remaining sequences: " + QString::number(seqSize) + ".";
 
-    //currentAlign->alignment2UpperCase();
+    Filter *filter = new Filter(name,alphabet,type);
+    filter->setRefSeq(firstrefseqname);
+    filter->setTaxon(taxon);
+    filter->setMinOcc(occupancy);
+    filter->setMinId(minId);
+    filter->setMaxId(maxId);
+    filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+    filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-    vector<vector<string> > filterList = currentAlign->getAllFilters();
-    ui->listWidget2->clear();
+    currentAlign->addFilter(filter);
 
-    for(unsigned int j = 0; j < filterList.size(); j++){
-        if(filterList[j][0] == "0 0 0 0 0 T20") ui->listWidget2->addItem("Full Alignment");
-        else ui->listWidget2->addItem(filterList[j][0].c_str());
-    }
+    ui->listWidget2->addItem(name.c_str());
 
     ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     QMessageBox::information(this,"Alignment filters",msg);
 }
@@ -558,44 +488,48 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     int seqSize;
     int seqCut;
 
-    currentAlign->loadFullAlignment();
-    currentAlign->CalculateFrequencies();
-    currentAlign->defineHMMpositions();
-
-    bool inter = ui->chkIntermediateFilter->isChecked();
+    currentFilter->CalculateFrequencies();
 
     string taxon = ui->txtTaxons->text().toStdString();
-    string alphabet = this->findCurrentAlphabet();
+    string alphabet = currentFilter->getAlphabet();
+    string name = ui->txtFilterName->text().toStdString();
+    int type = ui->cmbFilterMethod->currentIndex();
 
-    seqSize = currentAlign->getSequencesSize();
+    vector<string> sequences = currentFilter->sequences;
+    vector<string> sequencenames = currentFilter->sequencenames;
+
+    currentAlign->addSequences(sequences,sequencenames);
+    currentAlign->defineHMMpositions();
+
+    seqSize = currentAlign->sequences.size();
     msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
 
     if(filterTaxon){
-        currentAlign->taxonTrimming(taxon,"0","",alphabet,inter);
+        currentAlign->taxonTrimming(taxon,"0","");
 
-        seqCut = seqSize - currentAlign->getSequencesSize();
-        seqSize = currentAlign->getSequencesSize();
+        seqCut = seqSize - currentAlign->sequences.size();
+        seqSize = currentAlign->sequences.size();
         msg += "Taxons filter removed " + QString::number(seqCut) + " sequences.\n";
     }
 
     if(filterOcc){
-        currentAlign->hmmCoverageTrimmimg(taxon,occupancy,alphabet,inter);
+        currentAlign->hmmCoverageTrimmimg(occupancy);
 
         if(currentAlign->sequences.size() == 0){
             QMessageBox::warning(this,"Filter","Your parameters filtered all sequences of the alignment.");
             return;
         }
 
-        seqCut = seqSize - currentAlign->getSequencesSize();
-        seqSize = currentAlign->getSequencesSize();
+        seqCut = seqSize - currentAlign->sequences.size();
+        seqSize = currentAlign->sequences.size();
         msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
     }
 
     if(filterMaxId){
-        currentAlign->IdentityTrimming(taxon,maxId,occupancy,0,"0","",alphabet,true);
+        currentAlign->IdentityTrimming(maxId);
 
-        seqCut = seqSize - currentAlign->getSequencesSize();
-        seqSize = currentAlign->getSequencesSize();
+        seqCut = seqSize - currentAlign->sequences.size();
+        seqSize = currentAlign->sequences.size();
         msg += "Maximum identity filter removed " + QString::number(seqCut) + " sequences.\n\n";
     }
 
@@ -605,15 +539,18 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
 
     currentAlign->dots2dashs();
 
-    vector<vector<string> > filterList = currentAlign->getAllFilters();
-    ui->listWidget2->clear();
+    Filter *filter = new Filter(name,alphabet,type);
+    filter->setTaxon(taxon);
+    filter->setMinOcc(occupancy);
+    filter->setMaxId(maxId);
+    filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
 
-    for(unsigned int j = 0; j < filterList.size(); j++){
-        if(filterList[j][0] == "0 0 0 0 0 T20") ui->listWidget2->addItem("Full Alignment");
-        else ui->listWidget2->addItem(filterList[j][0].c_str());
-    }
+    currentAlign->addFilter(filter);
+
+    ui->listWidget2->addItem(name.c_str());
 
     ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     QMessageBox::information(this,"Alignment filters",msg);
 }
@@ -623,10 +560,10 @@ void MainWindow::applyHenikoffFilter(){
 }
 
 void MainWindow::conservation(int refseq, int offset, char chain, float minCons, string pdbid){
-    currentAlign->CalculateFrequencies();
-    currentAlign->dGCalculation();
-    currentAlign->dGWrite();
-    currentAlign->FreqWrite();
+    currentFilter->CalculateFrequencies();
+    currentFilter->dGCalculation();
+    currentFilter->dGWrite();
+    currentFilter->FreqWrite();
 
     string path = "";
 
@@ -649,93 +586,27 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
         path = filename.toStdString();
 
         //pdb->printSeqNumbers();
-        vector<float> consvec = currentAlign->createConservationVector(refseq);
+        vector<float> consvec = currentFilter->createConservationVector(refseq);
         pdb->exportStructure(filename,consvec,chain);
 
-        currentAlign->setConsPDBPath(path);
+        currentFilter->setConsPDBPath(path);
 
     }
 
-    if(ui->listWidget2->currentItem() == NULL)
-        currentAlign->addParameter("conservation","Full Alignment",refseq, offset, chain, minCons);
-    else
-        currentAlign->addParameter("conservation", ui->listWidget2->currentItem()->text().toStdString(), refseq, offset, chain, minCons);
+    currentFilter->setConsMin(minCons);
+    currentFilter->setConsOffset(offset);
+    currentFilter->setConsPDB(pdbid);
+    currentFilter->setConsRefseq(refseq);
 
     if(pdbid != "") QMessageBox::information(this,"Conservation","Conservation has been calculated and the structure file has been successfully created at the above path:\n\n" + QString::fromStdString(path));
     else QMessageBox::information(this,"Conservation","Conservation has been calculated.");
 }
 
-//Passar vetor de indices ->currentIndex
-void MainWindow::conservedresidues(float minconservation){ //OLD
-    unsigned int c1, c2;
-    float freq;
-    vector<char> conservedaa;
-    vector<int> conservedpos;
-    vector<float> conservedfreq;
-
-    currentAlign->CalculateFrequencies();
-
-    for(c1 = 0; c1 < currentAlign->frequencies.size()-2; c1++){
-        for(c2 = 1; c2 <=20; c2++){
-            freq = (float)currentAlign->frequencies[c1][c2]/((float)currentAlign->sequences.size());
-            if(freq >= minconservation){
-                conservedaa.push_back(num2aa(c2));
-                conservedpos.push_back(c1);
-                conservedfreq.push_back(100*freq);
-            }
-        }
-    }
-
-    if(conservedaa.size() == 0){
-        QMessageBox::information(this,"Conserved Residues", "No residues match the conservation minimum");
-        return;
-    }
-/*
-    QFile file(outputFile.c_str());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-            return;
-
-    QTextStream out(&file);
-    out.setFieldAlignment(QTextStream::AlignLeft);
-    out.setRealNumberNotation(QTextStream::FixedNotation);
-    out.setRealNumberPrecision(1);
-
-    out << "<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th><b>Sequence</b></th>";
-
-    for (c1=0;c1<=conservedaa.size()-1;c1++){
-        out << "<th><b>" << conservedaa[c1] << conservedpos[c1]+1 << " (" << conservedfreq[c1] <<")</b></th>";
-    }
-    out << "</tr>\n";
-    for (c1=0;c1<=referencesequences.size()-1;c1++){
-        out << "<tr><th><b>" << currentAlign->sequencenames[referencesequences[c1]].c_str();
-        for (c2=0;c2<=conservedaa.size()-1;c2++){
-            if(currentAlign->AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2]) ==0){
-                out << "<th><font color=#FF0000>-</font></th>";
-            }else{
-                if (currentAlign->sequences[referencesequences[c1]][conservedpos[c2]]==conservedaa[c2])
-                    out << "<th>" << conservedaa[c2] << currentAlign->AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2]) + GetOffsetFromSeqName(currentAlign->sequencenames[referencesequences[c1]]) << "</th>";
-                else
-                    out << "<th><font color=#FF0000>" << currentAlign->sequences[referencesequences[c1]][conservedpos[c2]] << currentAlign->AlignNumbering2Sequence(referencesequences[c1]+1,conservedpos[c2])+GetOffsetFromSeqName(currentAlign->sequencenames[referencesequences[c1]]) << "</font></th>";
-            }
-        }
-        out << "</tr>\n";
-    }
-    file.close();
-*/
-    QMessageBox::information(this,"Conserved Residues", "Conserved residues exported to HTML table.");
-}
-
 vector<float> MainWindow::minss(int repetitions){
     vector<float> outputVec;
-    currentAlign->CalculateFrequencies();
+    currentFilter->CalculateFrequencies();
     //outputVec = currentAlign->DTRandomElimination(repetitions,99,1,1);
-    outputVec = currentAlign->ShenkinEntropy(repetitions);
-
-
-    if(ui->listWidget2->currentItem() == NULL)
-        currentAlign->addParameter("minss","Full Alignment",repetitions);
-    else
-        currentAlign->addParameter("minss", ui->listWidget2->currentItem()->text().toStdString(), repetitions);
+    outputVec = currentFilter->ShannonEntropy(repetitions);
 
     QMessageBox::information(this,"Minss","Minss calculated.");
 
@@ -743,11 +614,8 @@ vector<float> MainWindow::minss(int repetitions){
 }
 
 void MainWindow::pcalc(int minlogp, float minssfraction, float mindeltafreq){
-    currentAlign->CalculateFrequencies();
-    currentAlign->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
-    //currentAlign->printCorrGraph();
-
-    //QMessageBox::information(this,"PCalc","Communities graph generated.");
+    currentFilter->CalculateFrequencies();
+    currentFilter->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
 }
 
 void MainWindow::trivcomm(){
@@ -759,9 +627,9 @@ void MainWindow::trivcomm(){
     bool member2found=false;
     vector < vector <int> > posCommunities;
     vector < vector <char> > aaCommunities;
-    currentAlign->clearCommunity();
+    currentFilter->clearCommunity();
 
-    tuple<string,string,int> edge = currentAlign->getCorrelationEdge(0);
+    tuple<string,string,int> edge = currentFilter->getCorrelationEdge(0);
     string v1 = std::get<0>(edge);
     string v2 = std::get<1>(edge);
     int score = std::get<2>(edge);
@@ -797,8 +665,8 @@ void MainWindow::trivcomm(){
         aaCommunities[1].push_back(aa1);
     }
 
-    for(unsigned int i = 1; i < currentAlign->getCorrelationGraphSize(); i++){
-        edge = currentAlign->getCorrelationEdge(i);
+    for(unsigned int i = 1; i < currentFilter->getCorrelationGraphSize(); i++){
+        edge = currentFilter->getCorrelationEdge(i);
         v1 = std::get<0>(edge);
         v2 = std::get<1>(edge);
         score = std::get<2>(edge);
@@ -939,7 +807,7 @@ void MainWindow::trivcomm(){
             string node = aaCommunities[biggestcommunity][c1] + QString::number(posCommunities[biggestcommunity][c1]).toStdString();
             comm.push_back(node);
         }
-        currentAlign->addCommunity(comm);
+        currentFilter->addCommunity(comm);
         comm.clear();
 
         aaCommunities[biggestcommunity].clear();
@@ -952,18 +820,16 @@ void MainWindow::trivcomm(){
 }
 
 void MainWindow::output(int seqnumber, int offset){
-    currentAlign->CalculateFrequencies();
-    //currentAlign->GetCommunitiesFromFile(communitiesfilename);
-    currentAlign->getCommunitiesFromRAM();
-    //string path = currentAlign->getDir();
+    currentFilter->CalculateFrequencies();
+    currentFilter->getCommunitiesFromRAM();
 
     //communityX.html
-    if(seqnumber > 0) currentAlign->Cluster2SCMFromRAM(true,seqnumber,offset);
-    else currentAlign->Cluster2SCMFromRAM(false,seqnumber,offset);
+    if(seqnumber > 0) currentFilter->Cluster2SCMFromRAM(true,seqnumber,offset);
+    else currentFilter->Cluster2SCMFromRAM(false,seqnumber,offset);
     //if(seqnumber>0) currentAlign->Cluster2SCM(communitiesfilename,path,true,seqnumber,offset,true,false);
     //else currentAlign->Cluster2SCM(communitiesfilename,path,false,seqnumber,offset,true,false);
 
-    currentAlign->DeltaCommunitiesCalculation();
+    currentFilter->DeltaCommunitiesCalculation();
     //currentAlign->DeltaCommunitiesOutput(path + "Deltas.html");
 
     //if (seqnumber>0)
@@ -972,76 +838,10 @@ void MainWindow::output(int seqnumber, int offset){
     //    currentAlign->ElementRanking(path, false, seqnumber,offset);
 
     //comunityXps.html
-    currentAlign->pMatrix2HTMLRAM(false,1);
+    currentFilter->pMatrix2HTMLRAM(false,1);
     //currentAlign->pMatrix2HTML("/home/neli/teste",false,1);
 
     //currentAlign->Cluster2PymolScript(communitiesfilename,path,seqnumber,offset);
-
-    //QMessageBox::information(this,"Output","Output files are generated sucessfully.");
-}
-
-void MainWindow::adherence(Alignment align, string communitiesfilename, string outputfilename){
-    FILE *outputfile;
-    unsigned int c1,c2;
-
-    align.CalculateFrequencies();
-    align.GetCommunitiesFromFile(communitiesfilename);
-
-    outputfile=fopen(outputfilename.c_str(),"w+");
-    fprintf(outputfile,"PROTEIN_SEQUENCE");
-
-    for(c1=0; c1<align.Communities.size()-1;c1++)
-        if(align.Communities[c1].aa.size()>1) fprintf(outputfile,"\tComm%d",c1+1);
-    fprintf(outputfile,"\n");
-
-    for(c1=0;c1<=align.sequences.size()-1;c1++){
-        fprintf(outputfile,"%s",align.sequencenames[c1].c_str());
-
-        for(c2=0;c2<=align.Communities.size()-1;c2++)
-            if (align.Communities[c2].aa.size()>1) fprintf(outputfile,"\t%f",align.PSA(c1,c2));
-        fprintf(outputfile,"\n");
-    }
-
-    QMessageBox::information(this,"Adherence","Adherence generated.");
-
-}
-
-void MainWindow::comm2seqrenumbering(Alignment align, string communitiesfilename, vector<int> seqlist, string path){
-    char outputfilename[255];
-    unsigned int c1,c2,c3;
-    FILE *outputfile;
-
-    align.CalculateFrequencies();
-    align.GetCommunitiesFromFile(communitiesfilename);
-
-    for(c1=0; c1<align.Communities.size()-1; c1++){
-        sprintf (outputfilename,"%scomm%dnumbering.html",path.c_str(),c1+1);
-        outputfile=fopen(outputfilename,"w+");
-
-        fprintf(outputfile,"<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th><b>Sequence</b></th>");
-
-        for (c2=0;c2<=align.Communities[c1].pos.size()-1;c2++)
-            fprintf(outputfile,"<th><b>%c%d</b></th>",align.Communities[c1].aa[c2],align.Communities[c1].pos[c2]+1);
-        fprintf(outputfile,"</tr>\n");
-
-        for(c2=0;c2<=seqlist.size()-1;c2++){
-            fprintf(outputfile,"<tr><th><b>%s</b></th>",align.sequencenames[seqlist[c2]].c_str());
-
-            for (c3=0;c3<=align.Communities[c1].pos.size()-1;c3++){
-                if(align.sequences[seqlist[c2]][align.Communities[c1].pos[c3]]==align.Communities[c1].aa[c3])
-                    fprintf (outputfile,"<th><font color=#00FF00>%c%d</font></th>",align.Communities[c1].aa[c3],align.AlignNumbering2Sequence(seqlist[c2]+1,align.Communities[c1].pos[c3])+GetOffsetFromSeqName(align.sequencenames[seqlist[c2]]));
-                else{
-                    if (align.sequences[seqlist[c2]][align.Communities[c1].pos[c3]]=='-') fprintf (outputfile,"<th>-</th>");
-                    else fprintf (outputfile,"<th>%c%d</th>",align.sequences[seqlist[c2]][align.Communities[c1].pos[c3]],align.AlignNumbering2Sequence(seqlist[c2]+1,align.Communities[c1].pos[c3])+GetOffsetFromSeqName(align.sequencenames[seqlist[c2]]));
-                }
-            }
-            fprintf(outputfile,"</tr>\n");
-        }
-        fprintf(outputfile,"</center>\n</table>\n</body>\n</html>\n");
-        fclose (outputfile);
-    }
-
-    QMessageBox::information(this,"Comm2SeqRenumbering","All statics file are generated.");
 }
 
 void MainWindow::listSequences(){
@@ -1055,48 +855,58 @@ void MainWindow::listSequences(){
         ui->lblMaxId->setVisible(false);
         ui->lblMinId->setVisible(false);
     }else{
-        string filter = ui->listWidget2->currentItem()->text().toStdString();
-        vector<string> vecPars = split(filter,' ');
-
-        if(vecPars[0] == "Full" && vecPars[1] == "Alignment"){
+        if(currentFilter->getType() == 9){
             ui->lblRefSeq1->setText("Reference Sequence: Full Alignment");
             ui->lblTaxon->setVisible(false);
             ui->lblOccupancy->setVisible(false);
             ui->lblMaxId->setVisible(false);
             ui->lblMinId->setVisible(false);
-        }else if(vecPars.size() == 6){
-            ui->lblOccupancy->setVisible(true);
-            ui->lblMaxId->setVisible(true);
-            ui->lblMinId->setVisible(true);
-            ui->lblTaxon->setVisible(true);
-            string taxon = "Taxon: " + vecPars[3];
-            string occ = "Occupancy: " + vecPars[0];
-            string minId = "Minimum Identity: " + vecPars[1];
-            string maxId = "Maximum Identity: " + vecPars[2];
-            string refSeq = "Reference Sequence: " + vecPars[4];
-            ui->lblTaxon->setText(taxon.c_str());
-            ui->lblOccupancy->setText(occ.c_str());
-            ui->lblMinId->setText(minId.c_str());
-            ui->lblMaxId->setText(maxId.c_str());
-            ui->lblRefSeq1->setText(refSeq.c_str());
         }else{
-            ui->lblOccupancy->setVisible(false);
-            ui->lblMaxId->setVisible(false);
-            ui->lblMinId->setVisible(false);
-            ui->lblTaxon->setVisible(false);
+            if(currentFilter->getMinOcc() == 0) ui->lblOccupancy->setVisible(false);
+            else{
+                string occ = "Occupancy: " + to_string(currentFilter->getMinOcc());
+                ui->lblOccupancy->setVisible(true);
+                ui->lblOccupancy->setText(occ.c_str());
+            }
+
+            if(currentFilter->getMinId() == 0) ui->lblMinId->setVisible(false);
+            else{
+                string minId = "Minimum Identity: " + to_string(currentFilter->getMinId());
+                ui->lblMinId->setVisible(true);
+                ui->lblMinId->setText(minId.c_str());
+            }
+
+            if(currentFilter->getMaxId() == 0) ui->lblMaxId->setVisible(false);
+            else{
+                string maxId = "Maximum Identity: " + to_string(currentFilter->getMaxId());
+                ui->lblMaxId->setVisible(true);
+                ui->lblMaxId->setText(maxId.c_str());
+            }
+
+            if(currentFilter->getTaxon() == "") ui->lblTaxon->setVisible(false);
+            else{
+                string taxon = "Taxon: " + currentFilter->getTaxon();
+                ui->lblTaxon->setVisible(true);
+                ui->lblTaxon->setText(taxon.c_str());
+            }
+
+            if(currentFilter->getRefSeq() == "") ui->lblRefSeq1->setVisible(false);
+            else{
+                string refseq = "Reference Sequence: " + currentFilter->getRefSeq();
+                ui->lblRefSeq1->setVisible(true);
+                ui->lblRefSeq1->setText(refseq.c_str());
+            }
         }
     }
 
-   sequences = currentAlign->getSequencesName();
-
-    for(unsigned int j = 0; j < sequences.size(); j++){
-        ui->lstProteinsFiltered->addItem(QString::fromStdString(sequences[j]));
+    for(unsigned int j = 0; j < currentFilter->sequencenames.size(); j++){
+        ui->lstProteinsFiltered->addItem(QString::fromStdString(currentFilter->sequencenames[j]));
     }
 
 }
 
 void MainWindow::tableFreq(){
-    unsigned int nrows = currentAlign->getConsFreqSize();
+    unsigned int nrows = currentFilter->getConsFreqSize();
 
     //Limpa tabela
     ui->tableFreq->clearContents();
@@ -1110,21 +920,19 @@ void MainWindow::tableFreq(){
     //HorzHdr->setStretchLastSection(true);
 
     //Parâmetros
-    vector<string> consPars = currentAlign->getConservationParameters();
+    ui->lblFilter->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblRefSeq->setText("Reference Sequence: " + QString::fromStdString(currentFilter->getRefSeq()));
+    ui->lblOffset->setText("Offset: " + QString::fromStdString(to_string(currentFilter->getConsOffset())));
+    ui->lblMinimumCons->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin())));
 
-    if(consPars.size() >4){
-        ui->lblFilter->setText("Filter: " + QString::fromStdString(consPars[1]));
-        ui->lblRefSeq->setText("Reference Sequence: " + QString::fromStdString(consPars[2]));
-        ui->lblOffset->setText("Offset: " + QString::fromStdString(consPars[3]));
-        ui->lblChain->setText("Chain: " + QString::fromStdString(consPars[4]));
-    }
-
+    if(currentFilter->getRefSeq() == "") ui->lblRefSeq->setVisible(false);
+    else ui->lblRefSeq->setVisible(true);
 
     //Preenche a tabela
     ui->tableFreq->setRowCount(nrows);
 
     for(unsigned int i = 0; i < nrows-1; i++){
-        vector<int> freqRow = currentAlign->getConsFreqRow(i);
+        vector<int> freqRow = currentFilter->getConsFreqRow(i);
 
         for(unsigned int j = 0; j < 22; j++){
             if(j == 0){
@@ -1141,7 +949,7 @@ void MainWindow::tableFreq(){
             }
         }
     }
-    vector<int> freqRow = currentAlign->getConsFreqRow(nrows-1);
+    vector<int> freqRow = currentFilter->getConsFreqRow(nrows-1);
 
     QTableWidgetItem *item = new QTableWidgetItem();
     item->setData(Qt::DisplayRole,"TOTAL");
@@ -1155,7 +963,7 @@ void MainWindow::tableFreq(){
 }
 
 void MainWindow::tableFreqPerc(){
-    unsigned int nrows = currentAlign->getConsFreqPercSize();
+    unsigned int nrows = currentFilter->getConsFreqPercSize();
 
     //Limpa tabela
     ui->tableFreqPerc->clearContents();
@@ -1165,20 +973,19 @@ void MainWindow::tableFreqPerc(){
 
     ui->tableFreqPerc->verticalHeader()->setVisible(false);
 
-    vector<string> consPars = currentAlign->getConservationParameters();
+    ui->lblFilter_2->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblRefSeq_2->setText("Reference Sequence: " + QString::fromStdString(currentFilter->getRefSeq()));
+    ui->lblOffset_2->setText("Offset: " + QString::fromStdString(to_string(currentFilter->getConsOffset())));
+    ui->lblMinimumCons_2->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin()).c_str()));
 
-    if(consPars.size() > 4){
-        ui->lblFilter_2->setText("Filter: " + QString::fromStdString(consPars[1]));
-        ui->lblRefSeq_2->setText("Reference Sequence: " + QString::fromStdString(consPars[2]));
-        ui->lblOffset_2->setText("Offset: " + QString::fromStdString(consPars[3]));
-        ui->lblChain_2->setText("Chain: " + QString::fromStdString(consPars[4]));
-    }
+    if(currentFilter->getRefSeq() == "") ui->lblRefSeq_2->setVisible(false);
+    else ui->lblRefSeq_2->setVisible(true);
 
     //Preenche a tabela
     ui->tableFreqPerc->setRowCount(nrows);
 
     for(unsigned int i = 0; i < nrows; i++){
-        vector<float> freqPercRow = currentAlign->getConsFreqPercRow(i);
+        vector<float> freqPercRow = currentFilter->getConsFreqPercRow(i);
 
         for(unsigned int j = 0; j < 21; j++){
             if(j == 0){
@@ -1196,44 +1003,23 @@ void MainWindow::tableFreqPerc(){
             }
         }
     }
-    /*
-    vector<float> freqPercRow = currentAlign->getConsFreqPercRow(nrows);
-
-    for(unsigned int j = 0; j < 21; j++){
-        if(j == 0){
-            QTableWidgetItem *item = new QTableWidgetItem (tr("ALL"));
-            ui->tableFreqPerc->setItem(nrows,j,item);
-        }else{
-            QTableWidgetItem *item = new QTableWidgetItem();
-            QString strTemp = QString::number(freqPercRow[j-1],'f',2);
-
-            item->setData(Qt::DisplayRole,strTemp.toFloat());
-
-            ui->tableFreqPerc->setItem(nrows,j,item);
-        }
-    }
-    */
 }
 
 void MainWindow::correlationList(){
-    unsigned int nrows = currentAlign->getCorrGraphSize();
+    unsigned int nrows = currentFilter->getCorrGraphSize();
 
     //Limpa a tabela
     ui->treeCorrelation->clear();
 
     //Recupera parametros
-    vector<string> corrPars = currentAlign->getCorrelationParameters();
-
-    if(corrPars.size() > 4){
-        ui->lblFilter_3->setText("Filter: " + QString::fromStdString(corrPars[1]));
-        ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(corrPars[2]));
-        ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(corrPars[3]));
-        ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(corrPars[4]));
-    }
+    ui->lblFilter_3->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore())));
+    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction())));
+    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta())));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        tuple<string,string,int> tupCorr = currentAlign->getCorrGraphTuple(i);
+        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelation);
 
         item->setText(0,std::get<0>(tupCorr).c_str());
@@ -1244,14 +1030,14 @@ void MainWindow::correlationList(){
 }
 
 void MainWindow::createCorrelationJSON(){
-    unsigned int nrows = currentAlign->getCorrGraphSize();
+    unsigned int nrows = currentFilter->getCorrGraphSize();
     string pathJSON = libpath + "abor/in1.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
 
     out << "{\n\t\"nodes\": {\n";
-    set<string> nodes = currentAlign->getCorrelationNodes();
+    set<string> nodes = currentFilter->getCorrelationNodes();
     unsigned int count = 0;
 
     for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
@@ -1272,7 +1058,7 @@ void MainWindow::createCorrelationJSON(){
 
         count = 0;
         for(unsigned int j = 0; j < nrows; j++){
-            tuple<string,string,int> tupCorr = currentAlign->getCorrGraphTuple(j);
+            tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(j);
 
             if(std::get<0>(tupCorr) == *it){
                 if(count > 0) out << ",\n";
@@ -1314,7 +1100,7 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
     }
 
 
-    unsigned int nrows = currentAlign->getCorrGraphSize();
+    unsigned int nrows = currentFilter->getCorrGraphSize();
     string path = libpath + "abor/in1.json";
     QFile fileJSON(path.c_str());
     fileJSON.open(QIODevice::WriteOnly);
@@ -1324,9 +1110,9 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
 
     set<string> nodes;
     if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations")
-        nodes = currentAlign->getPositiveCorrelationNodes();
+        nodes = currentFilter->getPositiveCorrelationNodes();
     else
-        nodes = currentAlign->getCorrelationNodes();
+        nodes = currentFilter->getCorrelationNodes();
 
     unsigned int count = 0;
 
@@ -1348,7 +1134,7 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
 
         count = 0;
         for(unsigned int j = 0; j < nrows; j++){
-            tuple<string,string,int> tupCorr = currentAlign->getCorrGraphTuple(j);
+            tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(j);
 
             if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations"){
                 if(std::get<0>(tupCorr) == *it && std::get<2>(tupCorr) > 0){
@@ -1379,7 +1165,6 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
     out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
 
     ui->webCorrGraph->reload();//load(QUrl(localUrl.c_str()));
-
 }
 
 void MainWindow::communitiesGraphs(){
@@ -1390,8 +1175,8 @@ void MainWindow::communitiesGraphs(){
 
     ui->lblComunidade_4->setText("Communitie 1");
 
-    vector<string> nodes = currentAlign->getCommunitie(0);
-    vector<tuple<string,string,int> > graph = currentAlign->getEdgesByComm(0);
+    vector<string> nodes = currentFilter->getCommunitie(0);
+    vector<tuple<string,string,int> > graph = currentFilter->getEdgesByComm(0);
 
     out << "{\n\t\"nodes\": {\n";
     for(unsigned int i = 0; i < nodes.size(); i++){
@@ -1443,7 +1228,7 @@ void MainWindow::corrBetweenComms(){
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
 
-    unsigned int nDeltas = currentAlign->getNumOfUtilComms();
+    unsigned int nDeltas = currentFilter->getNumOfUtilComms();
 
     out << "{\n\t\"nodes\": {\n";
     for(unsigned int i = 0; i < nDeltas; i++){
@@ -1455,7 +1240,7 @@ void MainWindow::corrBetweenComms(){
     }
 
     out << "\t\"edges\":{\n";
-    vector<tuple<string,string,float> > graph = currentAlign->getDeltasEdges(0.5);
+    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(0.5);
     for(unsigned int i = 0; i < nDeltas; i++){
         string comm = "C" + std::to_string(i+1);
 
@@ -1533,7 +1318,7 @@ void MainWindow::on_cmdCorrCommCutoff_clicked()
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
 
-    unsigned int nDeltas = currentAlign->getNumOfUtilComms();
+    unsigned int nDeltas = currentFilter->getNumOfUtilComms();
 
     out << "{\n\t\"nodes\": {\n";
     for(unsigned int i = 0; i < nDeltas; i++){
@@ -1545,7 +1330,7 @@ void MainWindow::on_cmdCorrCommCutoff_clicked()
     }
 
     out << "\t\"edges\":{\n";
-    vector<tuple<string,string,float> > graph = currentAlign->getDeltasEdges(cutoff);
+    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(cutoff);
     for(unsigned int i = 0; i < nDeltas; i++){
         string comm = "C" + std::to_string(i+1);
 
@@ -1634,7 +1419,7 @@ void MainWindow::consVisualization(){
     QFile indexHTML(path.c_str());
     indexHTML.open(QIODevice::WriteOnly);
     QTextStream out(&indexHTML);
-    QFile pdbPath(currentAlign->getConsPDBPath().c_str());
+    QFile pdbPath(currentFilter->getConsPDBPath().c_str());
     pdbPath.open(QIODevice::ReadOnly);
     string pdb = "";
 
@@ -1710,7 +1495,7 @@ void MainWindow::commVisualization(){
     QFile indexHTML(path.c_str());
     indexHTML.open(QIODevice::WriteOnly);
     QTextStream out(&indexHTML);
-    QFile pdbPath(currentAlign->getCommPDBPath().c_str());
+    QFile pdbPath(currentFilter->getCommPDBPath().c_str());
     pdbPath.open(QIODevice::ReadOnly);
     string pdb = "";
 
@@ -1802,7 +1587,7 @@ void MainWindow::on_cmdNexCommGraph_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->getNumOfUtilComms();
+    int nComm = currentFilter->getNumOfUtilComms();
     if(currComm == nComm ) currComm = 0;
 
     //Modifica parâmetros
@@ -1814,8 +1599,8 @@ void MainWindow::on_cmdNexCommGraph_clicked()
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
 
-    vector<string> nodes = currentAlign->getCommunitie(currComm);
-    vector<tuple<string,string,int> > graph = currentAlign->getEdgesByComm(currComm);
+    vector<string> nodes = currentFilter->getCommunitie(currComm);
+    vector<tuple<string,string,int> > graph = currentFilter->getEdgesByComm(currComm);
 
     out << "{\n\t\"nodes\": {\n";
     for(unsigned int i = 0; i < nodes.size(); i++){
@@ -1879,7 +1664,7 @@ void MainWindow::on_cmdBackCommGraph_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->getNumOfUtilComms()-1;
+    int nComm = currentFilter->getNumOfUtilComms()-1;
     if(currComm == 0 ) currComm = nComm;
 
     //Modifica parâmetros
@@ -1891,8 +1676,8 @@ void MainWindow::on_cmdBackCommGraph_clicked()
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
 
-    vector<string> nodes = currentAlign->getCommunitie(currComm);
-    vector<tuple<string,string,int> > graph = currentAlign->getEdgesByComm(currComm);
+    vector<string> nodes = currentFilter->getCommunitie(currComm);
+    vector<tuple<string,string,int> > graph = currentFilter->getEdgesByComm(currComm);
 
     out << "{\n\t\"nodes\": {\n";
     for(unsigned int i = 0; i < nodes.size(); i++){
@@ -1935,27 +1720,23 @@ void MainWindow::on_cmdBackCommGraph_clicked()
 }
 
 void MainWindow::communitiesList(){
-    unsigned int nrows = currentAlign->getCommListSize();
+    unsigned int nrows = currentFilter->getCommListSize();
 
     //Limpa a tabela
     ui->treeCorrelationComm->clear();
 
     //Recupera parametros
-    vector<string> corrPars = currentAlign->getCorrelationParameters();
-
-    if(corrPars.size() > 4){
-        ui->lblFilter_4->setText("Filter: " + QString::fromStdString(corrPars[1]));
-        ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(corrPars[2]));
-        ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(corrPars[3]));
-        ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(corrPars[4]));
-    }
+    ui->lblFilter_4->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
+    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
+    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        vector<string> residues = currentAlign->getCommunitie(i);
+        vector<string> residues = currentFilter->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
 
-        string text = "Community " + QString::number(i).toStdString();
+        string text = "Community " + QString::number(i+1).toStdString();
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < residues.size(); j++){
@@ -1971,18 +1752,14 @@ void MainWindow::corrTable1(){
     ui->tableComm1->clear();
 
     //Recupera parametros
-    vector<string> corrPars = currentAlign->getCorrelationParameters();
-
-    if(corrPars.size() > 4){
-        ui->lblFilter_5->setText("Filter: " + QString::fromStdString(corrPars[1]));
-        ui->lblMinLogP_3->setText("Minimum Score: " + QString::fromStdString(corrPars[2]));
-        ui->lblMinss_3->setText("Minss Fraction: " + QString::fromStdString(corrPars[3]));
-        ui->lblDeltaFreq_3->setText("Delta Frequence: " + QString::fromStdString(corrPars[4]));
-        ui->lblComunidade->setText("Comunidade 1:");
-    }
+    ui->lblFilter_5->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblMinLogP_3->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
+    ui->lblMinss_3->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
+    ui->lblDeltaFreq_3->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+    ui->lblComunidade->setText("Community 1:");
 
     //Monta a tabela
-    vector<string> residues = currentAlign->getResiduesComm(0);
+    vector<string> residues = currentFilter->getResiduesComm(0);
     ui->tableComm1->setRowCount(residues.size());
     ui->tableComm1->setColumnCount(residues.size()+1);
     ui->tableComm1->setHorizontalHeaderItem(0,new QTableWidgetItem("All"));
@@ -1994,7 +1771,7 @@ void MainWindow::corrTable1(){
     }
 
     //Preenche a tabela
-    vector<float> corrAll = currentAlign->getCommAll(0);
+    vector<float> corrAll = currentFilter->getCommAll(0);
 
     for(unsigned int i = 0; i < residues.size(); i++){
         QTableWidgetItem *item = new QTableWidgetItem();
@@ -2004,7 +1781,7 @@ void MainWindow::corrTable1(){
 
         ui->tableComm1->setItem(i,0,item);
 
-        vector<float> commRow = currentAlign->getCommXRow(0,i);
+        vector<float> commRow = currentFilter->getCommXRow(0,i);
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
 
@@ -2029,18 +1806,14 @@ void MainWindow::corrTable2(){
     ui->tableComm2->clear();
 
     //Recupera parametros
-    vector<string> corrPars = currentAlign->getCorrelationParameters();
-
-    if(corrPars.size() > 4){
-        ui->lblFilter_6->setText("Filter: " + QString::fromStdString(corrPars[1]));
-        ui->lblMinLogP_4->setText("Minimum Score: " + QString::fromStdString(corrPars[2]));
-        ui->lblMinss_4->setText("Minss Fraction: " + QString::fromStdString(corrPars[3]));
-        ui->lblDeltaFreq_4->setText("Delta Frequence: " + QString::fromStdString(corrPars[4]));
-        ui->lblComunidade_2->setText("Comunidade 1:");
-    }
+    ui->lblFilter_6->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblMinLogP_4->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
+    ui->lblMinss_4->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
+    ui->lblDeltaFreq_4->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+    ui->lblComunidade_2->setText("Community 1:");
 
     //Montar a Tabela
-    vector<string> residues = currentAlign->getResiduesCommPs(0);
+    vector<string> residues = currentFilter->getResiduesCommPs(0);
     ui->tableComm2->setRowCount(residues.size());
     ui->tableComm2->setColumnCount(residues.size());
 
@@ -2051,7 +1824,7 @@ void MainWindow::corrTable2(){
 
     //Preenche a tabela
     for(unsigned int i = 0; i < residues.size(); i++){
-        vector<int> commRow = currentAlign->getCommPsRow(0,i);
+        vector<int> commRow = currentFilter->getCommPsRow(0,i);
 
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
@@ -2067,12 +1840,11 @@ void MainWindow::corrTable2(){
 }
 
 void MainWindow::adh(){
-    string filter = "Filter: " + ui->listWidget2->currentItem()->text().toStdString();
-    ui->lblFilter_7->setText(filter.c_str());
+    ui->lblFilter_7->setText(currentFilter->getName().c_str());
 
-    unsigned int nComm = currentAlign->getNumOfUtilComms();
-    unsigned int nSequences = currentAlign->sequences.size()-1;
-    currentAlign->CalculateFrequencies();
+    unsigned int nComm = currentFilter->getNumOfUtilComms();
+    unsigned int nSequences = currentFilter->sequences.size()-1;
+    currentFilter->CalculateFrequencies();
 
     //currentAlign->printFrequencies();
 
@@ -2089,15 +1861,15 @@ void MainWindow::adh(){
     }
 
     //------ADHERENCE-----
-    for(unsigned int i = 0; i < currentAlign->sequences.size()-1; i++){
+    for(unsigned int i = 0; i < currentFilter->sequences.size()-1; i++){
         QTableWidgetItem *protItem = new QTableWidgetItem();
-        protItem->setText(currentAlign->sequencenames[i].c_str());
+        protItem->setText(currentFilter->sequencenames[i].c_str());
         ui->tableAdherence->setItem(i,0,protItem);
 
         for(unsigned int j = 0; j < nComm; j++){
 
-            if(currentAlign->Communities[j].aa.size() > 1){
-                float psa = currentAlign->PSA(i,j);
+            if(currentFilter->Communities[j].aa.size() > 1){
+                float psa = currentFilter->PSA(i,j);
 
                 QTableWidgetItem *item = new QTableWidgetItem();
                 item->setData(Qt::DisplayRole,psa);
@@ -2115,33 +1887,23 @@ void MainWindow::showConservedResidues(){
     vector<char> conservedaa;
     vector<int> conservedpos;
     vector<float> conservedfreq;
-    float minCons = ui->txtMinConserv->value();
+    float minCons = currentFilter->getConsMin();
 
     //Parâmetros
-    vector<string> consPars = currentAlign->getConservationParameters();
+    ui->lblFilter_8->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblMinCons->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin())));
 
-    if(consPars.size() > 4){
-        ui->lblFilter_8->setText("Filter: " + QString::fromStdString(consPars[1]));
-        ui->lblMinCons->setText("Minimum Conservation: " + QString::fromStdString(consPars[5]));
-    }
 
-    currentAlign->CalculateFrequencies();
-/*
-    QModelIndexList indexList = ui->lstRefSeqs->selectionModel()->selectedIndexes();
-    for(unsigned int j = 0; j < indexList.size(); j++){
-        refSeqs.push_back(indexList.at(j).row());
-    }
-*/
-    for(unsigned int i = 0; i < currentAlign->getRefSeqsSize(); i++){
-        string ref1 = currentAlign->getRefSeq(i);
-        //printf("1126:CR - %s\n",ref1.c_str());
+    currentFilter->CalculateFrequencies();
+
+    for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
+        string ref1 = currentFilter->getRefSeq(i);
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
-        //printf("%s\n",QString::number(refSeqs[i]).toStdString().c_str());
     }
 
-    for(unsigned int i = 0; i < currentAlign->frequencies.size()-2; i++){
+    for(unsigned int i = 0; i < currentFilter->frequencies.size()-2; i++){
         for(unsigned int j = 1; j <= 20; j++){
-            float freq = currentAlign->frequencies[i][j]/((float)currentAlign->sequences.size());
+            float freq = currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
             //printf("freq=%f / minCons=%f\n",freq,minCons);
             if(freq >= minCons){
                 conservedaa.push_back(num2aa(j));
@@ -2164,24 +1926,26 @@ void MainWindow::showConservedResidues(){
     }
 
     ui->tableConsRes->setRowCount(refSeqs.size());
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
     for(unsigned int i = 0; i < refSeqs.size(); i++){
-        ui->tableConsRes->setVerticalHeaderItem(i,new QTableWidgetItem(currentAlign->fullAlignment[refSeqs[i]].c_str()));
+        ui->tableConsRes->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
         for(unsigned int j = 0; j < conservedaa.size(); j++){
-            if(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) == 0){
+            if(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) == 0){
                 QTableWidgetItem *item = new QTableWidgetItem();
                 item->setTextColor(QColor(255,0,0,255));
                 item->setText("-");
                 ui->tableConsRes->setItem(i,j,item);
             }else{
-                if(currentAlign->fullSequences[refSeqs[i]][conservedpos[j]]==conservedaa[j]){
+                if(fullSequences[refSeqs[i]][conservedpos[j]]==conservedaa[j]){
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = conservedaa[j] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = conservedaa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableConsRes->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = currentAlign->fullSequences[refSeqs[i]][conservedpos[j]] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j]) + GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][conservedpos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setTextColor(QColor(255,0,0,255));
                     item->setText(textItem.c_str());
                     ui->tableConsRes->setItem(i,j,item);
@@ -2196,54 +1960,47 @@ void MainWindow::showConservedResidues(){
 void MainWindow::showResiduesComm(){
     vector<int> refSeqs;
 
-    currentAlign->CalculateFrequencies();
+    currentFilter->CalculateFrequencies();
 
-    /*QModelIndexList indexList = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
-    for(unsigned int j = 0; j < indexList.size(); j++){
-        refSeqs.push_back(indexList.at(j).row());
-    }*/
-
-    for(unsigned int i = 0; i < currentAlign->getRefSeqsSize(); i++){
-        string ref1 = currentAlign->getRefSeq(i);
+    for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
+        string ref1 = currentFilter->getRefSeq(i);
 
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
     //Parâmetros
-    ui->lblComunidade_3->setText("Comunidade 1");
+    ui->lblComunidade_3->setText("Comumunity 1");
 
-    vector<string> corrPars = currentAlign->getCorrelationParameters();
-
-    if(corrPars.size() > 4){
-        ui->lblFilter_9->setText("Filter: " + QString::fromStdString(corrPars[1]));
-    }
+    ui->lblFilter_9->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
 
     //Cabeçalho
-    ui->tableResiduesComm->setColumnCount(currentAlign->Communities[0].pos.size());
-    for(unsigned int i = 0; i < currentAlign->Communities[0].pos.size(); i++){
-        string textCab = currentAlign->Communities[0].aa[i] + QString::number(currentAlign->Communities[0].pos[i]+1).toStdString();
+    ui->tableResiduesComm->setColumnCount(currentFilter->Communities[0].pos.size());
+    for(unsigned int i = 0; i < currentFilter->Communities[0].pos.size(); i++){
+        string textCab = currentFilter->Communities[0].aa[i] + QString::number(currentFilter->Communities[0].pos[i]+1).toStdString();
         ui->tableResiduesComm->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
 
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
     ui->tableResiduesComm->setRowCount(refSeqs.size());
     for(unsigned int i = 0; i < refSeqs.size(); i++){
-        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(currentAlign->fullAlignment[refSeqs[i]].c_str()));
+        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
-        for(unsigned int j = 0; j < currentAlign->Communities[0].pos.size(); j++){
-            if(currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[0].pos[j]]==currentAlign->Communities[0].aa[j]){
+        for(unsigned int j = 0; j < currentFilter->Communities[0].pos.size(); j++){
+            if(fullSequences[refSeqs[i]][currentFilter->Communities[0].pos[j]]==currentFilter->Communities[0].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = currentAlign->Communities[0].aa[j] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,currentAlign->Communities[0].pos[j])+GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                string textItem = currentFilter->Communities[0].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[0].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[0].pos[j]]=='-'){
+                if(fullSequences[refSeqs[i]][currentFilter->Communities[0].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[0].pos[j]] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,currentAlign->Communities[0].pos[j])+GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][currentFilter->Communities[0].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[0].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -2258,33 +2015,34 @@ void MainWindow::showResiduesComm(){
 void MainWindow::showUniprotGroupByProteins(){
 
     ui->lstProteinsMined->clear();
-    for(unsigned int i = 0; i < currentAlign->getUniprotMinedSize(); i++){
-        string prot = currentAlign->getUniprotEntryName(i) + " [" + to_string(currentAlign->getUniprotEntryNofFeatures(i)) + "]";
+    for(unsigned int i = 0; i < currentFilter->getUniprotMinedSize(); i++){
+        string prot = currentFilter->getUniprotEntryName(i) + " [" + to_string(currentFilter->getUniprotEntryNofFeatures(i)) + "]";
         ui->lstProteinsMined->addItem(prot.c_str());
     }
 }
 
 void MainWindow::showUniprotGroupByComms(){
-    unsigned int nrows = currentAlign->getCommListSize();
+    unsigned int nrows = currentFilter->getCommListSize();
 
     ui->treeMinerComms->clear();
 
     for(unsigned int i = 0; i < nrows; i++){
-        vector<string> residues = currentAlign->getCommunitie(i);
+        vector<string> residues = currentFilter->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeMinerComms);
 
         string text = "Comm " + QString::number(i+1).toStdString();
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < residues.size(); j++){
-            int nOfResidues = currentAlign->getResidueFeaturesByCommCount(residues[j]);
+            int nOfResidues = currentFilter->getResidueFeaturesByCommCount(residues[j]);
             string child = residues[j] + " [" + to_string(nOfResidues) + "]";
             item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
         }
     }
 
     //CONS RES
-    vector<string> consRes = currentAlign->getConsRes();
+    float minCons = currentFilter->getConsMin();
+    vector<string> consRes = currentFilter->getConsRes(minCons);
     if(consRes.size() > 0){
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeMinerComms);
 
@@ -2292,7 +2050,7 @@ void MainWindow::showUniprotGroupByComms(){
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < consRes.size(); j++){
-            int nOfResidues = currentAlign->getResidueFeaturesByCommCount(consRes[j]);
+            int nOfResidues = currentFilter->getResidueFeaturesByCommCount(consRes[j]);
             string child = consRes[j] + " [" + to_string(nOfResidues) + "]";
             item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
         }
@@ -2300,14 +2058,7 @@ void MainWindow::showUniprotGroupByComms(){
 }
 
 vector<float> MainWindow::generateAMCL(int alfabetIndex){
-    /*switch(alfabetIndex){
-    case 0:
-    {
-
-        break;
-    }
-    }*/
-    int alignCoulumnsSize = currentAlign->sequences[0].size();
+    int alignCoulumnsSize = currentFilter->sequences[0].size();
     int countMatrix[alignCoulumnsSize][21] = {0};//21 is the total size without gaps
     vector<float> maxValues;
 
@@ -2315,8 +2066,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 0:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'A') countMatrix[j][0] ++;
                 else if(c == 'C') countMatrix[j][1] ++;
@@ -2346,8 +2097,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 1:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'A' || c == 'G' || c == 'T' || c == 'S' || c == 'N' || c == 'Q' || c == 'D' || c == 'E' || c == 'H' || c == 'R' || c == 'K' || c == 'P')
                     countMatrix[j][0] ++;
@@ -2361,8 +2112,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 2:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'I' || c == 'V' || c == 'L')
                     countMatrix[j][0] ++;
@@ -2382,8 +2133,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 3:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'I' || c == 'V' || c == 'L')
                     countMatrix[j][0] ++;
@@ -2405,8 +2156,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 4:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'I' || c == 'V' || c == 'L' || c == 'F' || c == 'C' || c == 'M' || c == 'A' || c == 'W')
                     countMatrix[j][0] ++;
@@ -2422,8 +2173,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 5:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'G' || c == 'A' || c == 'S')
                     countMatrix[j][0] ++;
@@ -2443,8 +2194,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 6:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'A' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'G') countMatrix[j][1] ++;
@@ -2465,8 +2216,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 7:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'A') countMatrix[j][1] ++;
@@ -2491,8 +2242,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 8:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'A') countMatrix[j][1] ++;
@@ -2512,8 +2263,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 9:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'A' || c == 'G') countMatrix[j][1] ++;
@@ -2531,8 +2282,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 10:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') countMatrix[j][1] ++;
@@ -2546,8 +2297,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 11:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'W' || c == 'Y' || c == 'F' || c == 'P' || c == 'T' || c == 'S' || c == 'G' || c == 'A' || c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q' || c == 'K' || c == 'R' || c == 'H') countMatrix[j][1] ++;
@@ -2559,8 +2310,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 12:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
                     countMatrix[j][0] ++;
@@ -2580,8 +2331,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 13:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'I' || c == 'C' || c == 'M' || c == 'F')
                     countMatrix[j][0] ++;
@@ -2601,8 +2352,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 14:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
                     countMatrix[j][0] ++;
@@ -2618,8 +2369,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 15:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
                     countMatrix[j][0] ++;
@@ -2633,8 +2384,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 16:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'M' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'C') countMatrix[j][1] ++;
@@ -2654,8 +2405,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 17:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'Y' || c == 'C' || c == 'W' || c == 'F')
                     countMatrix[j][0] ++;
@@ -2675,8 +2426,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 18:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'C' || c == 'F' || c == 'Y' || c == 'W') countMatrix[j][0] ++;
                 else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') countMatrix[j][1] ++;
@@ -2690,8 +2441,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     case 19:
     {
         for(int j = 0; j < alignCoulumnsSize; j++){
-            for(unsigned int i = 0; i < currentAlign->sequences.size(); i++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                char c = toupper(currentFilter->sequences[i][j]);
 
                 if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
                     countMatrix[j][0] ++;
@@ -2708,7 +2459,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
 
     for(int i = 0; i < alignCoulumnsSize; i++){
         //Desconsiderar sequências com mais de 95% de gap
-        if(countMatrix[i][20] < currentAlign->sequences.size()*0.05) maxValues.push_back(0);
+        if(countMatrix[i][20] < currentFilter->sequences.size()*0.05) maxValues.push_back(0);
         else{
             float maxFreq = (float)*max_element(countMatrix[i],countMatrix[i]+20)/(float)countMatrix[i][20];
             maxValues.push_back(maxFreq);
@@ -2720,27 +2471,27 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
 }
 
 void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
-    unsigned int nrows = currentAlign->sequences.size();
+    unsigned int nrows = currentFilter->sequences.size();
 
-    if(currentAlign->getCurrentAlphabet() == "T20"){
+    if(currentFilter->getAlphabet() == "T20"){
         ui->cmbAlphabetColor->setEnabled(true);
     }else{
-        ui->cmbAlphabetColor->setCurrentText(currentAlign->getCurrentAlphabet().c_str());
+        ui->cmbAlphabetColor->setCurrentText(currentFilter->getAlphabet().c_str());
         colorIndex = ui->cmbAlphabetColor->currentIndex();
         ui->cmbAlphabetColor->setEnabled(false);
     }
 
     ui->tableFullAlignment->clear();
-    ui->tableFullAlignment->setColumnCount(currentAlign->sequences[0].size());
+    ui->tableFullAlignment->setColumnCount(currentFilter->sequences[0].size());
     ui->tableFullAlignment->setRowCount(nrows);
 
-    QProgressDialog progress("Calculating...", "Abort", 0,nrows-1);
+    QProgressDialog progress("Calculating...", "Abort", 0,nrows+10);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
     vector<float> colorFreq = this->generateAMCL(colorIndex);
 
-    for(unsigned int i = 0; i < currentAlign->sequences[0].size(); i++){
+    for(unsigned int i = 0; i < currentFilter->sequences[0].size(); i++){
         QTableWidgetItem *item = new QTableWidgetItem(QString::number(i+1));
         item->setTextAlignment(Qt::AlignCenter);
         QFont font;
@@ -2771,49 +2522,18 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
     }
 
-    /*
-    if(currentAlign->getConsFreqPercSize() > 0){
-        for(unsigned int i = 0; i < currentAlign->sequences[0].size(); i++){
-            vector<float> freqs = currentAlign->getConsFreqPercRow(i);
-            auto bestfreq = std::max_element(freqs.begin(),freqs.end());
-
-            if(*bestfreq >= 99){
-                //*
-                QTableWidgetItem *item = new QTableWidgetItem("*");
-                item->setTextAlignment(Qt::AlignCenter);
-                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
-            }else if(*bestfreq > 80){
-                //:
-                QTableWidgetItem *item = new QTableWidgetItem(":");
-                item->setTextAlignment(Qt::AlignCenter);
-                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
-            }else if(*bestfreq < 20){
-                //.
-                QTableWidgetItem *item = new QTableWidgetItem(".");
-                item->setTextAlignment(Qt::AlignCenter);
-                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
-            }else{
-                //
-                QTableWidgetItem *item = new QTableWidgetItem(" ");
-                item->setTextAlignment(Qt::AlignCenter);
-                ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
-            }
-        }
-    }
-    */
-
     for(unsigned int i = 0; i < nrows; i++){
         if(progress.wasCanceled()) break;
         progress.setValue(i);
 
-        QTableWidgetItem *item = new QTableWidgetItem(currentAlign->sequencenames[i].c_str());
+        QTableWidgetItem *item = new QTableWidgetItem(currentFilter->sequencenames[i].c_str());
         ui->tableFullAlignment->setVerticalHeaderItem(i,item);
 
         switch(colorIndex){
         case 0:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -2846,8 +2566,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 1:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -2864,8 +2584,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 2:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -2888,8 +2608,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 3:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -2914,8 +2634,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 4:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -2934,8 +2654,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 5:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -2958,8 +2678,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 6:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -2983,8 +2703,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 7:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3012,8 +2732,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 8:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3036,8 +2756,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 9:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3058,8 +2778,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 10:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3076,8 +2796,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 11:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3092,8 +2812,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 12:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3116,8 +2836,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 13:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3140,8 +2860,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 14:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3160,8 +2880,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 15:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3178,8 +2898,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 16:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3202,8 +2922,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 17:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3226,8 +2946,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 18:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3244,8 +2964,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         case 19:
         {
-            for(unsigned int j = 0; j < currentAlign->sequences[i].size(); j++){
-                char c = toupper(currentAlign->sequences[i][j]);
+            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+                char c = toupper(currentFilter->sequences[i][j]);
                 string aa(1,c);
                 QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
                 item2->setTextAlignment(Qt::AlignCenter);
@@ -3264,6 +2984,8 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
         }
     }
+
+    progress.close();
 
     //Ajusta tamanho das colunas
     ui->tableFullAlignment->resizeColumnsToContents();
@@ -3284,19 +3006,6 @@ void MainWindow::changeWizardCmds(bool bl){
     ui->cmdSaveResults->setVisible(bl);
 }
 
-void MainWindow::fetchPFAM_triggered(){
-    //InputPFAM inputpfam;
-    //inputpfam.setModal(true);
-    //inputpfam.exec();
-    //QMessageBox::information(this,"a",inputpfam.getResult());
-
-    //Limpa a textBrowser
-    //ui->textBrowser->clear();
-
-    //ui->textBrowser->append(inputpfam.getResult());
-
-}
-
 void MainWindow::on_cmdStartWizard_clicked()
 {
     this->startWizard();
@@ -3310,12 +3019,6 @@ void MainWindow::on_cmdMain_clicked()
     confirm = QMessageBox::warning(this,"Quit","This will clean all you data. Do you really want to proceed?",QMessageBox::Yes|QMessageBox::No);
 
     if(confirm == QMessageBox::Yes){
-
-        ui->listWidget->setEnabled(true);
-        ui->listWidget2->setEnabled(true);
-        //ui->cmdNextResult->setVisible(false);
-        //ui->cmdBackResult->setVisible(false);
-
         //Desativa botões do Wizard
         changeWizardCmds(false);
 
@@ -3325,6 +3028,12 @@ void MainWindow::on_cmdMain_clicked()
             alinhamentos[i].clear();
         alinhamentos.clear();
         alinhamentos.shrink_to_fit();
+        pdbs.clear();
+        pdbs.shrink_to_fit();
+        currentAlign = NULL;
+        currentFilter = NULL;
+        currentPDBContent = "";
+        pdbweb = "";
 
         //Muda para tela 0
         ui->stackedWidget->setCurrentIndex(STACK_MAIN);
@@ -3462,7 +3171,7 @@ void MainWindow::on_cmdAdvance_clicked()
     }
     case STACK_REFSEQS:
     {
-        if(currentAlign->getRefSeqsSize() == 0){
+        if(currentFilter->getRefSeqsSize() == 0){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Warning",
                                             "You are leaving this page without setting any reference sequence. Is that correct?",
@@ -3504,7 +3213,7 @@ void MainWindow::on_cmdAdvance_clicked()
     }
     case STACK_CONSERVATION:
     {
-        if(currentAlign->getConsFreqSize() == 0){
+        if(currentFilter->getConsFreqSize() == 0){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Warning",
                                             "You are leaving this page without running the conservation method. Is that correct?",
@@ -3519,7 +3228,7 @@ void MainWindow::on_cmdAdvance_clicked()
     }
     case STACK_MINSS:
     {
-        if(currentAlign->getMinssVectorSize() == 0){
+        if(currentFilter->getMinssVectorSize() == 0){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Warning",
                                             "You are leaving this page without generating the minss chart. Is that correct?",
@@ -3560,14 +3269,22 @@ void MainWindow::on_cmdOpen_clicked()
         return;
     }
 
+    QProgressDialog progress("Loading the alignment...","Cancel",0,0,this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     //Cria Alinhamento
-    //addAlignment(fileName.toUtf8().constData());
     Alignment align;
     align.setFilepath(fileName.toUtf8().constData());
     bool a = align.GetFromFile();
     if(!a){
         ui->cmdOpen->setEnabled(true);
         QMessageBox::warning(this,"Warning","Ivalid input format.");
+        return;
+    }
+
+    if(progress.wasCanceled()){
+        ui->cmdOpen->setEnabled(true);
         return;
     }
 
@@ -3578,40 +3295,11 @@ void MainWindow::on_cmdOpen_clicked()
             return;
         }
     }
+
     ui->listWidget->addItem(fileName);
-
-    //Salva Full Alignment
-    vector<string> filterSequence;
-    vector<string> filterList;
-    string params = "0 0 0 0 0 T20";
-    filterSequence.push_back(params);
-    filterList.push_back(params);
-
-    vector<string> fullNames = align.getFullAlignment();
-    for(unsigned int i = 0; i < fullNames.size(); i++){
-        filterList.push_back(fullNames[i]);
-    }
-
-    vector<string> fullSequences = align.getFullSequences();
-    for(unsigned int i = 0; i < fullSequences.size(); i++){
-        filterSequence.push_back(fullSequences[i]);
-    }
-
-    align.addFilterSequence(filterList,filterSequence);
-
-    //Armazena local para XML
-    align.setLocalDir(fileName.toStdString());
 
     //Configura para alinhamento carregado por arquivo
     align.setType(0);
-    /*
-    ui->chkApplyMinCover->setChecked(true);
-    emit ui->chkApplyMinCover->clicked(true);
-    ui->chkApplyMinId->setChecked(true);
-    emit ui->chkApplyMinId->clicked(true);
-    ui->chkApplyMaxId->setChecked(true);
-    emit ui->chkApplyMaxId->clicked(true);
-    */
 
     int kind = align.getKindOfAlignment();
 
@@ -3628,7 +3316,9 @@ void MainWindow::on_cmdOpen_clicked()
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     emit ui->listWidget->activated(ui->listWidget->currentIndex());
 
-    QString msg = "Alignment loaded with " + QString::number(align.getSequencesSize()) + " sequences.";
+    progress.close();
+
+    QString msg = "Alignment loaded with " + QString::number(align.sequences.size()) + " sequences.";
     QMessageBox::information(this,"Alignment loaded",msg);
 
     ui->cmdOpen->setEnabled(true);
@@ -3637,8 +3327,7 @@ void MainWindow::on_cmdOpen_clicked()
 void MainWindow::on_cmdFetch_clicked()
 {
     ui->cmdFetch->setEnabled(false);
-    ui->cmdFetch->setText("Loading...");
-
+    QString filename;
     Alignment align;
 
     //Validação de Dados
@@ -3648,6 +3337,23 @@ void MainWindow::on_cmdFetch_clicked()
         ui->cmdFetch->setEnabled(true);
         return ;
     }
+
+    if(ui->chkDownloadAlignment->isChecked()){
+        QString finalName;
+        if(ui->cmbFetchFormat->currentIndex() == 0) finalName = ui->txtAccession->text() + ".sto";
+        else finalName = ui->txtAccession->text() + ".pfam";
+        filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pfam *.txt *.sto *.stockholm)"));
+
+        if(filename == ""){
+            ui->cmdFetch->setText("Fetch");
+            ui->cmdFetch->setEnabled(true);
+            return;
+        }
+    }
+
+    QProgressDialog progress("Downloading the alignment...","Cancel",0,0,this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
 
     //Monta URL
     QString url = "http://pfam.xfam.org/family/" + ui->txtAccession->text() + "/alignment/";
@@ -3681,26 +3387,18 @@ void MainWindow::on_cmdFetch_clicked()
     //qDebug(reply->readAll());
     QString pfam = reply->readAll();
 
+    if(progress.wasCanceled()){
+        ui->cmdFetch->setEnabled(true);
+    }
     //Salvar arquivo
     if(pfam.contains("302 Found") || pfam.contains("500 Internal Server Error") || pfam == ""){
+        progress.close();
         QMessageBox::warning(this,"Error","PFAM File not Found");
         ui->cmdFetch->setText("Fetch");
         ui->cmdFetch->setEnabled(true);
         return ;
     }else{
         if(ui->chkDownloadAlignment->isChecked()){
-            //Abre janela para salvar arquivo atualmente aberto
-            QString finalName;
-            if(ui->cmbFetchFormat->currentIndex() == 0) finalName = ui->txtAccession->text() + ".sto";
-            else finalName = ui->txtAccession->text() + ".pfam";
-            QString filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pfam *.txt *.sto *.stockholm)"));
-
-            if(filename == ""){
-                ui->cmdFetch->setText("Fetch");
-                ui->cmdFetch->setEnabled(true);
-                return;
-            }
-
             //Salva em arquivo
             if(filename.toStdString().find('.') == std::string::npos){ //contains
                 if(ui->cmbFetchFormat->currentIndex() == 0) filename += ".sto";
@@ -3740,42 +3438,15 @@ void MainWindow::on_cmdFetch_clicked()
         //Cria Alinhamento
         //addAlignment(fileName.toUtf8().constData());
         if(!align.getFromStd(pfam.toStdString())){
+            progress.close();
             delete ui->listWidget->item(ui->listWidget->count()-1);
             ui->cmdFetch->setText("Fetch");
             ui->cmdFetch->setEnabled(true);
             return;
         }
-        align.setWebDir(url.toStdString());
-
-        //Salva Full Alignment
-        vector<string> filterSequence;
-        vector<string> filterList;
-        string params = "0 0 0 0 0 T20";
-        filterSequence.push_back(params);
-        filterList.push_back(params);
-
-        vector<string> fullNames = align.getFullAlignment();
-        for(unsigned int i = 0; i < fullNames.size(); i++){
-            filterList.push_back(fullNames[i]);
-        }
-
-        vector<string> fullSequences = align.getFullSequences();
-        for(unsigned int i = 0; i < fullSequences.size(); i++){
-            filterSequence.push_back(fullSequences[i]);
-        }
-
-        align.addFilterSequence(filterList,filterSequence);
 
         //Configura para alinhamento carregado pela web
         align.setType(1);
-        /*
-        ui->chkApplyMinCover->setChecked(true);
-        emit ui->chkApplyMinCover->clicked(true);
-        ui->chkApplyMinId->setChecked(false);
-        emit ui->chkApplyMinId->clicked(false);
-        ui->chkApplyMaxId->setChecked(true);
-        emit ui->chkApplyMaxId->clicked(true);
-        */
 
         if(ui->radioButton_8->isChecked() || ui->radioButton_9->isChecked()){
             ui->cmbFilterMethod->setCurrentIndex(0);
@@ -3787,10 +3458,12 @@ void MainWindow::on_cmdFetch_clicked()
 
         alinhamentos.push_back(align);
 
+        progress.close();
+
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
         emit ui->listWidget->activated(ui->listWidget->currentIndex());
 
-        QString msg = "Alignment loaded with " + QString::number(align.getSequencesSize()) + " sequences.";
+        QString msg = "Alignment loaded with " + QString::number(align.sequences.size()) + " sequences.";
         QMessageBox::information(this,"Alignment loaded",msg);
     }
 
@@ -3802,71 +3475,61 @@ void MainWindow::on_cmdApplyFilter_clicked()
 {
     ui->cmdApplyFilter->setEnabled(false);
 
-    //Validação
-    bool exists = false;
-    for(int i = 0; i < ui->cmbRefSeq->count(); i++){
-        if(ui->cmbRefSeq->currentText() == ui->cmbRefSeq->itemText(i)){
-            exists = true;
-            break;
-        }
-    }
-    //Refseq deve existir no alinhamento
-    if(!exists){
-        QMessageBox::warning(this,"Unknown protein","Choose one of the proteins in the family to be the reference sequence");
-        ui->cmdApplyFilter->setEnabled(true);
-        return;
-    }
-
-    //
-    if(ui->cmbFilterMethod->currentIndex() == 1 && ui->cmbRefSeq->currentText() == ""){
-        QMessageBox::warning(this,"Filter error","You must fill reference sequence when using the Refseq Method");
-        ui->cmdApplyFilter->setEnabled(true);
-        return;
-    }
-
-    for(int i = 0; i < ui->listWidget2->count(); i++){
-        string filtered = ui->listWidget2->item(i)->text().toStdString();
-        vector<string> vecFilter = this->split(filtered,' ');
-        //QMessageBox::information(this,"a",QString::number(filtered.size()));
-        if(vecFilter.size() == 6){
-            //QMessageBox::information(this,"a","ok");
-            float minCov = atof(vecFilter[0].c_str());
-            float minId = atof(vecFilter[1].c_str());
-            float maxId = atof(vecFilter[2].c_str());
-            string refSeq = split(vecFilter[4],'/')[0];
-            string taxon = vecFilter[3];
-            string alphabet = vecFilter[5];
-            float minCov2 = ui->txtMinCover->text().toFloat();
-            float minId2 = ui->txtMinId->text().toFloat();
-            float maxId2 = ui->txtMaxId->text().toFloat();
-            string refSeq2 = ui->cmbRefSeq->currentText().toStdString();
-            string taxon2;
-            if(ui->txtTaxons->text() == "") taxon2 = "0";
-            else taxon2 = ui->txtTaxons->text().toStdString();
-            string alphabet2 = currentAlign->getCurrentAlphabet();
-            //printf("AQUI: %s-%s %s-%s\n",taxon.c_str(),taxon2.c_str(),alphabet.c_str(),alphabet2.c_str());
-            if(minCov == minCov2 && minId == minId2 && maxId == maxId2 && refSeq == refSeq2 && taxon == taxon2 && alphabet == alphabet2){
-                QMessageBox::warning(this,"Filter applied","This filter is already saved.");
-                ui->cmdApplyFilter->setEnabled(true);
-                return;
-            }
-        }
-    }
-
+    //VALIDATIONS
+    //Select an alignment
     if(!ui->listWidget->currentItem()){
         QMessageBox::warning(this,"Error","You must select an alignment");
         ui->cmdApplyFilter->setEnabled(true);
         return;
     }
 
-    if(ui->chkApplyTaxonFilter->isChecked() && ui->txtTaxons->text() == ""){
+    //Filter name cant be blank
+    if(ui->txtFilterName->text() == ""){
+        QMessageBox::warning(this,"Validation problem","You must set a filter name.");
+        ui->cmdApplyFilter->setEnabled(true);
+        return;
+    }
+
+    //Filter names must be different
+    for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
+        if(ui->txtFilterName->text() == ui->listWidget2->currentItem()->text()){
+            QMessageBox::warning(this,"Validation p'roblem","There is already a filter with this name. Pleasy change the name and try again.");
+            ui->cmdApplyFilter->setEnabled(true);
+            return;
+        }
+    }
+
+    //Validations for ref seq filter
+    if(ui->cmbFilterMethod->currentIndex() == 1){
+        //Ref seq cant be blank
+        if(ui->cmbRefSeq->currentText() == ""){
+            QMessageBox::warning(this,"Filter error","You must fill reference sequence when using the Refseq Method");
+            ui->cmdApplyFilter->setEnabled(true);
+            return;
+        }
+
+        //Validate the reference sequence
+        bool exists = false;
+        for(int i = 0; i < ui->cmbRefSeq->count(); i++){
+            if(ui->cmbRefSeq->currentText() == ui->cmbRefSeq->itemText(i)){
+                exists = true;
+                break;
+            }
+        }
+        if(!exists){
+            QMessageBox::warning(this,"Unknown protein","Choose one of the proteins in the family to be the reference sequence");
+            ui->cmdApplyFilter->setEnabled(true);
+            return;
+        }
+    }
+
+    if(ui->chkApplyTaxonFilter->isChecked() && ui->chkApplyTaxonFilter->isEnabled() && ui->txtTaxons->text() == ""){
         QMessageBox::warning(this,"Error","If you're going to filter by taxons, you must inform the taxon.");
         ui->cmdApplyFilter->setEnabled(true);
         return;
     }
 
-    string currentFilter = ui->listWidget2->currentItem()->text().toStdString();
-    if(currentFilter != "Full Alignment" && currentFilter.substr(0,7) != "0 0 0 0"){
+    if(currentFilter->getType() != 9){
         QMessageBox::StandardButton confirm;
         confirm = QMessageBox::warning(this,"Filter","This alignment is already filtered. DO you really want apply sub-filters?",QMessageBox::Yes|QMessageBox::No);
 
@@ -3874,7 +3537,6 @@ void MainWindow::on_cmdApplyFilter_clicked()
             ui->cmdApplyFilter->setEnabled(true);
             return;
         }
-
     }
 
     ui->cmbRefSeq_2->setCurrentIndex(ui->cmbRefSeq->currentIndex());
@@ -3891,7 +3553,7 @@ void MainWindow::on_cmdApplyFilter_clicked()
     minId = ui->txtMinId->value();
     maxId = ui->txtMaxId->value();
 
-    currentAlign->CalculateFrequencies();
+    currentFilter->CalculateFrequencies();
 
     refseq = ui->cmbRefSeq->currentIndex()-1;
 
@@ -3952,8 +3614,7 @@ void MainWindow::on_cmdConservation_clicked()
     refseq = ui->cmbRefSeq_2->currentIndex();
     chain = ui->txtChain->text().at(0).toLatin1();
     minCons = ui->txtMinConserv->value();
-
-    currentAlign->setMinsCons(minCons);
+    offset = ui->txtOffset->text().toInt();
 
     this->conservation(refseq,offset,chain,minCons,pdbfilename);
 
@@ -3975,11 +3636,6 @@ void MainWindow::on_cmdMinss_clicked()
     vector<float> minssData;
     minssData = this->minss(repetitions);
 
-
-    printf("\n\n");
-    for(unsigned int j = 0; j < minssData.size(); j++)
-        printf("%f\n",minssData[j]);
-
     QVector<double> x(100), y(100);
     for (int j=0; j<100; ++j)
     {
@@ -4000,27 +3656,6 @@ void MainWindow::on_cmdMinss_clicked()
     ui->graficMinss->setVisible(true);
     ui->cmdMinss->setEnabled(true);
 }
-
-/*
-void MainWindow::on_cmdGraphPath_clicked()
-{
-    ui->cmdGraphPath->setEnabled(false);
-    //Abre arquivo
-    QString fileName = QFileDialog::getSaveFileName(this,tr("Export File"),"",tr("Graph Files (*.txt *.cmm .csv)"));
-
-    //Salva em arquivo
-    QFile f(fileName);
-    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-        ui->cmdGraphPath->setEnabled(true);
-        return;
-    }
-
-    //Add no line edit
-    ui->txtGraphPath->setText(fileName);
-
-    ui->cmdGraphPath->setEnabled(true);
-}
-*/
 
 void MainWindow::on_cmdCorrelation_clicked()
 {
@@ -4084,20 +3719,24 @@ void MainWindow::on_cmdCorrelation_clicked()
     //string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
     int minlogp = ui->txtMinScore->value();
     float mindeltafreq = ui->txtMinDeltaFreq->value();
+    int offset = ui->txtOffset_2->text().toInt();
+    int refseq = ui->cmbRefSeq_3->currentIndex();
+    string pdbid = "";
 
     //USA ALINHAMENTO TODO EM MAIUSCULAS
-    currentAlign->alignment2UpperCase();
+    currentFilter->alignment2UpperCase();
 
-    if(ui->listWidget2->currentItem() == NULL)
-        currentAlign->addParameter("correlation", "Full Alignment", minlogp, minssfraction, mindeltafreq);
-    else
-        currentAlign->addParameter("correlation",ui->listWidget2->currentItem()->text().toStdString(),minlogp, minssfraction, mindeltafreq);
+    currentFilter->setCorrMinScore(minlogp);
+    currentFilter->setCorrMinDelta(mindeltafreq);
+    currentFilter->setCorrMinssFraction(minssfraction);
+    currentFilter->setCorrOffset(offset);
+    currentFilter->setCorrRefSeq(refseq);
 
     this->pcalc(minlogp,minssfraction,mindeltafreq);
 
     //Aplica filtro
     if(contactResidues.size() > 0){
-        vector<string> filtered = currentAlign->filterCorrGraph(contactResidues,ui->cmbRefSeq_3->currentIndex());
+        vector<string> filtered = currentFilter->filterCorrGraph(contactResidues,refseq);
 
         if(filtered.size() > 0){
             msg += "The pairs above were removed in the filtered:\n\n";
@@ -4113,7 +3752,7 @@ void MainWindow::on_cmdCorrelation_clicked()
     this->trivcomm();
 
     //Chamar Output
-    this->output(1,ui->txtOffset_2->text().toInt());
+    this->output(1,offset);
 
     //Gerar Visualizações
     if(ui->chkCommVisualization->isChecked()){
@@ -4124,8 +3763,9 @@ void MainWindow::on_cmdCorrelation_clicked()
         }
 
         Pdb* pdb = NULL;
+        pdbid = ui->txtPDBName_2->text().toStdString();
         for(unsigned int i = 0; i < pdbs.size(); i++){
-            if(ui->txtPDBName_2->text().toStdString() == pdbs[i]->getId()){
+            if(pdbid == pdbs[i]->getId()){
                 pdb = pdbs[i];
                 break;
             }
@@ -4138,10 +3778,12 @@ void MainWindow::on_cmdCorrelation_clicked()
         }
 
         QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),"",tr("TEXT Files (*.pdb)"));
-        vector<float> commvec = currentAlign->createCommuntitiesVector(ui->cmbRefSeq_3->currentIndex());
+        vector<float> commvec = currentFilter->createCommuntitiesVector(refseq);
         pdb->exportStructure(filename,commvec,chain);
-        currentAlign->setCommPDBPath(filename.toStdString());
+        currentFilter->setCommPDBPath(filename.toStdString());
     }
+
+    currentFilter->setCorrPDB(pdbid);
 
     msg += "All correlations were calculated.";
 
@@ -4163,7 +3805,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CONSFREQ:
     {
-        if(currentAlign->getConsFreqSize() == 0){
+        if(currentFilter->getConsFreqSize() == 0){
             QMessageBox::warning(this,"Warning","You must run conservation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             return;
@@ -4178,7 +3820,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_FREQPERC:
     {
-        if(currentAlign->getConsFreqPercSize() == 0){
+        if(currentFilter->getConsFreqPercSize() == 0){
             QMessageBox::warning(this,"Warning","You must run conservation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             return;
@@ -4193,13 +3835,13 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CONSRES:
     {
-        if(currentAlign->getRefSeqsSize() == 0){
+        if(currentFilter->getRefSeqsSize() == 0){
             QMessageBox::warning(this,"Warning","You must select some reference sequences.");
             ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
             return;
         }
 
-        if(currentAlign->getConsFreqPercSize() == 0){
+        if(currentFilter->getConsFreqPercSize() == 0){
             QMessageBox::warning(this,"Warning","You must run conservation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             return;
@@ -4214,7 +3856,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRLIST:
     {
-        if(currentAlign->getCorrGraphSize() == 0){
+        if(currentFilter->getCorrGraphSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4229,7 +3871,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMLIST:
     {
-        if(currentAlign->getCommListSize() == 0){
+        if(currentFilter->getCommListSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4244,7 +3886,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRPERC:
     {
-        if(currentAlign->getNumOfUtilComms() == 0){
+        if(currentFilter->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4259,7 +3901,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRLOG:
     {
-        if(currentAlign->getNumOfUtilComms() == 0){
+        if(currentFilter->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4274,7 +3916,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_ADHERENCE:
     {
-        if(currentAlign->getNumOfUtilComms() == 0){
+        if(currentFilter->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4289,13 +3931,13 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_RESCOMM:
     {
-        if(currentAlign->getRefSeqsSize() == 0){
+        if(currentFilter->getRefSeqsSize() == 0){
             QMessageBox::warning(this,"Warning","You must have some reference sequences selected.");
             ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
             return;
         }
 
-        if(currentAlign->getNumOfUtilComms() == 0){
+        if(currentFilter->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4310,7 +3952,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_UNIPROT_PROTEINS:
     {
-        if(currentAlign->getUniprotMinedSize() == 0){
+        if(currentFilter->getUniprotMinedSize() == 0){
             QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
             ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
@@ -4326,7 +3968,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_UNIPROT_COMMS:
     {
-        if(currentAlign->getUniprotMinedSize() == 0){
+        if(currentFilter->getUniprotMinedSize() == 0){
             QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
             ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
@@ -4342,7 +3984,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CONSPDB:
     {
-        if(currentAlign->getConsPDBPath() == ""){
+        if(currentFilter->getConsPDBPath() == ""){
             QMessageBox::warning(this,"Warning","You must run conservation with a PDB for this alignment.");
             ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
             return;
@@ -4354,7 +3996,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMPDB:
     {
-        if(currentAlign->getCommPDBPath() == ""){
+        if(currentFilter->getCommPDBPath() == ""){
             QMessageBox::warning(this,"Warning","You must run correlation with a PDB for this alignment.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4366,7 +4008,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRGRAPH:
     {
-        if(currentAlign->getCorrGraphSize() == 0){
+        if(currentFilter->getCorrGraphSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4378,7 +4020,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMGRAPH:
     {
-        if(currentAlign->getCorrGraphSize() == 0){
+        if(currentFilter->getCorrGraphSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4390,7 +4032,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_DELTAGRAPH:
     {
-        if(currentAlign->getDeltasSize() == 0){
+        if(currentFilter->getDeltasSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4413,6 +4055,10 @@ void MainWindow::updateResultsViews(){
 
 void MainWindow::on_listWidget_activated(const QModelIndex &index)
 {
+    QProgressDialog progress("Loading the alignment...","Cancel",0,0,this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     string path = index.data().toString().toStdString();
     vector<string> sequences;
 
@@ -4424,13 +4070,6 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
             break;
         }
     }
-
-    //QMessageBox::information(this,"a",currentAlign->sequencenames[10].c_str());
-/*
-    for(unsigned int j = 0; j < sequences.size(); j++){
-        printf("%d - %s",i,sequences[i].c_str());
-    }
-*/
 
     ui->cmbRefSeq->clear();
     ui->cmbRefSeq->addItem("");
@@ -4449,6 +4088,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
 
     //printf("SIZE: %d",sequences.size());
     vector<string> fullAlign = currentAlign->getFullAlignment();
+    currentFilter = currentAlign->getFullFilter();
     //printf("\n%d\n",fullAlign.size());
     for(unsigned int i1 = 0; i1 < fullAlign.size(); i1++){
         vector<string> splitVec = this->split(fullAlign[i1],'/');
@@ -4459,8 +4099,8 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
         string prot = splitVec[0];
         bool contains = false;
 
-        for(unsigned int j = 0; j < currentAlign->getRefSeqsSize(); j++){
-            string ref1 = currentAlign->getRefSeq(j);
+        for(unsigned int j = 0; j < currentFilter->getRefSeqsSize(); j++){
+            string ref1 = currentFilter->getRefSeq(j);
             if(splitVec[0] == ref1){
                 contains = true;
                 break;
@@ -4476,7 +4116,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
 
     if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
         ui->cmbComm->clear();
-        unsigned int nOfComms = currentAlign->getCommListSize();
+        unsigned int nOfComms = currentFilter->getCommListSize();
 
         for(unsigned int j = 1; j <= nOfComms; j++)
             ui->cmbComm->addItem(QString::number(j));
@@ -4488,108 +4128,21 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
 
     ui->listWidget2->clear();
 
-    vector<vector<string> > filterList = currentAlign->getAllFilters();
+    vector<Filter*> filters = currentAlign->getFilters();
 
-    for(unsigned int j = 0; j < filterList.size(); j++){
-        if(filterList[j][0].substr(0,9) == "0 0 0 0 0") ui->listWidget2->addItem("Full Alignment");
-        else ui->listWidget2->addItem(filterList[j][0].c_str());
+    for(unsigned int j = 0; j < filters.size(); j++){
+        Filter* filter = filters[j];
+        ui->listWidget2->addItem(filter->getName().c_str());
     }
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
 
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
+    progress.close();
+
     //ui->cmbRefSeq_2->setCurrentIndex(1);
     //ui->cmbRefSeq_3->setCurrentIndex(1);
-}
-
-void MainWindow::on_listWidget2_activated(const QModelIndex &index)
-{
-    //Analisa qual o filtro de trabalho
-    string filterPars = index.data().toString().toStdString();
-    vector<vector<string> > filterList = currentAlign->getAllFilters();
-    vector<vector<string> > filterSeq = currentAlign->getAllSequences();
-
-    ui->cmbRefSeq_2->clear();
-    ui->cmbRefSeq_2->addItem("");
-    ui->cmbRefSeq_3->clear();
-    ui->cmbRefSeq_3->addItem("");
-    ui->cmbRefSeq_4->clear();
-    ui->cmbRefSeq_4->addItem("");
-    //ui->lstRefSeqs->clear();
-    //ui->lstRefSeqs_2->clear();
-    ui->lstProteinsFiltered->clear();
-    ui->lstLookingRefs->clear();
-    ui->cmbComm->clear();
-    ui->lstManageComms->clear();
-
-    if(filterPars == "Full Alignment"){
-        currentAlign->loadFullAlignment();
-        //QMessageBox::information(this,"a","OK");
-        vector<string> fullAlignment = currentAlign->getFullAlignment();
-        ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(fullAlignment.size()));
-        for(unsigned int j = 0; j < fullAlignment.size(); j++){
-            vector<string> splitVec = this->split(fullAlignment[j],'/');
-            ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
-            ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
-            ui->cmbRefSeq_4->addItem(QString::fromStdString(splitVec[0]));
-            //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
-            //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
-            //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
-            ui->lstProteinsFiltered->addItem(QString::fromStdString(fullAlignment[j]));
-
-        }
-    }else{
-        for(unsigned int j = 0; j < filterList.size(); j++){
-            printf("%s %s\n",filterList[j][0].c_str(),filterPars.c_str());
-            if(filterList[j][0] == filterPars){
-                currentAlign->sequences.clear();
-                currentAlign->sequencenames.clear();
-                ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(filterList[j].size()));
-                for(unsigned int k = 1; k < filterList[j].size(); k++){
-                    vector<string> splitVec = this->split(filterList[j][k],'/');
-                    ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
-                    ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
-                    ui->cmbRefSeq_4->addItem(QString::fromStdString(splitVec[0]));
-                    //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
-                    //ui->lstRefSeqs_2->addItem(QString::fromStdString(splitVec[0]));
-                    //ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
-                    ui->lstProteinsFiltered->addItem(QString::fromStdString(filterList[j][k]));
-                    currentAlign->sequencenames.push_back(filterList[j][k]);
-                    currentAlign->sequences.push_back(filterSeq[j][k]);
-                }
-                break;
-            }
-        }
-    }
-
-    vector<string> fullAlignment = currentAlign->getFullAlignment();
-    for(unsigned int j = 0; j < fullAlignment.size(); j++){
-        vector<string> splitVec = this->split(fullAlignment[j],'/');
-        ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
-    }
-
-    string alphabet = this->findCurrentAlphabet();
-    currentAlign->setCurrentAlphabet(alphabet);
-
-    if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
-        unsigned int nOfComms = currentAlign->getCommListSize();
-        ui->cmbComm->clear();
-
-        for(unsigned int j = 1; j <= nOfComms; j++)
-            ui->cmbComm->addItem(QString::number(j));
-    }else if(ui->stackedWidget->currentIndex() == STACK_RESULTS){
-        this->updateResultsViews();
-    }
-
-    currentAlign->CalculateFrequencies();
-    //currentAlign->printFrequencies();
-
-    ui->cmbRefSeq_2->setCurrentIndex(1);
-    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
-    ui->cmbRefSeq_3->setCurrentIndex(1);
-    ui->cmbRefSeq_4->setCurrentIndex(1);
-    ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 }
 
 void MainWindow::on_cmbRefSeq_activated(int index)
@@ -4603,8 +4156,8 @@ void MainWindow::on_cmbRefSeq_activated(int index)
     ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 
     //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
-    currentAlign->setRefSeqName(currentAlign->sequencenames[index-1]);
-    int offset = currentAlign->getRefSeqOffset();
+    currentFilter->setRefSeqName(currentFilter->sequencenames[index-1]);
+    int offset = currentFilter->getRefSeqOffset();
     QString qoffset = QString::number(offset);
     ui->txtOffset->setText(qoffset);
     ui->txtOffset_2->setText(qoffset);
@@ -4619,8 +4172,8 @@ void MainWindow::on_cmbRefSeq_2_activated(int index)
     ui->cmbRefSeq_3->setCurrentIndex(index);
 
     //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
-    currentAlign->setRefSeqName(currentAlign->sequencenames[index-1]);
-    int offset = currentAlign->getRefSeqOffset();
+    currentFilter->setRefSeqName(currentFilter->sequencenames[index-1]);
+    int offset = currentFilter->getRefSeqOffset();
     QString qoffset = QString::number(offset);
     ui->txtOffset->setText(qoffset);
     ui->txtOffset_2->setText(qoffset);
@@ -4638,49 +4191,11 @@ void MainWindow::on_cmbRefSeq_3_activated(int index)
     ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
 
     //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
-    currentAlign->setRefSeqName(currentAlign->sequencenames[index-1]);
-    int offset = currentAlign->getRefSeqOffset();
+    currentFilter->setRefSeqName(currentFilter->sequencenames[index-1]);
+    int offset = currentFilter->getRefSeqOffset();
     QString qoffset = QString::number(offset);
     ui->txtOffset->setText(qoffset);
     ui->txtOffset_2->setText(qoffset);
-}
-/*
-void MainWindow::on_lstRefSeqs_itemSelectionChanged()
-{
-    //QModelIndexList indexes = ui->lstRefSeqs->selectionModel()->selectedIndexes();
-
-    std::vector<int> indexList;
-    foreach(QModelIndex index, indexes)
-    {
-        indexList.push_back(index.row());
-    }
-
-    ui->lstRefSeqs_2->clearSelection();
-
-    for(unsigned int i=0; i < indexList.size(); i++){
-        ui->lstRefSeqs_2->item(indexList[i])->setSelected(true);
-    }
-}
-*/
-
-
-void MainWindow::on_lstRefSeqs_2_itemSelectionChanged()
-{
-    /*
-    QModelIndexList indexes = ui->lstRefSeqs_2->selectionModel()->selectedIndexes();
-
-    std::vector<int> indexList;
-    foreach(QModelIndex index, indexes)
-    {
-        indexList.push_back(index.row());
-    }
-
-    ui->lstRefSeqs->clearSelection();
-
-    for(unsigned int i=0; i < indexList.size(); i++){
-        ui->lstRefSeqs->item(indexList[i])->setSelected(true);
-    }
-    */
 }
 
 void MainWindow::on_cmdSaveResults_clicked()
@@ -4688,117 +4203,9 @@ void MainWindow::on_cmdSaveResults_clicked()
     this->saveResults();
 }
 
-/*
-void MainWindow::on_cmdShowResults_clicked()
-{
-    ui->cmdShowResults->setEnabled(false);
-
-    this->changetoShowResultsStack();
-
-    ui->cmdShowResults->setEnabled(true);
-}
-*/
-
-void MainWindow::on_cmdShow_clicked()
-{
-    ui->cmdShow->setEnabled(false);
-    //ui->cmdNextResult->setVisible(true);
-    //ui->cmdBackResult->setVisible(true);
-    this->resultsStackList.clear();
-
-    //Validação dos Dados
-
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Error","You must select an alignment");
-        ui->cmdShow->setEnabled(true);
-        return;
-    }
-
-    //Resetar campos de resultado
-    ui->lstProteinsFiltered->clear();
-    ui->txtSequence->clear();
-    ui->tableFreq->clearContents();
-    ui->tableFreqPerc->clearContents();
-    ui->treeCorrelation->clear();
-    ui->treeCorrelationComm->clear();
-    ui->tableComm1->clear();
-    ui->tableComm2->clear();
-    ui->tableAdherence->clear();
-    ui->lstProteinsMined->clear();
-    ui->tableProteinsMined1->clearContents();
-    ui->treeMinerComms->clear();
-    ui->tableProteinsMined2->clearContents();
-
-
-    //Controle do Stack2
-    if(ui->checkResults1->isChecked()){ this->resultsStackList.push_back(1); this->listSequences(); }
-    if(ui->checkResults2->isChecked()){ this->resultsStackList.push_back(2); this->tableFreq(); }
-    if(ui->checkResults3->isChecked()){ this->resultsStackList.push_back(3); this->tableFreqPerc(); }
-    if(ui->checkResults4->isChecked()){ this->resultsStackList.push_back(4); this->showConservedResidues(); }
-    if(ui->checkResults5->isChecked()){ this->resultsStackList.push_back(5); this->correlationList(); }
-    if(ui->checkResults6->isChecked()){ this->resultsStackList.push_back(6); this->communitiesList(); }
-    if(ui->checkResults7->isChecked()){ this->resultsStackList.push_back(7); this->corrTable1(); }
-    if(ui->checkResults8->isChecked()){ this->resultsStackList.push_back(8); this->corrTable2(); }
-    if(ui->checkResults9->isChecked()){ this->resultsStackList.push_back(9); this->adh(); }
-    if(ui->checkResults10->isChecked()){ this->resultsStackList.push_back(10); this->showResiduesComm(); }
-    if(ui->checkResults11->isChecked()){ this->resultsStackList.push_back(11); this->showUniprotGroupByProteins(); }
-    if(ui->checkResults12->isChecked()){ this->resultsStackList.push_back(12); this->showUniprotGroupByComms(); }
-
-    if(this->resultsStackList.size() == 0){
-        QMessageBox::warning(this,"Warning","You must check at least one visualization.");
-        ui->cmdShow->setEnabled(true);
-        return;
-    }
-
-    int firstResult = this->resultsStackList[0];
-    this->currentStackPos = 0;
-
-    ui->stackedWidget2->setCurrentIndex(firstResult);
-
-    /*
-    switch(firstResult){//ADD 11 e 12
-    case 1://List of sequences after filter
-        ui->stackedWidget2->setCurrentIndex(1);
-        break;
-    case 2://Table Of Frequence Conservation
-        ui->stackedWidget2->setCurrentIndex(2);
-        break;
-    case 3://Table Of Frequence Conservation in Percentage
-        ui->stackedWidget2->setCurrentIndex(3);
-        break;
-    case 4://Conserved Residues
-        ui->stackedWidget2->setCurrentIndex(4);
-        break;
-    case 5://Correlations
-        ui->stackedWidget2->setCurrentIndex(5);
-        break;
-    case 6://Communities List
-        ui->stackedWidget2->setCurrentIndex(6);
-        break;
-    case 7://Correlation Tables Percentage
-        ui->stackedWidget2->setCurrentIndex(7);
-        //ui->lblHidden1->setText(QString::number(i)); //Salva posição do alinhamento num label escondido
-        break;
-    case 8://Correlation Tables Log P
-        ui->stackedWidget2->setCurrentIndex(8);
-        //ui->lblHidden2->setText(QString::number(i));
-        break;
-    case 9://Adherence
-        ui->stackedWidget2->setCurrentIndex(9);
-        break;
-    case 10://Residues Of Communities
-        ui->stackedWidget2->setCurrentIndex(10);
-        break;
-    default://Error
-        QMessageBox::critical(this,"Error","Cant find the results.");
-    }*/
-
-    ui->cmdShow->setEnabled(true);
-}
-
 void MainWindow::on_lstProteinsFiltered_activated(const QModelIndex &index)
 {
-    string sequence = currentAlign->getSequence(index.data().toString().toStdString());
+    string sequence = currentFilter->getSequence(index.data().toString().toStdString());
 
     ui->txtSequence->setText(sequence.c_str());
 }
@@ -4817,7 +4224,7 @@ void MainWindow::on_cmdNextComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->getNumOfUtilComms();
+    int nComm = currentFilter->getNumOfUtilComms();
     if(currComm == nComm ) currComm = 0;
 
     //Limpar tabela
@@ -4828,7 +4235,7 @@ void MainWindow::on_cmdNextComm_clicked()
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
-    vector<string> residues = currentAlign->getResiduesComm(currComm);
+    vector<string> residues = currentFilter->getResiduesComm(currComm);
     ui->tableComm1->setRowCount(residues.size());
     ui->tableComm1->setColumnCount(residues.size()+1);
     ui->tableComm1->setHorizontalHeaderItem(0,new QTableWidgetItem("All"));
@@ -4840,7 +4247,7 @@ void MainWindow::on_cmdNextComm_clicked()
     }
 
     //Preenche a tabela
-    vector<float> corrAll = currentAlign->getCommAll(currComm);
+    vector<float> corrAll = currentFilter->getCommAll(currComm);
 
     for(unsigned int i = 0; i < residues.size(); i++){
         QTableWidgetItem *item = new QTableWidgetItem();
@@ -4850,7 +4257,7 @@ void MainWindow::on_cmdNextComm_clicked()
 
         ui->tableComm1->setItem(i,0,item);
 
-        vector<float> commRow = currentAlign->getCommXRow(currComm,i);
+        vector<float> commRow = currentFilter->getCommXRow(currComm,i);
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
 
@@ -4883,7 +4290,7 @@ void MainWindow::on_cmdBackComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->getNumOfUtilComms();
+    int nComm = currentFilter->getNumOfUtilComms();
     if(currComm == 0 ) currComm = nComm;
 
     //Limpar tabela
@@ -4894,11 +4301,10 @@ void MainWindow::on_cmdBackComm_clicked()
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
-    vector<string> residues = currentAlign->getResiduesComm(currComm-1);
+    vector<string> residues = currentFilter->getResiduesComm(currComm-1);
     ui->tableComm1->setRowCount(residues.size());
     ui->tableComm1->setColumnCount(residues.size()+1);
     ui->tableComm1->setHorizontalHeaderItem(0,new QTableWidgetItem("All"));
-    //ui->tableComm1->setVerticalHeaderItem(0,new QTableWidgetItem("Row1"));
 
     for(unsigned int i = 0; i < residues.size(); i++){
         ui->tableComm1->setHorizontalHeaderItem(i+1, new QTableWidgetItem(residues[i].c_str()));
@@ -4906,7 +4312,7 @@ void MainWindow::on_cmdBackComm_clicked()
     }
 
     //Preenche a tabela
-    vector<float> corrAll = currentAlign->getCommAll(currComm-1);
+    vector<float> corrAll = currentFilter->getCommAll(currComm-1);
 
     for(unsigned int i = 0; i < residues.size(); i++){
         QTableWidgetItem *item = new QTableWidgetItem();
@@ -4916,7 +4322,7 @@ void MainWindow::on_cmdBackComm_clicked()
 
         ui->tableComm1->setItem(i,0,item);
 
-        vector<float> commRow = currentAlign->getCommXRow(currComm-1,i);
+        vector<float> commRow = currentFilter->getCommXRow(currComm-1,i);
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
 
@@ -4949,7 +4355,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->getNumOfUtilComms();
+    int nComm = currentFilter->getNumOfUtilComms();
     if(currComm == nComm ) currComm = 0;
 
     //Limpar tabela
@@ -4960,7 +4366,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
-    vector<string> residues = currentAlign->getResiduesCommPs(currComm);
+    vector<string> residues = currentFilter->getResiduesCommPs(currComm);
     ui->tableComm2->setRowCount(residues.size());
     ui->tableComm2->setColumnCount(residues.size());
 
@@ -4971,7 +4377,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
 
     //Preenche a tabela
     for(unsigned int i = 0; i < residues.size(); i++){
-        vector<int> commRow = currentAlign->getCommPsRow(currComm,i);
+        vector<int> commRow = currentFilter->getCommPsRow(currComm,i);
 
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
@@ -5001,7 +4407,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->getNumOfUtilComms();
+    int nComm = currentFilter->getNumOfUtilComms();
     if(currComm == 0 ) currComm = nComm;
 
     //Limpar tabela
@@ -5012,7 +4418,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
-    vector<string> residues = currentAlign->getResiduesCommPs(currComm -1);
+    vector<string> residues = currentFilter->getResiduesCommPs(currComm -1);
     ui->tableComm2->setRowCount(residues.size());
     ui->tableComm2->setColumnCount(residues.size());
 
@@ -5023,7 +4429,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
 
     //Preenche a tabela
     for(unsigned int i = 0; i < residues.size(); i++){
-        vector<int> commRow = currentAlign->getCommPsRow(currComm-1,i);
+        vector<int> commRow = currentFilter->getCommPsRow(currComm-1,i);
 
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
@@ -5037,40 +4443,6 @@ void MainWindow::on_cmdBackComm_2_clicked()
 
     //Ajusta tamanho das colunas
     ui->tableComm2->resizeColumnsToContents();
-}
-
-void MainWindow::on_cmdNextResult_clicked()
-{
-    /*
-    ui->cmdNextResult->setEnabled(false);
-
-    if(this->currentStackPos + 1 >= this->resultsStackList.size()) this->currentStackPos = 0;
-    else this->currentStackPos++;
-
-    int result = this->resultsStackList[currentStackPos];
-    //int i = ui->lblHidden->text().toInt();
-
-    ui->stackedWidget2->setCurrentIndex(result);
-
-    ui->cmdNextResult->setEnabled(true);
-    */
-}
-
-void MainWindow::on_cmdBackResult_clicked()
-{
-    /*
-    ui->cmdBackResult->setEnabled(false);
-
-    if(this->currentStackPos - 1 < 0) this->currentStackPos = this->resultsStackList.size()-1;
-    else this->currentStackPos--;
-
-    int result = this->resultsStackList[currentStackPos];
-    //int i = ui->lblHidden->text().toInt();
-
-    ui->stackedWidget2->setCurrentIndex(result);
-
-    ui->cmdBackResult->setEnabled(true);
-    */
 }
 
 void MainWindow::on_cmdNextResComm_clicked()
@@ -5089,7 +4461,7 @@ void MainWindow::on_cmdNextResComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->Communities.size();
+    int nComm = currentFilter->Communities.size();
     if(currComm == nComm ) currComm = 0;
 
     //Limpar tabela
@@ -5101,36 +4473,39 @@ void MainWindow::on_cmdNextResComm_clicked()
 
     vector<int> refSeqs;
 
-    for(unsigned int j = 0; j < currentAlign->getRefSeqsSize(); j++){
-        refSeqs.push_back(currentAlign->seqname2seqint2(currentAlign->getRefSeq(j)));
+    for(unsigned int j = 0; j < currentFilter->getRefSeqsSize(); j++){
+        refSeqs.push_back(currentAlign->seqname2seqint2(currentFilter->getRefSeq(j)));
     }
 
     //Cabeçalho
-    ui->tableResiduesComm->setColumnCount(currentAlign->Communities[currComm].pos.size());
-    for(unsigned int i = 0; i < currentAlign->Communities[currComm].pos.size(); i++){
-        string textCab = currentAlign->Communities[currComm].aa[i] + QString::number(currentAlign->Communities[currComm].pos[i]+1).toStdString();
+    ui->tableResiduesComm->setColumnCount(currentFilter->Communities[currComm].pos.size());
+    for(unsigned int i = 0; i < currentFilter->Communities[currComm].pos.size(); i++){
+        string textCab = currentFilter->Communities[currComm].aa[i] + QString::number(currentFilter->Communities[currComm].pos[i]+1).toStdString();
         ui->tableResiduesComm->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
 
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
+
     ui->tableResiduesComm->setRowCount(refSeqs.size());
     for(unsigned int i = 0; i < refSeqs.size(); i++){
-        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(currentAlign->fullAlignment[refSeqs[i]].c_str()));
+        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
-        for(unsigned int j = 0; j < currentAlign->Communities[currComm].pos.size(); j++){
-            if(currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[currComm].pos[j]]==currentAlign->Communities[currComm].aa[j]){
+        for(unsigned int j = 0; j < currentFilter->Communities[currComm].pos.size(); j++){
+            if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm].pos[j]]==currentFilter->Communities[currComm].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = currentAlign->Communities[currComm].aa[j] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,currentAlign->Communities[currComm].pos[j])+GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                string textItem = currentFilter->Communities[currComm].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[currComm].pos[j]]=='-'){
+                if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[currComm].pos[j]] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,currentAlign->Communities[currComm].pos[j])+GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][currentFilter->Communities[currComm].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -5160,7 +4535,7 @@ void MainWindow::on_cmdBackResComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentAlign->Communities.size();
+    int nComm = currentFilter->Communities.size();
     if(currComm == 0 ) currComm = nComm;
 
     //Limpar tabela
@@ -5172,36 +4547,39 @@ void MainWindow::on_cmdBackResComm_clicked()
 
     vector<int> refSeqs;
 
-    for(unsigned int j = 0; j < currentAlign->getRefSeqsSize(); j++){
-        refSeqs.push_back(currentAlign->seqname2seqint2(currentAlign->getRefSeq(j)));
+    for(unsigned int j = 0; j < currentFilter->getRefSeqsSize(); j++){
+        refSeqs.push_back(currentAlign->seqname2seqint2(currentFilter->getRefSeq(j)));
     }
 
     //Cabeçalho
-    ui->tableResiduesComm->setColumnCount(currentAlign->Communities[currComm -1].pos.size());
-    for(unsigned int i = 0; i < currentAlign->Communities[currComm -1].pos.size(); i++){
-        string textCab = currentAlign->Communities[currComm -1].aa[i] + QString::number(currentAlign->Communities[currComm-1].pos[i]+1).toStdString();
+    ui->tableResiduesComm->setColumnCount(currentFilter->Communities[currComm -1].pos.size());
+    for(unsigned int i = 0; i < currentFilter->Communities[currComm -1].pos.size(); i++){
+        string textCab = currentFilter->Communities[currComm -1].aa[i] + QString::number(currentFilter->Communities[currComm-1].pos[i]+1).toStdString();
         ui->tableResiduesComm->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
 
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
+
     ui->tableResiduesComm->setRowCount(refSeqs.size());
     for(unsigned int i = 0; i < refSeqs.size(); i++){
-        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(currentAlign->fullAlignment[refSeqs[i]].c_str()));
+        ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
-        for(unsigned int j = 0; j < currentAlign->Communities[currComm -1].pos.size(); j++){
-            if(currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[currComm-1].pos[j]]==currentAlign->Communities[currComm-1].aa[j]){
+        for(unsigned int j = 0; j < currentFilter->Communities[currComm -1].pos.size(); j++){
+            if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm-1].pos[j]]==currentFilter->Communities[currComm-1].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = currentAlign->Communities[currComm-1].aa[j] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,currentAlign->Communities[currComm-1].pos[j])+GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                string textItem = currentFilter->Communities[currComm-1].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm-1].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[currComm-1].pos[j]]=='-'){
+                if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm-1].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = currentAlign->fullSequences[refSeqs[i]][currentAlign->Communities[currComm-1].pos[j]] + QString::number(currentAlign->AlignNumbering2Sequence2(refSeqs[i]+1,currentAlign->Communities[currComm-1].pos[j])+GetOffsetFromSeqName(currentAlign->fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][currentFilter->Communities[currComm-1].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm-1].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -5228,473 +4606,324 @@ void MainWindow::Open_XML_triggered(){
 
     reader.setDevice(&file);
 
+    int currentFilterCode = -1;
     Alignment align;
     align.setFilepath(fileName.toStdString());
-    align.setLocalDir(fileName.toStdString());
-    //NO FINAL INSERIR NO ALINHAMENTOS E NA LISTWIDGET
 
-    //QMessageBox::information(this,"ok","ok");
-
-    reader.readNext();
 
     while(!reader.atEnd()){
+        reader.readNext();
         //FILTER
         if(reader.isStartElement() && reader.name() == "filters"){
             while(!reader.atEnd()){
                 reader.readNext();
-
                 if(reader.isStartElement() && reader.name() == "filter"){
+                    string name = reader.attributes().value("name").toString().toStdString();
+                    string strType = reader.attributes().value("type").toString().toStdString();
                     string taxon = reader.attributes().value("taxon").toString().toStdString();
-                    string occ = reader.attributes().value("occ").toString().toStdString();
-                    string minid = reader.attributes().value("minid").toString().toStdString();
-                    string maxid = reader.attributes().value("maxid").toString().toStdString();
-                    string refSeq = reader.attributes().value("refseq").toString().toStdString();
+                    float occ = reader.attributes().value("occ").toFloat();
+                    float minid = reader.attributes().value("minid").toFloat();
+                    float maxid = reader.attributes().value("maxid").toFloat();
+                    string refseq = reader.attributes().value("refseq").toString().toStdString();
                     string alphabet = reader.attributes().value("alphabet").toString().toStdString();
-                    string parameters = occ + " " + minid + " " + maxid + " " + taxon + " " + refSeq + " " + alphabet;
-                    vector<string> namesVec;
-                    vector<string> sequencesVec;
-                    namesVec.push_back(parameters);
-                    sequencesVec.push_back(parameters);
+                    int type = 9;
+
+                    if(strType == "Full Alignment"){
+                        if(alphabet == "T20") type = 9;
+                        else type = 8;
+                    }else if(strType == "HMM") type = 0;
+                    else if(strType == "Refseq") type = 1;
+                    else if(strType == "Henikof") type = 2;
+
+                    Filter* filter = new Filter(name,alphabet,type);
+                    filter->setTaxon(taxon);
+                    filter->setMinOcc(occ);
+                    filter->setMinId(minid);
+                    filter->setMaxId(maxid);
+                    filter->setRefSeq(refseq);
+                    vector<string> names;
+                    vector<string> seqs;
+                    currentFilterCode++;
 
                     while(!reader.atEnd()){
                         reader.readNext();
 
                         if(reader.isStartElement()){
-                            if(reader.name() == "entry"){
-                                string offset = reader.attributes().value("offset").toString().toStdString();
-                                string protName = reader.attributes().value("name").toString().toStdString();
-                                string pfamName = protName + "/" + offset;
-                                string sequence = reader.readElementText().toStdString();
-                                namesVec.push_back(pfamName);
-                                sequencesVec.push_back(sequence);
-                            }
-                        }else if(reader.isEndElement() && reader.name() == "filter"){
-                            align.addFilterSequence(namesVec,sequencesVec);
+                            if(reader.name() == "seqlist"){
+                                while(!reader.atEnd()){
+                                    reader.readNext();
 
-                            //for(unsigned int i = 0; i < namesVec.size(); i++)
-                                //printf("%d - %s\n",i,namesVec[i].c_str());
-
-                            namesVec.clear();
-                            sequencesVec.clear();
-
-                            break;
-                        }
-                    }
-                }else if(reader.isEndElement() && reader.name() == "filters")
-                    break;
-            }
-        }
-        //REFERENCES
-        if(reader.isStartElement() && reader.name() == "references"){
-            while(!reader.atEnd()){
-                reader.readNext();
-
-                if(reader.isStartElement() && reader.name() == "protein"){
-                    string protein = reader.readElementText().toStdString();
-                    align.addRefSeq(protein);
-                }else if(reader.isEndElement() && reader.name() == "references")
-                    break;
-            }
-        }
-
-        //CONSERVATION
-        vector<float> dg;
-        if(reader.isStartElement() && reader.name() == "conservation"){
-            //QMessageBox::information(this,"a","OK");
-            while(!reader.atEnd()){
-                reader.readNext();
-
-                if(reader.isStartElement()){
-                    if(reader.name() == "parameters"){
-                        string filter;
-                        int refseq;
-                        int offset;
-                        char chain;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "parameters"){
-                                align.addParameter("conservation",filter,refseq,offset,chain,0);
-                                break;
-                            }
-                            else if(reader.isStartElement()){
-                                if(reader.name() == "filter"){
-                                    filter = reader.readElementText().toStdString();
-                                }else if(reader.name() == "refseq"){
-                                    refseq = reader.readElementText().toInt();
-                                }else if(reader.name() == "offset"){
-                                    offset = reader.readElementText().toInt();
-                                }else if(reader.name() == "chain"){
-                                    chain = reader.readElementText().toStdString()[0];
-                                }
-                            }
-
-                        }
-
-                    }else if(reader.name() == "positions"){
-                        vector<int> freq;
-                        vector<float> freqPerc;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "positions"){
-                                break;
-                            }
-                            else if(reader.isStartElement() && reader.name() == "pos"){
-                               while(!reader.atEnd()){
-                                   reader.readNext();
-
-                                   if(reader.isEndElement() && reader.name() == "pos"){
-                                       align.addConsFreqRow(freq);
-                                       align.addConsFreqPercRow(freqPerc);
-                                       freq.clear();
-                                       freqPerc.clear();
-                                       break;
-                                   }
-                                   else if(reader.isStartElement()){
-                                       if(reader.name() == "deltaG")
-                                           dg.push_back(reader.readElementText().toFloat());
-                                       else if(reader.name() == "frequence")
-                                           freq.push_back(reader.readElementText().toInt());
-                                       else if(reader.name() == "percent")
-                                           freqPerc.push_back(reader.readElementText().toFloat());
-                                   }
-                               }
-                            }
-                        }
-                    }
-                }else if(reader.isEndElement() && reader.name() == "conservation"){
-                    align.setConsDG(dg);
-                    //align.printConsFreq();
-                    //align.printConsFreqPerc();
-                    break;
-                }
-            }
-        }
-
-        //MINSS
-        if(reader.isStartElement() && reader.name() == "minss"){
-            vector<float> minss;
-            while(!reader.atEnd()){
-                reader.readNext();
-
-                if(reader.isStartElement()){
-                    if(reader.name() == "parameters"){
-                        string filter;
-                        int rep;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "parameters"){
-                                align.addParameter("minss",filter,rep);
-                                break;
-                            }
-                            else if(reader.isStartElement()){
-                                if(reader.name() == "filter")
-                                    filter = reader.readElementText().toStdString();
-                                else if(reader.name() == "repetitions")
-                                    rep = reader.readElementText().toInt();
-                            }
-                        }
-                    }else if(reader.name() == "data"){
-                        minss.push_back(reader.readElementText().toFloat());
-                    }
-                }else if(reader.isEndElement() && reader.name() == "minss"){
-                    align.setMinssVector(minss);
-                    break;
-                }
-            }
-        }
-
-        //CORRELATION
-        if(reader.isStartElement() && reader.name() == "correlation"){
-
-
-            while(!reader.atEnd()){
-                reader.readNext();
-
-                if(reader.isStartElement()){
-                    if(reader.name() == "parameters"){
-                        string filter;
-                        int minlogp;
-                        float minss;
-                        float deltafreq;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "parameters"){
-                                align.addParameter("correlation",filter,minlogp,minss,deltafreq);
-                                break;
-                            }else if(reader.isStartElement()){
-                                if(reader.name() == "filter")
-                                    filter = reader.readElementText().toStdString();
-                                else if(reader.name() == "minlog")
-                                    minlogp = reader.readElementText().toInt();
-                                else if(reader.name() == "minss")
-                                    minss = reader.readElementText().toFloat();
-                                else if(reader.name() == "deltafreq")
-                                    deltafreq = reader.readElementText().toFloat();
-                            }
-                        }
-                    }else if(reader.name() == "corrgraph"){
-                        string v1;
-                        string v2;
-                        int e;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "corrgraph"){
-                                //align.printCorrGraph();
-                                break;
-                            }else if(reader.isStartElement()){
-                                if(reader.name() == "edge"){
-                                    v1 = reader.attributes().value("v1").toString().toStdString();
-                                    v2 = reader.attributes().value("v2").toString().toStdString();
-                                    e = reader.readElementText().toInt();
-
-                                    //printf("V1: %s, V2: %s, E: %d\n",v1.c_str(),v2.c_str(),e);
-
-                                    align.addCorrGraphEdge(v1,v2,e);
-                                }
-                            }
-                        }
-                    }else if(reader.name() == "communities"){
-                        vector<string> comm;
-
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "communities"){
-                                //align.printCommunity();
-                                break;
-                            }else if(reader.isStartElement()){
-                                if(reader.name() == "community"){
-                                    comm.clear();
-                                    string node;
-
-                                    while(!reader.atEnd()){
-                                        reader.readNext();
-
-                                        if(reader.isStartElement() && reader.name() == "node"){
-                                            node = reader.readElementText().toStdString();
-                                            comm.push_back(node);
-                                        }else if(reader.isEndElement() && reader.name() == "community"){
-                                            align.addCommunity(comm);
-                                            break;
+                                    if(reader.isStartElement()){
+                                        if(reader.name() == "sequence"){
+                                            string seqName = reader.attributes().value("name").toString().toStdString();
+                                            string seq = reader.readElementText().toStdString();
+                                            names.push_back(seqName);
+                                            seqs.push_back(seq);
                                         }
+                                    }else if(reader.isEndElement() && reader.name() == "seqlist"){
+                                        filter->addSequences(names,seqs);
+                                        //align.addFilter(filter);
+
+                                        break;
                                     }
                                 }
-                            }
-                        }
-                    }else if(reader.name() == "output"){
-                        vector<string> residues;
-                        vector<string> residuesPs;
+                            }else if(reader.name() == "references"){
+                                while(!reader.atEnd()){
+                                    reader.readNext();
 
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isEndElement() && reader.name() == "output"){
-                                //align.printResiduesComm();
-                                //align.printResiduesCommPs();
-                                break;
-                            }else if(reader.isStartElement()){
-                                if(reader.name() == "community"){
-                                    vector<float> resAll;
-                                    vector<vector<float> > commX;
-                                    residues.clear();
-
-                                    while(!reader.atEnd()){
-                                        reader.readNext();
-
-                                        if(reader.isEndElement() && reader.name() == "community"){
-                                            align.addResiduesComm(residues);
-                                            align.addCommXAll(resAll);
-                                            align.addCommX(commX);
-                                            break;
-                                        }else if(reader.isStartElement() && reader.name() == "column"){
-                                            string res = reader.readElementText().toStdString();
-                                            if(res != "ALL") residues.push_back(res);
-                                        }else if(reader.isStartElement() && reader.name() == "row"){
-                                            vector<float> values;
-
-                                            resAll.push_back(reader.attributes().at(1).value().toFloat());
-
-                                            for(int i = 2; i < reader.attributes().size(); i++){
-                                                values.push_back(reader.attributes().at(i).value().toFloat()/100);
-                                            }
-
-                                            commX.push_back(values);
-                                        }
-                                    }
-                                }else if(reader.name() == "logP"){
-                                    vector<vector<int> > commXPs;
-                                    residuesPs.clear();
-
-                                    while(!reader.atEnd()){
-                                        reader.readNext();
-
-                                        if(reader.isEndElement() && reader.name() == "logP"){
-                                            align.addResiduesCommPs(residuesPs);
-                                            align.addCommXps(commXPs);
-                                            break;
-                                        }else if(reader.isStartElement() && reader.name() == "column")
-                                            residuesPs.push_back(reader.readElementText().toStdString());
-                                        else if(reader.isStartElement() && reader.name() == "row"){
-                                            vector<int> values;
-
-                                            for(int i = 1; i < reader.attributes().size(); i++){
-                                                values.push_back(reader.attributes().at(i).value().toInt());
-                                            }
-
-                                            commXPs.push_back(values);
-                                        }
-                                    }
+                                    if(reader.isStartElement() && reader.name() == "sequence"){
+                                        string refseq = reader.readElementText().toStdString();
+                                        filter->addRefSeq(refseq);
+                                    }else if(reader.isEndElement() && reader.name() == "references")
+                                        break;
                                 }
-                            }
-                        }
-                    }else if(reader.name() == "deltas"){
-                        align.clearDeltaMatrix();
+                            }else if(reader.name() == "conservation"){
+                                vector<float> dg;
+                                while(!reader.atEnd()){
+                                    reader.readNext();
 
-                        while(!reader.atEnd()){
-                            reader.readNext();
-
-                            if(reader.isStartElement() && reader.name() == "row"){
-                                vector<float> deltasLines;
-
-                                for(int i = 1; i < reader.attributes().size(); i++){
-                                    deltasLines.push_back(reader.attributes().at(i).value().toFloat());
-                                }
-
-                                align.addDeltaLine(deltasLines);
-                            }else if(reader.isEndElement() && reader.name() == "deltas"){
-                                //Saiu do Delta
-                                break;
-                            }
-                        }
-                    }
-                }else if(reader.isEndElement() && reader.name() == "correlation")
-                    break;
-            }
-        }
-        //UNIPROT LOOK
-        if(reader.isStartElement() && reader.name() == "uniprot"){
-            while(!reader.atEnd()){
-                reader.readNext();
-
-                if(reader.isStartElement() && reader.name() == "protein"){
-                    Uniprot *entry = new Uniprot();
-                    string name = reader.attributes().value("name").toString().toStdString();
-                    entry->setName(name);
-                    string dataset = reader.attributes().value("dataset").toString().toStdString();
-                    if(dataset == "Swiss-Prot") entry->setDataset(0);
-                    else entry->setDataset(1);
-
-                    while(!reader.atEnd()){
-                        reader.readNext();
-
-                        if(reader.isStartElement() && reader.name() == "feature"){
-                            Feature *f = new Feature();
-
-                            string type, desc, id, residue, aresidue;
-                            string aggregate = reader.attributes().value("agregate").toString().toStdString();
-
-                            if(aggregate == "CONS") f->setAggregation(0);
-                            else f->setAggregation(reader.attributes().value("agregate").toInt());
-
-                            if(reader.attributes().hasAttribute("seqResidue")){
-                                residue = reader.attributes().value("seqResidue").toString().toStdString();
-                                f->setResidueColigated(residue);
-                            }
-
-                            if(reader.attributes().hasAttribute("alignResidue")){
-                                aresidue = reader.attributes().value("alignResidue").toString().toStdString();
-                                f->setAlignResidue(aresidue);
-                            }
-
-                            if(reader.attributes().hasAttribute("type")){
-                                type = reader.attributes().value("type").toString().toStdString();
-                                f->setType(type);
-                            }
-
-                            if(reader.attributes().hasAttribute("description")){
-                                desc = reader.attributes().value("description").toString().toStdString();
-                                f->setDescription(desc);
-                            }
-
-                            if(reader.attributes().hasAttribute("id")){
-                                id = reader.attributes().value("id").toString().toStdString();
-                                f->setId(id);
-                            }
-
-                            while(!reader.atEnd()){
-                                reader.readNext();
-
-                                if(reader.isStartElement()){
-                                    if(reader.name() == "original"){
-                                        string original = reader.readElementText().toStdString();
-                                        f->setOriginal(original);
-                                    }else if(reader.name() == "variation"){
-                                        string variation = reader.readElementText().toStdString();
-                                        f->setVariation(variation);
-                                    }else if(reader.name() == "location"){
+                                    if(reader.isStartElement() && reader.name() == "parameters"){
                                         while(!reader.atEnd()){
                                             reader.readNext();
 
                                             if(reader.isStartElement()){
-                                                if(reader.name() == "position"){
-                                                    int position = reader.attributes().value("position").toInt();
-                                                    f->setPosition(position);
-                                                }else if(reader.name() == "begin"){
-                                                    int begin = reader.attributes().value("position").toInt();
-                                                    f->setBegin(begin);
-                                                }else if(reader.name() == "end"){
-                                                    int end = reader.attributes().value("position").toInt();
-                                                    f->setEnd(end);
+                                                if(reader.name() == "pdb"){
+                                                    string pdb = reader.readElementText().toStdString();
+                                                    filter->setConsPDB(pdb);
+                                                }else if(reader.name() == "offset"){
+                                                    int offset = reader.readElementText().toInt();
+                                                    filter->setConsOffset(offset);
+                                                }else if(reader.name() == "minimum"){
+                                                    float min = reader.readElementText().toFloat();
+                                                    filter->setConsMin(min);
+                                                }else if(reader.name() == "refseq"){
+                                                    int ref = reader.readElementText().toInt();
+                                                    filter->setConsRefseq(ref);
                                                 }
-                                            }else if(reader.isEndElement() && reader.name() == "location"){
+                                            }else if(reader.isEndElement() && reader.name() == "parameters"){
                                                 break;
                                             }
                                         }
+                                    }else if(reader.isStartElement() && reader.name() == "positions"){
+                                        vector<int> freq;
+                                        vector<float> freqperc;
+
+                                        while(!reader.atEnd()){
+                                            reader.readNext();
+
+                                            if(reader.isStartElement() && reader.name() == "pos"){
+                                                while(!reader.atEnd()){
+                                                    reader.readNext();
+
+                                                    if(reader.isStartElement()){
+                                                        if(reader.name() == "deltaG")
+                                                            dg.push_back(reader.readElementText().toFloat());
+                                                        else if(reader.name() == "frequence")
+                                                            freq.push_back(reader.readElementText().toInt());
+                                                        else if(reader.name() == "percent")
+                                                            freqperc.push_back(reader.readElementText().toFloat());
+                                                    }else if(reader.isEndElement() && reader.name() == "pos"){
+                                                        filter->addConsFreqRow(freq);
+                                                        filter->addConsFreqPercRow(freqperc);
+                                                        freq.clear();
+                                                        freqperc.clear();
+                                                        break;
+                                                    }
+                                                }
+                                            }else if(reader.isEndElement() && reader.name() == "positions")
+                                                break;
+                                        }
+                                    }else if(reader.isEndElement() && reader.name() == "conservation"){
+                                        filter->setConsDG(dg);
+                                        //filter->printConsFreq();
+                                        //printf("\n\n");
+                                        //filter->printConsFreqPerc();
+                                        break;
                                     }
-                                }else if(reader.isEndElement() && reader.name() == "feature"){
-                                    entry->addFeature(f);
-                                    break;
                                 }
-                            }
+                            }else if(reader.isStartElement() && reader.name() == "minss"){
+                                vector<float> minss;
 
+                                while(!reader.atEnd()){
+                                    reader.readNext();
 
-                        }else if(reader.isEndElement() && reader.name() == "protein"){
-                            align.addUniprotEntry(entry);
-                            //printf("\n%s\n",entry->toString().c_str());
+                                    if(reader.isStartElement() && reader.name() == "data"){
+                                        minss.push_back(reader.readElementText().toFloat());
+                                    }else if(reader.isEndElement() && reader.name() == "minss"){
+                                        filter->setMinss(minss);
+                                        break;
+                                    }
+                                }
+                            }else if(reader.isStartElement() && reader.name() == "correlation"){
+                                while(!reader.atEnd()){
+                                    reader.readNext();
+
+                                    if(reader.isStartElement()){
+                                        if(reader.name() == "parameters"){
+                                            while(!reader.atEnd()){
+                                                reader.readNext();
+
+                                                if(reader.isStartElement()){
+                                                    if(reader.name() == "pdb"){
+                                                        string pdb = reader.readElementText().toStdString();
+                                                        filter->setCorrPDB(pdb);
+                                                    }else if(reader.name() == "offset"){
+                                                        int offset = reader.readElementText().toInt();
+                                                        filter->setCorrOffset(offset);
+                                                    }else if(reader.name() == "min_score"){
+                                                        float score = reader.readElementText().toFloat();
+                                                        filter->setCorrMinScore(score);
+                                                    }else if(reader.name() == "minss"){
+                                                        float minss = reader.readElementText().toFloat();
+                                                        filter->setCorrMinssFraction(minss);
+                                                    }else if(reader.name() == "min_delta"){
+                                                        float delta = reader.readElementText().toFloat();
+                                                        filter->setCorrMinDelta(delta);
+                                                    }else if(reader.name() == "refseq"){
+                                                        int refseq = reader.readElementText().toInt();
+                                                        filter->setCorrRefSeq(refseq);
+                                                    }
+                                                }else if(reader.isEndElement() && reader.name() == "parameters")
+                                                    break;
+                                            }
+                                        }else if(reader.name() == "graph"){
+                                            while(!reader.atEnd()){
+                                                reader.readNext();
+
+                                                if(reader.isStartElement() && reader.name() == "edge"){
+                                                    string v1 = reader.attributes().value("v1").toString().toStdString();
+                                                    string v2 = reader.attributes().value("v2").toString().toStdString();
+                                                    int score = reader.readElementText().toInt();
+
+                                                    filter->addCorrEdge(v1,v2,score);
+                                                }else if(reader.isEndElement() && reader.name() == "graph")
+                                                    break;
+                                            }
+                                        }else if(reader.name() == "communities"){
+                                            vector<string> comms;
+
+                                            while(!reader.atEnd()){
+                                                reader.readNext();
+
+                                                if(reader.isStartElement() && reader.name() == "community"){
+                                                    comms.clear();
+                                                    string node;
+
+                                                    while(!reader.atEnd()){
+                                                        reader.readNext();
+
+                                                        if(reader.isStartElement() && reader.name() == "node"){
+                                                            node = reader.readElementText().toStdString();
+                                                            comms.push_back(node);
+                                                        }else if(reader.isEndElement() && reader.name() == "community"){
+                                                            filter->addCommunity(comms);
+                                                            break;
+                                                        }
+                                                    }
+                                                }else if(reader.isEndElement() && reader.name() == "communities")
+                                                    break;
+                                            }
+                                        }else if(reader.name() == "output"){
+                                            vector<string> residues;
+                                            vector<string> residuesPs;
+
+                                            while(!reader.atEnd()){
+                                                reader.readNext();
+
+                                                if(reader.isStartElement()){
+                                                    if(reader.name() == "community"){
+                                                        vector<float> resAll;
+                                                        vector<vector<float> > commX;
+                                                        residues.clear();
+
+                                                        while(!reader.atEnd()){
+                                                            reader.readNext();
+
+                                                            if(reader.isStartElement() && reader.name() == "column"){
+                                                                string res = reader.readElementText().toStdString();
+                                                                if(res != "ALL") residues.push_back(res);
+                                                            }else if(reader.isStartElement() && reader.name() == "row"){
+                                                                vector<float> values;
+
+                                                                resAll.push_back(reader.attributes().at(1).value().toFloat());
+
+                                                                for(unsigned int i = 2; i < reader.attributes().size(); i++){
+                                                                    values.push_back(reader.attributes().at(i).value().toFloat()/100);
+                                                                }
+
+                                                                commX.push_back(values);
+                                                            }else if(reader.isEndElement() && reader.name() == "community"){
+                                                                filter->addResiduesComm(residues);
+                                                                filter->addCommXAll(resAll);
+                                                                filter->addCommX(commX);
+                                                                break;
+                                                            }
+                                                        }
+                                                    }else if(reader.name() == "logP"){
+                                                        vector<vector<int> > commXPs;
+                                                        residuesPs.clear();
+
+                                                        while(!reader.atEnd()){
+                                                            reader.readNext();
+
+                                                            if(reader.isStartElement() && reader.name() == "column"){
+                                                                residuesPs.push_back(reader.readElementText().toStdString());
+                                                            }else if(reader.isStartElement() && reader.name() == "row"){
+                                                                vector<int> values;
+
+                                                                for(unsigned int i = 1; i < reader.attributes().size(); i++){
+                                                                    values.push_back(reader.attributes().at(i).value().toInt());
+                                                                }
+
+                                                                commXPs.push_back(values);
+                                                            }else if(reader.isEndElement() && reader.name() == "logP"){
+                                                                filter->addResiduesCommPs(residuesPs);
+                                                                filter->addCommXPs(commXPs);
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }else if(reader.isEndElement() && reader.name() == "output")
+                                                    break;
+                                            }
+                                        }else if(reader.name() == "deltas"){
+                                            while(!reader.atEnd()){
+                                                reader.readNext();
+
+                                                if(reader.isStartElement() && reader.name() == "row"){
+                                                    vector<float> deltaLines;
+
+                                                    for(unsigned int i = 0; i < reader.attributes().size(); i++)
+                                                        deltaLines.push_back(reader.attributes().at(i).value().toFloat());
+
+                                                    filter->addDeltaLine(deltaLines);
+                                                }else if(reader.isEndElement() && reader.name() == "deltas"){
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }else if(reader.isEndElement() && reader.name() == "correlation")
+                                        break;
+                                }
+                            }//ELSE PRA CONTINUAR UNIPROT LOOK
+                        }else if(reader.isEndElement() && reader.name() == "filter"){
+                            align.addFilter(filter);
+
                             break;
                         }
                     }
-
-                }else if(reader.isEndElement() && reader.name() == "uniprot"){
-                    break;
                 }
             }
-        }
-
-        reader.readNext();
+        }else if(reader.isEndElement() && reader.name() == "filters")
+            break;
     }
 
-    //QMessageBox::information(this,"a","ACABOU");
-    if(align.getFilterSize() == 0){
-        QMessageBox::warning(this,"Warning","Invalid input file.");
+    if(align.countFilters() == 0){
+        QMessageBox::warning(this,"Warning","Invalid input file. The data may be corrupted");
         return;
     }
-    align.updateFullAlignment();
-    align.getCommunitiesFromRAM();
-    align.checkConsistency();
-    //align.CalculateFrequencies();
-    align.printFrequencies();
-    //align.debugSequencesNames();
+
+    align.updateFiltersData();
     ui->listWidget->addItem(fileName);
     alinhamentos.push_back(align);
 
@@ -5712,7 +4941,7 @@ void MainWindow::Open_XML_triggered(){
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     emit ui->listWidget->activated(ui->listWidget->currentIndex());
 
-    QString msg = "Alignment loaded with " + QString::number(align.getSequencesSize()) + " sequences.";
+    QString msg = "Alignment loaded with " + QString::number(currentFilter->sequences.size()) + " sequences.";
     QMessageBox::information(this,"Alignment loaded",msg);
 }
 
@@ -5723,16 +4952,17 @@ void MainWindow::on_cmdRemoveFilter_clicked()
         QMessageBox::warning(this,"Error","You must select a filter to remove.");
         return;
     }
-    string filter = ui->listWidget2->currentItem()->text().toStdString();
 
-    if(filter == "Full Alignment"){
+    if(currentFilter->getType() == 9){
         QMessageBox::warning(this,"Error","You cant remove full alignment.");
         return;
     }
 
     int pos = ui->listWidget2->currentIndex().row();
-    currentAlign->removeFilterItem(pos);
+    currentAlign->removeFilter(ui->listWidget2->currentItem()->text().toStdString());
     delete ui->listWidget2->item(pos);
+    ui->listWidget2->setCurrentRow(0);
+    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 }
 
 void MainWindow::on_cmdRemoveAlignment_clicked()
@@ -5741,60 +4971,60 @@ void MainWindow::on_cmdRemoveAlignment_clicked()
 }
 
 void MainWindow::exportAlignment_PFAM(){
-    string filter;
-
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to remove.");
-        return;
-    }
-
-    if(ui->listWidget2->currentItem() == NULL)
-        filter = "Full Alignment";
-    else
-        filter = ui->listWidget2->currentItem()->text().toStdString();
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.pfam *.xml)"));
-
-    currentAlign->exportAlignment(filename,filter,0);
-
-}
-
-void MainWindow::exportAlignment_TXT(){
-    string filter;
-
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to remove.");
-        return;
-    }
-
-    if(ui->listWidget2->currentItem() == NULL)
-        filter = "Full Alignment";
-    else
-        filter = ui->listWidget2->currentItem()->text().toStdString();
-
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.pfam)"));
-
-    currentAlign->exportAlignment(filename,filter,1);
-
-}
-
-void MainWindow::exportAlignment_XML(){
-    string filter;
-
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
         return;
     }
 
-    if(ui->listWidget2->currentItem() == NULL)
-        filter = "Full Alignment";
-    else
-        filter = ui->listWidget2->currentItem()->text().toStdString();
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("alignment.pfam"),QObject::tr("TEXT Files (*.txt *.pfam)"));
 
-    currentAlign->exportAlignment(filename,filter,2);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
 
+    currentFilter->exportFilteredAlignment(filename,0);
+}
+
+void MainWindow::exportAlignment_TXT(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("alignment.txt"),QObject::tr("TEXT Files (*.txt *.pfam *.xml)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFilteredAlignment(filename,1);
+}
+
+void MainWindow::exportAlignment_XML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("alignment.xml"),QObject::tr("TEXT Files (*.xml)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFilteredAlignment(filename,2);
 }
 
 void MainWindow::exportRefSeqTXT(){
@@ -5803,14 +5033,22 @@ void MainWindow::exportRefSeqTXT(){
         return;
     }
 
-    if(currentAlign->getRefSeqsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    if(currentFilter->getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","There's no reference sequence loaded.");
+        return;
+    }
 
-    currentAlign->exportRefs(filename,0);
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("reference_sequences.txt"),QObject::tr("TEXT Files (*.txt)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportRefs(filename,0);
 }
 
 void MainWindow::exportRefSeqXML(){
@@ -5819,14 +5057,22 @@ void MainWindow::exportRefSeqXML(){
         return;
     }
 
-    if(currentAlign->getRefSeqsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize. You may run conservation");
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    if(currentFilter->getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","There's no reference sequence loaded.");
+        return;
+    }
 
-    currentAlign->exportRefs(filename,1);
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("reference_sequences.xml"),QObject::tr("TEXT Files (*.xml)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportRefs(filename,1);
 }
 
 void MainWindow::exportFreqTXT(){
@@ -5835,14 +5081,22 @@ void MainWindow::exportFreqTXT(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences.txt"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportFreq(filename,0);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFreq(filename,0);
 }
 
 void MainWindow::exportFreqCSV(){
@@ -5851,14 +5105,22 @@ void MainWindow::exportFreqCSV(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("CSV Files (*.txt *.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences.csv"),QObject::tr("TEXT Files (*.csv)"));
 
-    currentAlign->exportFreq(filename,1);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFreq(filename,1);
 }
 
 void MainWindow::exportFreqXML(){
@@ -5867,14 +5129,22 @@ void MainWindow::exportFreqXML(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences.xml"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportFreq(filename,2);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFreq(filename,2);
 }
 
 void MainWindow::exportFreqHTML(){
@@ -5883,15 +5153,22 @@ void MainWindow::exportFreqHTML(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences.html"),QObject::tr("TEXT Files (*.html)"));
 
-    currentAlign->exportFreq(filename,3);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
 
+    currentFilter->exportFreq(filename,3);
 }
 
 void MainWindow::exportFreqPercTXT(){
@@ -5900,14 +5177,22 @@ void MainWindow::exportFreqPercTXT(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences_perc.txt"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportFreq(filename,0,true);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFreq(filename,0,true);
 }
 
 void MainWindow::exportFreqPercCSV(){
@@ -5916,14 +5201,22 @@ void MainWindow::exportFreqPercCSV(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences_perc.csv"),QObject::tr("TEXT Files (*.csv)"));
 
-    currentAlign->exportFreq(filename,1,true);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFreq(filename,1,true);
 }
 
 void MainWindow::exportFreqPercXML(){
@@ -5932,14 +5225,22 @@ void MainWindow::exportFreqPercXML(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences_perc.xml"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportFreq(filename,2,true);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFreq(filename,2,true);
 }
 
 void MainWindow::exportFreqPercHTML(){
@@ -5948,14 +5249,22 @@ void MainWindow::exportFreqPercHTML(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("frequences_perc.html"),QObject::tr("TEXT Files (*.html)"));
 
-    currentAlign->exportFreq(filename,3,true);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFreq(filename,3,true);
 }
 
 void MainWindow::exportConsResTXT(){
@@ -5964,28 +5273,36 @@ void MainWindow::exportConsResTXT(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    if(currentAlign->getRefSeqsSize() == 0){
+    if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You didnt set some reference sequences to visualize.");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("conserved_residues.txt"),QObject::tr("TEXT Files (*.txt)"));
 
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
     vector<int> refSeqs;
-    for(unsigned int i2 = 0; i2 < currentAlign->getRefSeqsSize(); i2++){
-        string ref1 = currentAlign->getRefSeq(i2);
+    for(unsigned int i2 = 0; i2 < currentFilter->getRefSeqsSize(); i2++){
+        string ref1 = currentFilter->getRefSeq(i2);
         //printf("%s\n",ref1.c_str());
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    //QMessageBox::information(this,"",QString::number(refSeqs.size()));
-
-    currentAlign->exportConsRes(filename,0,ui->txtMinConserv->value(),refSeqs);
+    currentFilter->exportConsRes(filename,0,ui->txtMinConserv->value(),refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportConsResXML(){
@@ -5994,28 +5311,36 @@ void MainWindow::exportConsResXML(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    if(currentAlign->getRefSeqsSize() == 0){
+    if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You didnt set some reference sequences to visualize.");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("conserved_residues.xml"),QObject::tr("TEXT Files (*.xml)"));
 
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
     vector<int> refSeqs;
-    for(unsigned int i2 = 0; i2 < currentAlign->getRefSeqsSize(); i2++){
-        string ref1 = currentAlign->getRefSeq(i2);
+    for(unsigned int i2 = 0; i2 < currentFilter->getRefSeqsSize(); i2++){
+        string ref1 = currentFilter->getRefSeq(i2);
         //printf("%s\n",ref1.c_str());
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    //QMessageBox::information(this,"",QString::number(refSeqs.size()));
-
-    currentAlign->exportConsRes(filename,1,ui->txtMinConserv->value(),refSeqs);
+    currentFilter->exportConsRes(filename,1,ui->txtMinConserv->value(),refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportConsResHTML(){
@@ -6024,30 +5349,37 @@ void MainWindow::exportConsResHTML(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation before export results");
         return;
     }
 
-    if(currentAlign->getRefSeqsSize() == 0){
-        QMessageBox::warning(this,"Warning","You didnt set some referesence sequences to visualize.");
+    if(currentFilter->getRefSeqsSize() == 0){
+        QMessageBox::warning(this,"Warning","You didnt set some reference sequences to visualize.");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("conserved_residues.html"),QObject::tr("TEXT Files (*.html)"));
 
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
     vector<int> refSeqs;
-    for(unsigned int i2 = 0; i2 < currentAlign->getRefSeqsSize(); i2++){
-        string ref1 = currentAlign->getRefSeq(i2);
+    for(unsigned int i2 = 0; i2 < currentFilter->getRefSeqsSize(); i2++){
+        string ref1 = currentFilter->getRefSeq(i2);
         //printf("%s\n",ref1.c_str());
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    //QMessageBox::information(this,"",QString::number(refSeqs.size()));
-
-    currentAlign->exportConsRes(filename,2,ui->txtMinConserv->value(),refSeqs);
+    currentFilter->exportConsRes(filename,2,ui->txtMinConserv->value(),refSeqs,fullAlignment,fullSequences);
 }
-
 
 void MainWindow::exportCorrListTXT(){
     if(ui->listWidget->currentItem() == NULL){
@@ -6055,14 +5387,22 @@ void MainWindow::exportCorrListTXT(){
         return;
     }
 
-    if(currentAlign->getCorrelationGraphSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getCorrelationGraphSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation_list.txt"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportCorrGraph(filename,0);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrGraph(filename,0);
 }
 
 void MainWindow::exportCorrListCSV(){
@@ -6071,14 +5411,22 @@ void MainWindow::exportCorrListCSV(){
         return;
     }
 
-    if(currentAlign->getCorrelationGraphSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getCorrelationGraphSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt *.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation_list.csv"),QObject::tr("TEXT Files (*.csv)"));
 
-    currentAlign->exportCorrGraph(filename,1);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrGraph(filename,1);
 }
 
 void MainWindow::exportCorrListXML(){
@@ -6087,14 +5435,22 @@ void MainWindow::exportCorrListXML(){
         return;
     }
 
-    if(currentAlign->getCorrelationGraphSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getCorrelationGraphSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation_list.xml"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportCorrGraph(filename,2);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrGraph(filename,2);
 }
 
 void MainWindow::exportCommsTXT(){
@@ -6103,14 +5459,22 @@ void MainWindow::exportCommsTXT(){
         return;
     }
 
-    if(currentAlign->getCommListSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("communities.txt"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportCommList(filename,0);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCommList(filename,0);
 }
 
 void MainWindow::exportCommsXML(){
@@ -6119,14 +5483,22 @@ void MainWindow::exportCommsXML(){
         return;
     }
 
-    if(currentAlign->getCommListSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("communities.xml"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportCommList(filename,1);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCommList(filename,1);
 }
 
 void MainWindow::exportCorrTablePercTXT(){
@@ -6135,14 +5507,22 @@ void MainWindow::exportCorrTablePercTXT(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportCorrTable(filename,0);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrTable(filename,0);
 }
 
 void MainWindow::exportCorrTablePercXML(){
@@ -6151,14 +5531,22 @@ void MainWindow::exportCorrTablePercXML(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportCorrTable(filename,1);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrTable(filename,1);
 }
 
 void MainWindow::exportCorrTablePercHTML(){
@@ -6167,14 +5555,22 @@ void MainWindow::exportCorrTablePercHTML(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation"),QObject::tr("TEXT Files (*.html)"));
 
-    currentAlign->exportCorrTable(filename,2);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrTable(filename,2);
 }
 
 void MainWindow::exportCorrTableTXT(){
@@ -6183,14 +5579,22 @@ void MainWindow::exportCorrTableTXT(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportCorrTable(filename,0,false);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrTable(filename,0,false);
 }
 
 void MainWindow::exportCorrTableXML(){
@@ -6199,14 +5603,22 @@ void MainWindow::exportCorrTableXML(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportCorrTable(filename,1,false);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrTable(filename,1,false);
 }
 
 void MainWindow::exportCorrTableHTML(){
@@ -6215,14 +5627,22 @@ void MainWindow::exportCorrTableHTML(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation"),QObject::tr("TEXT Files (*.html)"));
 
-    currentAlign->exportCorrTable(filename,2,false);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportCorrTable(filename,2,false);
 }
 
 void MainWindow::exportAdhTXT(){
@@ -6231,14 +5651,22 @@ void MainWindow::exportAdhTXT(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("adherence.txt"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportAdh(filename,0);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportAdh(filename,0);
 }
 
 void MainWindow::exportAdhCSV(){
@@ -6247,14 +5675,22 @@ void MainWindow::exportAdhCSV(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.csv)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("adherence.csv"),QObject::tr("TEXT Files (*.csv)"));
 
-    currentAlign->exportAdh(filename,1);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportAdh(filename,1);
 }
 
 void MainWindow::exportAdhXML(){
@@ -6263,14 +5699,22 @@ void MainWindow::exportAdhXML(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("adherence.xml"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportAdh(filename,2);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportAdh(filename,2);
 }
 
 void MainWindow::exportAdhHTML(){
@@ -6279,78 +5723,106 @@ void MainWindow::exportAdhHTML(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("adherence.html"),QObject::tr("TEXT Files (*.html)"));
 
-    currentAlign->exportAdh(filename,3);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportAdh(filename,3);
 }
 
 void MainWindow::exportResCommTXT(){
-
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    currentAlign->CalculateFrequencies();
+    currentFilter->CalculateFrequencies();
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("TEXT Files (*.txt)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("residues_communities.txt"),QObject::tr("TEXT Files (*.txt)"));
 
-    currentAlign->exportResComm(filename,0);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportResComm(filename,0,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportResCommXML(){
-
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    currentAlign->CalculateFrequencies();
+    currentFilter->CalculateFrequencies();
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("residues_communities.xml"),QObject::tr("TEXT Files (*.xml)"));
 
-    currentAlign->exportResComm(filename,1);
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportResComm(filename,1,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportResCommHTML(){
-
     if(ui->listWidget->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a alignment to export.");
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation before export this result");
         return;
     }
 
-    currentAlign->CalculateFrequencies();
+    currentFilter->CalculateFrequencies();
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("HTML Files (*.html)"));
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("residues_communities.html"),QObject::tr("TEXT Files (*.html)"));
 
-    currentAlign->exportResComm(filename,2);
-}
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
 
-
-
-void MainWindow::on_cmdUploadConsRefsSeqs_clicked()
-{
-    //OLD
+    currentFilter->exportResComm(filename,2,fullAlignment,fullSequences);
 }
 
 void MainWindow::startWizard(){
@@ -6367,17 +5839,6 @@ void MainWindow::startWizard(){
     ui->cmdBack->setEnabled(false);
 
     //Muda para tela 1
-    ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
-}
-
-void MainWindow::inputAlignment_triggered(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
-    wizard = false;
-
-    this->changeWizardCmds(false);
-
     ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
 }
 
@@ -6457,85 +5918,6 @@ void MainWindow::changetoCorrelationStack(){
     ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
 }
 
-void MainWindow::changetoShowResultsStack(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
-    this->resultsStackList.clear();
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select a alignment.");
-        return;
-    }
-
-    stackBeforeShowResults = ui->stackedWidget->currentIndex();
-
-    ui->stackedWidget2->setCurrentIndex(STACK_RESULT_SEQLIST);
-    ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
-
-    ui->listWidget->setEnabled(false);
-    ui->listWidget2->setEnabled(false);
-
-    //ui->lblHidden->setText(QString::number());
-
-    //Verificar resultados possiveis
-
-    //List Of Sequences after filter
-    ui->checkResults1->setEnabled(true);
-
-    //Table Of Frequence Conservation
-    if(currentAlign->getConsFreqSize() > 0) ui->checkResults2->setEnabled(true);
-    else ui->checkResults2->setEnabled(false);
-
-    //Table Of Percentage Conservation
-    if(currentAlign->getConsFreqPercSize() > 0) ui->checkResults3->setEnabled(true);
-    else ui->checkResults3->setEnabled(false);
-
-    //Conserved Residues
-    if(currentAlign->getRefSeqsSize() > 0) ui->checkResults4->setEnabled(true);
-    else ui->checkResults4->setEnabled(false);
-
-    //Correlation and Anti-Correlation List
-    if(currentAlign->getCorrGraphSize() > 0) ui->checkResults5->setEnabled(true);
-    else ui->checkResults5->setEnabled(false);
-
-    //List Of Communities
-    if(currentAlign->getCommListSize() > 0) ui->checkResults6->setEnabled(true);
-    else ui->checkResults6->setEnabled(false);
-
-    //Correlation Tables
-    if(currentAlign->getNumOfUtilComms() > 0){
-        ui->checkResults7->setEnabled(true);
-        ui->checkResults8->setEnabled(true);
-        ui->checkResults9->setEnabled(true);
-    }else{
-        ui->checkResults7->setEnabled(false);
-        ui->checkResults8->setEnabled(false);
-        ui->checkResults9->setEnabled(false);
-    }
-
-    //Residues Of Communities
-    if(currentAlign->getRefSeqsSize() > 0 && currentAlign->getNumOfUtilComms() > 0) ui->checkResults10->setEnabled(true);
-    else ui->checkResults10->setEnabled(false);
-
-    //Uniprot Looking
-    if(currentAlign->getUniprotMinedSize() > 0){
-        ui->checkResults11->setEnabled(true);
-        ui->checkResults12->setEnabled(true);
-    }else{
-        ui->checkResults11->setEnabled(false);
-        ui->checkResults12->setEnabled(false);
-    }
-
-    if(wizard) changeWizardCmds(true);
-    else changeWizardCmds(false);
-
-    ui->cmdMain->setEnabled(true);
-    ui->cmdBack->setEnabled(true);
-    ui->cmdAdvance->setEnabled(false);
-}
-
 void MainWindow::changeToUniprotLookingTool(){
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
@@ -6546,17 +5928,17 @@ void MainWindow::changeToUniprotLookingTool(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() > 0){
+    if(currentFilter->getConsFreqSize() > 0){
         ui->chkConserveds->setCheckable(true);
         ui->chkConserveds->setChecked(true);
     }else ui->chkConserveds->setCheckable(false);
 
-    if(currentAlign->getCommListSize() > 0){
+    if(currentFilter->getCommListSize() > 0){
         ui->chkComm->setCheckable(true);
         ui->chkComm->setChecked(true);
     }else ui->chkComm->setCheckable(false);
 
-    if(currentAlign->getConsFreqSize() == 0 && currentAlign->getCommListSize() == 0){
+    if(currentFilter->getConsFreqSize() == 0 && currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run at least Conservation or Correlation programs before use this.");
         return;
     }
@@ -6676,15 +6058,11 @@ void MainWindow::on_cmdLook_clicked()
         }
     }
 
-    /*
-    QList<QListWidgetItem*> selecteds =  ui->lstLookingRefs->selectedItems();
-    for(unsigned int j = 0; j < selecteds.size(); j++){
-        proteins.push_back(selecteds.at(j)->text().toStdString());
-        idproteins.push_back(selecteds.at(j)->textAlignment());
-    }*/
+    float minCons = currentFilter->getConsMin();
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    vector<string> fullSequences = currentAlign->getFullSequences();
 
-    //EXEC CONSERTAR
-    currentAlign->uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins);
+    currentFilter->uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins,minCons,fullAlignment,fullSequences);
 
     ui->cmdLook->setEnabled(true);
 }
@@ -6706,19 +6084,19 @@ void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
 
     //Acha a entrada uniprot selecionada
     unsigned int j = 0;
-    for(j = 0; j < currentAlign->getUniprotMinedSize(); j++){
-        if(currentAlign->getUniprotEntryName(j) == name){
+    for(j = 0; j < currentFilter->getUniprotMinedSize(); j++){
+        if(currentFilter->getUniprotEntryName(j) == name){
             break;
         }
     }
 
-    string function = "Function: " + currentAlign->getUniprotFunction(j);
+    string function = "Function: " + currentFilter->getUniprotFunction(j);
     ui->lblUniprotFunction->setText(function.c_str());
     ui->lblUniprotFunction->setWordWrap(true);
 
-    ui->tableProteinsMined1->setRowCount(currentAlign->getUniprotEntryNofFeatures(j));
-    for(unsigned int k = 0; k < currentAlign->getUniprotEntryNofFeatures(j); k++){
-        Feature *f = currentAlign->getUniprotFeature(j,k);
+    ui->tableProteinsMined1->setRowCount(currentFilter->getUniprotEntryNofFeatures(j));
+    for(unsigned int k = 0; k < currentFilter->getUniprotEntryNofFeatures(j); k++){
+        Feature *f = currentFilter->getUniprotFeature(j,k);
 
         printf("\nRES: %s\nAGREG:%d\n",f->getResidueColigated().c_str(),f->getAgregate());
 
@@ -6776,7 +6154,7 @@ void MainWindow::on_treeMinerComms_clicked(const QModelIndex &index)
     QString item = index.data().toString().split(' ')[0];
 
     if(!item.startsWith("Comm") && !item.startsWith("Conservation")){
-        vector<Uniprot*> features = currentAlign->getAllResidueFeatures(item.toStdString());
+        vector<Uniprot*> features = currentFilter->getAllResidueFeatures(item.toStdString());
 
         ui->tableProteinsMined2->setRowCount(features.size());
         for(unsigned int j = 0; j < features.size(); j++){
@@ -6838,7 +6216,12 @@ void MainWindow::exportLookProtTXT(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
         return;
     }
@@ -6849,7 +6232,7 @@ void MainWindow::exportLookProtTXT(){
                                                  | QFileDialog::DontResolveSymlinks);
 
 
-    currentAlign->exportLookProt(filename,0);
+    currentFilter->exportLookProt(filename,0);
 }
 
 void MainWindow::exportLookProtCSV(){
@@ -6858,7 +6241,12 @@ void MainWindow::exportLookProtCSV(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
         return;
     }
@@ -6868,7 +6256,8 @@ void MainWindow::exportLookProtCSV(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentAlign->exportLookProt(filename,1);
+
+    currentFilter->exportLookProt(filename,1);
 }
 
 void MainWindow::exportLookProtXML(){
@@ -6877,14 +6266,23 @@ void MainWindow::exportLookProtXML(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
 
-    currentAlign->exportLookProt(filename,2);
+
+    currentFilter->exportLookProt(filename,2);
 }
 
 void MainWindow::exportLookProtHTML(){
@@ -6893,7 +6291,12 @@ void MainWindow::exportLookProtHTML(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
         return;
     }
@@ -6903,7 +6306,8 @@ void MainWindow::exportLookProtHTML(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentAlign->exportLookProt(filename,3);
+
+    currentFilter->exportLookProt(filename,3);
 }
 
 void MainWindow::exportLookCommTXT(){
@@ -6912,7 +6316,12 @@ void MainWindow::exportLookCommTXT(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
         return;
     }
@@ -6922,7 +6331,7 @@ void MainWindow::exportLookCommTXT(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentAlign->exportLookComm(filename,0);
+    currentFilter->exportLookComm(filename,0);
 }
 
 void MainWindow::exportLookCommCSV(){
@@ -6931,7 +6340,12 @@ void MainWindow::exportLookCommCSV(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
         return;
     }
@@ -6941,7 +6355,7 @@ void MainWindow::exportLookCommCSV(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentAlign->exportLookComm(filename,1);
+    currentFilter->exportLookComm(filename,1);
 }
 
 void MainWindow::exportLookCommXML(){
@@ -6950,23 +6364,12 @@ void MainWindow::exportLookCommXML(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),"",QObject::tr("XML Files (*.xml)"));
-
-    currentAlign->exportLookComm(filename,2);
-}
-
-void MainWindow::exportLookCommHTML(){
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to export.");
-        return;
-    }
-
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
         return;
     }
@@ -6976,7 +6379,31 @@ void MainWindow::exportLookCommHTML(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentAlign->exportLookComm(filename,3);
+    currentFilter->exportLookComm(filename,2);
+}
+
+void MainWindow::exportLookCommHTML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    if(currentFilter->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+        return;
+    }
+
+    QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
+                                                 "",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+
+    currentFilter->exportLookComm(filename,3);
 }
 
 void MainWindow::changeToCreateCommunity(){
@@ -6994,7 +6421,7 @@ void MainWindow::changeToCreateCommunity(){
         return;
     }
 
-    unsigned int nOfComms = currentAlign->getCommListSize();
+    unsigned int nOfComms = currentFilter->getCommListSize();
 
     for(unsigned int j = 1; j <= nOfComms; j++)
         ui->cmbComm->addItem(QString::number(j));
@@ -7005,7 +6432,7 @@ void MainWindow::changeToCreateCommunity(){
 
 void MainWindow::on_cmbComm_currentIndexChanged(int index)
 {
-    vector<string> comms = currentAlign->getCommunitie(index);
+    vector<string> comms = currentFilter->getCommunitie(index);
 
     ui->lstManageComms->clear();
 
@@ -7055,10 +6482,10 @@ void MainWindow::on_cmdAddResComm_clicked()
 
     int nc = ui->cmbComm->currentIndex();
 
-    currentAlign->addItemToCommunity(text.toStdString(),nc);
+    currentFilter->addItemToCommunity(text.toStdString(),nc);
 
     //Atualizar campo
-    vector<string> comms = currentAlign->getCommunitie(nc);
+    vector<string> comms = currentFilter->getCommunitie(nc);
 
     ui->lstManageComms->clear();
 
@@ -7077,10 +6504,10 @@ void MainWindow::on_cmdDelResComm_clicked()
     int residueIndex = ui->lstManageComms->currentIndex().row();
     int nc = ui->cmbComm->currentIndex();
 
-    currentAlign->removeItemOfCommunity(nc,residueIndex);
+    currentFilter->removeItemOfCommunity(nc,residueIndex);
 
     //Atualizar campo
-    vector<string> comms = currentAlign->getCommunitie(nc);
+    vector<string> comms = currentFilter->getCommunitie(nc);
 
     ui->lstManageComms->clear();
 
@@ -7092,10 +6519,10 @@ void MainWindow::on_cmdDelResComm_clicked()
 void MainWindow::on_cmdNewComm_clicked()
 {
     vector<string> newComm;
-    currentAlign->addCommunity(newComm);
+    currentFilter->addCommunity(newComm);
 
     //Atualizar campos
-    int nOfComms = currentAlign->getCommListSize();
+    int nOfComms = currentFilter->getCommListSize();
 
     ui->cmbComm->addItem(QString::number(nOfComms));
 
@@ -7103,9 +6530,6 @@ void MainWindow::on_cmdNewComm_clicked()
 }
 
 void MainWindow::changeToListOfSequences(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
     //Validação
     if(!ui->listWidget->currentItem()){
         QMessageBox::warning(this,"Error","You must select an alignment");
@@ -7132,7 +6556,7 @@ void MainWindow::changeToConservationFrequence(){
         return;
     }
 
-    if(currentAlign->getConsFreqSize() == 0){
+    if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation method.");
         return;
     }
@@ -7156,7 +6580,7 @@ void MainWindow::changeToConservationPercentage(){
         return;
     }
 
-    if(currentAlign->getConsFreqPercSize() == 0){
+    if(currentFilter->getConsFreqPercSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation method.");
         return;
     }
@@ -7180,7 +6604,7 @@ void MainWindow::changeToConservedResidues(){
         return;
     }
 
-    if(currentAlign->getRefSeqsSize() == 0){
+    if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must select some reference sequences.");
         return;
     }
@@ -7195,16 +6619,13 @@ void MainWindow::changeToConservedResidues(){
 }
 
 void MainWindow::changetoCorrelationList(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
     //Validação
     if(!ui->listWidget->currentItem()){
         QMessageBox::warning(this,"Warning","You must select an alignment");
         return;
     }
 
-    if(currentAlign->getCorrGraphSize() == 0){
+    if(currentFilter->getCorrGraphSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7228,7 +6649,7 @@ void MainWindow::changeToCorrelationGraph(){
         return;
     }
 
-    if(currentAlign->getCorrGraphSize() == 0){
+    if(currentFilter->getCorrGraphSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7246,7 +6667,7 @@ void MainWindow::changeToCommunitiesGraphs(){
         return;
     }
 
-    if(currentAlign->getCommListSize() == 0){
+    if(currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7264,7 +6685,7 @@ void MainWindow::changeToCorrelationBetweenComms(){
         return;
     }
 
-    if(currentAlign->getDeltasSize() == 0){
+    if(currentFilter->getDeltasSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7283,7 +6704,7 @@ void MainWindow::changeToPDBVisualization(){
         return;
     }
 
-    if(currentAlign->getConsPDBPath() == ""){
+    if(currentFilter->getConsPDBPath() == ""){
         QMessageBox::warning(this,"Warning","You must run conservation method and send a PDB file.");
         return;
     }
@@ -7301,7 +6722,7 @@ void MainWindow::changeToPDBVisualization2(){
         return;
     }
 
-    if(currentAlign->getCommPDBPath() == ""){
+    if(currentFilter->getCommPDBPath() == ""){
         QMessageBox::warning(this,"Warning","You must run correlation method and send a PDB file.");
         return;
     }
@@ -7333,7 +6754,7 @@ void MainWindow::changeToCommunitiesList(){
         return;
     }
 
-    if(currentAlign->getCommListSize() == 0){
+    if(currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7357,7 +6778,7 @@ void MainWindow::changeToCorrelationInPerc(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7381,7 +6802,7 @@ void MainWindow::changeToCorrelationInLogP(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7405,7 +6826,7 @@ void MainWindow::changeToAdherenceMatrix(){
         return;
     }
 
-    if(currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         return;
     }
@@ -7429,7 +6850,7 @@ void MainWindow::changeToResiduesOfCommunities(){
         return;
     }
 
-    if(currentAlign->getRefSeqsSize() == 0 || currentAlign->getNumOfUtilComms() == 0){
+    if(currentFilter->getRefSeqsSize() == 0 || currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must have some reference sequences.");
         return;
     }
@@ -7453,7 +6874,7 @@ void MainWindow::changeToULGroupedByProteins(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
         return;
     }
@@ -7478,7 +6899,7 @@ void MainWindow::changeToULGroupedByComms(){
         return;
     }
 
-    if(currentAlign->getUniprotMinedSize() == 0){
+    if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
         return;
     }
@@ -7620,11 +7041,11 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
         return;
     }
 
-    currentAlign->clearRefSeq();
+    currentFilter->clearRefSeq();
 
     for(int j = 0; j < ui->lstRefSeqSelected->count(); j++){
         //printf("5891:Refseq - %s\n",ui->lstRefSeqSelected->item(j)->text().toStdString().c_str());
-        currentAlign->addRefSeq(ui->lstRefSeqSelected->item(j)->text().toStdString());
+        currentFilter->addRefSeq(ui->lstRefSeqSelected->item(j)->text().toStdString());
     }
     QMessageBox::information(this,"Reference sequences","The reference sequences are stored.");
 
@@ -7634,7 +7055,7 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
 void MainWindow::on_cmdUpdateComms_clicked()
 {
     //Chamar Output
-    this->output(1,currentAlign->getRefSeqOffset());
+    this->output(1,currentFilter->getRefSeqOffset());
 
     QMessageBox::information(this,"Update Communities","The communtities have been updated.");
 }
@@ -7695,14 +7116,9 @@ void MainWindow::on_chkApplyTaxonFilter_clicked(bool checked)
     ui->txtTaxons->setEnabled(checked);
 
     if(checked || ui->chkApplyMaxId->isChecked() || ui->chkApplyMinId->isChecked() || ui->chkApplyMinCover->isChecked()){
-        ui->chkIntermediateFilter->setEnabled(true);
-        ui->label_61->setEnabled(true);
         ui->cmdApplyFilter->setChecked(true);
     }else{
-        ui->chkIntermediateFilter->setEnabled(false);
-        ui->label_61->setEnabled(false);
         ui->cmdApplyFilter->setChecked(false);
-
     }
 }
 
@@ -7713,12 +7129,8 @@ void MainWindow::on_chkApplyMinCover_clicked(bool checked)
     ui->txtMinCover->setEnabled(checked);
 
     if(checked || ui->chkApplyMinId->isChecked() || ui->chkApplyMaxId->isChecked() || ui->chkApplyTaxonFilter->isChecked()){
-        ui->chkIntermediateFilter->setEnabled(true);
-        ui->label_61->setEnabled(true);
         ui->cmdApplyFilter->setEnabled(true);
     }else{
-        ui->chkIntermediateFilter->setEnabled(false);
-        ui->label_61->setEnabled(false);
         ui->cmdApplyFilter->setEnabled(false);
     }
 }
@@ -7729,12 +7141,8 @@ void MainWindow::on_chkApplyMinId_clicked(bool checked)
     ui->txtMinId->setEnabled(checked);
 
     if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMaxId->isChecked() || ui->chkApplyTaxonFilter->isChecked()){
-        ui->chkIntermediateFilter->setEnabled(true);
-        ui->label_61->setEnabled(true);
         ui->cmdApplyFilter->setEnabled(true);
     }else{
-        ui->chkIntermediateFilter->setEnabled(false);
-        ui->label_61->setEnabled(false);
         ui->cmdApplyFilter->setEnabled(false);
     }
 }
@@ -7746,12 +7154,8 @@ void MainWindow::on_chkApplyMaxId_clicked(bool checked)
     ui->txtMaxId->setEnabled(checked);
 
     if(checked || ui->chkApplyMinCover->isChecked() || ui->chkApplyMinId->isChecked() || ui->chkApplyTaxonFilter->isChecked()){
-        ui->chkIntermediateFilter->setEnabled(true);
-        ui->label_61->setEnabled(true);
         ui->cmdApplyFilter->setEnabled(true);
     }else{
-        ui->chkIntermediateFilter->setEnabled(false);
-        ui->label_61->setEnabled(false);
         ui->cmdApplyFilter->setEnabled(false);
     }
 }
@@ -7905,37 +7309,42 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     vector<string> oldChars;
     vector<char> newChars;
     int alphabet = ui->cmbAlphabetList->currentIndex();
-    int filterIndex = ui->listWidget2->currentIndex().row();
-    string currentFilter = ui->listWidget2->currentItem()->text().toStdString();
-    string param;// = currentFilter + " T2";
-    string type = "";
+    bool newFilter;
+    string type;
+    string alignname = "";
 
-    if(currentFilter == "Full Alignment") param = "0 0 0 0 0 " + ui->cmbAlphabetList->currentText().toStdString();
-    else{
-        vector<string> params = split(currentFilter,' ');
-        param = params[0] + " " + params[1] + " " + params[2] + " " + params[3] + " " + params[4] + " " + ui->cmbAlphabetList->currentText().toStdString();
-    }
+    if(ui->radioAlphabetNew->isChecked()) newFilter = true;
+    else newFilter = false;
 
-    //Verificação
-    if(currentAlign->getCurrentAlphabet() != "T20"){
+
+    //Validation
+    if(currentFilter->getAlphabet() != "T20"){
         QMessageBox::warning(this,"Warning","You cannot reduce an alphabet from a already reduced alignment. Please choose a T20 filter");
         ui->cmdApplyAlphabetReduction->setEnabled(true);
         return;
     }
 
-    for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
-        if(ui->listWidget2->item(i)->text().toStdString() == param){
-            QMessageBox::warning(this,"Warning","This alignment filter is already loaded");
+    if(newFilter){
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Name the new alignment"),
+                                             tr("Alignment name:"), QLineEdit::Normal,
+                                             QDir::home().dirName(), &ok);
+        if (ok && !text.isEmpty()){
+            for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
+                if(ui->listWidget2->item(i)->text() == text){
+                    QMessageBox::warning(this,"Warning","There's already an alignment with that name.");
+                    ui->cmdApplyAlphabetReduction->setEnabled(true);
+                    return;
+                }
+            }
+
+            alignname = text.toStdString();
+        }else if(ok && text.isEmpty()){
+            QMessageBox::warning(this,"Warning","You must set a name for the new alignment.");
             ui->cmdApplyAlphabetReduction->setEnabled(true);
             return;
         }
     }
-
-
-    bool newFilter;
-
-    if(ui->radioAlphabetNew->isChecked()) newFilter = true;
-    else newFilter = false;
 
     switch(alphabet){
     case 0:
@@ -8274,14 +7683,31 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     }
     }
 
-    currentAlign->applyAlphabetReduction(param,oldChars,newChars,filterIndex,newFilter);
-
     if(newFilter){
-        ui->listWidget2->addItem(param.c_str());
+        Filter* filter = new Filter();
+        filter->setName(alignname);
+        filter->setAlphabet(type);
+        if(currentFilter->getType() == 9) filter->setType(8);
+        else filter->setType(currentFilter->getType());
+        filter->setMaxId(currentFilter->getMaxId());
+        filter->setMinId(currentFilter->getMinId());
+        filter->setMinOcc(currentFilter->getMinOcc());
+        filter->setRefSeq(currentFilter->getRefSeq());
+        filter->setTaxon(currentFilter->getTaxon());
+        filter->addSequences(currentAlign->sequencenames,currentAlign->sequences);
+
+        filter->applyAlphabetReduction(oldChars,newChars);
+
+        currentAlign->addFilter(filter);
+
+        ui->listWidget2->addItem(alignname.c_str());
         ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
         emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
-    }else
-        ui->listWidget2->currentItem()->setText(param.c_str());
+    }else{
+        currentFilter->applyAlphabetReduction(oldChars,newChars);
+        currentFilter->setAlphabet(type);
+        currentFilter->addSequences(currentAlign->sequencenames,currentAlign->sequences);
+    }
 
     string msg = "The sequence alphabet was reduced using the " + type + " method.";
     QMessageBox::information(this,"Alhabet Reduced",msg.c_str());
@@ -8424,7 +7850,7 @@ void MainWindow::on_cmdPDBFetch_clicked()
     }
 
     //Montar URL
-    QString url = "http://www.rcsb.org/pdb/files/" + ui->txtPdbId->text() + ".pdb";
+    QString url = "http://files.rcsb.org/view/" + ui->txtPdbId->text() + ".pdb";
 
     //Faz a conexão
     QUrl qurl = url;
@@ -8531,44 +7957,9 @@ void MainWindow::on_cmdLoadPDB_clicked()
 
 
         //Verify if pdb and sequence align
-        string currseq = currentAlign->getNoGAPSequence(ui->cmbRefSeq_3->currentIndex()-1);
+        string currseq = currentFilter->getNoGAPSequence(ui->cmbRefSeq_3->currentIndex()-1);
         string pdbseq = pdb->getPDBSequence(chain);
         int score = pdb->setResiduesSeqNumber(currseq,chain);
-/*
-        if(ui->chkPDBSWS->isChecked()){
-            string pdbseq = pdb->getSWSSeq(ui->txtChainPDB->text().toStdString()[0]);
-            printf("%s\n%s\n",currseq.c_str(),pdbseq.c_str());
-            if(pdbseq != currseq){
-                for(unsigned int i = 0; i < currseq.size(); i++){
-                    if(pdbseq[i] != currseq[i]){
-                        printf("ERROR: %c - %c - %d\n",pdbseq[i],currseq[i],i);
-                        QMessageBox::warning(this,"Warning","Your structure file didnt fully aligned with the PDB-SWS webservice. Maybe you selected the wrong reference sequence.");
-                        ui->cmdLoadPDB->setEnabled(true);
-                        return;
-                    }
-                }
-            }
-        }else{
-
-            //string pdbseq = pdb->getPDBSequence(ui->txtChainPDB->text().toStdString()[0]).substr(intervalFrom-1,intervalTo-1);
-            string pdbseq = pdb->getPDBSequence(ui->txtChainPDB->text().toStdString()[0]);
-            pdb->needleman_wunsch(currseq,pdbseq);
-
-            if(pdbseq != currseq){
-                //printf("PDB: %s\nSEQ: %s\n\n",pdbseq.c_str(),currseq.c_str());
-                for(unsigned int i = 0; i < currseq.size(); i++){
-                    if(pdbseq[i] != currseq[i]){
-                        //printf("%c - %c - %d",pdbseq[i],currseq[i],i);
-                        string msg = "The PDB and current sequence do not align. Maybe the intervals are wrong.";
-                        QMessageBox::warning(this,"Warning",msg.c_str());
-                        ui->cmdLoadPDB->setEnabled(true);
-                        return;
-                    }
-                }
-            }
-
-        }
-*/
 
         ui->lstPDBsInMemory->addItem(pdbname.c_str());
 
@@ -9020,9 +8411,7 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
         ui->chkApplyMaxId->setEnabled(true);
         ui->chkApplyMaxId->setChecked(true);
         emit ui->chkApplyMaxId->clicked(true);
-        ui->chkIntermediateFilter->setEnabled(true);
-        ui->chkIntermediateFilter->setChecked(false);
-        ui->label_61->setEnabled(true);
+
     }else if(index == 1){
         ui->label_10->setEnabled(true);
         ui->cmbRefSeq->setEnabled(true);
@@ -9036,9 +8425,7 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
         ui->chkApplyMaxId->setEnabled(true);
         ui->chkApplyMaxId->setChecked(true);
         emit ui->chkApplyMaxId->clicked(true);
-        ui->chkIntermediateFilter->setEnabled(true);
-        ui->chkIntermediateFilter->setChecked(false);
-        ui->label_61->setEnabled(true);
+
     }else if(index == 2){
         ui->label_10->setEnabled(false);
         ui->cmbRefSeq->setCurrentText("");
@@ -9055,9 +8442,70 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
         ui->chkApplyMaxId->setEnabled(false);
         ui->chkApplyMaxId->setChecked(false);
         emit ui->chkApplyMaxId->clicked(false);
-        ui->chkIntermediateFilter->setEnabled(false);
-        ui->chkIntermediateFilter->setChecked(false);
-        ui->label_61->setEnabled(false);
         ui->cmdApplyFilter->setEnabled(true);
     }
+}
+
+void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
+{
+    //Recupera e atualiza o filtro atual
+    Filter *filter = currentAlign->getFilterByName(item->text().toStdString());
+    currentFilter = filter;
+
+    ui->cmbRefSeq_2->clear();
+    ui->cmbRefSeq_2->addItem("");
+    ui->cmbRefSeq_3->clear();
+    ui->cmbRefSeq_3->addItem("");
+    ui->cmbRefSeq_4->clear();
+    ui->cmbRefSeq_4->addItem("");
+    ui->lstProteinsFiltered->clear();
+    ui->lstLookingRefs->clear();
+    ui->cmbComm->clear();
+    ui->lstManageComms->clear();
+
+    ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(filter->getSequencesCount()));
+
+    for(unsigned int i = 0; i < filter->getSequencesCount(); i++){
+        string proteinName = this->split(filter->getSequenceName(i),'/')[0];
+
+        ui->cmbRefSeq_2->addItem(proteinName.c_str());
+        ui->cmbRefSeq_3->addItem(proteinName.c_str());
+        ui->cmbRefSeq_4->addItem(proteinName.c_str());
+        ui->lstProteinsFiltered->addItem(proteinName.c_str());
+    }
+
+    vector<string> fullAlignment = currentAlign->getFullAlignment();
+    for(unsigned int i = 0; i < fullAlignment.size(); i++){
+        vector<string> splitVec = this->split(fullAlignment[i],'/');
+        ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
+    }
+
+    if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
+        unsigned int nOfComms = currentFilter->getCommListSize();
+        ui->cmbComm->clear();
+
+        for(unsigned int j = 1; j <= nOfComms; j++)
+            ui->cmbComm->addItem(QString::number(j));
+    }else if(ui->stackedWidget->currentIndex() == STACK_RESULTS){
+        this->updateResultsViews();
+    }
+
+    currentFilter->CalculateFrequencies();
+
+    ui->cmbRefSeq_2->setCurrentIndex(1);
+    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
+    ui->cmbRefSeq_3->setCurrentIndex(1);
+    ui->cmbRefSeq_4->setCurrentIndex(1);
+    ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
+}
+
+string MainWindow::getDirectory(string path){
+    vector<string> splittedPath = this->split(path,'/');
+    string directory = "";
+
+    for(unsigned int i = 0; i < splittedPath.size()-1; i++){
+        directory += splittedPath[i] + "/";
+    }
+
+    return directory;
 }

@@ -31,6 +31,8 @@ private:
     unsigned int GetOffsetFromSeqName (string seqname);//ok
     bool isaa(char c);//ok
     bool isaa(char c, bool casesensitive);//ok
+    void readFASTA();
+    void readFASTA(vector<string> fasta);
     void readPFAM();//OK
     void readPFAM(vector<string> pfam);//OK
     void readSTO();//OK
@@ -80,6 +82,7 @@ public:
     void addSequences(vector<string> seqs, vector<string> names);//ok
     void defineHMMpositions();
     void updateFiltersData();
+    bool verifyValidFilterName(string name);
 };
 
 #endif // ALIGNMENT_H

@@ -126,6 +126,9 @@
           <height>150</height>
          </size>
         </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::ActionsContextMenu</enum>
+        </property>
        </widget>
       </item>
       <item>
@@ -171,6 +174,9 @@
           <horstretch>0</horstretch>
           <verstretch>2</verstretch>
          </sizepolicy>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::ActionsContextMenu</enum>
         </property>
        </widget>
       </item>
@@ -272,7 +278,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Getting An Alignment&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;PFSTATS uses multiple sequence alignments in the PFAM format (identifier, spacer, complete sequence) as input. Use &amp;quot;get from desktop&amp;quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Obtaining An Alignment&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;PFSTATS uses multiple sequence alignments in the PFAM format (identifier, spacer, complete sequence) as input. Use &amp;quot;get from desktop&amp;quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -411,6 +417,26 @@
                     </widget>
                    </item>
                    <item>
+                    <widget class="QRadioButton" name="radioButton_11">
+                     <property name="text">
+                      <string>Uniprot</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="radioButton_12">
+                     <property name="text">
+                      <string>NCBI</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item>
                     <spacer name="horizontalSpacer_35">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -443,7 +469,7 @@
                    <item>
                     <widget class="QRadioButton" name="radioButton_3">
                      <property name="enabled">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </property>
                      <property name="minimumSize">
                       <size>
@@ -666,6 +692,11 @@
                    <item>
                     <property name="text">
                      <string>Selex</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Fasta</string>
                     </property>
                    </item>
                   </widget>
@@ -1161,6 +1192,13 @@
                </layout>
               </item>
               <item>
+               <widget class="QCheckBox" name="chkIntermediate">
+                <property name="text">
+                 <string>Generate Intermediate Filters</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_34">
                 <item>
                  <spacer name="horizontalSpacer_10">
@@ -1257,6 +1295,16 @@
              </widget>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txtSecRefSeqs">
+            <property name="maximumSize">
+             <size>
+              <width>256</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QListWidget" name="lstRefSeqs">
@@ -1387,6 +1435,16 @@
            <widget class="QLabel" name="label_56">
             <property name="text">
              <string>Reference Sequences selected:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txtSelectedSecRefseqs">
+            <property name="maximumSize">
+             <size>
+              <width>256</width>
+              <height>16777215</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -2225,6 +2283,22 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <spacer name="verticalSpacer_15">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="2" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_64">
           <item>
@@ -2548,6 +2622,13 @@
                 </layout>
                </item>
                <item>
+                <widget class="QCheckBox" name="chkComm2Align">
+                 <property name="text">
+                  <string>Generate communities subalignments</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <spacer name="verticalSpacer_14">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -2607,22 +2688,6 @@
           </item>
          </layout>
         </item>
-        <item row="1" column="0">
-         <spacer name="verticalSpacer_15">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Minimum</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item row="3" column="0">
          <spacer name="verticalSpacer_16">
           <property name="orientation">
@@ -2656,7 +2721,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>0</number>
+             <number>5</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -4608,6 +4673,9 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="currentIndex">
+                   <number>2</number>
+                  </property>
                   <item>
                    <property name="text">
                     <string>All Columns</string>
@@ -5338,6 +5406,249 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page_32">
+       <layout class="QGridLayout" name="gridLayout_22">
+        <item row="1" column="2">
+         <widget class="QTreeWidget" name="treeResiduesSubAlign">
+          <property name="allColumnsShowFocus">
+           <bool>false</bool>
+          </property>
+          <attribute name="headerDefaultSectionSize">
+           <number>120</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Position</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Amino Acid</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="3">
+         <widget class="QLabel" name="label_84">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Generate Sub-Alignment&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_42">
+          <item>
+           <widget class="QGroupBox" name="groupBox_10">
+            <property name="minimumSize">
+             <size>
+              <width>381</width>
+              <height>161</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Add Key Residues</string>
+            </property>
+            <widget class="QWidget" name="layoutWidget">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>30</y>
+               <width>337</width>
+               <height>101</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_40">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_91">
+                <item>
+                 <widget class="QLabel" name="label_61">
+                  <property name="text">
+                   <string>Whole community residues:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="cmbSubAlignComms"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_92">
+                <item>
+                 <widget class="QLabel" name="label_85">
+                  <property name="text">
+                   <string>Proper residue (E.g. A151):</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="txtSubAlignResidues"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_35">
+                <item>
+                 <spacer name="horizontalSpacer_43">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="cmdSubAlignAddRes">
+                  <property name="text">
+                   <string>Add</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Preferred</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_11">
+            <property name="minimumSize">
+             <size>
+              <width>341</width>
+              <height>161</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Generate Sub-Alignment</string>
+            </property>
+            <widget class="QWidget" name="layoutWidget">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>30</y>
+               <width>274</width>
+               <height>101</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_41">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_93">
+                <item>
+                 <widget class="QLabel" name="label_86">
+                  <property name="text">
+                   <string>New Filter Name:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="txtSubAlignName"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_94">
+                <item>
+                 <widget class="QLabel" name="label_87">
+                  <property name="text">
+                   <string>Minimum hit rate:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="txtSubAlignHitRate">
+                  <property name="minimum">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.800000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_95">
+                <item>
+                 <spacer name="horizontalSpacer_72">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="cmdGenerateSubAlignment">
+                  <property name="text">
+                   <string>Generate</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="1">
+         <spacer name="horizontalSpacer_73">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -5355,6 +5666,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpenAlignment"/>
     <addaction name="actionOpen_XML"/>
     <addaction name="separator"/>
     <addaction name="actionClose_Alignment"/>
@@ -5376,6 +5688,7 @@
     <addaction name="separator"/>
     <addaction name="actionCreate_Communitie"/>
     <addaction name="actionAlphabet_Reduction"/>
+    <addaction name="actionGenerate_Sub_Alignment"/>
     <addaction name="separator"/>
     <addaction name="actionUniprotLooking"/>
    </widget>
@@ -5633,7 +5946,7 @@
   </action>
   <action name="actionOpen_XML">
    <property name="text">
-    <string>Open XML</string>
+    <string>Load XML</string>
    </property>
   </action>
   <action name="actionAlignmentPFAM">
@@ -6048,6 +6361,56 @@
     <string>View Alignment</string>
    </property>
   </action>
+  <action name="actionNewAlignment">
+   <property name="text">
+    <string>newAlignment</string>
+   </property>
+   <property name="toolTip">
+    <string>New Alignment</string>
+   </property>
+  </action>
+  <action name="actionRemoveAlignment">
+   <property name="text">
+    <string>removeAlignment</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove Alignment</string>
+   </property>
+  </action>
+  <action name="actionNewFilter">
+   <property name="text">
+    <string>newFilter</string>
+   </property>
+   <property name="toolTip">
+    <string>New Filter</string>
+   </property>
+  </action>
+  <action name="actionRenameFilter">
+   <property name="text">
+    <string>renameFilter</string>
+   </property>
+   <property name="toolTip">
+    <string>Rename Filter</string>
+   </property>
+  </action>
+  <action name="actionRemoveFilter">
+   <property name="text">
+    <string>removeFilter</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove Filter</string>
+   </property>
+  </action>
+  <action name="actionOpenAlignment">
+   <property name="text">
+    <string>Open Alignment</string>
+   </property>
+  </action>
+  <action name="actionGenerate_Sub_Alignment">
+   <property name="text">
+    <string>Generate Sub-Alignment</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -6067,8 +6430,8 @@
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_2"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_4"/>
  </buttongroups>
 </ui>

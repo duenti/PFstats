@@ -38,6 +38,13 @@ MainWindow::MainWindow(QWidget *parent) :
     //Configura label do grafico Minss
     minssLabel = new QCPItemText(ui->graficMinss);
 
+    //Configura actions
+    ui->listWidget->addAction(ui->actionNewAlignment);
+    ui->listWidget->addAction(ui->actionRemoveAlignment);
+    ui->listWidget2->addAction(ui->actionNewFilter);
+    ui->listWidget2->addAction(ui->actionRenameFilter);
+    ui->listWidget2->addAction(ui->actionRemoveFilter);
+
     //Conecta Slots
     connect(ui->actionOpen_XML,SIGNAL(triggered()),this,SLOT(Open_XML_triggered()));
     connect(ui->actionAlignmentPFAM,SIGNAL(triggered()),this,SLOT(exportAlignment_PFAM()));
@@ -75,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionResCommXML,SIGNAL(triggered()),this,SLOT(exportResCommXML()));
     connect(ui->actionResCommHTML,SIGNAL(triggered()),this,SLOT(exportResCommHTML()));
     connect(ui->actionStart_Wizard,SIGNAL(triggered()),this,SLOT(startWizard()));
+    connect(ui->actionOpenAlignment,SIGNAL(triggered()),this,SLOT(changeToOpenAlignment()));
     connect(ui->actionFilter_Alignment,SIGNAL(triggered()),this,SLOT(changetoFilterStack()));
     connect(ui->actionReference_Sequences,SIGNAL(triggered()),this,SLOT(changeToRefSeqs()));
     connect(ui->actionLoadPDB,SIGNAL(triggered()),this,SLOT(changeToLoadPDBs()));
@@ -114,7 +122,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionFull_Alignment,SIGNAL(triggered()),this,SLOT(changeToFullAlignment()));
     connect(ui->actionSet_Libraries_Path,SIGNAL(triggered()),this,SLOT(setLibPath()));
     connect(ui->actionAlphabet_Reduction,SIGNAL(triggered()),this,SLOT(changeToAlphabetReduction()));
+    connect(ui->actionGenerate_Sub_Alignment,SIGNAL(triggered()),this,SLOT(changeToGenSubAlignments()));
     connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
+    connect(ui->actionNewAlignment,SIGNAL(triggered()),this,SLOT(changeToOpenAlignment()));
+    connect(ui->actionRemoveAlignment,SIGNAL(triggered()),this,SLOT(closeAlignment()));
+    connect(ui->actionNewFilter,SIGNAL(triggered()),this,SLOT(changetoFilterStack()));
+    connect(ui->actionRenameFilter,SIGNAL(triggered()),this,SLOT(renameFilter()));
+    connect(ui->actionRemoveFilter,SIGNAL(triggered()),this,SLOT(removeFilter()));
+
 
     string filepath = libpath + "taxons.txt";
     printf("%s",filepath.c_str());
@@ -195,6 +210,8 @@ void MainWindow::resetObjects(){
     ui->radioButton_8->setChecked(false);
     ui->radioButton_9->setChecked(false);
     ui->radioButton_10->setChecked(false);
+    ui->radioButton_11->setChecked(false);
+    ui->radioButton_12->setChecked(false);
     ui->cmbFetchFormat->setCurrentIndex(0);
     ui->chkDownloadAlignment->setChecked(false);
     //FILTER
@@ -204,6 +221,8 @@ void MainWindow::resetObjects(){
     ui->txtMinId->setValue(0.15);
     ui->txtMaxId->setValue(0.8);
     //REFSEQS
+    ui->txtSecRefSeqs->clear();
+    ui->txtSelectedSecRefseqs->clear();
     ui->cmbFilterRefseq->setCurrentIndex(0);
     ui->txtFilterRefSeq->clear();
     ui->lstRefSeqs->clear();
@@ -409,6 +428,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     QString msg = "The filters were successfully applied\n";
     int seqSize;
     int seqCut;
+    bool intermediate = ui->chkIntermediate->isChecked();
 
     //Calculate
     string firstrefseq = currentFilter->sequences[refseq];
@@ -428,9 +448,27 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     seqSize = currentAlign->sequences.size();
     msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
     //currentAlign->AlignmentTrimming(occupancy,0,firstrefseqname,firstrefseq,inter);
+    string namePars = "";
 
     if(taxfilter){
         currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq);
+
+        if(intermediate){
+            namePars += taxon;
+            string newName = name + "(" + namePars + ")";
+            Filter *filter = new Filter(newName,alphabet,type);
+            filter->setRefSeq(firstrefseqname);
+            filter->setTaxon(taxon);
+            filter->setMinOcc(0);
+            filter->setMinId(0);
+            filter->setMaxId(0);
+            filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+            filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+
+            currentAlign->addFilter(filter);
+
+            ui->listWidget2->addItem(newName.c_str());
+        }
 
         seqCut = seqSize - currentAlign->sequences.size();
         seqSize = currentAlign->sequences.size();
@@ -441,6 +479,24 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
         //if(method == 0) currentAlign->hmmCoverageTrimmimg(taxon,occupancy,alphabet,inter);
         currentAlign->AlignmentTrimming(occupancy,0,firstrefseq,firstrefseqname,true);
 
+        if(intermediate){
+            if(namePars.size() > 0) namePars += "," + QString::number(occupancy,'f',2).toStdString();
+            else namePars += QString::number(occupancy,'f',2).toStdString();
+            string newName = name + "(" + namePars + ")";
+            Filter *filter = new Filter(newName,alphabet,type);
+            filter->setRefSeq(firstrefseqname);
+            filter->setTaxon(taxon);
+            filter->setMinOcc(occupancy);
+            filter->setMinId(0);
+            filter->setMaxId(0);
+            filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+            filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+
+            currentAlign->addFilter(filter);
+
+            ui->listWidget2->addItem(newName.c_str());
+        }
+
         seqCut = seqSize - currentAlign->sequences.size();
         seqSize = currentAlign->sequences.size();
         msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
@@ -448,6 +504,24 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
 
     if(filter2){
         currentAlign->IdentityMinimum(minId,0);
+
+        if(intermediate){
+            if(namePars.size() > 0) namePars += "," + QString::number(minId,'f',2).toStdString();
+            else namePars += QString::number(minId,'f',2).toStdString();
+            string newName = name + "(" + namePars + ")";
+            Filter *filter = new Filter(newName,alphabet,type);
+            filter->setRefSeq(firstrefseqname);
+            filter->setTaxon(taxon);
+            filter->setMinOcc(occupancy);
+            filter->setMinId(minId);
+            filter->setMaxId(0);
+            filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+            filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+
+            currentAlign->addFilter(filter);
+
+            ui->listWidget2->addItem(newName.c_str());
+        }
 
         seqCut = seqSize - currentAlign->sequences.size();
         seqSize = currentAlign->sequences.size();
@@ -457,6 +531,24 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     if(filter3){
         currentAlign->IdentityTrimming(maxId);
 
+        if(intermediate){
+            if(namePars.size() > 0) namePars += "," + QString::number(maxId,'f',2).toStdString();
+            else namePars += QString::number(maxId,'f',2).toStdString();
+            string newName = name + "(" + namePars + ")";
+            Filter *filter = new Filter(newName,alphabet,type);
+            filter->setRefSeq(firstrefseqname);
+            filter->setTaxon(taxon);
+            filter->setMinOcc(occupancy);
+            filter->setMinId(minId);
+            filter->setMaxId(maxId);
+            filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+            filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+
+            currentAlign->addFilter(filter);
+
+            ui->listWidget2->addItem(newName.c_str());
+        }
+
         seqCut = seqSize - currentAlign->sequences.size();
         seqSize = currentAlign->sequences.size();
         msg += "Maximum identity filter removed " + QString::number(seqCut) + " sequences.\n\n";
@@ -464,18 +556,20 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
 
     msg += "Remaining sequences: " + QString::number(seqSize) + ".";
 
-    Filter *filter = new Filter(name,alphabet,type);
-    filter->setRefSeq(firstrefseqname);
-    filter->setTaxon(taxon);
-    filter->setMinOcc(occupancy);
-    filter->setMinId(minId);
-    filter->setMaxId(maxId);
-    filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
-    filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+    if(!intermediate){
+        Filter *filter = new Filter(name,alphabet,type);
+        filter->setRefSeq(firstrefseqname);
+        filter->setTaxon(taxon);
+        filter->setMinOcc(occupancy);
+        filter->setMinId(minId);
+        filter->setMaxId(maxId);
+        filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+        filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-    currentAlign->addFilter(filter);
+        currentAlign->addFilter(filter);
 
-    ui->listWidget2->addItem(name.c_str());
+        ui->listWidget2->addItem(name.c_str());
+    }
 
     ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
@@ -487,6 +581,7 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     QString msg = "The filters were successfully applied\n";
     int seqSize;
     int seqCut;
+    bool intermediate = ui->chkIntermediate->isChecked();
 
     currentFilter->CalculateFrequencies();
 
@@ -504,8 +599,25 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     seqSize = currentAlign->sequences.size();
     msg += "Full Alignment: " + QString::number(seqSize) + ".\n\n";
 
+    string namePars = "";
+
     if(filterTaxon){
         currentAlign->taxonTrimming(taxon,"0","");
+
+        if(intermediate){
+            namePars += taxon;
+            string newName = name + "(" + namePars + ")";
+            Filter *filter = new Filter(newName,alphabet,type);
+            filter->setTaxon(taxon);
+            filter->setMinOcc(0);
+            filter->setMaxId(0);
+            filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+            filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+
+            currentAlign->addFilter(filter);
+
+            ui->listWidget2->addItem(newName.c_str());
+        }
 
         seqCut = seqSize - currentAlign->sequences.size();
         seqSize = currentAlign->sequences.size();
@@ -520,6 +632,22 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
             return;
         }
 
+        if(intermediate){
+            if(namePars.size() > 0) namePars += "," + QString::number(occupancy,'f',2).toStdString();
+            else namePars += QString::number(occupancy,'f',2).toStdString();
+            string newName = name + "(" + namePars + ")";
+            Filter *filter = new Filter(newName,alphabet,type);
+            filter->setTaxon(taxon);
+            filter->setMinOcc(occupancy);
+            filter->setMaxId(0);
+            filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+            filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+
+            currentAlign->addFilter(filter);
+
+            ui->listWidget2->addItem(newName.c_str());
+        }
+
         seqCut = seqSize - currentAlign->sequences.size();
         seqSize = currentAlign->sequences.size();
         msg += "Minimum coverage filter removed " + QString::number(seqCut) + " sequences.\n";
@@ -527,6 +655,22 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
 
     if(filterMaxId){
         currentAlign->IdentityTrimming(maxId);
+
+        if(intermediate){
+            if(namePars.size() > 0) namePars += "," + QString::number(maxId,'f',2).toStdString();
+            else namePars += QString::number(maxId,'f',2).toStdString();
+            string newName = name + "(" + namePars + ")";
+            Filter *filter = new Filter(newName,alphabet,type);
+            filter->setTaxon(taxon);
+            filter->setMinOcc(occupancy);
+            filter->setMaxId(maxId);
+            filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+            filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+
+            currentAlign->addFilter(filter);
+
+            ui->listWidget2->addItem(newName.c_str());
+        }
 
         seqCut = seqSize - currentAlign->sequences.size();
         seqSize = currentAlign->sequences.size();
@@ -537,18 +681,20 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
 
     currentAlign->convertLowerDots();
 
-    currentAlign->dots2dashs();
+    //currentAlign->dots2dashs();
 
-    Filter *filter = new Filter(name,alphabet,type);
-    filter->setTaxon(taxon);
-    filter->setMinOcc(occupancy);
-    filter->setMaxId(maxId);
-    filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+    if(!intermediate){
+        Filter *filter = new Filter(name,alphabet,type);
+        filter->setTaxon(taxon);
+        filter->setMinOcc(occupancy);
+        filter->setMaxId(maxId);
+        filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
+        filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-    currentAlign->addFilter(filter);
+        currentAlign->addFilter(filter);
 
-    ui->listWidget2->addItem(name.c_str());
-
+        ui->listWidget2->addItem(name.c_str());
+    }
     ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
@@ -556,7 +702,22 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
 }
 
 void MainWindow::applyHenikoffFilter(){
-    //IMPLEMENTAR
+    string name = ui->txtFilterName->text().toStdString();
+    string alphabet = currentFilter->getAlphabet();
+    currentAlign->convertLowerDots();
+    currentAlign->dots2dashs();
+
+    Filter *filter = new Filter(name,alphabet,2);
+    filter->addSequences(currentFilter->sequencenames,currentFilter->sequences);
+    filter->henikoffWeights();
+
+    currentAlign->addFilter(filter);
+    ui->listWidget2->addItem(name.c_str());
+
+    ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+
+    QMessageBox::information(this,"Alignment filters","The sequences were weighed correctly.");
 }
 
 void MainWindow::conservation(int refseq, int offset, char chain, float minCons, string pdbid){
@@ -618,7 +779,7 @@ void MainWindow::pcalc(int minlogp, float minssfraction, float mindeltafreq){
     currentFilter->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
 }
 
-void MainWindow::trivcomm(){
+bool MainWindow::trivcomm(){
     unsigned int maxsize;
     unsigned int biggestcommunity;
     unsigned int c1,c2;
@@ -629,23 +790,43 @@ void MainWindow::trivcomm(){
     vector < vector <char> > aaCommunities;
     currentFilter->clearCommunity();
 
+    if(currentFilter->getCorrelationGraphSize() == 0){
+        QMessageBox::warning(this,"There's no correlation","None correlation was found.");
+        return false;
+    }
+
     tuple<string,string,int> edge = currentFilter->getCorrelationEdge(0);
     string v1 = std::get<0>(edge);
     string v2 = std::get<1>(edge);
     int score = std::get<2>(edge);
+    int steps = v1.length() + v2.length() + currentFilter->getCorrelationGraphSize() + 30;
+    int step = 0;
     //printf("V1: %s, V2: %s\n",v1.c_str(),v2.c_str());
     char aa1 = v1[0];
     char aa2 = v2[0];
     int pos1, pos2;
 
+    QProgressDialog progress("Decomposing the network...(2/6)", "Abort", 0,steps);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
     string temp = "";
     for(unsigned int i = 1; i < v1.length(); i++){
+        step++;
+        progress.setValue(step);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return false;
         temp += v1[i];
     }
     pos1 = std::atoi(temp.c_str());
 
     temp = "";
     for(unsigned int i = 1; i < v2.length(); i++){
+        step++;
+        progress.setValue(step);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return false;
         temp += v2[i];
     }
     pos2 = std::atoi(temp.c_str());
@@ -666,6 +847,11 @@ void MainWindow::trivcomm(){
     }
 
     for(unsigned int i = 1; i < currentFilter->getCorrelationGraphSize(); i++){
+        step++;
+        progress.setValue(step);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return false;
+
         edge = currentFilter->getCorrelationEdge(i);
         v1 = std::get<0>(edge);
         v2 = std::get<1>(edge);
@@ -691,6 +877,7 @@ void MainWindow::trivcomm(){
         member2found = false;
 
         for(c1=0;c1<=posCommunities.size()-1;c1++){
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
             for (c2=0;c2<=posCommunities[c1].size()-1;c2++){
                 if((pos1==posCommunities[c1][c2])&&(aa1==aaCommunities[c1][c2])){
                     member1found=true;
@@ -702,6 +889,7 @@ void MainWindow::trivcomm(){
         }
 
         for(c1=0;c1<=posCommunities.size()-1;c1++){
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
             for (c2=0;c2<=posCommunities[c1].size()-1;c2++){
                 if((pos2==posCommunities[c1][c2])&&(aa2==aaCommunities[c1][c2])){
                     member2found=true;
@@ -759,14 +947,15 @@ void MainWindow::trivcomm(){
         if((member2found)&&(member1found)){
             if (found2comm==found1comm)
                 if (score<0){
-                    //printf("\nTrivial solution not possible: %c%d and %c%d are on the same community, but have a negative score",aa1,pos1,aa2,pos2);
+                    printf("\nTrivial solution not possible: %c%d and %c%d are on the same community, but have a negative score",aa1,pos1,aa2,pos2);
                     QString str = "Trivial solution not possible: " + aa1 + QString::number(pos1) + " and " + aa2 + QString::number(pos2) + " are on the same community, but have a negative score";
                     QMessageBox::warning(this,"Trivcomm",str);
-                    return;
+                    return false;
                 }
             if (found2comm!=found1comm){
                 if(score>0){
                     for(c1=0;c1<=aaCommunities[found2comm].size()-1;c1++){
+                        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                         aaCommunities[found1comm].push_back(aaCommunities[found2comm][c1]);
                         posCommunities[found1comm].push_back(posCommunities[found2comm][c1]);
                     }
@@ -784,6 +973,8 @@ void MainWindow::trivcomm(){
     c2=1;
 
     while(aaCommunities.size()>0){
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return false;
         maxsize=0;
 
         for(c1=0;c1<=aaCommunities.size()-1;c1++){
@@ -816,37 +1007,24 @@ void MainWindow::trivcomm(){
         posCommunities.erase(posCommunities.begin()+biggestcommunity);
         c2++;
     }
+
+    return true;
+
+    progress.close();
     //currentAlign->printCommunity();
 }
 
 void MainWindow::output(int seqnumber, int offset){
-    currentFilter->CalculateFrequencies();
     currentFilter->getCommunitiesFromRAM();
 
-    //communityX.html
     if(seqnumber > 0) currentFilter->Cluster2SCMFromRAM(true,seqnumber,offset);
     else currentFilter->Cluster2SCMFromRAM(false,seqnumber,offset);
-    //if(seqnumber>0) currentAlign->Cluster2SCM(communitiesfilename,path,true,seqnumber,offset,true,false);
-    //else currentAlign->Cluster2SCM(communitiesfilename,path,false,seqnumber,offset,true,false);
 
     currentFilter->DeltaCommunitiesCalculation();
-    //currentAlign->DeltaCommunitiesOutput(path + "Deltas.html");
-
-    //if (seqnumber>0)
-    //    currentAlign->ElementRanking(path, true, seqnumber,offset);
-    //else
-    //    currentAlign->ElementRanking(path, false, seqnumber,offset);
-
-    //comunityXps.html
     currentFilter->pMatrix2HTMLRAM(false,1);
-    //currentAlign->pMatrix2HTML("/home/neli/teste",false,1);
-
-    //currentAlign->Cluster2PymolScript(communitiesfilename,path,seqnumber,offset);
 }
 
 void MainWindow::listSequences(){
-    vector<string> sequences;
-
     //Parametros
     if(ui->listWidget2->currentItem() == NULL){
         ui->lblRefSeq1->setText(" Reference Sequence: Full Alignment");
@@ -2059,7 +2237,8 @@ void MainWindow::showUniprotGroupByComms(){
 
 vector<float> MainWindow::generateAMCL(int alfabetIndex){
     int alignCoulumnsSize = currentFilter->sequences[0].size();
-    int countMatrix[alignCoulumnsSize][21] = {0};//21 is the total size without gaps
+    int countMatrix[alignCoulumnsSize][21];//21 is the total size without gaps
+    memset(countMatrix,0,sizeof(countMatrix));
     vector<float> maxValues;
 
     switch(alfabetIndex){
@@ -3360,10 +3539,13 @@ void MainWindow::on_cmdFetch_clicked()
     QString format = "";
 
     if(ui->cmbFetchFormat->currentIndex() == 0) format = "stockholm";
-    else format = "pfam";
+    else if(ui->cmbFetchFormat->currentIndex() == 1) format = "pfam";
+    else format = "fasta";
 
     if(ui->radioButton->isChecked()) url += "seed/format?format=" + format + "&amp;alnType=seed&amp;order=";
-    else url += "full/format?format=" + format + "&amp;alnType=full&amp;order=";
+    else if(ui->radioButton_2->isChecked()) url += "full/format?format=" + format + "&amp;alnType=full&amp;order=";
+    else if(ui->radioButton_11->isChecked()) url += "uniprot/format?format=" + format + "&amp;alnType=uniprot   &amp;order=";
+    else if(ui->radioButton_12->isChecked()) url += "ncbi/format?format=" + format + "&amp;alnType=ncbi&amp;order=";
 
     if(ui->radioButton_3->isChecked()) url += "t&amp;case=";
     else url += "a&amp;case=";
@@ -3563,7 +3745,7 @@ void MainWindow::on_cmdApplyFilter_clicked()
         this->alignfilter(occupancy,maxId,ui->chkApplyMinCover->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
     else if(method == 1)
         this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
-    //else if method == 2 chamar henikoff henikoff
+    //else if(method == 2) applyHenikoffFilter();
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
@@ -3749,10 +3931,18 @@ void MainWindow::on_cmdCorrelation_clicked()
     }
 
     //Chamar Trivcomm
-    this->trivcomm();
+    bool ok = this->trivcomm();
+    if(!ok){
+        ui->cmdCorrelation->setEnabled(true);
+        return;
+    }
 
     //Chamar Output
     this->output(1,offset);
+
+    //Comm2Align
+    if(ui->chkComm2Align->isChecked())
+        this->comm2Align();
 
     //Gerar Visualizações
     if(ui->chkCommVisualization->isChecked()){
@@ -3776,7 +3966,7 @@ void MainWindow::on_cmdCorrelation_clicked()
             ui->cmdCorrelation->setEnabled(true);
             return;
         }
-
+        QApplication::processEvents();
         QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),"",tr("TEXT Files (*.pdb)"));
         vector<float> commvec = currentFilter->createCommuntitiesVector(refseq);
         pdb->exportStructure(filename,commvec,chain);
@@ -4055,9 +4245,10 @@ void MainWindow::updateResultsViews(){
 
 void MainWindow::on_listWidget_activated(const QModelIndex &index)
 {
-    QProgressDialog progress("Loading the alignment...","Cancel",0,0,this);
+    QProgressDialog progress("Loading the alignment...","Cancel",0,0);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
+    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
     string path = index.data().toString().toStdString();
     vector<string> sequences;
@@ -4079,6 +4270,8 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbRefSeq_3->addItem("");
     ui->cmbRefSeq_4->clear();
     ui->cmbRefSeq_4->addItem("");
+    ui->txtSecRefSeqs->clear();
+    ui->txtSelectedSecRefseqs->clear();
     ui->lstRefSeqs->clear();
     ui->lstRefSeqSelected->clear();
     ui->lstLookingRefs->clear();
@@ -4086,11 +4279,12 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->lstManageComms->clear();
     ui->graficMinss->setVisible(false);
 
-    //printf("SIZE: %d",sequences.size());
+    QStringList refseqs, selRefseqs;
     vector<string> fullAlign = currentAlign->getFullAlignment();
     currentFilter = currentAlign->getFullFilter();
     //printf("\n%d\n",fullAlign.size());
     for(unsigned int i1 = 0; i1 < fullAlign.size(); i1++){
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
         vector<string> splitVec = this->split(fullAlign[i1],'/');
         ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
         //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
@@ -4109,10 +4303,19 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
 
         if(contains){
             ui->lstRefSeqSelected->addItem(prot.c_str());
+            selRefseqs.append(prot.c_str());
         }else{
             ui->lstRefSeqs->addItem(prot.c_str());
+            refseqs.append(prot.c_str());
         }
     }
+
+    QCompleter* refseqsCompleter = new QCompleter(refseqs);
+    refseqsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    QCompleter* selRefseqsCompleter = new QCompleter(selRefseqs);
+    selRefseqsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    ui->txtSecRefSeqs->setCompleter(refseqsCompleter);
+    ui->txtSelectedSecRefseqs->setCompleter(selRefseqsCompleter);
 
     if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
         ui->cmbComm->clear();
@@ -4139,7 +4342,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
 
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
-    progress.close();
+    progress.hide();
 
     //ui->cmbRefSeq_2->setCurrentIndex(1);
     //ui->cmbRefSeq_3->setCurrentIndex(1);
@@ -5842,6 +6045,17 @@ void MainWindow::startWizard(){
     ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
 }
 
+void MainWindow::changeToOpenAlignment(){
+    ui->listWidget->setEnabled(true);
+    ui->listWidget2->setEnabled(true);
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+}
+
 void MainWindow::changetoFilterStack(){
     ui->listWidget->setEnabled(true);
     ui->listWidget2->setEnabled(true);
@@ -6021,6 +6235,7 @@ void MainWindow::closeAlignment(){
     delete ui->listWidget->item(i);
     ui->listWidget2->clear();
     ui->stackedWidget->setCurrentIndex(STACK_MAIN);
+    emit ui->listWidget->activated(ui->listWidget->currentIndex());
 }
 
 void MainWindow::showAbout(){
@@ -6744,6 +6959,29 @@ void MainWindow::changeToAlphabetReduction(){
     ui->stackedWidget->setCurrentIndex(STACK_ALPHABET);
 }
 
+void MainWindow::changeToGenSubAlignments(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    ui->cmbSubAlignComms->clear();
+    ui->txtSubAlignResidues->clear();
+    ui->txtSubAlignName->clear();
+    ui->treeResiduesSubAlign->clear();
+
+    if(currentFilter->getCommListSize() > 0){
+        ui->cmbSubAlignComms->addItem(" ");
+        for(unsigned int i = 0; i < currentFilter->getCommListSize(); i++){
+            QString txt = "Community " + QString::number(i+1);
+            ui->cmbSubAlignComms->addItem(txt);
+        }
+    }
+
+    ui->stackedWidget->setCurrentIndex(STACK_SUBALIGN);
+}
+
 void MainWindow::changeToCommunitiesList(){
     //ui->cmdNextResult->setVisible(false);
     //ui->cmdBackResult->setVisible(false);
@@ -6975,6 +7213,8 @@ void MainWindow::on_cmdAddFileRefSeq_clicked()
 
     file.close();
 
+    this->updateRefSeqsCompleters();
+
     ui->cmdAddFileRefSeq->setEnabled(true);
 }
 
@@ -6986,6 +7226,9 @@ void MainWindow::on_cmdAddAllRefSeq_clicked()
         ui->lstRefSeqSelected->addItem(prot);
     }
     ui->lstRefSeqs->clear();
+
+    this->updateRefSeqsCompleters();
+
     ui->cmdAddAllRefSeq->setEnabled(true);
 }
 
@@ -6997,6 +7240,9 @@ void MainWindow::on_cmdRemoveAllRefSeq_clicked()
         ui->lstRefSeqs->addItem(prot);
     }
     ui->lstRefSeqSelected->clear();
+
+    this->updateRefSeqsCompleters();
+
     ui->cmdRemoveAllRefSeq->setEnabled(true);
 }
 
@@ -7012,6 +7258,9 @@ void MainWindow::on_cmdAddOneRefSeq_clicked()
     QString item = ui->lstRefSeqs->currentItem()->text();
     delete ui->lstRefSeqs->currentItem();
     ui->lstRefSeqSelected->addItem(item);
+
+    this->updateRefSeqsCompleters();
+
     ui->cmdAddOneRefSeq->setEnabled(true);
 }
 
@@ -7027,6 +7276,9 @@ void MainWindow::on_cmdRemoveOneRefSeq_clicked()
     QString item = ui->lstRefSeqSelected->currentItem()->text();
     delete ui->lstRefSeqSelected->currentItem();
     ui->lstRefSeqs->addItem(item);
+
+    this->updateRefSeqsCompleters();
+
     ui->cmdRemoveOneRefSeq->setEnabled(true);
 }
 
@@ -7401,7 +7653,7 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
         type = "3IMG";
         oldChars.push_back("IVLFCMAW");
         newChars.push_back('I');
-        oldChars.push_back("GTSYPM");
+        oldChars.push_back("GTSYPH");
         newChars.push_back('G');
         oldChars.push_back("DNEQKR");
         newChars.push_back('D');
@@ -7849,6 +8101,10 @@ void MainWindow::on_cmdPDBFetch_clicked()
         return;
     }
 
+    QProgressDialog progress("Accessing webservice...", "Abort", 0,0);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     //Montar URL
     QString url = "http://files.rcsb.org/view/" + ui->txtPdbId->text() + ".pdb";
 
@@ -7862,6 +8118,11 @@ void MainWindow::on_cmdPDBFetch_clicked()
     loop.exec();
     //qDebug(reply->readAll());
     QString pdb = reply->readAll();
+
+    if(progress.wasCanceled()){
+        ui->cmdPDBFetch->setEnabled(true);
+        return;
+    }
 
     if(pdb.contains("302 Found") || pdb.contains("301 Moved") || pdb == ""){
         printf("\n%s",pdb.toStdString().c_str());
@@ -7898,9 +8159,16 @@ void MainWindow::on_cmdPDBFetch_clicked()
             ui->txtFilePathPDB->clear();
         }
 
+        if(progress.wasCanceled()){
+            ui->cmdPDBFetch->setEnabled(true);
+            return;
+        }
+
         currentPDBContent = pdb.toStdString();
         this->pdbweb = url.toStdString();
     }
+
+    progress.close();
 
     QMessageBox::StandardButton mbox;
     mbox = QMessageBox::question(this, "Load 3D Structure", "Your PDB file has been found on the rcsb.org. Do you want to load it now?",
@@ -8093,7 +8361,15 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     }
     }
 
+    QProgressDialog progress("Accessing webservice...", "Abort", 0,0);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     for(int i = 0; i < ui->lstRefSeqs->count(); i++){
+        if(progress.wasCanceled()){
+            ui->cmdFilterRefSeqs->setEnabled(true);
+            return;
+        }
         string seqname = ui->lstRefSeqs->item(i)->text().toStdString();
         post_content += seqname + "\n";
     }
@@ -8111,6 +8387,11 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     event.exec();
     QString result = response->readAll();
 
+    if(progress.wasCanceled()){
+        ui->cmdFilterRefSeqs->setEnabled(true);
+        return;
+    }
+
     vector<string> filtered = this->split(result.toStdString(),'\n');
 
     int count = 0;
@@ -8119,6 +8400,11 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
             string protname = this->split(filtered[i],'\t')[0];
             printf("%s\n",protname.c_str());
             for(int j = 0; j < ui->lstRefSeqs->count(); j++){
+                if(progress.wasCanceled()){
+                    ui->cmdFilterRefSeqs->setEnabled(true);
+                    return;
+                }
+
                 if(protname == ui->lstRefSeqs->item(j)->text().toStdString()){
                     ui->lstRefSeqSelected->addItem(protname.c_str());
                     delete ui->lstRefSeqs->item(j);
@@ -8131,6 +8417,11 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     }else{
         for(unsigned int i = 0; i < filtered.size(); i++){
             for(int j = 0; j < ui->lstRefSeqs->count(); j++){
+                if(progress.wasCanceled()){
+                    ui->cmdFilterRefSeqs->setEnabled(true);
+                    return;
+                }
+
                 if(filtered[i] == ui->lstRefSeqs->item(j)->text().toStdString()){
                     ui->lstRefSeqSelected->addItem(filtered[i].c_str());
                     delete ui->lstRefSeqs->item(j);
@@ -8142,6 +8433,9 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
         }
     }
 
+    this->updateRefSeqsCompleters();
+
+    progress.close();
     string msg = std::to_string(count) + " sequences were selected.";
     QMessageBox::information(this,"Sequences selected",msg.c_str());
 
@@ -8232,7 +8526,15 @@ void MainWindow::on_cmdLookingFilter_clicked()
     }
     }
 
+    QProgressDialog progress("Accessing webservice...", "Abort", 0,0);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     for(int i = 0; i < ui->lstLookingRefs->count(); i++){
+        if(progress.wasCanceled()){
+            ui->cmdLookingFilter->setEnabled(true);
+            return;
+        }
         string seqname = ui->lstLookingRefs->item(i)->text().toStdString();
         post_content += seqname + "\n";
     }
@@ -8254,6 +8556,11 @@ void MainWindow::on_cmdLookingFilter_clicked()
     int count = 0;
     if(ui->cmbLookingFilter->currentIndex() == 0){
         for(unsigned int i = 0; i < filtered.size(); i++){
+            if(progress.wasCanceled()){
+                ui->cmdLookingFilter->setEnabled(true);
+                return;
+            }
+
             string protname = this->split(filtered[i],'\t')[0];
             //printf("%s\n",protname.c_str());
             for(int j = 0; j < ui->lstLookingRefs->count(); j++){
@@ -8267,6 +8574,11 @@ void MainWindow::on_cmdLookingFilter_clicked()
         }
     }else{
         for(unsigned int i = 0; i < filtered.size(); i++){
+            if(progress.wasCanceled()){
+                ui->cmdLookingFilter->setEnabled(true);
+                return;
+            }
+
             for(int j = 0; j < ui->lstLookingRefs->count(); j++){
                 if(filtered[i] == ui->lstLookingRefs->item(j)->text().toStdString()){
                     //ui->lstRefSeqSelected->addItem(filtered[i].c_str());
@@ -8277,6 +8589,8 @@ void MainWindow::on_cmdLookingFilter_clicked()
             }
         }
     }
+
+    progress.close();
 
     string msg = std::to_string(count) + " sequences were selected.";
     QMessageBox::information(this,"Sequences selected",msg.c_str());
@@ -8508,4 +8822,238 @@ string MainWindow::getDirectory(string path){
     }
 
     return directory;
+}
+
+void MainWindow::comm2Align(){
+    int members = 0;
+    QProgressDialog progress("Loading the alignment...","Cancel",0,currentFilter->Communities.size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for(unsigned int i = 0; i < currentFilter->Communities.size(); i++){
+        progress.setValue(i);
+        if(progress.wasCanceled()) return;
+
+        string name = currentFilter->getName() + "_comm" + to_string(i+1);
+        Filter* filter = new Filter(name,currentFilter->getAlphabet(),3);
+
+        for(unsigned int j = 0; j < currentFilter->sequences.size(); j++){
+            members = 0;
+
+            for(unsigned int k = 0; k < currentFilter->Communities[i].pos.size(); k++){
+                if(currentFilter->sequences[j].c_str()[currentFilter->Communities[i].pos[k]] == currentFilter->Communities[i].aa[k])
+                    members++;
+            }
+            if(members == currentFilter->Communities[i].pos.size())
+                filter->addSequences(currentFilter->sequencenames[j],currentFilter->sequences[j]);
+        }
+
+        currentAlign->addFilter(filter);
+        ui->listWidget2->addItem(name.c_str());
+    }
+
+    progress.close();
+}
+
+void MainWindow::updateRefSeqsCompleters(){
+    QStringList refseqs, selRefseqs;
+
+    for(unsigned int i = 0; i < ui->lstRefSeqs->count(); i++)
+        refseqs.append(ui->lstRefSeqs->item(i)->text());
+
+    for(unsigned int i = 0; i < ui->lstRefSeqSelected->count(); i++)
+        selRefseqs.append(ui->lstRefSeqSelected->item(i)->text());
+
+    QCompleter* refseqsCompleter = new QCompleter(refseqs);
+    refseqsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    QCompleter* selRefseqsCompleter = new QCompleter(selRefseqs);
+    selRefseqsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    ui->txtSecRefSeqs->setCompleter(refseqsCompleter);
+    ui->txtSelectedSecRefseqs->setCompleter(selRefseqsCompleter);
+}
+
+void MainWindow::on_txtSecRefSeqs_editingFinished()
+{
+    QString text = ui->txtSecRefSeqs->text();
+
+    for(unsigned int i = 0; i < ui->lstRefSeqs->count(); i++){
+        QString item = ui->lstRefSeqs->item(i)->text();
+
+        if(item.contains(text,Qt::CaseInsensitive)){
+            ui->lstRefSeqs->item(i)->setSelected(true);
+            ui->lstRefSeqs->setCurrentItem(ui->lstRefSeqs->item(i));
+            ui->lstRefSeqs->setFocus();
+            return;
+        }
+    }
+}
+
+void MainWindow::on_txtSelectedSecRefseqs_editingFinished()
+{
+    QString text = ui->txtSelectedSecRefseqs->text();
+
+    for(unsigned int i = 0; i < ui->lstRefSeqSelected->count(); i++){
+        QString item = ui->lstRefSeqSelected->item(i)->text();
+
+        if(item.contains(text,Qt::CaseInsensitive)){
+            ui->lstRefSeqSelected->item(i)->setSelected(true);
+            ui->lstRefSeqSelected->setCurrentItem(ui->lstRefSeqSelected->item(i));
+            ui->lstRefSeqSelected->setFocus();
+            return;
+        }
+    }
+}
+
+void MainWindow::freeMem(){
+    currentAlign = NULL;
+    currentFilter = NULL;
+
+    for(unsigned int i = 0; i < alinhamentos.size(); i++){
+        alinhamentos[i].clear();
+    }
+    alinhamentos.shrink_to_fit();
+
+}
+
+void MainWindow::renameFilter(){
+    int currentFilterId = ui->listWidget2->currentRow();
+    bool ok;
+
+    if(currentFilterId > 0){
+        QString text = QInputDialog::getText(this, tr("New filter name"),
+                                             tr("Type the new filter name:"), QLineEdit::Normal,
+                                             ui->listWidget2->currentItem()->text(), &ok);
+        if (ok && !text.isEmpty()){
+            currentFilter->setName(text.toStdString());
+            ui->listWidget2->currentItem()->setText(text);
+        }
+    }
+}
+
+void MainWindow::removeFilter(){
+    if(ui->listWidget2->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a filter to remove.");
+        return;
+    }
+
+    if(currentFilter->getType() == 9){
+        QMessageBox::warning(this,"Error","You cant remove full alignment.");
+        return;
+    }
+
+    int pos = ui->listWidget2->currentIndex().row();
+    currentAlign->removeFilter(ui->listWidget2->currentItem()->text().toStdString());
+    delete ui->listWidget2->item(pos);
+    if(pos > 0) ui->listWidget2->setCurrentRow(pos-1);
+    else ui->listWidget2->setCurrentRow(0);
+    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+}
+
+void MainWindow::on_cmdSubAlignAddRes_clicked()
+{
+    if(ui->cmbSubAlignComms->currentText() != " " && ui->cmbSubAlignComms->currentText() != ""){
+        vector<string> residues = currentFilter->getCommunitie(ui->cmbSubAlignComms->currentIndex()-1);
+
+        for(unsigned int i = 0; i < residues.size(); i++){
+            string res = residues[i];
+            string aa(1,res[0]);
+            string strPos = res.substr(1);
+            QString temp = strPos.c_str();
+            bool ok;
+            temp.toInt(&ok);
+            if(ok){
+                QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeResiduesSubAlign);
+                item->setText(0,QString::fromStdString(aa));
+                item->setText(1,temp);
+            }
+        }
+    }
+
+    if(ui->txtSubAlignResidues->text() != ""){
+        string res = ui->txtSubAlignResidues->text().toStdString();
+        string aa(1,res[0]);
+        string strPos = res.substr(1);
+        QString temp = strPos.c_str();
+        bool ok;
+        temp.toInt(&ok);
+        if(ok){
+            QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeResiduesSubAlign);
+            item->setText(0,QString::fromStdString(aa));
+            item->setText(1,temp);
+        }
+    }
+
+    ui->txtSubAlignResidues->setText("");
+}
+
+void MainWindow::on_cmdGenerateSubAlignment_clicked()
+{
+    string name = ui->txtSubAlignName->text().toStdString();
+
+    if(!currentAlign->verifyValidFilterName(name)){
+        QMessageBox::warning(this,"Invalid Filter Name","Invalid filter name.");
+        return;
+    }
+
+    if(ui->treeResiduesSubAlign->topLevelItemCount() == 0){
+        QMessageBox::warning(this,"Invalid Dataset","There's none key residue set");
+        return;
+    }
+
+    vector<string> sequences, sequencenames;
+    int numOfKeys = ui->treeResiduesSubAlign->topLevelItemCount();
+    int numOfValidHits = numOfKeys * ui->txtSubAlignHitRate->value();
+    vector<tuple<char,int> > residuesHits;
+    int hits;
+
+    for(unsigned int i = 0; i < numOfKeys; i++){
+        QTreeWidgetItem *item = ui->treeResiduesSubAlign->topLevelItem(i);
+        string aa = item->text(0).toStdString();
+        int pos = item->text(1).toInt();
+        std::tuple<char,int> tup (aa[0],pos);
+        residuesHits.push_back(tup);
+    }
+
+
+    for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+        hits = 0;
+        for(unsigned int j = 0; j < residuesHits.size(); j++){
+            char aa = std::get<0>(residuesHits[j]);
+            int pos = std::get<1>(residuesHits[j]);
+
+            if(currentFilter->sequences[i][pos-1] == aa)
+                hits++;
+        }
+
+        if(hits >= numOfValidHits){
+            sequences.push_back(currentFilter->sequences[i]);
+            sequencenames.push_back(currentFilter->sequencenames[i]);
+        }
+    }
+
+    if(sequences.size() == 0){
+        QMessageBox::warning(this,"Null Alignment","The query result in a null alignment.");
+        return;
+    }else{
+        Filter *filter = new Filter();
+        filter->setName(name);
+        filter->setAlphabet(currentFilter->getAlphabet());
+        if(currentFilter->getType() == 9) filter->setType(7);
+        else filter->setType(currentFilter->getType());
+        filter->setMaxId(currentFilter->getMaxId());
+        filter->setMinId(currentFilter->getMinId());
+        filter->setMinOcc(currentFilter->getMinOcc());
+        filter->setRefSeq(currentFilter->getRefSeq());
+        filter->setTaxon(currentFilter->getTaxon());
+        filter->addSequences(sequencenames,sequences);
+
+        currentAlign->addFilter(filter);
+
+        ui->listWidget2->addItem(name.c_str());
+        ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+
+        QString msg = "The sub-alignmente were generated with " + QString::number(sequences.size()) + " sequences.";
+        QMessageBox::information(this,"Sub-alignment generated",msg);
+    }
 }

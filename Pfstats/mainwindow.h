@@ -71,6 +71,7 @@ private slots:
     void exportLookCommXML();
     void exportLookCommHTML();
     void startWizard();
+    void changeToOpenAlignment();
     void changetoFilterStack();
     void changeToRefSeqs();
     void changeToLoadPDBs();
@@ -102,7 +103,10 @@ private slots:
     void changeToFullAlignment();
     void setLibPath();
     void changeToAlphabetReduction();
+    void changeToGenSubAlignments();
     void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
+    void renameFilter();
+    void removeFilter();
 
     void on_cmdStartWizard_clicked();
     void on_cmdMain_clicked();
@@ -244,6 +248,14 @@ private slots:
 
     void on_listWidget2_itemActivated(QListWidgetItem *item);
 
+    void on_txtSecRefSeqs_editingFinished();
+
+    void on_txtSelectedSecRefseqs_editingFinished();
+
+    void on_cmdSubAlignAddRes_clicked();
+
+    void on_cmdGenerateSubAlignment_clicked();
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -258,6 +270,7 @@ private:
         STACK_UNIPROT = 9,
         STACK_MANAGE_COMMS = 10,
         STACK_ALPHABET = 11,
+        STACK_SUBALIGN = 12,
         STACK_RESULT_SEQLIST = 1,
         STACK_RESULT_CONSFREQ = 2,
         STACK_RESULT_FREQPERC = 3,
@@ -306,7 +319,7 @@ private:
     void conservation(int refseq, int offset, char chain, float minCons, string pdbid = "");
     vector<float> minss(int repetitions); //from 100 to 1;
     void pcalc(int minlogp, float minssfraction, float mindeltafreq);
-    void trivcomm();
+    bool trivcomm();
     void output(int seqnumber, int offset);
     //Show Results
     void listSequences();
@@ -337,6 +350,9 @@ private:
     vector<float> generateAMCL(int alfabetIndex);//Alfabetical Conservative Maximum List
     string findCurrentAlphabet();
     string getDirectory(string path);
+    void comm2Align();
+    void updateRefSeqsCompleters();
+    void freeMem();
 };
 
 #endif // MAINWINDOW_H

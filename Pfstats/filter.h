@@ -29,7 +29,7 @@ private:
 
     string name;
     string alphabet;
-    int type; //9 - Full Alignment; 8 - Full ALignment with another alphabet; 0 - HMM Filter; 1 - refSeqFilter; 2 - Henikof Weights
+    int type; //9 - Full Alignment; 8 - Full ALignment with another alphabet; 7 - Subalignment of the full alignmet; 0 - HMM Filter; 1 - refSeqFilter; 2 - Henikof Weights; 3 - Communities subalignment
     string refSeq;
     string taxon;
     float minOcc;
@@ -238,7 +238,7 @@ public:
     unsigned int getDeltasSize();
     void addDeltaLine(vector<float> line);
     string generateXML();
-    void henikoffWeights();
+    bool henikoffWeights();
     void addConsFreqRow(vector<int> row);
     void addConsFreqPercRow(vector<float> row);
     void printConsFreq();

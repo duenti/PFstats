@@ -4248,7 +4248,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(11);
+        stackedWidget->setCurrentIndex(2);
         stackedWidget2->setCurrentIndex(0);
 
 
@@ -4393,7 +4393,6 @@ public:
         cmbFilterMethod->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "HMM Filter", 0)
          << QApplication::translate("MainWindow", "Refseq Filter", 0)
-         << QApplication::translate("MainWindow", "Henikoff & Henikoff Weights", 0)
         );
         label_10->setText(QApplication::translate("MainWindow", "Reference Sequence:", 0));
         chkApplyTaxonFilter->setText(QString());

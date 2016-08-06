@@ -1,4 +1,4 @@
-#include "filter.h"
+﻿#include "filter.h"
 
 Filter::Filter()
 {
@@ -326,46 +326,52 @@ int Filter::cbd(int N, int n, float freq, bool right){
             lPs[i]=(float)eto10(lnbdf(N,i,freq));
 
             if(lPs[i]>minP) minP=lPs[i];
+        }
 
-            for (int i=0;i<=n;i++)
+            for (int i=0;i<=n;i++){
                 sum+=pow(10,lPs[i]-floor(minP));
         }
     }
     delete Ps;
     delete lPs;
 
+    printf("P<10^%i\n",int(floor(logl(sum))+floor(minP)));
     return(int(floor(logl(sum))+floor(minP)));
 }
 
 Feature* Filter::parseFeature(string feature){
     Feature *f = new Feature();
+
+    if(feature[0] == ' ') feature = feature.substr(1);
+
     vector<string> vecFilter = split(feature,' ');
 
-    f->setType("");
-    if(vecFilter[1] == "ACT_SITE") f->setType("Active Site");
-    else if(vecFilter[1] == "BINDING") f->setType("Binding Site");
-    else if(vecFilter[1] == "CA_BIND") f->setType("Calcium Bind");
-    else if(vecFilter[1] == "DNA_BIND") f->setType("DNA Bind");
-    else if(vecFilter[1] == "METAL") f->setType("Metal Bind");
-    else if(vecFilter[1] == "NP_BIND") f->setType("Nucleotide Bind");
-    else if(vecFilter[1] == "SITE") f->setType("Site");
-    else if(vecFilter[1] == "CROSSLNK") f->setType("Cross-Link");
-    else if(vecFilter[1] == "DISULFID") f->setType("Disulfide Bond");
-    else if(vecFilter[1] == "CARBOHYD") f->setType("Glycosylation");
-    else if(vecFilter[1] == "LIPID") f->setType("Lipidation");
-    else if(vecFilter[1] == "MOD_RES") f->setType("Modified Residue");
+    printf("%s %s %s\n",vecFilter[0].c_str(),vecFilter[1].c_str(),vecFilter[2].c_str());
+
+    if(vecFilter[0] == "ACT_SITE") f->setType("Active Site");
+    else if(vecFilter[0] == "BINDING") f->setType("Binding Site");
+    else if(vecFilter[0] == "CA_BIND") f->setType("Calcium Bind");
+    else if(vecFilter[0] == "DNA_BIND") f->setType("DNA Bind");
+    else if(vecFilter[0] == "METAL") f->setType("Metal Bind");
+    else if(vecFilter[0] == "NP_BIND") f->setType("Nucleotide Bind");
+    else if(vecFilter[0] == "SITE") f->setType("Site");
+    else if(vecFilter[0] == "CROSSLNK") f->setType("Cross-Link");
+    else if(vecFilter[0] == "DISULFID") f->setType("Disulfide Bond");
+    else if(vecFilter[0] == "CARBOHYD") f->setType("Glycosylation");
+    else if(vecFilter[0] == "LIPID") f->setType("Lipidation");
+    else if(vecFilter[0] == "MOD_RES") f->setType("Modified Residue");
 
     if(f->getType() == "") return f;
 
-    if(vecFilter[2] == vecFilter[3]) f->setPosition(atoi(vecFilter[2].c_str()));
+    if(vecFilter[1] == vecFilter[2]) f->setPosition(atoi(vecFilter[2].c_str()));
     else{
-        f->setBegin(atoi(vecFilter[2].c_str()));
-        f->setEnd(atoi(vecFilter[3].c_str()));
+        f->setBegin(atoi(vecFilter[1].c_str()));
+        f->setEnd(atoi(vecFilter[2].c_str()));
     }
 
     string description = "";
 
-    for(unsigned int i = 4; i < vecFilter.size(); i++)
+    for(unsigned int i = 3; i < vecFilter.size(); i++)
         description += vecFilter[i] + " ";
 
     f->setDescription(description);
@@ -836,7 +842,6 @@ void Filter::SubAlignmentIndices(char aa, int pos){
 int Filter::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
     unsigned int aa2pos2count=0;
     unsigned int c2;
-    //QMessageBox::information(NULL,"a",QString::number(frequencies.size()));
     if(pos1==pos2) return 0;
     SubAlignmentIndices(aa1,pos1);
 
@@ -859,8 +864,10 @@ void Filter::SympvalueCalculation(int minlogp, float minssfraction, float mindel
     short int pvalue1,pvalue2;
     bool mindeltafreqok;
     this->corrGraph.clear();
+    //FILE *temp;
+    //temp = fopen("temppvalues.txt","w");
 
-    QProgressDialog progress("Calculating...", "Abort", 0,sequences[0].size()-2);
+    QProgressDialog progress("Calculating correlations...(1/6)", "Abort", 0,sequences[0].size()-1);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
@@ -910,8 +917,9 @@ void Filter::SympvalueCalculation(int minlogp, float minssfraction, float mindel
                             if(mindeltafreqok){
                                 pvalue1=Singlepvalue(num2aa(aa1),pos1,num2aa(aa2),pos2);
                                 pvalue2=Singlepvalue(num2aa(aa2),pos2,num2aa(aa1),pos1);
-
+                                //fprintf(temp,"%c%d %c%d \n",num2aa(aa1),pos1,num2aa(aa2),pos2);
                                 if((abs((pvalue1+pvalue2)/2)>=minlogp)&&(abs(pvalue2)>=minlogp)&&(abs(pvalue2)>=minlogp)){
+                                    //printf ("%c%d %c%d %i\n",num2aa(aa1),pos1+1,num2aa(aa2),pos2+1,(pvalue1+pvalue2)/2);
                                     string residue1 = num2aa(aa1) + QString::number(pos1+1).toStdString();
                                     string residue2 = num2aa(aa2) + QString::number(pos2+1).toStdString();
                                     int edgeValue = (pvalue1+pvalue2)/2;
@@ -926,6 +934,8 @@ void Filter::SympvalueCalculation(int minlogp, float minssfraction, float mindel
                 }
         }
     }
+
+    progress.close();
 }
 
 vector<string> Filter::filterCorrGraph(vector<tuple<string, string> > tup, int refseq){
@@ -1009,9 +1019,16 @@ void Filter::addCommunity(vector<string> comm){
 }
 
 void Filter::getCommunitiesFromRAM(){
+    QProgressDialog progress("Getting communities...(3/6)", "Abort", 0,comunidades.size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     this->resetCommunities();
 
     for(unsigned int i = 0; i < comunidades.size(); i++){
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        progress.setValue(i);
+        if(progress.wasCanceled()) return;
         for(unsigned int j = 0; j < comunidades[i].size(); j++){
             string node = comunidades[i][j];
 
@@ -1028,6 +1045,8 @@ void Filter::getCommunitiesFromRAM(){
         tempcommunity.aa.clear();
         tempcommunity.pos.clear();
     }
+
+    progress.close();
 }
 
 int Filter::SubAlignmentFrequency(char aa, int pos){
@@ -1079,8 +1098,14 @@ void Filter::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
     this->communityXAll.clear();
     this->residuesComm.clear();
 
+    QProgressDialog progress("Calculating tables...(4/6)", "Abort", 0,nclusters);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
 
     for(int i = 0; i < nclusters; i++){
+        progress.setValue(i);
+        if(progress.wasCanceled()) return;
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
         aalist.clear();
         poslist.clear();
         vector<float> clusterXAll;
@@ -1120,11 +1145,17 @@ void Filter::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
             this->communityXAll.push_back(clusterXAll);
         }
     }
+
+    progress.close();
 }
 
 void Filter::DeltaCommunitiesCalculation(){
     float Delta;
     int c1,c2,c3,c4;
+    QProgressDialog progress("Calculating Deltas...(5/6)", "Abort", 0,Communities.size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
 
     if(Deltas.size()>0){
         for (c1=0;c1<=Deltas.size()-1;c1++)
@@ -1140,9 +1171,13 @@ void Filter::DeltaCommunitiesCalculation(){
 
     if(Communities.size()>0){
         for(c1=0;c1<=Communities.size()-1;c1++){
+            progress.setValue(c1);
+            if(progress.wasCanceled()) return;
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
             for(c2=0;c2<=Communities.size()-1;c2++){
                 Delta=0;
                 for(c3=0;c3<=Communities[c1].aa.size()-1;c3++){
+                    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                     for(c4=0;c4<=Communities[c2].aa.size()-1;c4++){
                         Delta+=(float)Singlepvalue(Communities[c1].aa[c3],Communities[c1].pos[c3],Communities[c2].aa[c4],Communities[c2].pos[c4]);
                     }
@@ -1151,18 +1186,27 @@ void Filter::DeltaCommunitiesCalculation(){
             }
         }
     }
+
+    progress.close();
 }
 
 void Filter::pMatrix2HTMLRAM(bool renumber, int seqnumber){
     this->communityXps.clear();
     this->residuesCommPs.clear();
+    QProgressDialog progress("Generating p-values matrixes..(6/6)", "Abort", 0,Communities.size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
 
     for(unsigned int c1 = 0; c1 < Communities.size(); c1++){
+        progress.setValue(c1);
+        if(progress.wasCanceled()) return;
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
         if(Communities[c1].aa.size() > 1){
 
             vector<vector<int> > matrix = this->createBlankIntMatrix(Communities[c1].aa.size(),Communities[c1].aa.size(),-1);
             vector<string> clustersResidues;
             for(unsigned int j = 0; j < Communities[c1].aa.size(); j++){
+                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                 string residue;
                 if(!renumber) residue = Communities[c1].aa[j] + QString::number(Communities[c1].pos[j]+1).toStdString();
                 else if(AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j]) != 0) residue = Communities[c1].aa[j] + QString::number(AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j])).toStdString();
@@ -1172,6 +1216,7 @@ void Filter::pMatrix2HTMLRAM(bool renumber, int seqnumber){
             residuesCommPs.push_back(clustersResidues);
 
             for(unsigned int i = 0; i < Communities[c1].aa.size(); i++){
+                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                 for(unsigned int j = 0; j < Communities[c1].aa.size(); j++){
                     if(i != j){
                         matrix[i][j] = Singlepvalue(Communities[c1].aa[i],Communities[c1].pos[i],Communities[c1].aa[j],Communities[c1].pos[j]);
@@ -1182,6 +1227,8 @@ void Filter::pMatrix2HTMLRAM(bool renumber, int seqnumber){
             this->communityXps.push_back(matrix);
         }
     }
+
+    progress.close();
 }
 
 unsigned int Filter::getNumOfUtilComms(){
@@ -1616,6 +1663,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
             //Percorre cada tipo de feature de um grupo
             for(unsigned int j = 2; j < featVec.size(); j++){
                 string kindOfFeature = featVec[j];
+                //printf("%s\n",kindOfFeature.c_str());
 
                 if(kindOfFeature != "null" && kindOfFeature != " "){
                     vector<string> featVec2 = split(kindOfFeature,';');
@@ -1655,6 +1703,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
                 if(freq >= minCons){
                     conservedaa.push_back(num2aa(j));
                     conservedpos.push_back(i+1);
+                    //printf("%c %d\n",num2aa(j),i+1);
                 }
             }
         }
@@ -1674,7 +1723,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
                     residuesList[i].push_back(res);
                     string res2 = conservedaa[j] + QString::number(conservedpos[j]).toStdString();
                     alignResiduesList[i].push_back(res2);
-                    //printf("%s - %s\n",res2.c_str(),res.c_str());
+                    printf("%s - %s\n",res2.c_str(),res.c_str());
                 //}
             }
         }
@@ -1704,6 +1753,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
                 for(unsigned int k = 0; k < residuesList[i].size(); k++){
                     string respos = residuesList[i][k];
                     string resAlign = alignResiduesList[i][k];
+                    printf("%s %s\n",respos.c_str(),resAlign.c_str());
                     int pos = stoi(respos.substr(1));
 
                     if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
@@ -1736,6 +1786,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
                         string newAlignPos = aa + QString::number(alignPos).toStdString();
                         //printf("SEQUENCE: %s - ALIGNN: %s - SEQN: %s\n",fullAlignment[idproteins[i]].c_str(),newAlignPos.c_str(),newResPos.c_str());
 
+                        //printf("POS: %d   -   %d  %d-%d\n",pos,f->getPosition(),f->getBegin(),f->getEnd());
                         if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
                             Feature *f1 = new Feature();
                             f1->setAggregation(k+1);
@@ -1799,6 +1850,12 @@ void Filter::applyAlphabetReduction(vector<string> oldChars, vector<char> newCha
             for(unsigned int k = 0; k < oldChars.size(); k++){
                 if(c == '-'){
                     newSeq += '-';
+                    break;
+                }else if(c == '.'){
+                    newSeq += '.';
+                    break;
+                }else if(c == 'X'){
+                    newSeq += 'X';
                     break;
                 }else if(oldChars[k].find(c) != std::string::npos){
                     newSeq += newChars[k];
@@ -4465,38 +4522,73 @@ string Filter::generateXML(){
     return xml;
 }
 
-void Filter::henikoffWeights(){
-    /*
+bool Filter::henikoffWeights(){
     vector<int> typesCount;
     int length = sequences[0].size();
 
     weights.clear();
 
+    int progressCount = 0;
+    QProgressDialog progress("Calculating...", "Abort", 0,length + sequences.size() + 1);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     //Make the list of aa types per position
     for(unsigned int j = 0; j < length; j++){
         set<char> types;
+
+        progressCount++;
+        progress.setValue(progressCount);
+        if(progress.wasCanceled()){
+            weights.clear();
+            return false;
+        }
+
         for(unsigned int i = 0; i < sequences.size(); i++){
             types.insert(sequences[i][j]);
+
+            if(progress.wasCanceled()){
+                weights.clear();
+                return false;
+            }
         }
         typesCount.push_back(types.size());
-    }//IMPRIMIR PRA VER SE A LISTA DE TIPOS ESTA CORRETA
+    }
 
     //Para cada sequencia ele vai dar um peso
     for(unsigned int i = 0; i < sequences.size(); i++){
-        int sum = 0;
+        float sum = 0;
+
+        progressCount++;
+        progress.setValue(progressCount);
+        if(progress.wasCanceled()){
+            weights.clear();
+            return false;
+        }
 
         //Percorrer colunas para somar
         for(unsigned j = 0; j < length; j++){
             char actualAA = sequences[i][j];
 
+            if(progress.wasCanceled()){
+                weights.clear();
+                return false;
+            }
+
             //Conta quantas vezes este AA esta presente na coluna
             int nxi = countAA(actualAA,j);
-            float calc = 1/(typesCount*nxi);
+            float calc = (float)1/((float)typesCount[j]*(float)nxi);
             sum += calc;
         }
-        weights.push_back(sum/length);
+        weights.push_back(sum/(float)length);
     }
-    */
+
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        printf("%s - %f\n",sequencenames[i].c_str(), weights[i]);
+    }
+
+    progress.close();
+    return true;
 }
 
 void Filter::addConsFreqRow(vector<int> row){

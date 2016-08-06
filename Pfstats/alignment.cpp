@@ -53,6 +53,14 @@ void Alignment::clear(){
     hmmpositions.clear();
     hmmpositions.shrink_to_fit();
 
+    /*
+    for(unsigned int i = 0; i < filters.size(); i++){
+        Filter* filter = filters[i];
+        filter->clear();
+    }
+    filters.clear();
+    filters.shrink_to_fit();
+    */
 }
 
 string Alignment::getFilepath(){
@@ -317,7 +325,57 @@ void Alignment::convertLowerDots(){
     for(unsigned int i = 0; i < sequences.size(); i++){
         for(unsigned int j = 0; j < sequences[i].size(); j++){
             if(sequences[i][j] == '.') sequences[i][j] = '-';
-            else toupper(sequences[i][j]);
+            else sequences[i][j] = toupper(sequences[i][j]);
+        }
+    }
+}
+
+void Alignment::readFASTA(){
+    fstream alignmentfile;
+    string line;
+    string seqname;
+    string seq = "";
+
+    alignmentfile.open(this->filepath.c_str());
+
+    getline(alignmentfile,line);
+    if(line[0] != '>') return;
+    seqname = line.substr(1);
+
+    while(!alignmentfile.eof()){
+        getline(alignmentfile,line);
+
+        if(line[0] == '>'){
+            sequencenames.push_back(seqname);
+            sequences.push_back(seq);
+            seqname = line.substr(1);
+            seq = "";
+        }else{
+            seq += line;
+        }
+    }
+
+    alignmentfile.close();
+}
+
+void Alignment::readFASTA(vector<string> fasta){
+    string line, seqname;
+    string seq = "";
+
+    line = fasta[0];
+    if(line[0] != '>') return;
+    seqname = line.substr(1);
+
+    for(unsigned int i = 1; i < fasta.size(); i++){
+        line = fasta[i];
+
+        if(line[0] == '>'){
+            sequencenames.push_back(seqname);
+            sequences.push_back(seq);
+            seqname = line.substr(1);
+            seq = "";
+        }else{
+            seq += line;
         }
     }
 }
@@ -403,6 +461,7 @@ bool Alignment::GetFromFile(){
     alignmentfile.open(filepath.c_str());
     getline(alignmentfile,line);
     if(line[0] == '#') readSTO();
+    else if(line[0] == '>') readFASTA();
     else readPFAM();
 
     // CHECKS ALIGNMENT CONSISTENCY
@@ -450,6 +509,7 @@ bool Alignment::getFromStd(string text){
 
     string line = pfam[0];
     if(line[0] == '#') readSTO(pfam);
+    else if(line[0] == '>') readFASTA(pfam);
     else readPFAM(pfam);
 
     // CHECKS ALIGNMENT CONSISTENCY
@@ -835,6 +895,7 @@ int Alignment::countFilters(){
 }
 
 Filter* Alignment::getFilterByName(string name){
+    printf("\n\n");
     for(unsigned int i = 0; i < filters.size(); i++){
         Filter *filter = filters[i];
         if(filter->getName() == name) return filter;
@@ -872,4 +933,13 @@ void Alignment::updateFiltersData(){
         filter->updateCommunitiesData();
         filter->updateSequencesData();
     }
+}
+
+bool Alignment::verifyValidFilterName(string name){
+    for(unsigned int i = 0; i < filters.size(); i++){
+        Filter* f = filters[i];
+        if(f->getName() == name) return false;
+    }
+
+    return true;
 }

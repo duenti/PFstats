@@ -123,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSet_Libraries_Path,SIGNAL(triggered()),this,SLOT(setLibPath()));
     connect(ui->actionAlphabet_Reduction,SIGNAL(triggered()),this,SLOT(changeToAlphabetReduction()));
     connect(ui->actionGenerate_Sub_Alignment,SIGNAL(triggered()),this,SLOT(changeToGenSubAlignments()));
+    connect(ui->actionAdd_Sequences,SIGNAL(triggered()),this,SLOT(changeToAddSequence()));
     connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
     connect(ui->actionNewAlignment,SIGNAL(triggered()),this,SLOT(changeToOpenAlignment()));
     connect(ui->actionRemoveAlignment,SIGNAL(triggered()),this,SLOT(closeAlignment()));
@@ -743,7 +744,8 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
             return;
         }
 
-        QString filename = QFileDialog::getSaveFileName(this,tr("Save conservation structure file"),"",tr("TEXT Files (*.pdb)"));
+        string pdbfilename = pdbid + "_CONS.pdb";
+        QString filename = QFileDialog::getSaveFileName(this,tr("Save conservation structure file"),pdbfilename.c_str(),tr("TEXT Files (*.pdb)"));
         path = filename.toStdString();
 
         //pdb->printSeqNumbers();
@@ -3967,7 +3969,8 @@ void MainWindow::on_cmdCorrelation_clicked()
             return;
         }
         QApplication::processEvents();
-        QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),"",tr("TEXT Files (*.pdb)"));
+        string pdbfilename = ui->txtPDBName_2->text().toStdString() + "_COMMS.pdb";
+        QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),pdbfilename,tr("TEXT Files (*.pdb)"));
         vector<float> commvec = currentFilter->createCommuntitiesVector(refseq);
         pdb->exportStructure(filename,commvec,chain);
         currentFilter->setCommPDBPath(filename.toStdString());
@@ -6982,6 +6985,38 @@ void MainWindow::changeToGenSubAlignments(){
     ui->stackedWidget->setCurrentIndex(STACK_SUBALIGN);
 }
 
+void MainWindow::changeToAddSequence(){
+    //Validação
+    if(!ui->listWidget->currentItem()){
+        QMessageBox::warning(this,"Warning","You must select an alignment");
+        return;
+    }
+
+    ui->cmbAddSeq1->clear();
+    ui->cmbAddSeq2->clear();
+    ui->lstAddSeq1->clear();
+    ui->lstAddSeq2->clear();
+
+    vector<Filter*> filters = currentAlign->getFilters();
+    int idFull = 0;
+
+    for(unsigned int i = 0; i < filters.size(); i++){
+        Filter* f = filters[i];
+
+        if(f->getType() == 9) idFull = i;
+
+        ui->cmbAddSeq1->addItem(f->getName().c_str());
+        ui->cmbAddSeq2->addItem(f->getName().c_str());
+    }
+
+    ui->cmbAddSeq1->setCurrentIndex(idFull);
+    emit ui->cmbAddSeq1->activated(ui->cmbAddSeq1->currentText());
+    ui->cmbAddSeq2->setCurrentIndex(ui->cmbAddSeq2->count() -1);
+    emit ui->cmbAddSeq2->activated(ui->cmbAddSeq2->currentText());
+
+    ui->stackedWidget->setCurrentIndex(STACK_ADDSEQ);
+}
+
 void MainWindow::changeToCommunitiesList(){
     //ui->cmdNextResult->setVisible(false);
     //ui->cmdBackResult->setVisible(false);
@@ -8781,7 +8816,6 @@ void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
 
     for(unsigned int i = 0; i < filter->getSequencesCount(); i++){
         string proteinName = this->split(filter->getSequenceName(i),'/')[0];
-
         ui->cmbRefSeq_2->addItem(proteinName.c_str());
         ui->cmbRefSeq_3->addItem(proteinName.c_str());
         ui->cmbRefSeq_4->addItem(proteinName.c_str());
@@ -8791,6 +8825,9 @@ void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
     vector<string> fullAlignment = currentAlign->getFullAlignment();
     for(unsigned int i = 0; i < fullAlignment.size(); i++){
         vector<string> splitVec = this->split(fullAlignment[i],'/');
+        //ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
+        //ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
+        //ui->cmbRefSeq_4->addItem(QString::fromStdString(splitVec[0]));
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
     }
 
@@ -9056,4 +9093,92 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
         QString msg = "The sub-alignmente were generated with " + QString::number(sequences.size()) + " sequences.";
         QMessageBox::information(this,"Sub-alignment generated",msg);
     }
+}
+
+void MainWindow::on_cmbAddSeq1_activated(const QString &arg1)
+{
+    Filter* f;
+    vector<Filter*> filters = currentAlign->getFilters();
+
+    ui->lstAddSeq1->clear();
+
+    for(unsigned int i = 0; i < filters.size(); i++){
+        f = filters[i];
+
+        if(f->getName() == arg1.toStdString())
+            break;
+    }
+
+    for(unsigned int i = 0; i < f->sequencenames.size(); i++){
+        ui->lstAddSeq1->addItem(f->sequencenames[i].c_str());
+    }
+}
+
+void MainWindow::on_cmbAddSeq2_activated(const QString &arg1)
+{
+    Filter* f;
+    vector<Filter*> filters = currentAlign->getFilters();
+
+    ui->lstAddSeq2->clear();
+
+    for(unsigned int i = 0; i < filters.size(); i++){
+        f = filters[i];
+
+        if(f->getName() == arg1.toStdString())
+            break;
+    }
+
+    for(unsigned int i = 0; i < f->sequencenames.size(); i++){
+        ui->lstAddSeq2->addItem(f->sequencenames[i].c_str());
+    }
+}
+
+void MainWindow::on_cmdAddSeq_clicked()
+{
+    ui->cmdAddSeq->setEnabled(false);
+    Filter* filter1 = currentAlign->getFilterByName(ui->cmbAddSeq1->currentText().toStdString());
+    Filter* filter2 = currentAlign->getFilterByName(ui->cmbAddSeq2->currentText().toStdString());
+
+    string sequence = ui->lstAddSeq1->currentItem()->text().toStdString();
+    bool found = false;
+
+    for(unsigned int i = 0; i < filter2->sequencenames.size(); i++){
+        if(sequence == filter2->getName()){
+            found = true;
+            break;
+        }
+    }
+
+    if(found){
+        string msg = "The sequence " + sequence + " is aleady in the filtered alignment " + ui->cmbAddSeq2->currentText().toStdString() + ".";
+        QMessageBox::warning(this,"Sequence already in alignment",msg.c_str());
+        return;
+    }else{
+        string seq = "";
+        //getSequence
+        for(unsigned int i = 0; i < filter1->sequencenames.size(); i++){
+            if(sequence == filter1->sequencenames[i]){
+                seq = filter1->sequences[i];
+                break;
+            }
+        }
+
+        if(seq == ""){
+            string msg = "The sequence " + sequence + " was not found in the alignment " + ui->cmbAddSeq1->currentText().toStdString() + ".";
+            QMessageBox::warning(this,"Sequence not found",msg.c_str());
+            return;
+        }
+
+        filter2->sequencenames.push_back(sequence);
+        filter2->sequences.push_back(seq);
+
+        //printf("%s %s\n",sequence.c_str(),seq.c_str());
+
+        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+
+        string msg = "The sequence " + sequence + "was added in the alignment " + ui->cmbAddSeq2->currentText().toStdString() + ".";
+        QMessageBox::information(this,"Sequence added",msg.c_str());
+    }
+
+    ui->cmdAddSeq->setEnabled(true);
 }

@@ -1510,7 +1510,8 @@ string Filter::getNoGAPSequence(int refseq){
     string seq = "";
 
     for(unsigned int i = 0; i < sequences[refseq].size(); i++){
-        if(sequences[refseq][i] != '-' && sequences[refseq][i] != ' ') seq += sequences[refseq][i];
+        if(sequences[refseq][i] != '-' && sequences[refseq][i] != '.' && sequences[refseq][i] != ' ')
+            seq += sequences[refseq][i];
     }
 
     return seq;
@@ -1523,7 +1524,7 @@ vector<float> Filter::createConservationVector(int refseq){//REFSEQ STARTS WITH 
 
     for(unsigned int i = 0; i < sequence.size(); i++){
         char residue = sequence[i];
-        if(residue != '-' && residue != ' '){
+        if(residue != '-' && residue != '.' && residue != ' '){
             //printf("%c",residue);
             switch(residue){
             case 'A':

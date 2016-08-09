@@ -101,6 +101,7 @@ private slots:
     void changeToPDBVisualization();
     void changeToPDBVisualization2();
     void changeToFullAlignment();
+    void changeToAddSequence();
     void setLibPath();
     void changeToAlphabetReduction();
     void changeToGenSubAlignments();
@@ -256,6 +257,12 @@ private slots:
 
     void on_cmdGenerateSubAlignment_clicked();
 
+    void on_cmbAddSeq1_activated(const QString &arg1);
+
+    void on_cmbAddSeq2_activated(const QString &arg1);
+
+    void on_cmdAddSeq_clicked();
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -271,6 +278,7 @@ private:
         STACK_MANAGE_COMMS = 10,
         STACK_ALPHABET = 11,
         STACK_SUBALIGN = 12,
+        STACK_ADDSEQ = 13,
         STACK_RESULT_SEQLIST = 1,
         STACK_RESULT_CONSFREQ = 2,
         STACK_RESULT_FREQPERC = 3,

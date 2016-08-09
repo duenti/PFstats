@@ -219,17 +219,17 @@ int Pdb::setResiduesSeqNumber(string pfamsequence, char chain){
     string alignedPDB = get<1>(tup);
     //string newpdbseq = "";
     vector<int> nums;
-    unsigned int actualresn = atoms[0]->getResidueNumber();
+    unsigned int actualresn;// = atoms[0]->getResidueNumber();
     unsigned int seqcount = 1;
     unsigned int vetcount = 0;
 
-    /*
-    for(int i = 0; i < alignedPDB.size(); i++){
-        if(alignedPFAM[i] == '-') newpdbseq += "-";
-        else if(alignedPDB[i] == '-') newpdbseq += ".";
-        else newpdbseq += alignedPDB[i];
+    for(unsigned int i = 0; i < atoms.size(); i++){
+        PdbAtom* atom = atoms[i];
+        if(atom->getChain() == chain){
+            actualresn = atoms[i]->getResidueNumber();
+            break;
+        }
     }
-    */
 
     for(int i = 0; i < alignedPDB.size(); i++){
         if(alignedPFAM[i] == '-') nums.push_back(0);

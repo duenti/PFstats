@@ -137,6 +137,14 @@ public:
     QAction *actionLoadPDB;
     QAction *actionStructure_Communities_Visualization;
     QAction *actionFull_Alignment;
+    QAction *actionNewAlignment;
+    QAction *actionRemoveAlignment;
+    QAction *actionNewFilter;
+    QAction *actionRenameFilter;
+    QAction *actionRemoveFilter;
+    QAction *actionOpenAlignment;
+    QAction *actionGenerate_Sub_Alignment;
+    QAction *actionAdd_Sequences;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QHBoxLayout *horizontalLayout_9;
@@ -184,6 +192,8 @@ public:
     QLabel *label_3;
     QRadioButton *radioButton;
     QRadioButton *radioButton_2;
+    QRadioButton *radioButton_11;
+    QRadioButton *radioButton_12;
     QSpacerItem *horizontalSpacer_35;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_4;
@@ -192,23 +202,16 @@ public:
     QSpacerItem *horizontalSpacer_37;
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_7;
-    QRadioButton *radioButton_5;
-    QRadioButton *radioButton_6;
+    QComboBox *cmbAlignmentType;
     QSpacerItem *horizontalSpacer_38;
-    QLabel *label_8;
-    QHBoxLayout *horizontalLayout_5;
-    QRadioButton *radioButton_7;
-    QRadioButton *radioButton_8;
-    QSpacerItem *horizontalSpacer_39;
-    QHBoxLayout *horizontalLayout_7;
-    QRadioButton *radioButton_9;
-    QRadioButton *radioButton_10;
-    QSpacerItem *horizontalSpacer_40;
     QHBoxLayout *horizontalLayout_39;
     QLabel *label_6;
     QComboBox *cmbFetchFormat;
     QSpacerItem *horizontalSpacer_36;
     QCheckBox *chkDownloadAlignment;
+    QHBoxLayout *horizontalLayout_7;
+    QLabel *label_8;
+    QSpacerItem *horizontalSpacer_40;
     QHBoxLayout *horizontalLayout_8;
     QSpacerItem *horizontalSpacer_3;
     QPushButton *cmdFetch;
@@ -254,6 +257,7 @@ public:
     QLabel *label_13;
     QDoubleSpinBox *txtMaxId;
     QSpacerItem *horizontalSpacer_42;
+    QCheckBox *chkIntermediate;
     QHBoxLayout *horizontalLayout_34;
     QSpacerItem *horizontalSpacer_10;
     QPushButton *cmdApplyFilter;
@@ -265,6 +269,7 @@ public:
     QVBoxLayout *verticalLayout_16;
     QHBoxLayout *horizontalLayout_25;
     QLabel *label_44;
+    QLineEdit *txtSecRefSeqs;
     QListWidget *lstRefSeqs;
     QVBoxLayout *verticalLayout_22;
     QSpacerItem *verticalSpacer_9;
@@ -277,6 +282,7 @@ public:
     QPushButton *cmdSaveRefSeqs;
     QVBoxLayout *verticalLayout_23;
     QLabel *label_56;
+    QLineEdit *txtSelectedSecRefseqs;
     QListWidget *lstRefSeqSelected;
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_79;
@@ -382,6 +388,7 @@ public:
     QWidget *page_6;
     QGridLayout *gridLayout_10;
     QLabel *label_23;
+    QSpacerItem *verticalSpacer_15;
     QHBoxLayout *horizontalLayout_64;
     QGroupBox *groupBox_8;
     QHBoxLayout *horizontalLayout_62;
@@ -421,12 +428,12 @@ public:
     QHBoxLayout *horizontalLayout_28;
     QLabel *label_29;
     QComboBox *cmbRefSeq_3;
+    QCheckBox *chkComm2Align;
     QSpacerItem *verticalSpacer_14;
     QHBoxLayout *horizontalLayout_43;
     QSpacerItem *horizontalSpacer_20;
     QPushButton *cmdCorrelation;
     QSpacerItem *horizontalSpacer_21;
-    QSpacerItem *verticalSpacer_15;
     QSpacerItem *verticalSpacer_16;
     QWidget *page_7;
     QGridLayout *gridLayout_11;
@@ -636,7 +643,9 @@ public:
     QComboBox *cmbViewColumns;
     QPushButton *cmdApplyViewAlignment;
     QSpacerItem *horizontalSpacer_48;
+    QHBoxLayout *horizontalLayout_96;
     QTableWidget *tableFullAlignment;
+    QTreeWidget *lstExtraView;
     QWidget *page_19;
     QGridLayout *gridLayout_30;
     QLabel *label_47;
@@ -705,6 +714,54 @@ public:
     QSpacerItem *horizontalSpacer_12;
     QPushButton *cmdApplyAlphabetReduction;
     QSpacerItem *horizontalSpacer_13;
+    QWidget *page_32;
+    QGridLayout *gridLayout_22;
+    QTreeWidget *treeResiduesSubAlign;
+    QLabel *label_84;
+    QVBoxLayout *verticalLayout_42;
+    QGroupBox *groupBox_10;
+    QWidget *layoutWidget2;
+    QVBoxLayout *verticalLayout_40;
+    QHBoxLayout *horizontalLayout_91;
+    QLabel *label_61;
+    QComboBox *cmbSubAlignComms;
+    QHBoxLayout *horizontalLayout_92;
+    QLabel *label_85;
+    QLineEdit *txtSubAlignResidues;
+    QHBoxLayout *horizontalLayout_35;
+    QSpacerItem *horizontalSpacer_43;
+    QPushButton *cmdSubAlignAddRes;
+    QSpacerItem *verticalSpacer_5;
+    QGroupBox *groupBox_11;
+    QWidget *layoutWidget3;
+    QVBoxLayout *verticalLayout_41;
+    QHBoxLayout *horizontalLayout_93;
+    QLabel *label_86;
+    QLineEdit *txtSubAlignName;
+    QHBoxLayout *horizontalLayout_94;
+    QLabel *label_87;
+    QDoubleSpinBox *txtSubAlignHitRate;
+    QHBoxLayout *horizontalLayout_95;
+    QSpacerItem *horizontalSpacer_72;
+    QPushButton *cmdGenerateSubAlignment;
+    QSpacerItem *horizontalSpacer_73;
+    QWidget *page_33;
+    QGridLayout *gridLayout_33;
+    QSpacerItem *horizontalSpacer_74;
+    QLabel *label_88;
+    QVBoxLayout *verticalLayout_43;
+    QLabel *label_89;
+    QComboBox *cmbAddSeq1;
+    QListWidget *lstAddSeq1;
+    QVBoxLayout *verticalLayout_45;
+    QSpacerItem *verticalSpacer_6;
+    QPushButton *cmdAddSeq;
+    QSpacerItem *verticalSpacer_8;
+    QVBoxLayout *verticalLayout_44;
+    QLabel *label_90;
+    QComboBox *cmbAddSeq2;
+    QListWidget *lstAddSeq2;
+    QSpacerItem *horizontalSpacer_75;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuMethod;
@@ -731,9 +788,9 @@ public:
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
     QButtonGroup *buttonGroup_2;
-    QButtonGroup *buttonGroup;
-    QButtonGroup *buttonGroup_3;
     QButtonGroup *buttonGroup_4;
+    QButtonGroup *buttonGroup_3;
+    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -926,6 +983,22 @@ public:
         actionStructure_Communities_Visualization->setObjectName(QStringLiteral("actionStructure_Communities_Visualization"));
         actionFull_Alignment = new QAction(MainWindow);
         actionFull_Alignment->setObjectName(QStringLiteral("actionFull_Alignment"));
+        actionNewAlignment = new QAction(MainWindow);
+        actionNewAlignment->setObjectName(QStringLiteral("actionNewAlignment"));
+        actionRemoveAlignment = new QAction(MainWindow);
+        actionRemoveAlignment->setObjectName(QStringLiteral("actionRemoveAlignment"));
+        actionNewFilter = new QAction(MainWindow);
+        actionNewFilter->setObjectName(QStringLiteral("actionNewFilter"));
+        actionRenameFilter = new QAction(MainWindow);
+        actionRenameFilter->setObjectName(QStringLiteral("actionRenameFilter"));
+        actionRemoveFilter = new QAction(MainWindow);
+        actionRemoveFilter->setObjectName(QStringLiteral("actionRemoveFilter"));
+        actionOpenAlignment = new QAction(MainWindow);
+        actionOpenAlignment->setObjectName(QStringLiteral("actionOpenAlignment"));
+        actionGenerate_Sub_Alignment = new QAction(MainWindow);
+        actionGenerate_Sub_Alignment->setObjectName(QStringLiteral("actionGenerate_Sub_Alignment"));
+        actionAdd_Sequences = new QAction(MainWindow);
+        actionAdd_Sequences->setObjectName(QStringLiteral("actionAdd_Sequences"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -994,6 +1067,7 @@ public:
         sizePolicy.setHeightForWidth(listWidget->sizePolicy().hasHeightForWidth());
         listWidget->setSizePolicy(sizePolicy);
         listWidget->setMaximumSize(QSize(300, 150));
+        listWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
 
         verticalLayout_11->addWidget(listWidget);
 
@@ -1027,6 +1101,7 @@ public:
         sizePolicy2.setVerticalStretch(2);
         sizePolicy2.setHeightForWidth(listWidget2->sizePolicy().hasHeightForWidth());
         listWidget2->setSizePolicy(sizePolicy2);
+        listWidget2->setContextMenuPolicy(Qt::ActionsContextMenu);
 
         verticalLayout_11->addWidget(listWidget2);
 
@@ -1182,6 +1257,18 @@ public:
 
         horizontalLayout_2->addWidget(radioButton_2);
 
+        radioButton_11 = new QRadioButton(groupBox_2);
+        buttonGroup->addButton(radioButton_11);
+        radioButton_11->setObjectName(QStringLiteral("radioButton_11"));
+
+        horizontalLayout_2->addWidget(radioButton_11);
+
+        radioButton_12 = new QRadioButton(groupBox_2);
+        buttonGroup->addButton(radioButton_12);
+        radioButton_12->setObjectName(QStringLiteral("radioButton_12"));
+
+        horizontalLayout_2->addWidget(radioButton_12);
+
         horizontalSpacer_35 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_2->addItem(horizontalSpacer_35);
@@ -1203,7 +1290,7 @@ public:
         buttonGroup_2->setObjectName(QStringLiteral("buttonGroup_2"));
         buttonGroup_2->addButton(radioButton_3);
         radioButton_3->setObjectName(QStringLiteral("radioButton_3"));
-        radioButton_3->setEnabled(false);
+        radioButton_3->setEnabled(true);
         radioButton_3->setMinimumSize(QSize(64, 0));
 
         horizontalLayout_3->addWidget(radioButton_3);
@@ -1231,22 +1318,10 @@ public:
 
         horizontalLayout_4->addWidget(label_7);
 
-        radioButton_5 = new QRadioButton(groupBox_2);
-        buttonGroup_3 = new QButtonGroup(MainWindow);
-        buttonGroup_3->setObjectName(QStringLiteral("buttonGroup_3"));
-        buttonGroup_3->addButton(radioButton_5);
-        radioButton_5->setObjectName(QStringLiteral("radioButton_5"));
-        radioButton_5->setEnabled(true);
-        radioButton_5->setCheckable(true);
+        cmbAlignmentType = new QComboBox(groupBox_2);
+        cmbAlignmentType->setObjectName(QStringLiteral("cmbAlignmentType"));
 
-        horizontalLayout_4->addWidget(radioButton_5);
-
-        radioButton_6 = new QRadioButton(groupBox_2);
-        buttonGroup_3->addButton(radioButton_6);
-        radioButton_6->setObjectName(QStringLiteral("radioButton_6"));
-        radioButton_6->setChecked(true);
-
-        horizontalLayout_4->addWidget(radioButton_6);
+        horizontalLayout_4->addWidget(cmbAlignmentType);
 
         horizontalSpacer_38 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -1254,62 +1329,6 @@ public:
 
 
         verticalLayout->addLayout(horizontalLayout_4);
-
-        label_8 = new QLabel(groupBox_2);
-        label_8->setObjectName(QStringLiteral("label_8"));
-
-        verticalLayout->addWidget(label_8);
-
-        horizontalLayout_5 = new QHBoxLayout();
-        horizontalLayout_5->setSpacing(6);
-        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
-        radioButton_7 = new QRadioButton(groupBox_2);
-        buttonGroup_4 = new QButtonGroup(MainWindow);
-        buttonGroup_4->setObjectName(QStringLiteral("buttonGroup_4"));
-        buttonGroup_4->addButton(radioButton_7);
-        radioButton_7->setObjectName(QStringLiteral("radioButton_7"));
-        radioButton_7->setMinimumSize(QSize(115, 0));
-        radioButton_7->setChecked(true);
-
-        horizontalLayout_5->addWidget(radioButton_7);
-
-        radioButton_8 = new QRadioButton(groupBox_2);
-        buttonGroup_4->addButton(radioButton_8);
-        radioButton_8->setObjectName(QStringLiteral("radioButton_8"));
-        radioButton_8->setEnabled(true);
-
-        horizontalLayout_5->addWidget(radioButton_8);
-
-        horizontalSpacer_39 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_5->addItem(horizontalSpacer_39);
-
-
-        verticalLayout->addLayout(horizontalLayout_5);
-
-        horizontalLayout_7 = new QHBoxLayout();
-        horizontalLayout_7->setSpacing(6);
-        horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
-        radioButton_9 = new QRadioButton(groupBox_2);
-        buttonGroup_4->addButton(radioButton_9);
-        radioButton_9->setObjectName(QStringLiteral("radioButton_9"));
-        radioButton_9->setEnabled(true);
-
-        horizontalLayout_7->addWidget(radioButton_9);
-
-        radioButton_10 = new QRadioButton(groupBox_2);
-        buttonGroup_4->addButton(radioButton_10);
-        radioButton_10->setObjectName(QStringLiteral("radioButton_10"));
-        radioButton_10->setEnabled(false);
-
-        horizontalLayout_7->addWidget(radioButton_10);
-
-        horizontalSpacer_40 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_7->addItem(horizontalSpacer_40);
-
-
-        verticalLayout->addLayout(horizontalLayout_7);
 
 
         verticalLayout_2->addLayout(verticalLayout);
@@ -1338,6 +1357,21 @@ public:
         chkDownloadAlignment->setObjectName(QStringLiteral("chkDownloadAlignment"));
 
         verticalLayout_2->addWidget(chkDownloadAlignment);
+
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setSpacing(6);
+        horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
+        label_8 = new QLabel(groupBox_2);
+        label_8->setObjectName(QStringLiteral("label_8"));
+
+        horizontalLayout_7->addWidget(label_8);
+
+        horizontalSpacer_40 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_7->addItem(horizontalSpacer_40);
+
+
+        verticalLayout_2->addLayout(horizontalLayout_7);
 
         horizontalLayout_8 = new QHBoxLayout();
         horizontalLayout_8->setSpacing(6);
@@ -1596,6 +1630,11 @@ public:
 
         verticalLayout_4->addLayout(horizontalLayout_13);
 
+        chkIntermediate = new QCheckBox(page_3);
+        chkIntermediate->setObjectName(QStringLiteral("chkIntermediate"));
+
+        verticalLayout_4->addWidget(chkIntermediate);
+
         horizontalLayout_34 = new QHBoxLayout();
         horizontalLayout_34->setSpacing(6);
         horizontalLayout_34->setObjectName(QStringLiteral("horizontalLayout_34"));
@@ -1654,6 +1693,12 @@ public:
 
 
         verticalLayout_16->addLayout(horizontalLayout_25);
+
+        txtSecRefSeqs = new QLineEdit(page_23);
+        txtSecRefSeqs->setObjectName(QStringLiteral("txtSecRefSeqs"));
+        txtSecRefSeqs->setMaximumSize(QSize(256, 16777215));
+
+        verticalLayout_16->addWidget(txtSecRefSeqs);
 
         lstRefSeqs = new QListWidget(page_23);
         lstRefSeqs->setObjectName(QStringLiteral("lstRefSeqs"));
@@ -1722,6 +1767,12 @@ public:
         label_56->setObjectName(QStringLiteral("label_56"));
 
         verticalLayout_23->addWidget(label_56);
+
+        txtSelectedSecRefseqs = new QLineEdit(page_23);
+        txtSelectedSecRefseqs->setObjectName(QStringLiteral("txtSelectedSecRefseqs"));
+        txtSelectedSecRefseqs->setMaximumSize(QSize(256, 16777215));
+
+        verticalLayout_23->addWidget(txtSelectedSecRefseqs);
 
         lstRefSeqSelected = new QListWidget(page_23);
         lstRefSeqSelected->setObjectName(QStringLiteral("lstRefSeqSelected"));
@@ -1954,6 +2005,7 @@ public:
         txtPDBTo = new QSpinBox(page_29);
         txtPDBTo->setObjectName(QStringLiteral("txtPDBTo"));
         txtPDBTo->setMaximum(9999);
+        txtPDBTo->setValue(1);
 
         horizontalLayout_50->addWidget(txtPDBTo);
 
@@ -2272,6 +2324,10 @@ public:
 
         gridLayout_10->addWidget(label_23, 0, 0, 1, 1);
 
+        verticalSpacer_15 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+        gridLayout_10->addItem(verticalSpacer_15, 1, 0, 1, 1);
+
         horizontalLayout_64 = new QHBoxLayout();
         horizontalLayout_64->setSpacing(6);
         horizontalLayout_64->setObjectName(QStringLiteral("horizontalLayout_64"));
@@ -2486,6 +2542,11 @@ public:
 
         verticalLayout_6->addLayout(horizontalLayout_28);
 
+        chkComm2Align = new QCheckBox(groupBox_7);
+        chkComm2Align->setObjectName(QStringLiteral("chkComm2Align"));
+
+        verticalLayout_6->addWidget(chkComm2Align);
+
         verticalSpacer_14 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_6->addItem(verticalSpacer_14);
@@ -2517,10 +2578,6 @@ public:
 
 
         gridLayout_10->addLayout(horizontalLayout_64, 2, 0, 1, 1);
-
-        verticalSpacer_15 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Minimum);
-
-        gridLayout_10->addItem(verticalSpacer_15, 1, 0, 1, 1);
 
         verticalSpacer_16 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -3702,6 +3759,9 @@ public:
 
         gridLayout_3->addLayout(horizontalLayout_72, 1, 0, 1, 1);
 
+        horizontalLayout_96 = new QHBoxLayout();
+        horizontalLayout_96->setSpacing(6);
+        horizontalLayout_96->setObjectName(QStringLiteral("horizontalLayout_96"));
         tableFullAlignment = new QTableWidget(page_31);
         tableFullAlignment->setObjectName(QStringLiteral("tableFullAlignment"));
         QFont font;
@@ -3711,7 +3771,16 @@ public:
         tableFullAlignment->horizontalHeader()->setMinimumSectionSize(20);
         tableFullAlignment->verticalHeader()->setMinimumSectionSize(18);
 
-        gridLayout_3->addWidget(tableFullAlignment, 2, 0, 1, 1);
+        horizontalLayout_96->addWidget(tableFullAlignment);
+
+        lstExtraView = new QTreeWidget(page_31);
+        lstExtraView->setObjectName(QStringLiteral("lstExtraView"));
+        lstExtraView->setMaximumSize(QSize(200, 16777215));
+
+        horizontalLayout_96->addWidget(lstExtraView);
+
+
+        gridLayout_3->addLayout(horizontalLayout_96, 2, 0, 1, 1);
 
         stackedWidget2->addWidget(page_31);
 
@@ -4076,6 +4145,252 @@ public:
         gridLayout_32->addLayout(horizontalLayout_38, 5, 0, 1, 1);
 
         stackedWidget->addWidget(page_28);
+        page_32 = new QWidget();
+        page_32->setObjectName(QStringLiteral("page_32"));
+        gridLayout_22 = new QGridLayout(page_32);
+        gridLayout_22->setSpacing(6);
+        gridLayout_22->setContentsMargins(11, 11, 11, 11);
+        gridLayout_22->setObjectName(QStringLiteral("gridLayout_22"));
+        treeResiduesSubAlign = new QTreeWidget(page_32);
+        treeResiduesSubAlign->setObjectName(QStringLiteral("treeResiduesSubAlign"));
+        treeResiduesSubAlign->setAllColumnsShowFocus(false);
+        treeResiduesSubAlign->header()->setDefaultSectionSize(120);
+
+        gridLayout_22->addWidget(treeResiduesSubAlign, 1, 2, 1, 1);
+
+        label_84 = new QLabel(page_32);
+        label_84->setObjectName(QStringLiteral("label_84"));
+        label_84->setMinimumSize(QSize(0, 100));
+        label_84->setWordWrap(true);
+
+        gridLayout_22->addWidget(label_84, 0, 0, 1, 3);
+
+        verticalLayout_42 = new QVBoxLayout();
+        verticalLayout_42->setSpacing(6);
+        verticalLayout_42->setObjectName(QStringLiteral("verticalLayout_42"));
+        groupBox_10 = new QGroupBox(page_32);
+        groupBox_10->setObjectName(QStringLiteral("groupBox_10"));
+        groupBox_10->setMinimumSize(QSize(381, 161));
+        layoutWidget2 = new QWidget(groupBox_10);
+        layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
+        layoutWidget2->setGeometry(QRect(10, 30, 337, 101));
+        verticalLayout_40 = new QVBoxLayout(layoutWidget2);
+        verticalLayout_40->setSpacing(6);
+        verticalLayout_40->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_40->setObjectName(QStringLiteral("verticalLayout_40"));
+        verticalLayout_40->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_91 = new QHBoxLayout();
+        horizontalLayout_91->setSpacing(6);
+        horizontalLayout_91->setObjectName(QStringLiteral("horizontalLayout_91"));
+        label_61 = new QLabel(layoutWidget2);
+        label_61->setObjectName(QStringLiteral("label_61"));
+
+        horizontalLayout_91->addWidget(label_61);
+
+        cmbSubAlignComms = new QComboBox(layoutWidget2);
+        cmbSubAlignComms->setObjectName(QStringLiteral("cmbSubAlignComms"));
+
+        horizontalLayout_91->addWidget(cmbSubAlignComms);
+
+
+        verticalLayout_40->addLayout(horizontalLayout_91);
+
+        horizontalLayout_92 = new QHBoxLayout();
+        horizontalLayout_92->setSpacing(6);
+        horizontalLayout_92->setObjectName(QStringLiteral("horizontalLayout_92"));
+        label_85 = new QLabel(layoutWidget2);
+        label_85->setObjectName(QStringLiteral("label_85"));
+
+        horizontalLayout_92->addWidget(label_85);
+
+        txtSubAlignResidues = new QLineEdit(layoutWidget2);
+        txtSubAlignResidues->setObjectName(QStringLiteral("txtSubAlignResidues"));
+
+        horizontalLayout_92->addWidget(txtSubAlignResidues);
+
+
+        verticalLayout_40->addLayout(horizontalLayout_92);
+
+        horizontalLayout_35 = new QHBoxLayout();
+        horizontalLayout_35->setSpacing(6);
+        horizontalLayout_35->setObjectName(QStringLiteral("horizontalLayout_35"));
+        horizontalSpacer_43 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_35->addItem(horizontalSpacer_43);
+
+        cmdSubAlignAddRes = new QPushButton(layoutWidget2);
+        cmdSubAlignAddRes->setObjectName(QStringLiteral("cmdSubAlignAddRes"));
+
+        horizontalLayout_35->addWidget(cmdSubAlignAddRes);
+
+
+        verticalLayout_40->addLayout(horizontalLayout_35);
+
+
+        verticalLayout_42->addWidget(groupBox_10);
+
+        verticalSpacer_5 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Preferred);
+
+        verticalLayout_42->addItem(verticalSpacer_5);
+
+        groupBox_11 = new QGroupBox(page_32);
+        groupBox_11->setObjectName(QStringLiteral("groupBox_11"));
+        groupBox_11->setMinimumSize(QSize(341, 161));
+        layoutWidget3 = new QWidget(groupBox_11);
+        layoutWidget3->setObjectName(QStringLiteral("layoutWidget3"));
+        layoutWidget3->setGeometry(QRect(20, 30, 274, 101));
+        verticalLayout_41 = new QVBoxLayout(layoutWidget3);
+        verticalLayout_41->setSpacing(6);
+        verticalLayout_41->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_41->setObjectName(QStringLiteral("verticalLayout_41"));
+        verticalLayout_41->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_93 = new QHBoxLayout();
+        horizontalLayout_93->setSpacing(6);
+        horizontalLayout_93->setObjectName(QStringLiteral("horizontalLayout_93"));
+        label_86 = new QLabel(layoutWidget3);
+        label_86->setObjectName(QStringLiteral("label_86"));
+
+        horizontalLayout_93->addWidget(label_86);
+
+        txtSubAlignName = new QLineEdit(layoutWidget3);
+        txtSubAlignName->setObjectName(QStringLiteral("txtSubAlignName"));
+
+        horizontalLayout_93->addWidget(txtSubAlignName);
+
+
+        verticalLayout_41->addLayout(horizontalLayout_93);
+
+        horizontalLayout_94 = new QHBoxLayout();
+        horizontalLayout_94->setSpacing(6);
+        horizontalLayout_94->setObjectName(QStringLiteral("horizontalLayout_94"));
+        label_87 = new QLabel(layoutWidget3);
+        label_87->setObjectName(QStringLiteral("label_87"));
+
+        horizontalLayout_94->addWidget(label_87);
+
+        txtSubAlignHitRate = new QDoubleSpinBox(layoutWidget3);
+        txtSubAlignHitRate->setObjectName(QStringLiteral("txtSubAlignHitRate"));
+        txtSubAlignHitRate->setMinimum(0.1);
+        txtSubAlignHitRate->setMaximum(1);
+        txtSubAlignHitRate->setSingleStep(0.1);
+        txtSubAlignHitRate->setValue(0.8);
+
+        horizontalLayout_94->addWidget(txtSubAlignHitRate);
+
+
+        verticalLayout_41->addLayout(horizontalLayout_94);
+
+        horizontalLayout_95 = new QHBoxLayout();
+        horizontalLayout_95->setSpacing(6);
+        horizontalLayout_95->setObjectName(QStringLiteral("horizontalLayout_95"));
+        horizontalSpacer_72 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_95->addItem(horizontalSpacer_72);
+
+        cmdGenerateSubAlignment = new QPushButton(layoutWidget3);
+        cmdGenerateSubAlignment->setObjectName(QStringLiteral("cmdGenerateSubAlignment"));
+
+        horizontalLayout_95->addWidget(cmdGenerateSubAlignment);
+
+
+        verticalLayout_41->addLayout(horizontalLayout_95);
+
+
+        verticalLayout_42->addWidget(groupBox_11);
+
+
+        gridLayout_22->addLayout(verticalLayout_42, 1, 0, 1, 1);
+
+        horizontalSpacer_73 = new QSpacerItem(40, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+
+        gridLayout_22->addItem(horizontalSpacer_73, 1, 1, 1, 1);
+
+        stackedWidget->addWidget(page_32);
+        page_33 = new QWidget();
+        page_33->setObjectName(QStringLiteral("page_33"));
+        gridLayout_33 = new QGridLayout(page_33);
+        gridLayout_33->setSpacing(6);
+        gridLayout_33->setContentsMargins(11, 11, 11, 11);
+        gridLayout_33->setObjectName(QStringLiteral("gridLayout_33"));
+        horizontalSpacer_74 = new QSpacerItem(40, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+        gridLayout_33->addItem(horizontalSpacer_74, 1, 1, 1, 1);
+
+        label_88 = new QLabel(page_33);
+        label_88->setObjectName(QStringLiteral("label_88"));
+        label_88->setMinimumSize(QSize(0, 100));
+        label_88->setWordWrap(true);
+
+        gridLayout_33->addWidget(label_88, 0, 0, 1, 5);
+
+        verticalLayout_43 = new QVBoxLayout();
+        verticalLayout_43->setSpacing(6);
+        verticalLayout_43->setObjectName(QStringLiteral("verticalLayout_43"));
+        label_89 = new QLabel(page_33);
+        label_89->setObjectName(QStringLiteral("label_89"));
+
+        verticalLayout_43->addWidget(label_89);
+
+        cmbAddSeq1 = new QComboBox(page_33);
+        cmbAddSeq1->setObjectName(QStringLiteral("cmbAddSeq1"));
+
+        verticalLayout_43->addWidget(cmbAddSeq1);
+
+        lstAddSeq1 = new QListWidget(page_33);
+        lstAddSeq1->setObjectName(QStringLiteral("lstAddSeq1"));
+        lstAddSeq1->setSelectionMode(QAbstractItemView::SingleSelection);
+
+        verticalLayout_43->addWidget(lstAddSeq1);
+
+
+        gridLayout_33->addLayout(verticalLayout_43, 1, 0, 1, 1);
+
+        verticalLayout_45 = new QVBoxLayout();
+        verticalLayout_45->setSpacing(6);
+        verticalLayout_45->setObjectName(QStringLiteral("verticalLayout_45"));
+        verticalSpacer_6 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_45->addItem(verticalSpacer_6);
+
+        cmdAddSeq = new QPushButton(page_33);
+        cmdAddSeq->setObjectName(QStringLiteral("cmdAddSeq"));
+
+        verticalLayout_45->addWidget(cmdAddSeq);
+
+        verticalSpacer_8 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_45->addItem(verticalSpacer_8);
+
+
+        gridLayout_33->addLayout(verticalLayout_45, 1, 2, 1, 1);
+
+        verticalLayout_44 = new QVBoxLayout();
+        verticalLayout_44->setSpacing(6);
+        verticalLayout_44->setObjectName(QStringLiteral("verticalLayout_44"));
+        label_90 = new QLabel(page_33);
+        label_90->setObjectName(QStringLiteral("label_90"));
+
+        verticalLayout_44->addWidget(label_90);
+
+        cmbAddSeq2 = new QComboBox(page_33);
+        cmbAddSeq2->setObjectName(QStringLiteral("cmbAddSeq2"));
+
+        verticalLayout_44->addWidget(cmbAddSeq2);
+
+        lstAddSeq2 = new QListWidget(page_33);
+        lstAddSeq2->setObjectName(QStringLiteral("lstAddSeq2"));
+        lstAddSeq2->setSelectionMode(QAbstractItemView::SingleSelection);
+
+        verticalLayout_44->addWidget(lstAddSeq2);
+
+
+        gridLayout_33->addLayout(verticalLayout_44, 1, 4, 1, 1);
+
+        horizontalSpacer_75 = new QSpacerItem(40, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+        gridLayout_33->addItem(horizontalSpacer_75, 1, 3, 1, 1);
+
+        stackedWidget->addWidget(page_33);
 
         gridLayout->addWidget(stackedWidget, 0, 1, 1, 1);
 
@@ -4141,6 +4456,7 @@ public:
         menuBar->addAction(menuShow->menuAction());
         menuBar->addAction(menuOptions->menuAction());
         menuBar->addAction(menuHelp->menuAction());
+        menuFile->addAction(actionOpenAlignment);
         menuFile->addAction(actionOpen_XML);
         menuFile->addSeparator();
         menuFile->addAction(actionClose_Alignment);
@@ -4155,8 +4471,10 @@ public:
         menuMethod->addAction(actionMinss);
         menuMethod->addAction(actionCorrelation);
         menuMethod->addSeparator();
+        menuMethod->addAction(actionAdd_Sequences);
         menuMethod->addAction(actionCreate_Communitie);
         menuMethod->addAction(actionAlphabet_Reduction);
+        menuMethod->addAction(actionGenerate_Sub_Alignment);
         menuMethod->addSeparator();
         menuMethod->addAction(actionUniprotLooking);
         menuHelp->addAction(actionAbout);
@@ -4248,8 +4566,9 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(2);
-        stackedWidget2->setCurrentIndex(0);
+        stackedWidget->setCurrentIndex(8);
+        stackedWidget2->setCurrentIndex(12);
+        cmbViewColumns->setCurrentIndex(2);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -4268,7 +4587,7 @@ public:
         actionAnalyze_Conservation_Sets->setText(QApplication::translate("MainWindow", "Analyze Conservation Sets", 0));
         actionAbout->setText(QApplication::translate("MainWindow", "About", 0));
         actionClose_Alignment->setText(QApplication::translate("MainWindow", "Close Alignment", 0));
-        actionOpen_XML->setText(QApplication::translate("MainWindow", "Open XML", 0));
+        actionOpen_XML->setText(QApplication::translate("MainWindow", "Load XML", 0));
         actionAlignmentPFAM->setText(QApplication::translate("MainWindow", "PFAM", 0));
         actionAlignmentTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
         actionAlignmentXML->setText(QApplication::translate("MainWindow", "XML", 0));
@@ -4349,6 +4668,29 @@ public:
         actionLoadPDB->setText(QApplication::translate("MainWindow", "Load PDB Structure", 0));
         actionStructure_Communities_Visualization->setText(QApplication::translate("MainWindow", "Structure Communities Visualization", 0));
         actionFull_Alignment->setText(QApplication::translate("MainWindow", "View Alignment", 0));
+        actionNewAlignment->setText(QApplication::translate("MainWindow", "newAlignment", 0));
+#ifndef QT_NO_TOOLTIP
+        actionNewAlignment->setToolTip(QApplication::translate("MainWindow", "New Alignment", 0));
+#endif // QT_NO_TOOLTIP
+        actionRemoveAlignment->setText(QApplication::translate("MainWindow", "removeAlignment", 0));
+#ifndef QT_NO_TOOLTIP
+        actionRemoveAlignment->setToolTip(QApplication::translate("MainWindow", "Remove Alignment", 0));
+#endif // QT_NO_TOOLTIP
+        actionNewFilter->setText(QApplication::translate("MainWindow", "newFilter", 0));
+#ifndef QT_NO_TOOLTIP
+        actionNewFilter->setToolTip(QApplication::translate("MainWindow", "New Filter", 0));
+#endif // QT_NO_TOOLTIP
+        actionRenameFilter->setText(QApplication::translate("MainWindow", "renameFilter", 0));
+#ifndef QT_NO_TOOLTIP
+        actionRenameFilter->setToolTip(QApplication::translate("MainWindow", "Rename Filter", 0));
+#endif // QT_NO_TOOLTIP
+        actionRemoveFilter->setText(QApplication::translate("MainWindow", "removeFilter", 0));
+#ifndef QT_NO_TOOLTIP
+        actionRemoveFilter->setToolTip(QApplication::translate("MainWindow", "Remove Filter", 0));
+#endif // QT_NO_TOOLTIP
+        actionOpenAlignment->setText(QApplication::translate("MainWindow", "Open Alignment", 0));
+        actionGenerate_Sub_Alignment->setText(QApplication::translate("MainWindow", "Generate Sub-Alignment", 0));
+        actionAdd_Sequences->setText(QApplication::translate("MainWindow", "Add Sequences", 0));
         cmdMain->setText(QApplication::translate("MainWindow", "Main", 0));
         cmdBack->setText(QApplication::translate("MainWindow", "Back", 0));
         cmdAdvance->setText(QApplication::translate("MainWindow", "Advance", 0));
@@ -4359,7 +4701,7 @@ public:
         cmdRemoveFilter->setText(QApplication::translate("MainWindow", "-", 0));
         label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PFstats</span></p><p align=\"justify\">PFstats contains a set of functions to extract useful information from protein families (represented by a multiple sequence alignment) using conservation and correlation methods.<br/><br/>These functions can be acessed from the menu bar or a complete analysis can be accomplished using the Wizard option.</p></body></html>", 0));
         cmdStartWizard->setText(QApplication::translate("MainWindow", "Start Wizard", 0));
-        label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Getting An Alignment</span></p><p align=\"justify\">PFSTATS uses multiple sequence alignments in the PFAM format (identifier, spacer, complete sequence) as input. Use &quot;get from desktop&quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
+        label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Obtaining An Alignment</span></p><p align=\"justify\">PFSTATS uses multiple sequence alignments in the PFAM format (identifier, spacer, complete sequence) as input. Use &quot;get from desktop&quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
         groupBox->setTitle(QApplication::translate("MainWindow", "Get from desktop", 0));
         cmdOpen->setText(QApplication::translate("MainWindow", "Open", 0));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Get from PFAM", 0));
@@ -4367,24 +4709,26 @@ public:
         label_3->setText(QApplication::translate("MainWindow", "Alignment:", 0));
         radioButton->setText(QApplication::translate("MainWindow", "Seed", 0));
         radioButton_2->setText(QApplication::translate("MainWindow", "Full", 0));
+        radioButton_11->setText(QApplication::translate("MainWindow", "Uniprot*", 0));
+        radioButton_12->setText(QApplication::translate("MainWindow", "NCBI*", 0));
         label_4->setText(QApplication::translate("MainWindow", "Order:", 0));
         radioButton_3->setText(QApplication::translate("MainWindow", "Tree", 0));
         radioButton_4->setText(QApplication::translate("MainWindow", "Alphabetical", 0));
-        label_7->setText(QApplication::translate("MainWindow", "Sequence:", 0));
-        radioButton_5->setText(QApplication::translate("MainWindow", "Inserts lower case", 0));
-        radioButton_6->setText(QApplication::translate("MainWindow", "All upper case", 0));
-        label_8->setText(QApplication::translate("MainWindow", "Gaps:", 0));
-        radioButton_7->setText(QApplication::translate("MainWindow", "Dashes (-)", 0));
-        radioButton_8->setText(QApplication::translate("MainWindow", "Dots (.)", 0));
-        radioButton_9->setText(QApplication::translate("MainWindow", "Mixed (- or .)", 0));
-        radioButton_10->setText(QApplication::translate("MainWindow", "No gaps", 0));
+        label_7->setText(QApplication::translate("MainWindow", "Type:", 0));
+        cmbAlignmentType->clear();
+        cmbAlignmentType->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "Basic", 0)
+         << QApplication::translate("MainWindow", "HMM profile", 0)
+        );
         label_6->setText(QApplication::translate("MainWindow", "Format:", 0));
         cmbFetchFormat->clear();
         cmbFetchFormat->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "Stockholm", 0)
          << QApplication::translate("MainWindow", "Selex", 0)
+         << QApplication::translate("MainWindow", "Fasta", 0)
         );
         chkDownloadAlignment->setText(QApplication::translate("MainWindow", "Download alignment", 0));
+        label_8->setText(QApplication::translate("MainWindow", "<html><head/><body><p>*These alignments use a different nomenclature for the sequences and<br/>therefore can not be used in our methods of queries to databases</p></body></html>", 0));
         cmdFetch->setText(QApplication::translate("MainWindow", "Fetch", 0));
         label_9->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Alignment Filtering</span></p><p align=\"justify\">In this phase, the alignment is filtered in order to reduce artifacts and biases. The first two filters need a reference sequence (usually, a protein with the usual size for the domain represented by the alignment). &quot;Minimum coverage&quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &quot;Minimum identity&quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &quot;Maximum identity&quot; filter is highly recommended in order to reduce the phylogenetic effect bias. It will compare each sequence to all others, removing those above the specified identity.</p></body></html>", 0));
         label_83->setText(QApplication::translate("MainWindow", "Filter Name:", 0));
@@ -4403,6 +4747,7 @@ public:
         label_12->setText(QApplication::translate("MainWindow", "Minimum Identy:", 0));
         chkApplyMaxId->setText(QString());
         label_13->setText(QApplication::translate("MainWindow", "Maximum Identy:", 0));
+        chkIntermediate->setText(QApplication::translate("MainWindow", "Generate Intermediate Filters", 0));
         cmdApplyFilter->setText(QApplication::translate("MainWindow", "Apply selected filters", 0));
         label_44->setText(QApplication::translate("MainWindow", "Reference Sequences:", 0));
         cmdAddFileRefSeq->setText(QApplication::translate("MainWindow", "File", 0));
@@ -4467,6 +4812,7 @@ public:
         label_30->setText(QApplication::translate("MainWindow", "Offset:", 0));
         txtOffset_2->setText(QApplication::translate("MainWindow", "0", 0));
         label_29->setText(QApplication::translate("MainWindow", "Reference Sequence:", 0));
+        chkComm2Align->setText(QApplication::translate("MainWindow", "Generate communities subalignments", 0));
         cmdCorrelation->setText(QApplication::translate("MainWindow", "Calculate", 0));
         label_32->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Results</span></p>\n"
 "</body></html>", 0));
@@ -4712,6 +5058,8 @@ public:
          << QApplication::translate("MainWindow", "Hide Weak Conservation", 0)
         );
         cmdApplyViewAlignment->setText(QApplication::translate("MainWindow", "Apply", 0));
+        QTreeWidgetItem *___qtreewidgetitem3 = lstExtraView->headerItem();
+        ___qtreewidgetitem3->setText(0, QApplication::translate("MainWindow", "Specificities", 0));
         label_47->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Uniprot Looking Tool</span></p></body></html>", 0));
         label_48->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#ff0000;\">This method requires internet connection.</span></p></body></html>", 0));
         groupBox_6->setTitle(QApplication::translate("MainWindow", "Target Residues", 0));
@@ -4766,6 +5114,22 @@ public:
         radioAlphabetCurrent->setText(QApplication::translate("MainWindow", "current alignment filter", 0));
         radioAlphabetNew->setText(QApplication::translate("MainWindow", "New Alignment Filter", 0));
         cmdApplyAlphabetReduction->setText(QApplication::translate("MainWindow", "Apply", 0));
+        QTreeWidgetItem *___qtreewidgetitem4 = treeResiduesSubAlign->headerItem();
+        ___qtreewidgetitem4->setText(1, QApplication::translate("MainWindow", "Amino Acid", 0));
+        ___qtreewidgetitem4->setText(0, QApplication::translate("MainWindow", "Position", 0));
+        label_84->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Generate Sub-Alignment</span></p></body></html>", 0));
+        groupBox_10->setTitle(QApplication::translate("MainWindow", "Add Key Residues", 0));
+        label_61->setText(QApplication::translate("MainWindow", "Whole community residues:", 0));
+        label_85->setText(QApplication::translate("MainWindow", "Proper residue (E.g. A151):", 0));
+        cmdSubAlignAddRes->setText(QApplication::translate("MainWindow", "Add", 0));
+        groupBox_11->setTitle(QApplication::translate("MainWindow", "Generate Sub-Alignment", 0));
+        label_86->setText(QApplication::translate("MainWindow", "New Filter Name:", 0));
+        label_87->setText(QApplication::translate("MainWindow", "Minimum hit rate:", 0));
+        cmdGenerateSubAlignment->setText(QApplication::translate("MainWindow", "Generate", 0));
+        label_88->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Add Sequences to Filtered Alignment</span></p></body></html>", 0));
+        label_89->setText(QApplication::translate("MainWindow", "Alignment From:", 0));
+        cmdAddSeq->setText(QApplication::translate("MainWindow", "Add", 0));
+        label_90->setText(QApplication::translate("MainWindow", "Alignment To", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuMethod->setTitle(QApplication::translate("MainWindow", "Methods", 0));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0));

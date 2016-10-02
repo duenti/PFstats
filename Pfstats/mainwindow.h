@@ -21,6 +21,14 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    template <typename T1, typename T2>
+    struct less_second {
+        typedef pair<T1, T2> type;
+        bool operator ()(type const& a, type const& b) const {
+            return a.second > b.second;
+        }
+    };
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();

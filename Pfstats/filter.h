@@ -212,7 +212,7 @@ public:
     vector<tuple<string,string,float> > getDeltasEdges(float cutoff);
     string getNoGAPSequence(int refseq);
     vector<float> createConservationVector(int refseq);
-    void uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, float minCons, vector<string> fullAlignment, vector<string> fullSequences);
+    bool uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, float minCons, vector<string> fullAlignment, vector<string> fullSequences);
     void removeItemOfCommunity(int comm, int item);
     void addItemToCommunity(string res, int commindex);
     unsigned int getRefSeqOffset();

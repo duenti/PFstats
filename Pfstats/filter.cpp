@@ -346,8 +346,7 @@ Feature* Filter::parseFeature(string feature){
 
     vector<string> vecFilter = split(feature,' ');
 
-    printf("%s %s %s\n",vecFilter[0].c_str(),vecFilter[1].c_str(),vecFilter[2].c_str());
-
+    f->setType("");
     if(vecFilter[0] == "ACT_SITE") f->setType("Active Site");
     else if(vecFilter[0] == "BINDING") f->setType("Binding Site");
     else if(vecFilter[0] == "CA_BIND") f->setType("Calcium Bind");
@@ -1617,7 +1616,7 @@ vector<float> Filter::createConservationVector(int refseq){//REFSEQ STARTS WITH 
     return consvec;
 }
 
-void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<int> idproteins, float minCons, vector<string> fullAlignment, vector<string> fullSequences){
+bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<int> idproteins, float minCons, vector<string> fullAlignment, vector<string> fullSequences){
     QProgressDialog progress("Reading data from webservice (1/2","Abort",10,100);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
@@ -1631,7 +1630,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
         post_content += proteins[i] + "\n";
     }
 
-    if(progress.wasCanceled()) return;
+    if(progress.wasCanceled()) return false;
     progress.setValue(20);
 
     QByteArray const data = QString::fromStdString(post_content).toUtf8();
@@ -1647,7 +1646,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
     QString result = response->readAll();
     //printf("%s",result.toStdString().c_str());
     progress.setValue(50);
-    if(progress.wasCanceled()) return;
+    if(progress.wasCanceled()) return false;
 
     vector<string> lines = split(result.toStdString(),'\n');
 
@@ -1683,12 +1682,11 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
     }
     //QMessageBox::information(NULL,"a","1");
     progress.setValue(65);
-    if(progress.wasCanceled()) return;
+    if(progress.wasCanceled()) return false;
 
     //QMessageBox::information(NULL,"A","PRIMERA PARTE OK");
     //SEGUNDA PARTE => TRABALHAR OS DADOS OBTIDOS
-    vector<vector<string> > residuesList;
-    vector<vector<string> > alignResiduesList;
+    vector<string> residuesList;
 
     if(cons){
         //Calculate Conserved Residues
@@ -1697,9 +1695,9 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
 
         this->CalculateFrequencies();
 
-        for(unsigned int i = 0; i < frequencies.size()-2; i++){
+        for(unsigned int i = 0; i <= frequencies.size()-2; i++){
             for(unsigned int j = 1; j <= 20; j++){
-                float freq = frequencies[i][j]/((float)sequences.size());
+                float freq = (float)frequencies[i][j]/((float)sequences.size());
                 //printf("freq=%f / minCons=%f\n",freq,minCons);
                 if(freq >= minCons){
                     conservedaa.push_back(num2aa(j));
@@ -1709,29 +1707,16 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
             }
         }
         progress.setValue(70);
-        if(progress.wasCanceled()) return;
+        if(progress.wasCanceled()) return false;
 
-        for(unsigned int i = 0; i < idproteins.size(); i++){
-            vector<string> vec;
-            vector<string> vec2;
-            residuesList.push_back(vec);
-            alignResiduesList.push_back(vec2);
-            for(unsigned int j = 0; j < conservedaa.size(); j++){
-                //if(fullAlignment[idproteins[i]][conservedpos[j]-1]==conservedaa[j]){
-                    //printf("%s - %s\n", proteins[i].c_str(), fullAlignment[idproteins[i]].c_str());
-                    //string oldres = conservedaa[j] + QString::number(AlignNumbering2Sequence(idproteins[i]+1,conservedpos[j]) + GetOffsetFromSeqName(fullAlignment[idproteins[i]])).toStdString();
-                    string res = fullSequences[idproteins[i]][conservedpos[j]-1] + QString::number(AlignNumbering2Sequence2(idproteins[i]+1,conservedpos[j],fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]])-1).toStdString();
-                    residuesList[i].push_back(res);
-                    string res2 = conservedaa[j] + QString::number(conservedpos[j]).toStdString();
-                    alignResiduesList[i].push_back(res2);
-                    printf("%s - %s\n",res2.c_str(),res.c_str());
-                //}
-            }
+        for(unsigned int i = 0; i < conservedaa.size(); i++){
+            string alignRes = conservedaa[i] + to_string(conservedpos[i]);
+            residuesList.push_back(alignRes);
         }
     }
 
     progress.setValue(75);
-    if(progress.wasCanceled()) return;
+    if(progress.wasCanceled()) return false;
 
     uniprotMined.clear();
 
@@ -1742,7 +1727,7 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
         //printf("FUNCTION: %s\n",entry->getFunction().c_str());
         out->setFunction(entry->getFunction());
 
-        if(progress.wasCanceled()) return;
+        if(progress.wasCanceled()) return false;
 
         //printf("%s\n",entry->toString().c_str());
 
@@ -1751,46 +1736,18 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
             //printf("%s\n",f->toString().c_str());
 
             if(cons){
-                for(unsigned int k = 0; k < residuesList[i].size(); k++){
-                    string respos = residuesList[i][k];
-                    string resAlign = alignResiduesList[i][k];
-                    printf("%s %s\n",respos.c_str(),resAlign.c_str());
-                    int pos = stoi(respos.substr(1));
+                for(unsigned int k = 0; k < residuesList.size(); k++){
+                    string respos = residuesList[k];
+                    char aa = respos[0];
+                    int alignPos = stoi(respos.substr(1));
+                    if(AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) > 0){
+                        int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]])-1;
+                        string newResPos = fullSequences[idproteins[i]][alignPos-1] + to_string(pos);
+                        string newAlignPos = aa + to_string(alignPos);
 
-                    if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
-                        Feature *f1 = new Feature();
-                        f1->setAggregation(0);
-                        f1->setBegin(f->getBegin());
-                        f1->setDescription(f->getDescription());
-                        f1->setEnd(f->getEnd());
-                        f1->setId(f->getId());
-                        f1->setOriginal(f->getOriginal());
-                        f1->setPosition(f->getPosition());
-                        f1->setResidueColigated(respos);
-                        f1->setAlignResidue(resAlign);
-                        f1->setType(f->getType());
-                        f1->setVariation(f->getVariation());
-                        //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
-                        out->addFeature(f1);
-                    }
-                }
-            }
-
-            if(comm){
-                for(unsigned int k = 0; k < comunidades.size(); k++){
-                    for(unsigned int l = 0; l < comunidades[k].size(); l++){
-                        string respos = comunidades[k][l];
-                        char aa = respos[0];
-                        int alignPos = stoi(respos.substr(1));
-                        int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]) -1;
-                        string newResPos = fullSequences[idproteins[i]][alignPos-1] + QString::number(pos).toStdString();
-                        string newAlignPos = aa + QString::number(alignPos).toStdString();
-                        //printf("SEQUENCE: %s - ALIGNN: %s - SEQN: %s\n",fullAlignment[idproteins[i]].c_str(),newAlignPos.c_str(),newResPos.c_str());
-
-                        //printf("POS: %d   -   %d  %d-%d\n",pos,f->getPosition(),f->getBegin(),f->getEnd());
                         if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
                             Feature *f1 = new Feature();
-                            f1->setAggregation(k+1);
+                            f1->setAggregation(0);
                             f1->setBegin(f->getBegin());
                             f1->setDescription(f->getDescription());
                             f1->setEnd(f->getEnd());
@@ -1807,6 +1764,40 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
                     }
                 }
             }
+
+            if(comm){
+                for(unsigned int k = 0; k < comunidades.size(); k++){
+                    for(unsigned int l = 0; l < comunidades[k].size(); l++){
+                        string respos = comunidades[k][l];
+                        char aa = respos[0];
+                        int alignPos = stoi(respos.substr(1));
+                        if(AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) > 0){
+                            int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]) -1;
+                            string newResPos = fullSequences[idproteins[i]][alignPos-1] + QString::number(pos).toStdString();
+                            string newAlignPos = aa + QString::number(alignPos).toStdString();
+                            //printf("SEQUENCE: %s - ALIGNN: %s - SEQN: %s\n",fullAlignment[idproteins[i]].c_str(),newAlignPos.c_str(),newResPos.c_str());
+
+                            //printf("POS: %d   -   %d  %d-%d\n",pos,f->getPosition(),f->getBegin(),f->getEnd());
+                            if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
+                                Feature *f1 = new Feature();
+                                f1->setAggregation(k+1);
+                                f1->setBegin(f->getBegin());
+                                f1->setDescription(f->getDescription());
+                                f1->setEnd(f->getEnd());
+                                f1->setId(f->getId());
+                                f1->setOriginal(f->getOriginal());
+                                f1->setPosition(f->getPosition());
+                                f1->setResidueColigated(newResPos);
+                                f1->setAlignResidue(newAlignPos);
+                                f1->setType(f->getType());
+                                f1->setVariation(f->getVariation());
+                                //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                                out->addFeature(f1);
+                            }
+                        }
+                    }
+                }
+            }
             f->kill();
         }
         entry->kill();
@@ -1815,6 +1806,8 @@ void Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
     progress.setValue(100);
 
     QMessageBox::information(NULL,"Uniprot Looking","Uniprot Looking has finished successfully");
+
+    return true;
 }
 
 void Filter::removeItemOfCommunity(int comm, int item){
@@ -1864,7 +1857,7 @@ void Filter::applyAlphabetReduction(vector<string> oldChars, vector<char> newCha
                 }
             }
         }
-        printf("%s\n%s\n\n",sequences[i].c_str(),newSeq.c_str());
+        //printf("%s\n%s\n\n",sequences[i].c_str(),newSeq.c_str());
         sequences[i] = newSeq;
     }
 }

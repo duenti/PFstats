@@ -31,6 +31,7 @@ private:
     unsigned int GetOffsetFromSeqName (string seqname);//ok
     bool isaa(char c);//ok
     bool isaa(char c, bool casesensitive);//ok
+    string verifyOffset(string seqname);
     void readFASTA();
     void readFASTA(vector<string> fasta);
     void readPFAM();//OK

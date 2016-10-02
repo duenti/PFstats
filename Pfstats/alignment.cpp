@@ -238,6 +238,38 @@ void Alignment::generateXML(string outputXML){
     f.close();
 }
 
+string Alignment::verifyOffset(string seqname){
+    vector<string>splitSlash = this->split(seqname,'/');
+
+    if(splitSlash.size() > 2){
+        string str1 = "";
+        string str2 = splitSlash[splitSlash.size()-1];
+
+        for(unsigned int i = 0; i < splitSlash.size() - 1; i++){
+            str1 += splitSlash[i];
+        }
+
+        splitSlash.clear();
+        splitSlash.push_back(str1);
+        splitSlash.push_back(str2);
+    }else if(splitSlash.size() == 1){
+        return splitSlash[0] + "/1-999";
+    }
+
+    if(splitSlash.size() == 2){
+        vector<string> splitDash = this->split(splitSlash[1],'-');
+        if(splitDash.size() == 2){
+            if(splitDash[0].find_first_not_of( "0123456789" ) == string::npos && splitDash[1].find_first_not_of( "0123456789" ) == string::npos)
+                return splitSlash[0] + "/" + splitSlash[1];
+        }else{
+            return splitSlash[0] + splitSlash[1] + "/1-999";
+        }
+    }
+
+    return "error";
+
+}
+
 void Alignment::readSTO(){
     fstream alignmentfile;
     string line;
@@ -261,7 +293,7 @@ void Alignment::readSTO(){
                     break;
                 }
             }
-        }else if(line.length() > 100){
+        }else if(line.length() > 50){
             vector<string> splittedLine = this->split(line,' ');
             string protein = splittedLine[0];
             string sequence;
@@ -274,6 +306,7 @@ void Alignment::readSTO(){
                 }
             }
 
+            protein = this->verifyOffset(protein);
             sequencenames.push_back(protein);
             sequences.push_back(sequence);
         }
@@ -315,6 +348,7 @@ void Alignment::readSTO(vector<string> pfam){
                 }
             }
 
+            protein = this->verifyOffset(protein);
             sequencenames.push_back(protein);
             sequences.push_back(sequence);
         }
@@ -346,6 +380,7 @@ void Alignment::readFASTA(){
         getline(alignmentfile,line);
 
         if(line[0] == '>'){
+            seqname = this->verifyOffset(seqname);
             sequencenames.push_back(seqname);
             sequences.push_back(seq);
             seqname = line.substr(1);
@@ -370,6 +405,7 @@ void Alignment::readFASTA(vector<string> fasta){
         line = fasta[i];
 
         if(line[0] == '>'){
+            seqname = this->verifyOffset(seqname);
             sequencenames.push_back(seqname);
             sequences.push_back(seq);
             seqname = line.substr(1);

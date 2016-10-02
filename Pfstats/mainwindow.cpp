@@ -205,12 +205,6 @@ void MainWindow::resetObjects(){
     ui->radioButton_2->setChecked(true);
     ui->radioButton_3->setChecked(false);
     ui->radioButton_4->setChecked(true);
-    ui->radioButton_5->setChecked(false);
-    ui->radioButton_6->setChecked(true);
-    ui->radioButton_7->setChecked(true);
-    ui->radioButton_8->setChecked(false);
-    ui->radioButton_9->setChecked(false);
-    ui->radioButton_10->setChecked(false);
     ui->radioButton_11->setChecked(false);
     ui->radioButton_12->setChecked(false);
     ui->cmbFetchFormat->setCurrentIndex(0);
@@ -2083,7 +2077,7 @@ void MainWindow::showConservedResidues(){
 
     for(unsigned int i = 0; i < currentFilter->frequencies.size()-2; i++){
         for(unsigned int j = 1; j <= 20; j++){
-            float freq = currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
+            float freq = (float)currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
             //printf("freq=%f / minCons=%f\n",freq,minCons);
             if(freq >= minCons){
                 conservedaa.push_back(num2aa(j));
@@ -2196,8 +2190,10 @@ void MainWindow::showUniprotGroupByProteins(){
 
     ui->lstProteinsMined->clear();
     for(unsigned int i = 0; i < currentFilter->getUniprotMinedSize(); i++){
-        string prot = currentFilter->getUniprotEntryName(i) + " [" + to_string(currentFilter->getUniprotEntryNofFeatures(i)) + "]";
-        ui->lstProteinsMined->addItem(prot.c_str());
+        if(currentFilter->getUniprotEntryNofFeatures(i) > 0){
+            string prot = currentFilter->getUniprotEntryName(i) + " [" + to_string(currentFilter->getUniprotEntryNofFeatures(i)) + "]";
+            ui->lstProteinsMined->addItem(prot.c_str());
+        }
     }
 }
 
@@ -2215,8 +2211,10 @@ void MainWindow::showUniprotGroupByComms(){
 
         for(unsigned int j = 0; j < residues.size(); j++){
             int nOfResidues = currentFilter->getResidueFeaturesByCommCount(residues[j]);
-            string child = residues[j] + " [" + to_string(nOfResidues) + "]";
-            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
+            if(nOfResidues > 0){
+                string child = residues[j] + " [" + to_string(nOfResidues) + "]";
+                item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
+            }
         }
     }
 
@@ -2231,8 +2229,10 @@ void MainWindow::showUniprotGroupByComms(){
 
         for(unsigned int j = 0; j < consRes.size(); j++){
             int nOfResidues = currentFilter->getResidueFeaturesByCommCount(consRes[j]);
-            string child = consRes[j] + " [" + to_string(nOfResidues) + "]";
-            item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
+            if(nOfResidues > 0){
+                string child = consRes[j] + " [" + to_string(nOfResidues) + "]";
+                item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
+            }
         }
     }
 }
@@ -2653,6 +2653,8 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
 
 void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
     unsigned int nrows = currentFilter->sequences.size();
+    map<string,int> mapClass;
+    map<string,int> mapSpecies;
 
     if(currentFilter->getAlphabet() == "T20"){
         ui->cmbAlphabetColor->setEnabled(true);
@@ -2663,6 +2665,7 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
     }
 
     ui->tableFullAlignment->clear();
+    ui->lstExtraView->clear();
     ui->tableFullAlignment->setColumnCount(currentFilter->sequences[0].size());
     ui->tableFullAlignment->setRowCount(nrows);
 
@@ -2706,6 +2709,18 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
     for(unsigned int i = 0; i < nrows; i++){
         if(progress.wasCanceled()) break;
         progress.setValue(i);
+
+        //Make Maps
+        vector<string> vecProts = this->split(currentFilter->sequencenames[i],'/');
+        vector<string> splitedName = this->split(vecProts[0],'_');
+        string classs = splitedName[0];
+        string specie = splitedName[1];
+
+        if(mapClass.find(classs) == mapClass.end()) mapClass[classs] = 1;
+        else mapClass[classs] = mapClass[classs] + 1;
+
+        if(mapSpecies.find(specie) == mapSpecies.end()) mapSpecies[specie] = 1;
+        else mapSpecies[specie] = mapSpecies[specie] + 1;
 
         QTableWidgetItem *item = new QTableWidgetItem(currentFilter->sequencenames[i].c_str());
         ui->tableFullAlignment->setVerticalHeaderItem(i,item);
@@ -3166,6 +3181,40 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
     }
 
+    //LISTA EXTRA
+    vector<pair<string,int> > classes(mapClass.begin(), mapClass.end());
+    vector<pair<string,int> > species(mapSpecies.begin(), mapSpecies.end());
+    sort(classes.begin(),classes.end(),less_second<string,int>());
+    sort(species.begin(),species.end(),less_second<string,int>());
+
+    QTreeWidgetItem *itemClass = new QTreeWidgetItem();
+    itemClass->setText(0,"Class");
+    QTreeWidgetItem *itemSpecie = new QTreeWidgetItem();
+    itemSpecie->setText(0,"Specie");
+
+    for(unsigned int i = 0; i < classes.size(); i++){
+        pair<string,int> p = classes[i];
+        if(p.second > 1){
+            string itemName = p.first + " (" + to_string(p.second) + "/" + to_string(nrows) + ")";
+            QTreeWidgetItem *classChild = new QTreeWidgetItem();
+            classChild->setText(0,itemName.c_str());
+            itemClass->addChild(classChild);
+        }
+    }
+
+    for(unsigned int i = 0; i < species.size(); i++){
+        pair<string,int> p = species[i];
+        if(p.second > 1){
+            string itemName = p.first + " (" + to_string(p.second) + "/" + to_string(nrows) + ")";
+            QTreeWidgetItem *specieChild = new QTreeWidgetItem();
+            specieChild->setText(0,itemName.c_str());
+            itemSpecie->addChild(specieChild);
+        }
+    }
+
+    ui->lstExtraView->addTopLevelItem(itemClass);
+    ui->lstExtraView->addTopLevelItem(itemSpecie);
+
     progress.close();
 
     //Ajusta tamanho das colunas
@@ -3552,13 +3601,8 @@ void MainWindow::on_cmdFetch_clicked()
     if(ui->radioButton_3->isChecked()) url += "t&amp;case=";
     else url += "a&amp;case=";
 
-    if(ui->radioButton_5->isChecked()) url += "l&amp;gaps=";
-    else url += "u&amp;gaps=";
-
-    if(ui->radioButton_7->isChecked()) url += "dashes&amp;download=0";
-    else if(ui->radioButton_8->isChecked()) url += "dots&amp;download=0";
-    else if(ui->radioButton_9->isChecked()) url += "default&amp;download=0";
-    else url += "none&amp;download=0";
+    if(ui->cmbAlignmentType->currentIndex() == 0) url += "l&amp;gaps=dashes&amp;download=0";
+    else url += "u&amp;gaps=default&amp;download=0";
 
     //Faz a conexão
     QUrl qurl = url;
@@ -3632,7 +3676,7 @@ void MainWindow::on_cmdFetch_clicked()
         //Configura para alinhamento carregado pela web
         align.setType(1);
 
-        if(ui->radioButton_8->isChecked() || ui->radioButton_9->isChecked()){
+        if(ui->cmbAlignmentType->currentIndex() == 1){
             ui->cmbFilterMethod->setCurrentIndex(0);
             emit ui->cmbFilterMethod->activated(0);
         }else{
@@ -3970,7 +4014,7 @@ void MainWindow::on_cmdCorrelation_clicked()
         }
         QApplication::processEvents();
         string pdbfilename = ui->txtPDBName_2->text().toStdString() + "_COMMS.pdb";
-        QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),pdbfilename,tr("TEXT Files (*.pdb)"));
+        QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),pdbfilename.c_str(),tr("TEXT Files (*.pdb)"));
         vector<float> commvec = currentFilter->createCommuntitiesVector(refseq);
         pdb->exportStructure(filename,commvec,chain);
         currentFilter->setCommPDBPath(filename.toStdString());
@@ -4237,6 +4281,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_FULLALIGN:
     {
+        ui->lstExtraView->clear();
         ui->tableFullAlignment->clear();
 
         this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
@@ -6208,6 +6253,11 @@ void MainWindow::saveResults(){
 
     QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Saving results file"),path.c_str(),QObject::tr("XML Files (*.xml)"));
 
+    if(filename == ""){
+        ui->cmdSaveResults->setEnabled(true);
+        return;
+    }
+
     currentAlign->generateXML(filename.toStdString());
 
     string msg = "XML file was generated in the above path:\n\n" + filename.toStdString();
@@ -6277,6 +6327,7 @@ void MainWindow::on_cmdLook_clicked()
     }
 
     float minCons = currentFilter->getConsMin();
+    if(minCons == 0) minCons = 0.8;
     vector<string> fullAlignment = currentAlign->getFullAlignment();
     vector<string> fullSequences = currentAlign->getFullSequences();
 
@@ -7194,6 +7245,7 @@ void MainWindow::changeToFullAlignment(){
         return;
     }
 
+    ui->lstExtraView->clear();
     ui->tableFullAlignment->clear();
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);

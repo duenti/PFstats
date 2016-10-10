@@ -33,7 +33,7 @@ var arc = d3.svg.arc()
 
 // Use d3.text and d3.csv.parseRows so that we do not need to have a header
 // row, and can receive the csv as an array of arrays.
-d3.text ("clades.csv", function(text) {//("visit-sequences.csv", function(text) {
+d3.text ("clades_test.csv", function(text) {//("visit-sequences.csv", function(text) {
   var csv = d3.csv.parseRows(text);
   colors = generate_colors(csv)[0];
   var csv2 = generate_colors(csv)[1];
@@ -41,11 +41,6 @@ d3.text ("clades.csv", function(text) {//("visit-sequences.csv", function(text) 
   var json = buildHierarchy(csv2);
   createVisualization(json);
 });
-
-function displaymessage(str)
-{
-   window.location.reload(true);
-}
 
 //Automatically parse CSV file to map colors to clades
 function generate_colors(csv) {

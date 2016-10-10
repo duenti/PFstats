@@ -57,6 +57,7 @@ private:
     vector<float> minssData;
     vector<tuple<string,string,int> > corrGraph;
     vector<int> subalignmentseqs;
+    //map<string,string> sunburstData;
     int referencesequence;
     vector<int> referencevector; // Vector containing the positions for a reference sequence
     vector<vector<string> > comunidades;
@@ -253,6 +254,9 @@ public:
     void addCommXPs(vector<vector<int> > commXPs);
     void updateCommunitiesData();
     void updateSequencesData();
+    //void clearSunburstData();
+    //void addSunburstData(string protein, string data);
+    //string getSunburstCSV(int kind, string parameter); //KIND 0: full, 1: edges, 2: community, 3: residue
 };
 
 #endif // FILTER_H

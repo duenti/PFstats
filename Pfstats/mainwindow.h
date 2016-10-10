@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "pdb.h"
 #include <QCompleter>
+#include <QWebFrame>
 
 using namespace std;
 
@@ -92,6 +93,7 @@ private slots:
     void showAbout();
     void changeToCreateCommunity();
     void changeToListOfSequences();
+    void changeToTaxonomicView();
     void changeToConservationFrequence();
     void changeToConservationPercentage();
     void changeToConservedResidues();
@@ -271,6 +273,16 @@ private slots:
 
     void on_cmdAddSeq_clicked();
 
+    void on_radioSun3_clicked(bool checked);
+
+    void on_radioSun1_clicked(bool checked);
+
+    void on_radioSun2_clicked(bool checked);
+
+    void on_radioSun4_clicked(bool checked);
+
+    void on_cmdSunburstFilter_clicked();
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -304,7 +316,8 @@ private:
         STACK_RESULT_DELTAGRAPH = 15,
         STACK_RESULT_CONSPDB = 16,
         STACK_RESULT_COMMPDB = 17,
-        STACK_RESULT_FULLALIGN = 18
+        STACK_RESULT_FULLALIGN = 18,
+        STACK_RESULT_TAXVIEW = 19
     };
 
     Ui::MainWindow *ui;
@@ -339,6 +352,7 @@ private:
     void output(int seqnumber, int offset);
     //Show Results
     void listSequences();
+    bool generateSunburst(vector<string> sequencenames);//csv
     void tableFreq();
     void tableFreqPerc();
     //void conservResidues();

@@ -4810,7 +4810,7 @@
                </widget>
               </item>
               <item row="2" column="0">
-               <widget class="QWebView" name="webView">
+               <widget class="QWebView" name="webTaxons">
                 <property name="url">
                  <url>
                   <string>about:blank</string>
@@ -5938,6 +5938,7 @@
     <addaction name="actionFull_Alignment"/>
     <addaction name="separator"/>
     <addaction name="actionList_Of_Sequences"/>
+    <addaction name="actionTaxonomic_View"/>
     <addaction name="separator"/>
     <addaction name="menuConservation_Table"/>
     <addaction name="actionConserved_Residues"/>
@@ -6628,6 +6629,11 @@
     <string>Add Sequences</string>
    </property>
   </action>
+  <action name="actionTaxonomic_View">
+   <property name="text">
+    <string>Taxonomic View</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -6646,7 +6652,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

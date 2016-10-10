@@ -4818,6 +4818,60 @@
                 </property>
                </widget>
               </item>
+              <item row="2" column="1">
+               <layout class="QVBoxLayout" name="verticalLayout_47">
+                <item>
+                 <widget class="QComboBox" name="cmbSunburstTaxon">
+                  <property name="currentIndex">
+                   <number>7</number>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>Super Kingdom</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Kingdom</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Phylum</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Class</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Order</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Family</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Genus</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Species</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QListWidget" name="lstSunburstTaxon"/>
+                </item>
+               </layout>
+              </item>
              </layout>
             </widget>
            </widget>

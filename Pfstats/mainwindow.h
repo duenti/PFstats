@@ -12,6 +12,7 @@
 #include <QCompleter>
 #include <QWebFrame>
 #include "networkvisualization.h"
+#include "taxonomicvisualization.h"
 
 using namespace std;
 
@@ -274,19 +275,9 @@ private slots:
 
     void on_cmdAddSeq_clicked();
 
-    void on_radioSun3_clicked(bool checked);
-
-    void on_radioSun1_clicked(bool checked);
-
-    void on_radioSun2_clicked(bool checked);
-
-    void on_radioSun4_clicked(bool checked);
-
-    void on_cmdSunburstFilter_clicked();
-
-    void on_cmbSunburstTaxon_currentIndexChanged(int index);
-
     void on_cmdExpandNetworkVisualization_clicked();
+
+    void on_cmdExpandTaxonomy_clicked();
 
 private:
     enum Constants{

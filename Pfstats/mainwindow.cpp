@@ -4340,10 +4340,6 @@ void MainWindow::updateResultsViews(){
         break;
     }
     case STACK_RESULT_TAXVIEW:
-        ui->radioSun1->setChecked(true);
-        ui->radioSun2->setChecked(false);
-        ui->radioSun3->setChecked(false);
-        ui->radioSun4->setChecked(false);
 
         this->generateSunburst(currentFilter->sequencenames);
     }
@@ -6907,7 +6903,6 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
     QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
     event.exec();
     if(progress.wasCanceled()){
-        ui->cmdPDBFetch->setEnabled(true);
         return false;
     }
     QString html = response->readAll();
@@ -6915,7 +6910,6 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
     if(html.contains("302 Found") || html.contains("error") || html == ""){
         printf("\n%s",html.toStdString().c_str());
         QMessageBox::warning(this,"Fetching Failed","Error while trying to connect the webservice");
-        ui->cmdPDBFetch->setEnabled(true);
         return false;
     }else{
         string pathcsv = libpath + "sunburst/clades.csv";
@@ -6925,28 +6919,6 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
         QTextStream out(&indexHTML);
 
         out << html;
-
-        //LISTWIDGET
-        map<string,int> mapSpecie;
-        ui->lstSunburstTaxon->clear();
-        vector<string> lines = this->split(html.toStdString(),'\n');
-        int index = ui->cmbSunburstTaxon->currentIndex();
-        for(unsigned int i = 0; i < lines.size(); i++){
-            if(lines[i] != ""){
-                string currentTaxon = this->split(lines[i],'-')[index];
-                string specie = this->split(currentTaxon,',')[0];
-                int count = atoi(split(lines[i],',')[1].c_str());
-                if(mapSpecie.find(specie) == mapSpecie.end()) mapSpecie[specie] = count;
-                else mapSpecie[specie] = mapSpecie[specie] + count;
-            }
-        }
-        vector<pair<string,int> > species(mapSpecie.begin(), mapSpecie.end());
-        sort(species.begin(),species.end(),less_second<string,int>());
-        for(unsigned int i = 0; i < species.size(); i++){
-            pair<string,int> p = species[i];
-            string text = p.first + " (" + to_string(p.second) + ")";
-            ui->lstSunburstTaxon->addItem(text.c_str());
-        }
 
         //ATUALIZA ARQUIVO
         indexHTML.close();
@@ -6976,26 +6948,6 @@ void MainWindow::changeToTaxonomicView(){
         QMessageBox::warning(this,"Error","You must select an alignment");
         return;
     }
-
-    //Resetar campos de resultado
-    ui->radioSun1->setChecked(true);
-    ui->radioSun2->setChecked(false);
-    ui->radioSun3->setChecked(false);
-    ui->radioSun4->setChecked(false);
-    ui->cmbSunburstEdges->clear();
-    ui->cmbSunburstCommunity->clear();
-    ui->txtSunburstResidue->clear();
-
-    for(unsigned int i = 0; i < currentFilter->getCorrGraphSize(); i++){
-        std::tuple<string,string,int> edge = currentFilter->getCorrGraphTuple(i);
-        string n1 = std::get<0>(edge);
-        string n2 = std::get<1>(edge);
-        string text = n1 + "," + n2;
-        ui->cmbSunburstEdges->addItem(text.c_str());
-    }
-
-    for(unsigned int i = 0; i < currentFilter->getNumOfUtilComms(); i++)
-        ui->cmbSunburstCommunity->addItem(QString::number(i+1));
 
     if(!this->generateSunburst(vector<string>())) return;
     //printf("%s",csv.c_str());
@@ -9424,134 +9376,16 @@ void MainWindow::on_cmdAddSeq_clicked()
     ui->cmdAddSeq->setEnabled(true);
 }
 
-void MainWindow::on_radioSun1_clicked(bool checked)
-{
-    if(checked){
-        ui->radioSun2->setChecked(false);
-        ui->cmbSunburstEdges->setEnabled(false);
-        ui->radioSun3->setChecked(false);
-        ui->cmbSunburstCommunity->setEnabled(false);
-        ui->radioSun4->setChecked(false);
-        ui->txtSunburstResidue->setEnabled(false);
-    }
-}
-
-void MainWindow::on_radioSun2_clicked(bool checked)
-{
-    if(checked){
-        ui->cmbSunburstEdges->setEnabled(true);
-        ui->radioSun1->setChecked(false);
-        ui->radioSun3->setChecked(false);
-        ui->cmbSunburstCommunity->setEnabled(false);
-        ui->radioSun4->setChecked(false);
-        ui->txtSunburstResidue->setEnabled(false);
-    }
-}
-
-void MainWindow::on_radioSun3_clicked(bool checked)
-{
-    if(checked){
-        ui->cmbSunburstCommunity->setEnabled(true);
-        ui->radioSun1->setChecked(false);
-        ui->radioSun2->setChecked(false);
-        ui->cmbSunburstEdges->setEnabled(false);
-        ui->radioSun4->setChecked(false);
-        ui->txtSunburstResidue->setEnabled(false);
-    }
-}
-
-void MainWindow::on_radioSun4_clicked(bool checked)
-{
-    if(checked){
-        ui->txtSunburstResidue->setEnabled(true);
-        ui->radioSun1->setChecked(false);
-        ui->radioSun2->setChecked(false);
-        ui->cmbSunburstEdges->setEnabled(false);
-        ui->radioSun3->setChecked(false);
-        ui->cmbSunburstCommunity->setEnabled(false);
-    }
-}
-
-void MainWindow::on_cmdSunburstFilter_clicked()
-{
-    if(ui->radioSun1->isChecked()){
-        generateSunburst(currentFilter->sequencenames);
-    }else if(ui->radioSun2->isChecked()){
-        if(ui->cmbSunburstEdges->currentText() == ""){
-            return;
-        }
-
-        vector<string> sequences;
-        vector<string> splitted = this->split(ui->cmbSunburstEdges->currentText().toStdString(),',');
-        string node1 = splitted[0];
-        char aa1 = node1[0];
-        int pos1 = atoi(node1.substr(1).c_str());
-        string node2 = splitted[1];
-        char aa2 = node2[0];
-        int pos2 = atoi(node2.substr(1).c_str());
-
-        for(unsigned int i = 0; i < currentFilter->sequencenames.size(); i++){
-            if(currentFilter->sequences[i][pos1-1] == aa1 && currentFilter->sequences[i][pos2-1] == aa2)
-                sequences.push_back(currentFilter->sequencenames[i]);
-        }
-
-        generateSunburst(sequences);
-    }else if(ui->radioSun3->isChecked()){
-        vector<string> sequences;
-        if(ui->cmbSunburstCommunity->count() == 0) return;
-        if(currentFilter->getNumOfUtilComms() == 0) return;
-
-        vector<string> residues = currentFilter->getCommunitie(ui->cmbSunburstCommunity->currentIndex());
-
-        int nOfResidues = residues.size();
-        int hits;
-
-        for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
-            hits = 0;
-
-            for(unsigned int j = 0; j < nOfResidues; j++){
-                string residue = residues[j];
-                char aa = residue[0];
-                int pos = atoi(residue.substr(1).c_str());
-
-                if(currentFilter->sequences[i][pos-1] == aa) hits++;
-            }
-
-            if(hits == nOfResidues){
-                sequences.push_back(currentFilter->sequencenames[i]);
-            }
-        }
-
-        generateSunburst(sequences);
-    }else if(ui->radioSun4->isChecked()){
-        vector<string> sequences;
-
-        if(ui->txtSunburstResidue->text() == "") return;
-
-        string residue = ui->txtSunburstResidue->text().toStdString();
-        char aa = residue[0];
-        int pos = atoi(residue.substr(1).c_str());
-
-        for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
-                if(aa == currentFilter->sequences[i][pos-1]){
-                    sequences.push_back(currentFilter->sequencenames[i]);
-                }
-        }
-
-        generateSunburst(sequences);
-    }else{
-        return;
-    }
-}
-
-void MainWindow::on_cmbSunburstTaxon_currentIndexChanged(int index)
-{
-    emit this->on_cmdSunburstFilter_clicked();
-}
-
 void MainWindow::on_cmdExpandNetworkVisualization_clicked()
 {
     NetworkVisualization* nw = new NetworkVisualization(this,currentFilter,libpath);
 
     nw->show();
+}
+
+void MainWindow::on_cmdExpandTaxonomy_clicked()
+{
+    TaxonomicVisualization* tv = new TaxonomicVisualization(this,currentFilter,libpath);
+
+    tv->show();
 }

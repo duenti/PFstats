@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TaxonomicVisualization</class>
+ <widget class="QDialog" name="TaxonomicVisualization">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>806</width>
+    <height>589</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Taxonomic Visualization</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QRadioButton" name="radioSun1">
+         <property name="text">
+          <string>Full</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_98">
+         <item>
+          <widget class="QRadioButton" name="radioSun3">
+           <property name="text">
+            <string>Community</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cmbSunburstCommunity">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_97">
+         <item>
+          <widget class="QRadioButton" name="radioSun2">
+           <property name="text">
+            <string>Edges</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cmbSunburstEdges">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QRadioButton" name="radioSun4">
+           <property name="text">
+            <string>Residue</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="txtSunburstResidue">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cmdSunburstFilter">
+       <property name="text">
+        <string>Filter</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QWebView" name="webTaxons">
+     <property name="url">
+      <url>
+       <string>about:blank</string>
+      </url>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QComboBox" name="cmbSunburstTaxon">
+       <property name="currentIndex">
+        <number>7</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>Super Kingdom</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Kingdom</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Phylum</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Class</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Order</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Family</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Genus</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Species</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="lstSunburstTaxon">
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKitWidgets/QWebView</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -31,7 +31,9 @@ SOURCES += main.cpp\
     feature.cpp \
     pdb.cpp \
     pdbatom.cpp \
-    filter.cpp
+    filter.cpp \
+    networkvisualization.cpp \
+    colors.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -41,7 +43,10 @@ HEADERS  += mainwindow.h \
     feature.h \
     pdb.h \
     pdbatom.h \
-    filter.h
+    filter.h \
+    networkvisualization.h \
+    colors.h
 
 FORMS    += mainwindow.ui \
-    about.ui
+    about.ui \
+    networkvisualization.ui

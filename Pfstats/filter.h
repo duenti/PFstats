@@ -15,12 +15,14 @@
 #include <QtNetwork>
 #include "feature.h"
 #include "uniprot.h"
+#include "colors.h"
 
 using namespace std;
 
 class Filter
 {
 private:
+    Colors *c;
     struct community {
            vector<int> pos;
            vector<char> aa;
@@ -208,7 +210,9 @@ public:
     int getResidueFeaturesByCommCount(string res);
     vector<tuple<string,string,int> > getCorrelationGraph();
     set<string> getCorrelationNodes();
+    map<string,int> getNodesHubs();
     set<string> getPositiveCorrelationNodes();
+    map<string,int> getPositiveNodeHubs();
     vector<tuple<string,string,int> > getEdgesByComm(int comm);
     vector<tuple<string,string,float> > getDeltasEdges(float cutoff);
     string getNoGAPSequence(int refseq);
@@ -254,9 +258,7 @@ public:
     void addCommXPs(vector<vector<int> > commXPs);
     void updateCommunitiesData();
     void updateSequencesData();
-    //void clearSunburstData();
-    //void addSunburstData(string protein, string data);
-    //string getSunburstCSV(int kind, string parameter); //KIND 0: full, 1: edges, 2: community, 3: residue
+    string getResidueColor(string residue);
 };
 
 #endif // FILTER_H

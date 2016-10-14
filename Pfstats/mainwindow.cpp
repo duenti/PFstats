@@ -1206,58 +1206,88 @@ void MainWindow::correlationList(){
 
 void MainWindow::createCorrelationJSON(){
     unsigned int nrows = currentFilter->getCorrGraphSize();
-    string pathJSON = libpath + "abor/in1.json";
+    string pathJSON = libpath + "visjs/examples/network/in.js";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
+    map<string,int> nodes = currentFilter->getNodesHubs();
+    map<string,int> dic;
 
-    out << "{\n\t\"nodes\": {\n";
-    set<string> nodes = currentFilter->getCorrelationNodes();
-    unsigned int count = 0;
+    //Options
+    out << "var options = {\n";
+    out << "physics: {\n";
+    out << "barnesHut: {\n";
+    out << "gravitationalConstant: -36,\n";
+    out << "centralGravity: 0.005,\n";
+    out << "springLength: 230,\n";
+    out << "springConstant: 0.18\n";
+    out << "},\n";
+    out << "maxVelocity: 146,\n";
+    out << "solver: 'forceAtlas2Based',\n";
+    out << "timestep: 0.35,\n";
+    out << "stabilization: {\n";
+    out << "enabled:true,\n";
+    out << "iterations:2000,\n";
+    out << "updateInterval:25\n";
+    out << "}\n";
+    out << "},\n";
+    out << "interaction:{hover:true},\n";
+    out << "edges:{smooth: false}\n";
+    out << "};\n\n";
 
-    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
-        count++;
 
-        out << ("\t\t\"" + *it + "\": {\n").c_str();
-        out << ("\t\t\t\"alignName\": \"" + *it + "\"\n").c_str();
+    out << "var nodes = [\n";
+    unsigned int count = 1;
 
-        if(count < nodes.size()) out << "\t\t\t},\n";
-        else out << "\t\t}\n\t},\n";
-    }
-
-    out << "\t\"edges\":{\n";
-
-    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
-        if(it != nodes.begin()) out << ",\n";
-        out << ("\t\t\"" + *it + "\": {\n").c_str();
-
-        count = 0;
-        for(unsigned int j = 0; j < nrows; j++){
-            tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(j);
-
-            if(std::get<0>(tupCorr) == *it){
-                if(count > 0) out << ",\n";
-                count++;
-
-                out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
-                out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
-
-                out << "\t\t\t\t}";
-                //out << "\t\t\t}\n";
-            }
+    for(map<string,int>::iterator it = nodes.begin(); it != nodes.end(); it++){
+        if(it!= nodes.begin()){
+            out << ",\n";
         }
-        out << "\n\t\t}";
+        out << "{id: " + QString::number(count) + ", label: '" + QString::fromStdString(it->first) + "', value: " + QString::number(it->second) + "}";
+        dic[it->first] = count;
+        count++;
     }
-    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+    out << "];\n\n";
 
 
-    string path = libpath + "abor/index.html";
+    out << "var edges = [\n";
+    for(unsigned int i = 0; i < nrows; i++){
+        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        string n1 = get<0>(tupCorr);
+        int id1 = dic[n1];
+        string n2 = get<1>(tupCorr);
+        int id2 = dic[n2];
+        int weight = get<2>(tupCorr);
+        string color = "red";
+
+        if(weight > 0) color = "green";
+
+        out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + "},\n";
+    }
+    out << "];\n";
+
+
+    //CSS
+    string pathCSS = libpath + "visjs/examples/network/mynetwork.css";
+    QFile fileCSS(pathCSS.c_str());
+    fileCSS.open(QIODevice::WriteOnly);
+    QTextStream out2(&fileCSS);
+
+    out2 << "#mynetwork {\n";
+    out2 << "width: " + QString::number(ui->webCorrGraph->width()) + "px;\n";
+    out2 << "height: " + QString::number(ui->webCorrGraph->height()) + "px;\n";
+    out2 << "border: 1px solid lightgray;\n}";
+
+
+    string path = libpath + "visjs/examples/network/index.html";
     QFile file(path.c_str());
     file.open(QIODevice::ReadOnly);
     QFileInfo info(file);
     string absPath = info.absoluteFilePath().toStdString();
     string localUrl = "file:///" + absPath;
+
     ui->webCorrGraph->load(QUrl(localUrl.c_str()));
+
 }
 
 void MainWindow::on_cmdHideShowAntiCorr_clicked()
@@ -1276,69 +1306,89 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
 
 
     unsigned int nrows = currentFilter->getCorrGraphSize();
-    string path = libpath + "abor/in1.json";
+    string path = libpath + "visjs/examples/network/in.js";
     QFile fileJSON(path.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
+    map<string,int> nodes;
+    map<string,int> dic;
 
-    out << "{\n\t\"nodes\": {\n";
-
-    set<string> nodes;
     if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations")
-        nodes = currentFilter->getPositiveCorrelationNodes();
+        nodes = currentFilter->getPositiveNodeHubs();
     else
-        nodes = currentFilter->getCorrelationNodes();
+        nodes = currentFilter->getNodesHubs();
 
-    unsigned int count = 0;
+    //Options
+    out << "var options = {\n";
+    out << "physics: {\n";
+    out << "barnesHut: {\n";
+    out << "gravitationalConstant: -36,\n";
+    out << "centralGravity: 0.005,\n";
+    out << "springLength: 230,\n";
+    out << "springConstant: 0.18\n";
+    out << "},\n";
+    out << "maxVelocity: 146,\n";
+    out << "solver: 'forceAtlas2Based',\n";
+    out << "timestep: 0.35,\n";
+    out << "stabilization: {\n";
+    out << "enabled:true,\n";
+    out << "iterations:2000,\n";
+    out << "updateInterval:25\n";
+    out << "}\n";
+    out << "},\n";
+    out << "interaction:{hover:true},\n";
+    out << "edges:{smooth: false}\n";
+    out << "};\n\n";
 
-    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
-        count++;
+    out << "var nodes = [\n";
+    unsigned int count = 1;
 
-        out << ("\t\t\"" + *it + "\": {\n").c_str();
-        out << ("\t\t\t\"alignName\": \"" + *it + "\"\n").c_str();
-
-        if(count < nodes.size()) out << "\t\t\t},\n";
-        else out << "\t\t}\n\t},\n";
-    }
-
-    out << "\t\"edges\":{\n";
-
-    for(set<string>::iterator it = nodes.begin(); it != nodes.end(); it++){
-        if(it != nodes.begin()) out << ",\n";
-        out << ("\t\t\"" + *it + "\": {\n").c_str();
-
-        count = 0;
-        for(unsigned int j = 0; j < nrows; j++){
-            tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(j);
-
-            if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations"){
-                if(std::get<0>(tupCorr) == *it && std::get<2>(tupCorr) > 0){
-                    if(count > 0) out << ",\n";
-                    count++;
-
-                    out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
-                    out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
-
-                    out << "\t\t\t\t}";
-                    //out << "\t\t\t}\n";
-                }
-            }else{
-                if(std::get<0>(tupCorr) == *it){
-                    if(count > 0) out << ",\n";
-                    count++;
-
-                    out << ("\t\t\t\"" + std::get<1>(tupCorr) + "\": {\n").c_str();
-                    out << ("\t\t\t\t\"value\": " + std::to_string(std::get<2>(tupCorr)) + "\n").c_str();
-
-                    out << "\t\t\t\t}";
-                    //out << "\t\t\t}\n";
-                }
-            }
+    for(map<string,int>::iterator it = nodes.begin(); it != nodes.end(); it++){
+        if(it!= nodes.begin()){
+            out << ",\n";
         }
-        out << "\n\t\t}";
+        out << "{id: " + QString::number(count) + ", label: '" + QString::fromStdString(it->first) + "', value: " + QString::number(it->second) + "}";
+        dic[it->first] = count;
+        count++;
     }
-    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
+    out << "];\n\n";
 
+    out << "var edges = [\n";
+    for(unsigned int i = 0; i < nrows; i++){
+        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        string n1 = get<0>(tupCorr);
+        int id1 = dic[n1];
+        string n2 = get<1>(tupCorr);
+        int id2 = dic[n2];
+        int weight = get<2>(tupCorr);
+
+        if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations"){
+            if(weight > 0){
+                out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'green'}, title: " + QString::number(weight) + "},\n";
+            }
+        }else{
+            string color = "red";
+            if(weight > 0) color = "green";
+
+            out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + "},\n";
+        }
+    }
+
+    out << "];\n";
+
+    //CSS
+    string pathCSS = libpath + "visjs/examples/network/mynetwork.css";
+    QFile fileCSS(pathCSS.c_str());
+    fileCSS.open(QIODevice::WriteOnly);
+    QTextStream out2(&fileCSS);
+
+    out2 << "#mynetwork {\n";
+    out2 << "width: " + QString::number(ui->webCorrGraph->width()) + "px;\n";
+    out2 << "height: " + QString::number(ui->webCorrGraph->height()) + "px;\n";
+    out2 << "border: 1px solid lightgray;\n}";
+
+    QWebSettings *websettings = QWebSettings::globalSettings();
+    websettings->clearMemoryCaches();
     ui->webCorrGraph->reload();//load(QUrl(localUrl.c_str()));
 }
 
@@ -6908,7 +6958,7 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
         ui->webTaxons->setUpdatesEnabled(true);
         ui->webTaxons->load(QUrl(localUrl.c_str()));
         QWebSettings *websettings = QWebSettings::globalSettings();
-        websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+        //websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
         websettings->setAttribute(QWebSettings::JavascriptEnabled,true);
         websettings->clearMemoryCaches();
         QWebFrame *frame = ui->webTaxons->page()->mainFrame();
@@ -9492,4 +9542,16 @@ void MainWindow::on_cmdSunburstFilter_clicked()
     }else{
         return;
     }
+}
+
+void MainWindow::on_cmbSunburstTaxon_currentIndexChanged(int index)
+{
+    emit this->on_cmdSunburstFilter_clicked();
+}
+
+void MainWindow::on_cmdExpandNetworkVisualization_clicked()
+{
+    NetworkVisualization* nw = new NetworkVisualization(this,currentFilter,libpath);
+
+    nw->show();
 }

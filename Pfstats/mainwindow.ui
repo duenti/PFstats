@@ -2634,7 +2634,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>19</number>
+             <number>13</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -4211,6 +4211,13 @@
                  <widget class="QPushButton" name="cmdHideShowAntiCorr">
                   <property name="text">
                    <string>Hide Anti-Correlations</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="cmdExpandNetworkVisualization">
+                  <property name="text">
+                   <string>Expand Visualization</string>
                   </property>
                  </widget>
                 </item>
@@ -6002,11 +6009,9 @@
     <addaction name="actionCorrelation_Graph"/>
     <addaction name="actionCommunities_List"/>
     <addaction name="actionStructure_Communities_Visualization"/>
-    <addaction name="actionCommunities_Graphs"/>
     <addaction name="menuCorrelation_Tables_2"/>
     <addaction name="actionAdherence_Matrix"/>
     <addaction name="actionResidues_Of_Communities"/>
-    <addaction name="actionCorrelationBetweenCommunities"/>
     <addaction name="separator"/>
     <addaction name="menuUniprot_Look_Results"/>
    </widget>
@@ -6585,7 +6590,7 @@
   </action>
   <action name="actionCorrelation_Graph">
    <property name="text">
-    <string>Correlation Graph</string>
+    <string>Correlation Network</string>
    </property>
   </action>
   <action name="actionCommunities_Graphs">

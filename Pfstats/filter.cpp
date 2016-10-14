@@ -12,6 +12,8 @@ Filter::Filter()
     maxId = 0;
     conservedPDBpath = "";
     commPDBPath = "";
+
+    c = new Colors();
 }
 
 Filter::Filter(string name, string alphabet, int type){
@@ -33,6 +35,8 @@ Filter::Filter(string name, string alphabet, int type){
     corr_offset = 0;
     corr_refseq = 0;
     commPDBPath = "";
+
+    c = new Colors();
 }
 
 Filter::~Filter(){
@@ -1419,6 +1423,29 @@ set<string> Filter::getCorrelationNodes(){
     return nodes;
 }
 
+map<string,int> Filter::getNodesHubs(){
+    map<string,int> hubs;
+
+    for(unsigned int i = 0; i < corrGraph.size(); i++){
+        tuple<string,string,int> tupCorr = corrGraph[i];
+        string n1 = get<0>(tupCorr);
+        string n2 = get<1>(tupCorr);
+
+        if(hubs.find(n1) == hubs.end()){
+            hubs[n1] = 1;
+        }else{
+            hubs[n1] += 1;
+        }
+        if(hubs.find(n2) == hubs.end()){
+            hubs[n2] = 1;
+        }else{
+            hubs[n2] += 1;
+        }
+    }
+
+    return hubs;
+}
+
 set<string> Filter::getPositiveCorrelationNodes(){
     set<string> nodes;
 
@@ -1432,6 +1459,32 @@ set<string> Filter::getPositiveCorrelationNodes(){
     }
 
     return nodes;
+}
+
+map<string,int> Filter::getPositiveNodeHubs(){
+    map<string,int> hubs;
+
+    for(unsigned int i = 0; i < corrGraph.size(); i++){
+        tuple<string,string,int> tupCorr = corrGraph[i];
+
+        if(get<2>(tupCorr) > 0){
+            string n1 = get<0>(tupCorr);
+            string n2 = get<1>(tupCorr);
+
+            if(hubs.find(n1) == hubs.end()){
+                hubs[n1] = 1;
+            }else{
+                hubs[n1] += 1;
+            }
+            if(hubs.find(n2) == hubs.end()){
+                hubs[n2] = 1;
+            }else{
+                hubs[n2] += 1;
+            }
+        }
+    }
+
+    return hubs;
 }
 
 vector<tuple<string,string,int> > Filter::getEdgesByComm(int comm){
@@ -4684,92 +4737,15 @@ void Filter::updateSequencesData(){
         }
     }
 }
-/*
-void Filter::clearSunburstData(){
-    sunburstData.clear();
-}
 
-
-void Filter::addSunburstData(string protein, string data){
-    sunburstData[protein] = data;
-}
-
-string Filter::getSunburstCSV(int kind, string parameter){
-    string csv = "";
-
-    switch(kind){
-    case 0:
-    {
-        for(auto const &ent : sunburstData){
-            csv += ent.second + "\n";
-        }
-        break;
-    }
-    case 1:
-    {
-        vector<string> temp = this->split(parameter,',');
-        string n1 = temp[0];
-        char aa1 = n1[0];
-        int pos1 = atoi(n1.substr(1).c_str());
-        string n2 = temp[1];
-        char aa2 = n2[0];
-        int pos2 = atoi(n2.substr(1).c_str());
-
-        for(unsigned int i = 0; i < sequences.size(); i++){
-                if(aa1 == sequences[i][pos1-1] && aa2 == sequences[i][pos2-1]){
-                    string seqname = this->split(sequencenames[i],'/')[0];
-                    csv += sunburstData[seqname] + "\n";
-                }
-        }
-        break;
-    }
-    case 2:
-    {
-        int comm = atoi(parameter.c_str());
-
-        if(comunidades.size() >= comm){
-            int nOfResidues = comunidades[comm-1].size();
-            int hits;
-
-            for(unsigned int i = 0; i < sequences.size(); i++){
-                hits = 0;
-
-                for(unsigned int j = 0; j < nOfResidues; j++){
-                    string residue = comunidades[comm-1][j];
-                    char aa = residue[0];
-                    int pos = atoi(residue.substr(1).c_str());
-
-                    if(sequences[i][pos-1] == aa) hits++;
-                }
-
-                if(hits == nOfResidues){
-                    string seqname = this->split(sequencenames[i],'/')[0];
-                    csv += sunburstData[seqname] + "\n";
-                }
+string Filter::getResidueColor(string residue){
+    for(unsigned int i = 0; i < comunidades.size(); i++){
+        if(comunidades[i].size() > 1){
+            for(unsigned int j = 0; j < comunidades[i].size(); j++){
+                if(comunidades[i][j] == residue) return c->getColor(i);
             }
         }else return "";
+    }
 
-        break;
-    }
-    case 3:
-    {
-        char aa = parameter[0];
-        int pos = atoi(parameter.substr(1).c_str());
-
-        for(unsigned int i = 0; i < sequences.size(); i++){
-                if(aa == sequences[i][pos-1]){
-                    string seqname = this->split(sequencenames[i],'/')[0];
-                    csv += sunburstData[seqname] + "\n";
-                }
-        }
-        break;
-        break;
-    }
-    default:
-    {
-        return "";
-    }
-    }
-    return csv;
+    return "";
 }
-*/

@@ -295,6 +295,7 @@ private:
         STACK_ALPHABET = 11,
         STACK_SUBALIGN = 12,
         STACK_ADDSEQ = 13,
+        STACK_MUTATION = 14,
         STACK_RESULT_SEQLIST = 1,
         STACK_RESULT_CONSFREQ = 2,
         STACK_RESULT_FREQPERC = 3,

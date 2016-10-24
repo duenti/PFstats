@@ -1273,9 +1273,17 @@ void MainWindow::createCorrelationJSON(){
     fileCSS.open(QIODevice::WriteOnly);
     QTextStream out2(&fileCSS);
 
+    out2 << "html{\n";
+    out2 << "width: 99%;\n";
+    out2 << "height: 99%;\n";
+    out2 << "}\n";
+    out2 << "html, body, #mynetwork {\n";
+    out2 << "min-height: 99% !important;\n";
+    out2 << "height: 99%;\n";
+    out2 << "min-width: 99% !important;\n";
+    out2 << "width: 99%;\n";
+    out2 << "}\n";
     out2 << "#mynetwork {\n";
-    out2 << "width: " + QString::number(ui->webCorrGraph->width()) + "px;\n";
-    out2 << "height: " + QString::number(ui->webCorrGraph->height()) + "px;\n";
     out2 << "border: 1px solid lightgray;\n}";
 
 
@@ -4977,8 +4985,8 @@ void MainWindow::Open_XML_triggered(){
                                     reader.readNext();
 
                                     if(reader.isStartElement() && reader.name() == "sequence"){
-                                        string refseq = reader.readElementText().toStdString();
-                                        filter->addRefSeq(refseq);
+                                        string reference = reader.readElementText().toStdString();
+                                        filter->addRefSeq(reference);
                                     }else if(reader.isEndElement() && reader.name() == "references")
                                         break;
                                 }
@@ -7315,8 +7323,13 @@ void MainWindow::changeToResiduesOfCommunities(){
         return;
     }
 
-    if(currentFilter->getRefSeqsSize() == 0 || currentFilter->getNumOfUtilComms() == 0){
+    if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must have some reference sequences.");
+        return;
+    }
+
+    if(currentFilter->getNumOfUtilComms() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlatio methods.");
         return;
     }
 
@@ -9379,13 +9392,13 @@ void MainWindow::on_cmdAddSeq_clicked()
 void MainWindow::on_cmdExpandNetworkVisualization_clicked()
 {
     NetworkVisualization* nw = new NetworkVisualization(this,currentFilter,libpath);
-
+    nw->setWindowFlags(Qt::Window);
     nw->show();
 }
 
 void MainWindow::on_cmdExpandTaxonomy_clicked()
 {
     TaxonomicVisualization* tv = new TaxonomicVisualization(this,currentFilter,libpath);
-
+    tv->setWindowFlags(Qt::Window);
     tv->show();
 }

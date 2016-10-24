@@ -9,7 +9,15 @@ INPUT(
 ./debug\pdb.o
 ./debug\pdbatom.o
 ./debug\filter.o
+./debug\networkvisualization.o
+./debug\colors.o
+./debug\taxonomicvisualization.o
+./debug\pdbresidues.o
+./debug\pdbpseudoatom.o
+./debug\pdbinteraction.o
 ./debug\moc_mainwindow.o
 ./debug\moc_qcustomplot.o
 ./debug\moc_about.o
+./debug\moc_networkvisualization.o
+./debug\moc_taxonomicvisualization.o
 );

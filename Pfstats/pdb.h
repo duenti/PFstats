@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 #include "pdbatom.h"
+#include "pdbresidues.h"
+#include "pdbpseudoatom.h"
+#include "pdbinteraction.h"
 #include <iostream>
 #include <fstream>
 #include <QObject>
@@ -27,7 +30,22 @@ private:
     char refseq_chain;
     string header, footer;
     vector<PdbAtom*> atoms;
+    vector<PdbResidues*> residues;
+    vector<PdbInteraction*> interactions;
     vector<string> split(string text, char sep);
+    float distance2atoms(PdbAtom* a1, PdbAtom* a2);
+    float distance2atoms(PdbAtom* a1, PdbPseudoAtom* a2);
+    float distance2atoms(PdbPseudoAtom *a1, PdbPseudoAtom *a2);
+    float angle3atoms(PdbAtom* a1, PdbAtom* a2, PdbAtom* a3);
+    float angle3atoms(PdbAtom *a1, PdbPseudoAtom *a2, PdbAtom *a3);
+    bool connectedAtoms(PdbAtom* a1, PdbAtom* a2);
+    vector<float> getMidpoints(vector<PdbAtom*> atom_list);
+    bool isValidResidue(string res);
+    bool isPositiveCharged(PdbAtom* atom);
+    bool isNegativeCharged(PdbAtom* atom);
+    bool isHydrogenAcceptor(PdbAtom* atom);
+    bool isHydrogenDonor(PdbAtom* atom);
+    bool isHydrophobic(PdbAtom* atom);
 
 public:
     Pdb(string pdb);
@@ -59,6 +77,7 @@ public:
     bool exportStructure(QString filepath, vector<float> bfactors, char chain);
     void printSeqNumbers();
     tuple<string, string, int> needleman_wunsch(string a, string b); //ALIGN_A, ALIGN_B, SCORE
+    void calculateInterations();
 };
 
 #endif // PDB_H

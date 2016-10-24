@@ -1,15 +1,33 @@
 // Dimensions of sunburst.
-var width = 1000;
-var height = 600;
+
+//nessa versao: dimensoes passadas dinamicamente por jquery
+var width = $('#main').width();
+var height = ($('#main').width()) * 0.8;
 var radius = Math.min(width, height) / 2;
+
+var body_margin_top = d3.select("body").attr("margin-top", height / 60);
+var seq_height = d3.select("#sequence").attr("height", width * 0.093334);
+
+//a guia explanation herda o posicionamento de #chart que herda de #main. logo deve ser possivel definir seu posicionamento absoluto aqui
+//usando os valores de height e width de #main, que por sua vez sao definidos a partir do % de body que herda do % de html gerado a partir
+//da tela completa
+var explanation_pos = $("#explanation").css({top: height * 0.43333333, left: height * 0.50833333, position:'absolute', width: height * 0.23333333});
 
 // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
 var b = {
-  w: 120, h: 30, s: 3, t: 10
+  w: 75, h: 30, s: 3, t: 10
 };
 
-// Mapping of step names to colors
-var colors = {};
+// Mapping of step names to colors.
+
+var colors = {
+  "home": "#5687d1",
+  "product": "#7b615c",
+  "search": "#de783b",
+  "account": "#6ab975",
+  "other": "#a173d1",
+  "end": "#bbbbbb"
+};
 
 // Total size of all segments; we set this later, after loading the data.
 var totalSize = 0; 
@@ -33,113 +51,11 @@ var arc = d3.svg.arc()
 
 // Use d3.text and d3.csv.parseRows so that we do not need to have a header
 // row, and can receive the csv as an array of arrays.
-d3.text ("clades.csv", function(text) {//("visit-sequences.csv", function(text) {
+d3.text("clades_test.csv", function(text) {
   var csv = d3.csv.parseRows(text);
-  colors = generate_colors(csv)[0];
-  var csv2 = generate_colors(csv)[1];
-  delete(csv);
-  var json = buildHierarchy(csv2);
+  var json = buildHierarchy(csv);
   createVisualization(json);
 });
-
-function displaymessage(str)
-{
-   window.location.reload(true);
-}
-
-//Automatically parse CSV file to map colors to clades
-function generate_colors(csv) {
-  var my_pallete = {
-  "Archea" :  d3.rgb(153, 0, 0).toString(),
-  "Bacteria" : d3.rgb(153, 153, 0).toString(),
-  "Eukaryota" : d3.rgb(0, 0, 153).toString(),
-  "Virus" : d3.rgb(0, 153, 0).toString(),
-  "Viroids" : d3.rgb(0, 153, 76).toString(),
-  "Unclassified" : d3.rgb(0, 153, 153).toString(), 
-  }
-  var file_csv2 = [];
-  for (var i = 0; i < csv.length; i++) {
-    var sequence = csv[i][0];
-    var size = +csv[i][1];
-    if (isNaN(size)) { // e.g. if this is a header row
-      continue;
-    }
-    var parts = sequence.split("-");
-    var first_node = parts[0];
-    var second_node = parts[1];
-    var third_node = parts[2];
-    var fourth_node = parts[3];
-    var fifth_node = parts[4];
-    var sixth_node = parts[5];
-    var seventh_node = parts[6];
-    var eighth_node = parts[7];
-    var color_input_pal = {
-      "Archea" :  d3.rgb(153, 0, 0),
-      "Bacteria" : d3.rgb(153, 153, 0),
-      "Eukaryota" : d3.rgb(0, 0, 153),
-      "Virus" : d3.rgb(0, 153, 0),
-      "Viroids" : d3.rgb(0, 153, 76),
-      "Unclassified" : d3.rgb(0, 153, 153)
-    }
-    var to_seq = parts[0];
-    var parts_list = parts[parts.length - 1].split(" ");
-    if (parts[parts.length - 1] != 'unknown') {
-      parts[parts.length - 1] = (parts_list[0]).substring(0, 1).toUpperCase() + ' ' + parts_list[1];
-    }
-    for (var j = 1; j < parts.length; j++) {
-      var nodeName = parts[j];
-      if ((inArray(nodeName,getMyKeys(my_pallete))) && ((color_input_pal[first_node].brighter(0.3).toString())) != (my_pallete[nodeName])) {//} && ()) {
-          newnodeName = (nodeName.substring(0, 1)).toUpperCase() + nodeName.substring(1,3) + '(' + parts[0].substring(0,3) + ';' + parts[j-1].substring(0,3);
-          z = j - 1;
-          while((parts[z-1] == nodeName) && ((z-1) > 0)) {
-            newnodeName = newnodeName + '_' + z;
-            z = z - 1;
-          }
-          newnodeName = newnodeName  + ')';
-          color_input_pal[first_node] = color_input_pal[first_node].brighter(0.3);
-          my_pallete[newnodeName] = color_input_pal[first_node].toString();
-          to_seq = to_seq + '-' + newnodeName;
-
-      }
-      else {
-        to_seq = to_seq + '-' + nodeName;
-        if (inArray(first_node,getMyKeys(color_input_pal))) {
-          color_input_pal[first_node] = color_input_pal[first_node].brighter(0.3);
-          my_pallete[nodeName] = color_input_pal[first_node].toString();
-        }
-        else {
-          color_input_pal[first_node] = color_input_pal["Unclassified"];
-          my_pallete[first_node] = color_input_pal["Unclassified"].toString();
-          color_input_pal[first_node] = color_input_pal["Unclassified"].brighter(0.3);
-          my_pallete[nodeName] = color_input_pal["Unclassified"].toString();  
-
-        }
-      }
-    }
-    var final_array = [to_seq, csv[i][1]];
-    file_csv2.push(final_array); 
-  }
-  var return_array = [my_pallete, file_csv2];
-  return return_array;
-}
-
-function getMyKeys(foo) {
-  var keys = [];
-  for (var key in foo) {
-    keys.push(key);
-  }
-  return keys;
-}
-
-function inArray(needle,haystack) {
-  var count=haystack.length;
-  for(var i=0;i<count;i++) {
-    if(haystack[i]===needle){
-      return true;
-    }
-  }
-  return false;
-}
 
 // Main function to draw and set up the visualization, once we have the data.
 function createVisualization(json) {
@@ -167,7 +83,13 @@ function createVisualization(json) {
       .attr("display", function(d) { return d.depth ? null : "none"; })
       .attr("d", arc)
       .attr("fill-rule", "evenodd")
-      .style("fill", function(d) { return colors[d.name]; })
+      //.style("fill", function(d) { return colors[d.name]; })
+      //above is original
+      .style("fill", function(d) { return d.cor; })
+      //here not colors anymore, using colors from cor defined in hierarquical array by colorify function
+      //.style("fill", function(d) { return colorify(d.lineage); })on
+      //.style("fill", function(d) { var s = d.lineage;  console.log(s); var cor = colorify(s); return cor; })
+      //above does not work, idk why
       .style("opacity", 1)
       .on("mouseover", mouseover);
 
@@ -195,7 +117,9 @@ function mouseover(d) {
 
   var sequenceArray = getAncestors(d);
   updateBreadcrumbs(sequenceArray, percentageString);
-
+  //below tests to see if it works or not
+  //console.log(d.name);
+  //console.log(d.lineage);
   // Fade all the segments.
   d3.selectAll("path")
       .style("opacity", 0.3);
@@ -221,7 +145,7 @@ function mouseleave(d) {
   // Transition each segment to full opacity and then reactivate it.
   d3.selectAll("path")
       .transition()
-      .duration(10)
+      .duration(1000)
       .style("opacity", 1)
       .each("end", function() {
               d3.select(this).on("mouseover", mouseover);
@@ -229,6 +153,28 @@ function mouseleave(d) {
 
   d3.select("#explanation")
       .style("visibility", "hidden");
+}
+
+
+//colors nodes by their lineage
+function colorify(lineage) {
+  var lineage_array = lineage.split('-');
+  var color_input_pal = {
+    "Archea" : d3.scale.linear().domain([0, 7]).range(['#660000', '#ff9999']),
+    "Bacteria" : d3.scale.linear().domain([0, 7]).range(['#666600', '#ffff99']),
+    "Eukaryota" : d3.scale.linear().domain([0, 7]).range(['#000066', '#9999ff']),
+    "Virus" : d3.scale.linear().domain([0, 7]).range(['#006600', '#99ff99']),
+    "Viroids" : d3.scale.linear().domain([0, 7]).range(['#006666', '#99ffff']),
+    "Other" : d3.scale.linear().domain([0, 7]).range(['#202020', '#e0e0e0'])
+  }
+  var rgb_string_scale = color_input_pal[lineage_array[0]];
+  if (rgb_string_scale == null) {
+    rgb_string_scale = color_input_pal["Other"];
+    var rgb_color = rgb_string_scale(lineage_array.length);
+    return rgb_color;
+  }
+  var rgb_color = rgb_string_scale(lineage_array.length);
+  return rgb_color;
 }
 
 // Given a node in a partition layout, return an array of all of its ancestor
@@ -282,7 +228,13 @@ function updateBreadcrumbs(nodeArray, percentageString) {
 
   entering.append("svg:polygon")
       .attr("points", breadcrumbPoints)
-      .style("fill", function(d) { return colors[d.name]; });
+      //.style("fill", function(d) { return colors[d.name]; });
+      //original function above
+      .style("fill", function(d) { return d.cor; });
+      //uses cor from hiearquical json defined by colorify
+      //.style("fill", function(d) { colorify(d.lineage); });
+      //.style("fill", function(d) { var s = d.lineage; console.log(s); var cor = colorify(s); return cor; });
+      //idk why the above does not work. go figure
 
   entering.append("svg:text")
       .attr("x", (b.w + b.t) / 2)
@@ -322,11 +274,10 @@ function drawLegend() {
 
   var legend = d3.select("#legend").append("svg:svg")
       .attr("width", li.w)
-      .attr("height", 6 * (li.h + li.s));//d3.keys(colors).length * (li.h + li.s));
+      .attr("height", d3.keys(colors).length * (li.h + li.s));
 
   var g = legend.selectAll("g")
       .data(d3.entries(colors))
-      //.data(['Archea', 'Bacteria', 'Eukaryota', 'Virus', 'Viroids', 'Unclassified'])
       .enter().append("svg:g")
       .attr("transform", function(d, i) {
               return "translate(0," + i * (li.h + li.s) + ")";
@@ -361,7 +312,7 @@ function toggleLegend() {
 // root to leaf, separated by hyphens. The second column is a count of how 
 // often that sequence occurred.
 function buildHierarchy(csv) {
-  var root = {"name": "root", "children": []};
+  var root = {"name": "root", "children": [], "lineage": lineage};
   for (var i = 0; i < csv.length; i++) {
     var sequence = csv[i][0];
     var size = +csv[i][1];
@@ -372,6 +323,9 @@ function buildHierarchy(csv) {
     var currentNode = root;
     for (var j = 0; j < parts.length; j++) {
       var children = currentNode["children"];
+      //modifications to save ancestors
+      var subarray = parts.slice(0,j+1);
+      var lineage = subarray.join('-');
       var nodeName = parts[j];
       var childNode;
       if (j + 1 < parts.length) {
@@ -386,13 +340,15 @@ function buildHierarchy(csv) {
  	}
   // If we don't already have a child node for this branch, create it.
  	if (!foundChild) {
- 	  childNode = {"name": nodeName, "children": []};
+    //childNode = {"name": nodeName, "children": []}; //"lineage": lineage };
+ 	  childNode = {"name": nodeName, "children": [], "lineage": lineage, "cor": colorify(lineage) };
  	  children.push(childNode);
  	}
  	currentNode = childNode;
       } else {
  	// Reached the end of the sequence; create a leaf node.
- 	childNode = {"name": nodeName, "size": size};
+  //childNode = {"name": nodeName, "size": size}; //"lineage": lineage };
+ 	childNode = {"name": nodeName, "size": size, "lineage": lineage, "cor": colorify(lineage)  };
  	children.push(childNode);
       }
     }

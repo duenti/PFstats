@@ -34,7 +34,10 @@ SOURCES += main.cpp\
     filter.cpp \
     networkvisualization.cpp \
     colors.cpp \
-    taxonomicvisualization.cpp
+    taxonomicvisualization.cpp \
+    pdbresidues.cpp \
+    pdbpseudoatom.cpp \
+    pdbinteraction.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -43,11 +46,14 @@ HEADERS  += mainwindow.h \
     uniprot.h \
     feature.h \
     pdb.h \
-    pdbatom.h \
     filter.h \
     networkvisualization.h \
     colors.h \
-    taxonomicvisualization.h
+    taxonomicvisualization.h \
+    pdbatom.h \
+    pdbresidues.h \
+    pdbpseudoatom.h \
+    pdbinteraction.h
 
 FORMS    += mainwindow.ui \
     about.ui \

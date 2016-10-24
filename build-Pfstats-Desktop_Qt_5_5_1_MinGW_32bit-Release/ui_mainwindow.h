@@ -145,13 +145,9 @@ public:
     QAction *actionOpenAlignment;
     QAction *actionGenerate_Sub_Alignment;
     QAction *actionAdd_Sequences;
+    QAction *actionTaxonomic_View;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
-    QHBoxLayout *horizontalLayout_9;
-    QPushButton *cmdMain;
-    QPushButton *cmdBack;
-    QPushButton *cmdAdvance;
-    QPushButton *cmdSaveResults;
     QVBoxLayout *verticalLayout_11;
     QHBoxLayout *horizontalLayout_23;
     QLabel *label_45;
@@ -161,6 +157,11 @@ public:
     QLabel *label_46;
     QPushButton *cmdRemoveFilter;
     QListWidget *listWidget2;
+    QHBoxLayout *horizontalLayout_9;
+    QPushButton *cmdMain;
+    QPushButton *cmdBack;
+    QPushButton *cmdAdvance;
+    QPushButton *cmdSaveResults;
     QStackedWidget *stackedWidget;
     QWidget *page;
     QWidget *layoutWidget;
@@ -600,6 +601,7 @@ public:
     QHBoxLayout *horizontalLayout_81;
     QSpacerItem *horizontalSpacer_55;
     QPushButton *cmdHideShowAntiCorr;
+    QPushButton *cmdExpandNetworkVisualization;
     QSpacerItem *horizontalSpacer_56;
     QWebView *webCorrGraph;
     QWidget *page_25;
@@ -646,6 +648,11 @@ public:
     QHBoxLayout *horizontalLayout_96;
     QTableWidget *tableFullAlignment;
     QTreeWidget *lstExtraView;
+    QWidget *page_34;
+    QGridLayout *gridLayout_34;
+    QLabel *label_91;
+    QPushButton *cmdExpandTaxonomy;
+    QWebView *webTaxons;
     QWidget *page_19;
     QGridLayout *gridLayout_30;
     QLabel *label_47;
@@ -788,8 +795,6 @@ public:
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
     QButtonGroup *buttonGroup_2;
-    QButtonGroup *buttonGroup_4;
-    QButtonGroup *buttonGroup_3;
     QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
@@ -999,45 +1004,14 @@ public:
         actionGenerate_Sub_Alignment->setObjectName(QStringLiteral("actionGenerate_Sub_Alignment"));
         actionAdd_Sequences = new QAction(MainWindow);
         actionAdd_Sequences->setObjectName(QStringLiteral("actionAdd_Sequences"));
+        actionTaxonomic_View = new QAction(MainWindow);
+        actionTaxonomic_View->setObjectName(QStringLiteral("actionTaxonomic_View"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        horizontalLayout_9 = new QHBoxLayout();
-        horizontalLayout_9->setSpacing(6);
-        horizontalLayout_9->setObjectName(QStringLiteral("horizontalLayout_9"));
-        cmdMain = new QPushButton(centralWidget);
-        cmdMain->setObjectName(QStringLiteral("cmdMain"));
-        cmdMain->setEnabled(true);
-        cmdMain->setMaximumSize(QSize(150, 16777215));
-
-        horizontalLayout_9->addWidget(cmdMain);
-
-        cmdBack = new QPushButton(centralWidget);
-        cmdBack->setObjectName(QStringLiteral("cmdBack"));
-        cmdBack->setEnabled(true);
-        cmdBack->setMaximumSize(QSize(150, 16777215));
-
-        horizontalLayout_9->addWidget(cmdBack);
-
-        cmdAdvance = new QPushButton(centralWidget);
-        cmdAdvance->setObjectName(QStringLiteral("cmdAdvance"));
-        cmdAdvance->setEnabled(true);
-        cmdAdvance->setMaximumSize(QSize(150, 16777215));
-
-        horizontalLayout_9->addWidget(cmdAdvance);
-
-        cmdSaveResults = new QPushButton(centralWidget);
-        cmdSaveResults->setObjectName(QStringLiteral("cmdSaveResults"));
-        cmdSaveResults->setMaximumSize(QSize(200, 16777215));
-
-        horizontalLayout_9->addWidget(cmdSaveResults);
-
-
-        gridLayout->addLayout(horizontalLayout_9, 1, 1, 1, 1);
-
         verticalLayout_11 = new QVBoxLayout();
         verticalLayout_11->setSpacing(6);
         verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
@@ -1107,6 +1081,39 @@ public:
 
 
         gridLayout->addLayout(verticalLayout_11, 0, 0, 2, 1);
+
+        horizontalLayout_9 = new QHBoxLayout();
+        horizontalLayout_9->setSpacing(6);
+        horizontalLayout_9->setObjectName(QStringLiteral("horizontalLayout_9"));
+        cmdMain = new QPushButton(centralWidget);
+        cmdMain->setObjectName(QStringLiteral("cmdMain"));
+        cmdMain->setEnabled(true);
+        cmdMain->setMaximumSize(QSize(150, 16777215));
+
+        horizontalLayout_9->addWidget(cmdMain);
+
+        cmdBack = new QPushButton(centralWidget);
+        cmdBack->setObjectName(QStringLiteral("cmdBack"));
+        cmdBack->setEnabled(true);
+        cmdBack->setMaximumSize(QSize(150, 16777215));
+
+        horizontalLayout_9->addWidget(cmdBack);
+
+        cmdAdvance = new QPushButton(centralWidget);
+        cmdAdvance->setObjectName(QStringLiteral("cmdAdvance"));
+        cmdAdvance->setEnabled(true);
+        cmdAdvance->setMaximumSize(QSize(150, 16777215));
+
+        horizontalLayout_9->addWidget(cmdAdvance);
+
+        cmdSaveResults = new QPushButton(centralWidget);
+        cmdSaveResults->setObjectName(QStringLiteral("cmdSaveResults"));
+        cmdSaveResults->setMaximumSize(QSize(200, 16777215));
+
+        horizontalLayout_9->addWidget(cmdSaveResults);
+
+
+        gridLayout->addLayout(horizontalLayout_9, 1, 1, 1, 1);
 
         stackedWidget = new QStackedWidget(centralWidget);
         stackedWidget->setObjectName(QStringLiteral("stackedWidget"));
@@ -3551,6 +3558,11 @@ public:
 
         horizontalLayout_81->addWidget(cmdHideShowAntiCorr);
 
+        cmdExpandNetworkVisualization = new QPushButton(page_24);
+        cmdExpandNetworkVisualization->setObjectName(QStringLiteral("cmdExpandNetworkVisualization"));
+
+        horizontalLayout_81->addWidget(cmdExpandNetworkVisualization);
+
         horizontalSpacer_56 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_81->addItem(horizontalSpacer_56);
@@ -3783,6 +3795,30 @@ public:
         gridLayout_3->addLayout(horizontalLayout_96, 2, 0, 1, 1);
 
         stackedWidget2->addWidget(page_31);
+        page_34 = new QWidget();
+        page_34->setObjectName(QStringLiteral("page_34"));
+        gridLayout_34 = new QGridLayout(page_34);
+        gridLayout_34->setSpacing(6);
+        gridLayout_34->setContentsMargins(11, 11, 11, 11);
+        gridLayout_34->setObjectName(QStringLiteral("gridLayout_34"));
+        label_91 = new QLabel(page_34);
+        label_91->setObjectName(QStringLiteral("label_91"));
+
+        gridLayout_34->addWidget(label_91, 0, 0, 1, 1);
+
+        cmdExpandTaxonomy = new QPushButton(page_34);
+        cmdExpandTaxonomy->setObjectName(QStringLiteral("cmdExpandTaxonomy"));
+        cmdExpandTaxonomy->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_34->addWidget(cmdExpandTaxonomy, 1, 1, 1, 1);
+
+        webTaxons = new QWebView(page_34);
+        webTaxons->setObjectName(QStringLiteral("webTaxons"));
+        webTaxons->setUrl(QUrl(QStringLiteral("about:blank")));
+
+        gridLayout_34->addWidget(webTaxons, 2, 0, 1, 2);
+
+        stackedWidget2->addWidget(page_34);
 
         verticalLayout_19->addWidget(stackedWidget2);
 
@@ -4481,6 +4517,7 @@ public:
         menuShow->addAction(actionFull_Alignment);
         menuShow->addSeparator();
         menuShow->addAction(actionList_Of_Sequences);
+        menuShow->addAction(actionTaxonomic_View);
         menuShow->addSeparator();
         menuShow->addAction(menuConservation_Table->menuAction());
         menuShow->addAction(actionConserved_Residues);
@@ -4490,11 +4527,9 @@ public:
         menuShow->addAction(actionCorrelation_Graph);
         menuShow->addAction(actionCommunities_List);
         menuShow->addAction(actionStructure_Communities_Visualization);
-        menuShow->addAction(actionCommunities_Graphs);
         menuShow->addAction(menuCorrelation_Tables_2->menuAction());
         menuShow->addAction(actionAdherence_Matrix);
         menuShow->addAction(actionResidues_Of_Communities);
-        menuShow->addAction(actionCorrelationBetweenCommunities);
         menuShow->addSeparator();
         menuShow->addAction(menuUniprot_Look_Results->menuAction());
         menuConservation_Table->addAction(actionIn_Frequence);
@@ -4566,8 +4601,8 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(8);
-        stackedWidget2->setCurrentIndex(12);
+        stackedWidget->setCurrentIndex(2);
+        stackedWidget2->setCurrentIndex(2);
         cmbViewColumns->setCurrentIndex(2);
 
 
@@ -4659,7 +4694,7 @@ public:
         actionReference_Sequences->setText(QApplication::translate("MainWindow", "Reference Sequences", 0));
         actionRefSeqTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
         actionRefSeqXML->setText(QApplication::translate("MainWindow", "XML", 0));
-        actionCorrelation_Graph->setText(QApplication::translate("MainWindow", "Correlation Graph", 0));
+        actionCorrelation_Graph->setText(QApplication::translate("MainWindow", "Correlation Network", 0));
         actionCommunities_Graphs->setText(QApplication::translate("MainWindow", "Communities Graphs", 0));
         actionCorrelationBetweenCommunities->setText(QApplication::translate("MainWindow", "Correlation Between Communities", 0));
         actionStrutucture_Conserved_Residues_Visualization->setText(QApplication::translate("MainWindow", "Strutucture Conserved Residues Visualization", 0));
@@ -4691,14 +4726,15 @@ public:
         actionOpenAlignment->setText(QApplication::translate("MainWindow", "Open Alignment", 0));
         actionGenerate_Sub_Alignment->setText(QApplication::translate("MainWindow", "Generate Sub-Alignment", 0));
         actionAdd_Sequences->setText(QApplication::translate("MainWindow", "Add Sequences", 0));
-        cmdMain->setText(QApplication::translate("MainWindow", "Main", 0));
-        cmdBack->setText(QApplication::translate("MainWindow", "Back", 0));
-        cmdAdvance->setText(QApplication::translate("MainWindow", "Advance", 0));
-        cmdSaveResults->setText(QApplication::translate("MainWindow", "Save Results", 0));
+        actionTaxonomic_View->setText(QApplication::translate("MainWindow", "Taxonomic View", 0));
         label_45->setText(QApplication::translate("MainWindow", "Alignment:", 0));
         cmdRemoveAlignment->setText(QApplication::translate("MainWindow", "-", 0));
         label_46->setText(QApplication::translate("MainWindow", "Filter:", 0));
         cmdRemoveFilter->setText(QApplication::translate("MainWindow", "-", 0));
+        cmdMain->setText(QApplication::translate("MainWindow", "Main", 0));
+        cmdBack->setText(QApplication::translate("MainWindow", "Back", 0));
+        cmdAdvance->setText(QApplication::translate("MainWindow", "Advance", 0));
+        cmdSaveResults->setText(QApplication::translate("MainWindow", "Save Results", 0));
         label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PFstats</span></p><p align=\"justify\">PFstats contains a set of functions to extract useful information from protein families (represented by a multiple sequence alignment) using conservation and correlation methods.<br/><br/>These functions can be acessed from the menu bar or a complete analysis can be accomplished using the Wizard option.</p></body></html>", 0));
         cmdStartWizard->setText(QApplication::translate("MainWindow", "Start Wizard", 0));
         label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Obtaining An Alignment</span></p><p align=\"justify\">PFSTATS uses multiple sequence alignments in the PFAM format (identifier, spacer, complete sequence) as input. Use &quot;get from desktop&quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
@@ -5014,6 +5050,7 @@ public:
         ___qtablewidgetitem57->setText(QApplication::translate("MainWindow", "End", 0));
         label_57->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Correlations Graph Visualization</span></p></body></html>", 0));
         cmdHideShowAntiCorr->setText(QApplication::translate("MainWindow", "Hide Anti-Correlations", 0));
+        cmdExpandNetworkVisualization->setText(QApplication::translate("MainWindow", "Expand Visualization", 0));
         label_58->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Communities Graphs Visualization</span></p></body></html>", 0));
         lblComunidade_4->setText(QApplication::translate("MainWindow", "Communitie ", 0));
         cmdBackCommGraph->setText(QApplication::translate("MainWindow", "<", 0));
@@ -5060,6 +5097,8 @@ public:
         cmdApplyViewAlignment->setText(QApplication::translate("MainWindow", "Apply", 0));
         QTreeWidgetItem *___qtreewidgetitem3 = lstExtraView->headerItem();
         ___qtreewidgetitem3->setText(0, QApplication::translate("MainWindow", "Specificities", 0));
+        label_91->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Taxonomic View</span></p></body></html>", 0));
+        cmdExpandTaxonomy->setText(QApplication::translate("MainWindow", "Expand", 0));
         label_47->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Uniprot Looking Tool</span></p></body></html>", 0));
         label_48->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#ff0000;\">This method requires internet connection.</span></p></body></html>", 0));
         groupBox_6->setTitle(QApplication::translate("MainWindow", "Target Residues", 0));

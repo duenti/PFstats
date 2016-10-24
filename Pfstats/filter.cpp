@@ -12,6 +12,7 @@ Filter::Filter()
     maxId = 0;
     conservedPDBpath = "";
     commPDBPath = "";
+    cons_min = 0.8;
 
     c = new Colors();
 }
@@ -27,7 +28,7 @@ Filter::Filter(string name, string alphabet, int type){
     maxId = 0;
     conservedPDBpath = "";
     cons_offset = 0;
-    cons_min = 0;
+    cons_min = 0.8;
     cons_refseq = 0;
     corr_min_score = 0;
     corr_minssfraction = 0;
@@ -471,7 +472,7 @@ float Filter::getMinId(){
 }
 
 void Filter::setMinId(float id){
-    this->minId = minId;
+    this->minId = id;
 }
 
 string Filter::getConsPDB(){
@@ -4304,7 +4305,7 @@ string Filter::generateXML(){
     string xml = "";
 
     xml += "\t<filter name='" + name + "' type='" + typeToString() + "' taxon='" + taxon + "' occ='"
-            + to_string(minOcc) + "' minid='" + to_string(minId) + "' maxid='" + to_string(maxId)
+            + QString::number(minOcc).toStdString() + "' minid='" + QString::number(minId).toStdString() + "' maxid='" + QString::number(maxId).toStdString()
             + "' refseq='" + refSeq + "' alphabet='" + alphabet + "' >\n";
 
     xml += "\t\t<seqlist>\n";
@@ -4331,9 +4332,9 @@ string Filter::generateXML(){
         xml += "\t\t<parameters>\n";
 
         if(conservedPDBpath != "") xml += "\t\t\t<pdb>" + conservedPDBpath + "</pdb>\n";
-        xml += "\t\t\t<offset>" + to_string(cons_offset) + "</offset>\n";
-        xml += "\t\t\t<minimum>" + to_string(cons_min) + "</minimum>\n";
-        xml += "\t\t\t<refseq>" + to_string(cons_refseq) + "</refseq>\n";
+        xml += "\t\t\t<offset>" + QString::number(cons_offset).toStdString() + "</offset>\n";
+        xml += "\t\t\t<minimum>" + QString::number(cons_min).toStdString() + "</minimum>\n";
+        xml += "\t\t\t<refseq>" + QString::number(cons_refseq).toStdString() + "</refseq>\n";
 
         xml += "\t\t</parameters>\n";
 
@@ -4449,11 +4450,11 @@ string Filter::generateXML(){
         xml += "\t\t<parameters>\n";
 
         if(commPDBPath != "") xml += "\t\t\t<pdb>" + commPDBPath + "</pdb>\n";
-        xml += "\t\t\t<offset>" + to_string(corr_offset) + "</offset>\n";
-        xml += "\t\t\t<min_score>" + to_string(corr_min_score) + "</min_score>\n";
-        xml += "\t\t\t<minss>" + to_string(corr_minssfraction) + "</minss>\n";
-        xml += "\t\t\t<min_delta>" + to_string(corr_min_delta) + "</min_delta>\n";
-        xml += "\t\t\t<refseq>" + to_string(corr_refseq) + "</refseq>\n";
+        xml += "\t\t\t<offset>" + QString::number(corr_offset).toStdString() + "</offset>\n";
+        xml += "\t\t\t<min_score>" + QString::number(corr_min_score).toStdString() + "</min_score>\n";
+        xml += "\t\t\t<minss>" + QString::number(corr_minssfraction).toStdString() + "</minss>\n";
+        xml += "\t\t\t<min_delta>" + QString::number(corr_min_delta).toStdString() + "</min_delta>\n";
+        xml += "\t\t\t<refseq>" + QString::number(corr_refseq).toStdString() + "</refseq>\n";
 
         xml += "\t\t</parameters>\n";
 

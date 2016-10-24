@@ -113,11 +113,18 @@ void NetworkVisualization::createVisualization(bool hideanticorr, bool commcolor
     fileCSS.open(QIODevice::WriteOnly);
     QTextStream out2(&fileCSS);
 
+    out2 << "html{\n";
+    out2 << "width: 99%;\n";
+    out2 << "height: 99%;\n";
+    out2 << "}\n";
+    out2 << "html, body, #mynetwork {\n";
+    out2 << "min-height: 99% !important;\n";
+    out2 << "height: 99%;\n";
+    out2 << "min-width: 99% !important;\n";
+    out2 << "width: 99%;\n";
+    out2 << "}\n";
     out2 << "#mynetwork {\n";
-    out2 << "width: " + QString::number(ui->webView->width()) + "px;\n";
-    out2 << "height: " + QString::number(ui->webView->height()) + "px;\n";
     out2 << "border: 1px solid lightgray;\n}";
-
 
     string path = libpath + "visjs/examples/network/index.html";
     QFile file(path.c_str());

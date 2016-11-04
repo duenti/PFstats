@@ -12,6 +12,10 @@ vector<PdbAtom*> PdbResidues::getAtoms(){
     return atoms;
 }
 
+PdbAtom* PdbResidues::getAtom(int i){
+    return atoms[i];
+}
+
 string PdbResidues::getResname(){
     PdbAtom* atom = atoms[0];
     return atom->getResidue();

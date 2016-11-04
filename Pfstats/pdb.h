@@ -17,6 +17,8 @@
 #include <QtNetwork>
 #include <QMessageBox>
 #include <stack>
+#include <QApplication>
+#include <QProgressDialog>
 
 using namespace std;
 
@@ -50,6 +52,7 @@ private:
 public:
     Pdb(string pdb);
     Pdb(QString filepath);
+    Pdb();
     ~Pdb();
     string getId();
     void setId(string id);
@@ -68,6 +71,9 @@ public:
     void clearAtoms();
     PdbAtom* getAtom(int i);
     void addAtom(PdbAtom* atom);
+    int countResidues();
+    void clearResidues();
+    PdbResidues* getResidue(int i);
     void setResiduesSeqNumber(char chain);
     int setResiduesSeqNumber(string pfamsequence, char chain); //IMPLEMENTAR
     vector<tuple<string,string> > getResiduesInContact(float dist, char chain);

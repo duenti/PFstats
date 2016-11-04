@@ -14,6 +14,7 @@ public:
     PdbResidues();
     void addAtom(PdbAtom* atom);
     vector<PdbAtom*> getAtoms();
+    PdbAtom* getAtom(int i);
     string getResname();
 };
 

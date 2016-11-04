@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QMainWindow::showFullScreen();
+    //QMainWindow::showFullScreen();
 
     currentAlign = nullptr;
 
@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGrouped_By_Communities,SIGNAL(triggered()),this,SLOT(changeToULGroupedByComms()));
     connect(ui->actionCorrelation_Graph,SIGNAL(triggered()),this,SLOT(changeToCorrelationGraph()));
     connect(ui->actionCommunities_Graphs,SIGNAL(triggered()),this,SLOT(changeToCommunitiesGraphs()));
-    connect(ui->actionCorrelationBetweenCommunities,SIGNAL(triggered()),this,SLOT(changeToCorrelationBetweenComms()));
+    connect(ui->actionCommunitiesNetwork,SIGNAL(triggered()),this,SLOT(changeToCorrelationBetweenComms()));
     connect(ui->actionStrutucture_Conserved_Residues_Visualization,SIGNAL(triggered()),SLOT(changeToPDBVisualization()));
     connect(ui->actionStructure_Communities_Visualization,SIGNAL(triggered()),SLOT(changeToPDBVisualization2()));
     connect(ui->actionFull_Alignment,SIGNAL(triggered()),this,SLOT(changeToFullAlignment()));
@@ -129,6 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionNewAlignment,SIGNAL(triggered()),this,SLOT(changeToOpenAlignment()));
     connect(ui->actionRemoveAlignment,SIGNAL(triggered()),this,SLOT(closeAlignment()));
     connect(ui->actionNewFilter,SIGNAL(triggered()),this,SLOT(changetoFilterStack()));
+    connect(ui->actionMutation_Analysis,SIGNAL(triggered()),this,SLOT(changeToMutationAnalysis()));
     connect(ui->actionRenameFilter,SIGNAL(triggered()),this,SLOT(renameFilter()));
     connect(ui->actionRemoveFilter,SIGNAL(triggered()),this,SLOT(removeFilter()));
 
@@ -341,7 +342,6 @@ void MainWindow::resetObjects(){
     //COMM GRAPHS
     ui->lblComunidade_4->setText("Communitie ");
     //CORRELATION BETWEEN COMMS GRAPH
-    ui->txtGraphCutoff->setText("1.5");
     //Uniprot Looking Tool
     ui->chkConserveds->setChecked(false);
     ui->chkComm->setChecked(false);
@@ -1456,6 +1456,97 @@ void MainWindow::communitiesGraphs(){
 }
 
 void MainWindow::corrBetweenComms(){
+    string pathJSON = libpath + "visjs/examples/network/in2.js";
+    QFile fileJSON(pathJSON.c_str());
+    fileJSON.open(QIODevice::WriteOnly);
+    QTextStream out(&fileJSON);
+    map<string,int> dic;
+
+    //Options
+    out << "var options = {\n";
+    out << "physics: {\n";
+    out << "barnesHut: {\n";
+    out << "gravitationalConstant: -36,\n";
+    out << "centralGravity: 0.005,\n";
+    out << "springLength: 230,\n";
+    out << "springConstant: 0.18\n";
+    out << "},\n";
+    out << "maxVelocity: 146,\n";
+    out << "solver: 'forceAtlas2Based',\n";
+    out << "timestep: 0.35,\n";
+    out << "stabilization: {\n";
+    out << "enabled:true,\n";
+    out << "iterations:2000,\n";
+    out << "updateInterval:25\n";
+    out << "}\n";
+    out << "},\n";
+    out << "interaction:{hover:true},\n";
+    out << "edges:{smooth: false}\n";
+    out << "};\n\n";
+
+
+    out << "var nodes = [\n";
+    for(unsigned int i = 0; i < currentFilter->getNumOfUtilComms(); i++){
+        if(i != 0){
+            out << ",\n";
+        }
+        string name = "Comm" + to_string(i+1);
+        out << "{id: " + QString::number(i+1) + ", label: 'Comm" + QString::number(i+1) + "'}";
+        dic[name] = i+1;
+    }
+    out << "];\n\n";
+
+
+    out << "var edges = [\n";
+    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(0);
+    for(unsigned int i = 0; i < graph.size(); i++){
+        tuple<string,string,int> tupCorr = graph[i];
+        string n1 = get<0>(tupCorr);
+        int id1 = dic[n1];
+        string n2 = get<1>(tupCorr);
+        int id2 = dic[n2];
+        int weight = get<2>(tupCorr);
+        string color = "red";
+
+        if(weight > 0) color = "green";
+
+        out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + "},\n";
+    }
+    out << "];\n";
+
+
+    //CSS
+    string pathCSS = libpath + "visjs/examples/network/mynetwork.css";
+    QFile fileCSS(pathCSS.c_str());
+    fileCSS.open(QIODevice::WriteOnly);
+    QTextStream out2(&fileCSS);
+
+    out2 << "html{\n";
+    out2 << "width: 99%;\n";
+    out2 << "height: 99%;\n";
+    out2 << "}\n";
+    out2 << "html, body, #mynetwork {\n";
+    out2 << "min-height: 99% !important;\n";
+    out2 << "height: 99%;\n";
+    out2 << "min-width: 99% !important;\n";
+    out2 << "width: 99%;\n";
+    out2 << "}\n";
+    out2 << "#mynetwork {\n";
+    out2 << "border: 1px solid lightgray;\n}";
+
+
+    string path = libpath + "visjs/examples/network/index2.html";
+    QFile file(path.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+
+    ui->webCorrComm->load(QUrl(localUrl.c_str()));
+}
+
+/*
+void MainWindow::corrBetweenComms(){
     string pathJSON = libpath + "abor/in3.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
@@ -1522,92 +1613,7 @@ void MainWindow::corrBetweenComms(){
     string localUrl = "file:///" + absPath;
     ui->webCorrComm->load(QUrl(localUrl.c_str()));
 }
-
-void MainWindow::on_cmdCorrCommCutoff_clicked()
-{
-    ui->cmdCorrCommCutoff->setEnabled(false);
-
-    //Validaçao
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
-    if(ui->txtGraphCutoff->text() == ""){
-        QMessageBox::warning(this,"Error","You must set a cutoff value.");
-        ui->cmdCorrCommCutoff->setEnabled(true);
-        return;
-    }
-
-    if(!isFloat(ui->txtGraphCutoff->text().toStdString())){
-        QMessageBox::warning(this,"Error","You must set a numeric value for cutoff.");
-        ui->cmdCorrCommCutoff->setEnabled(true);
-        return;
-    }
-
-    float cutoff = ui->txtGraphCutoff->text().toFloat();
-    string pathJSON = libpath + "abor/in3.json";
-    QFile fileJSON(pathJSON.c_str());
-    fileJSON.open(QIODevice::WriteOnly);
-    QTextStream out(&fileJSON);
-
-    unsigned int nDeltas = currentFilter->getNumOfUtilComms();
-
-    out << "{\n\t\"nodes\": {\n";
-    for(unsigned int i = 0; i < nDeltas; i++){
-        out << ("\t\t\"C" + std::to_string(i+1) + "\": {\n").c_str();
-        out << ("\t\t\t\"alignName\": \"C" + std::to_string(i+1) + "\"\n").c_str();
-
-        if(i+1 < nDeltas) out << "\t\t\t},\n";
-        else out << "\t\t}\n\t},\n";
-    }
-
-    out << "\t\"edges\":{\n";
-    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(cutoff);
-    for(unsigned int i = 0; i < nDeltas; i++){
-        string comm = "C" + std::to_string(i+1);
-
-        if(i != 0) out << ",\n";
-        out << ("\t\t\"" + comm + "\": {\n").c_str();
-
-        int count = 0;
-        for(unsigned int j = 0; j < graph.size(); j++){
-            tuple<string,string,float> edge = graph[j];
-
-
-            if(std::get<0>(edge) == comm){
-                string comm2 = std::get<1>(edge);
-                float weight = std::get<2>(edge);
-
-                if(count > 0) out << ",\n";
-                count++;
-
-                string unformatedValue = std::to_string(weight);
-                string formated = "";
-
-                for(unsigned int k = 0; k < unformatedValue.size(); k++){
-                    if(unformatedValue[k] == ','){
-                        formated += '.';
-                        formated += unformatedValue[k+1];
-                        formated += unformatedValue[k+2];
-                        break;
-                    }else
-                        formated += unformatedValue[k];
-                }
-
-                out << ("\t\t\t\"" + comm2 + "\": {\n").c_str();
-                out << ("\t\t\t\t\"value\": " + formated + "\n").c_str();
-                out << "\t\t\t\t}";
-            }
-        }
-        out << "\n\t\t}";
-    }
-    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
-
-    ui->webCorrComm->reload();
-
-    ui->cmdCorrCommCutoff->setEnabled(true);
-}
+*/
 
 string MainWindow::makeVisPDBHTML(string pdb){
     string html = "";
@@ -6274,6 +6280,38 @@ void MainWindow::changeToUniprotLookingTool(){
     ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
 }
 
+void MainWindow::changeToMutationAnalysis(){
+    //Validação
+    if(pdbs.size() == 0){
+        QMessageBox::warning(this,"Warning","You must have at least one structure file loaded.");
+        return;
+    }
+    /*
+    if(currentFilter->getCommListSize() == 0){
+        QMessageBox::warning(this,"Warning","You must have run correlation methods");
+        return;
+    }*/
+
+    wizard = false;
+
+    this->changeWizardCmds(false);
+
+    ui->cmbMutationRefSeq->clear();
+    for(unsigned int i = 0; i < currentFilter->sequencenames.size(); i++){
+        ui->cmbMutationRefSeq->addItem(currentFilter->sequencenames[i].c_str());
+    }
+
+    ui->cmbMutationStructure->clear();
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        Pdb* pdb = pdbs[i];
+
+        ui->cmbMutationStructure->addItem(pdb->getId().c_str());
+    }
+
+    ui->stackedWidget->setCurrentIndex(STACK_MUTATION);
+
+}
+
 void MainWindow::graphClicked(QCPAbstractPlottable *plot, QMouseEvent *mouse){
     float xValue = plot->keyAxis()->pixelToCoord(mouse->pos().x());
     float yValue = ui->graficMinss->yAxis->pixelToCoord(mouse->pos().y());
@@ -7564,19 +7602,6 @@ void MainWindow::on_txtMinssFraction_editingFinished()
     }
 
     ui->txtMinssFraction->setText(newMinss.c_str());
-}
-
-void MainWindow::on_txtGraphCutoff_editingFinished()
-{
-    string cutoff = ui->txtGraphCutoff->text().toStdString();
-    string newCutoff = "";
-
-    for(unsigned int i = 0; i < cutoff.size(); i++){
-        if(cutoff[i] == ',') newCutoff += '.';
-        else newCutoff += cutoff[i];
-    }
-
-    ui->txtGraphCutoff->setText(newCutoff.c_str());
 }
 
 void MainWindow::setLibPath(){
@@ -9021,7 +9046,8 @@ void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
     ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(filter->getSequencesCount()));
 
     for(unsigned int i = 0; i < filter->getSequencesCount(); i++){
-        string proteinName = this->split(filter->getSequenceName(i),'/')[0];
+        //string proteinName = this->split(filter->getSequenceName(i),'/')[0];
+        string proteinName = filter->getSequenceName(i);
         ui->cmbRefSeq_2->addItem(proteinName.c_str());
         ui->cmbRefSeq_3->addItem(proteinName.c_str());
         ui->cmbRefSeq_4->addItem(proteinName.c_str());
@@ -9045,6 +9071,8 @@ void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
             ui->cmbComm->addItem(QString::number(j));
     }else if(ui->stackedWidget->currentIndex() == STACK_RESULTS){
         this->updateResultsViews();
+    }else if(ui->stackedWidget->currentIndex() == STACK_MUTATION){
+        changeToMutationAnalysis();
     }
 
     currentFilter->CalculateFrequencies();
@@ -9401,4 +9429,209 @@ void MainWindow::on_cmdExpandTaxonomy_clicked()
     TaxonomicVisualization* tv = new TaxonomicVisualization(this,currentFilter,libpath);
     tv->setWindowFlags(Qt::Window);
     tv->show();
+}
+
+void MainWindow::on_cmdCalculateMutations_clicked()
+{
+    ui->cmdCalculateMutations->setEnabled(false);
+
+    if(ui->cmbMutationStructure->currentText() == ""){
+        QMessageBox::warning(this,"Warning","You must choose a structure");
+        ui->cmdCalculateMutations->setEnabled(true);
+        return;
+    }
+
+    Pdb* currentStructure = new Pdb();
+
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        Pdb* structure = pdbs[i];
+        if(structure->getId() == ui->cmbMutationStructure->currentText().toStdString()){
+            currentStructure = structure;
+        }
+    }
+
+    if(currentStructure->getId() == "nothing"){
+        QMessageBox::critical(this,"Error","Error while loading the structure file");
+        ui->cmdCalculateMutations->setEnabled(true);
+        return;
+    }
+
+    if(ui->txtMutationsList->toPlainText() == ""){
+        QMessageBox::warning(this,"Warning","You must select at least one mutation");
+        ui->cmdCalculateMutations->setEnabled(true);
+        return;
+    }
+
+    if(currentFilter->getCommListSize() == 0){
+        QMessageBox::warning(this,"Warning","You must select run correlation methods");
+        ui->cmdCalculateMutations->setEnabled(true);
+        return;
+    }
+
+    vector<string> mutations = split(ui->txtMutationsList->toPlainText().toStdString(),'\n');
+    for(unsigned int i = 0; i < mutations.size(); i++){
+        string mutation = mutations[i];
+        transform(mutation.begin(),mutation.end(),mutation.begin(),::toupper);
+
+        if(mutation.size() < 3){
+            string msg = mutation + " is not in the accepted format for mutations (i.e. A12C)";
+            QMessageBox::warning(this,"Warning",msg.c_str());
+            ui->cmdCalculateMutations->setEnabled(true);
+            return;
+        }else{
+            char aa1 = mutation[0];
+            char aa2 = mutation[mutation.size()-1];
+            string strpos = mutation.substr(1,mutation.size()-2);
+
+            if(!isaa(aa1)){
+                string msg = aa1 + " is not a valid amino acid.";
+                QMessageBox::warning(this,"Warning",msg.c_str());
+                ui->cmdCalculateMutations->setEnabled(true);
+                return;
+            }
+            if(!isaa(aa2)){
+                string msg = aa2 + " is not a valid amino acid.";
+                QMessageBox::warning(this,"Warning",msg.c_str());
+                ui->cmdCalculateMutations->setEnabled(true);
+                return;
+            }
+
+            bool isInt = true;
+            for(string::const_iterator k = strpos.begin(); k != strpos.end(); k++)
+                isInt = isInt && isdigit(*k);
+
+            if(!isInt){
+                string msg = strpos + " is not a valid position.";
+                QMessageBox::warning(this,"Warning",msg.c_str());
+                ui->cmdCalculateMutations->setEnabled(true);
+                return;
+            }
+        }
+    }
+
+    //Positions
+    if(ui->radioMutationSequence->isChecked()){
+        string seq = ui->cmbMutationRefSeq->currentText().toStdString();
+        if(!currentFilter->containsSequence(seq)){
+            QMessageBox::warning(this,"Warning","Sequence not found.");
+            ui->cmdCalculateMutations->setEnabled(true);
+            return;
+        }
+    }
+
+    //Calculate Frequencies
+    string result = "";
+    for(unsigned int i = 0; i < mutations.size(); i++){
+        string mutation = mutations[i];
+        transform(mutation.begin(),mutation.end(),mutation.begin(),::toupper);
+        char aa1 = mutation[0];
+        char aa2 = mutation[mutation.size()-1];
+        string strpos = mutation.substr(1,mutation.size()-2);
+        int pos = atoi(strpos.c_str());
+
+        if(ui->radioMutationSequence->isChecked()){
+            int newpos = currentFilter->sequencenumbering2alignment(ui->cmbMutationRefSeq->currentIndex()+1,pos);
+
+            if(newpos < 0){
+                QMessageBox::warning(this,"Warning","Position not valid");
+                ui->cmdCalculateMutations->setEnabled(true);
+                return;
+            }
+            strpos = to_string(newpos);
+            pos = newpos;
+        }else if(ui->radioMutationPDB->isChecked()){
+            for(unsigned int i = 0; i < currentStructure->countResidues(); i++){
+                PdbResidues* residue = currentStructure->getResidue(i);
+                PdbAtom* atom = residue->getAtom(0);
+                if(atom->getResidueNumber() == pos){
+                    string refseq = currentStructure->getRefseq();
+                    vector<string> temp = split(refseq,'/');
+                    int offset = atoi(split(temp[1],'-')[0].c_str());
+                    int seqnumber = atom->getSeqnumber() + offset-1;
+
+                    int newpos = currentFilter->sequencenumbering2alignment(currentFilter->getSequenceIndex(refseq)+1,seqnumber);
+
+                    if(newpos < 0){
+                        QMessageBox::warning(this,"Warning","Position not valid");
+                        ui->cmdCalculateMutations->setEnabled(true);
+                        return;
+                    }
+                    //printf("PDB: %s\n",to_string(pos).c_str());
+                    strpos = to_string(newpos);
+                    pos = newpos;
+                    //printf("SEQ: %s\nALI: %s\n",to_string(seqnumber).c_str(),strpos.c_str());
+                    break;
+                }
+            }
+        }
+
+        float freq1 = currentFilter->getResidueFrequence(aa1,pos,"T20");
+        float freq2 = currentFilter->getResidueFrequence(aa2,pos,"T20");
+
+        if(freq1 == -1){
+            QMessageBox::warning(this,"Warning","Position not valid");
+            ui->cmdCalculateMutations->setEnabled(true);
+            return;
+        }
+
+        //printf("%f - %f\n",freq1,freq2);
+        result += "Position: " + strpos + " (" + aa1 + " to " + aa2 + ")<br>";
+        result += (string) + "Frequencies: (" + aa1 + " - " + aa2 + ")<br>";
+        if(freq1 > freq2)
+            result += "T20:&nbsp;<b>" + QString::number(freq1).toStdString() + "</b> - " + QString::number(freq2).toStdString() + "<br>";
+        else if(freq2 > freq1)
+            result += "T20:&nbsp;" + QString::number(freq1).toStdString() + " - <b>" + QString::number(freq2).toStdString() + "</b><br>";
+        else
+            result += "T20:&nbsp;<b>" + QString::number(freq1).toStdString() + "</b> - <b>" + QString::number(freq2).toStdString() + "</b><br>";
+        if(ui->chkAlphabetMutations->isChecked()){
+            vector<string> alphabetNames {"T2","T5","T6","3IMG","5IMG","11IMG","Murphy15","Murphy10","Murphy8","Murphy4","Murphy2","Wang5","Wang5v","Wang3","Wang2","Li10","Li5","Li4","Li3"};
+            for(unsigned int j = 0; j < alphabetNames.size(); j++){
+                string alphabet = alphabetNames[j];
+                float freq1 = currentFilter->getResidueFrequence(aa1,pos,alphabet);
+                float freq2 = currentFilter->getResidueFrequence(aa2,pos,alphabet);
+                if(freq1 > freq2)
+                    result += alphabet + ":&nbsp;<b>" + QString::number(freq1).toStdString() + "</b> - " + QString::number(freq2).toStdString() + "<br>";
+                else if(freq2 > freq1)
+                    result += alphabet + ":&nbsp;" + QString::number(freq1).toStdString() + " - <b>" + QString::number(freq2).toStdString() + "</b><br>";
+                else
+                    result += alphabet + ":&nbsp;<b>" + QString::number(freq1).toStdString() + "</b> - <b>" + QString::number(freq2).toStdString() + "</b><br>";
+            }
+        }
+        result += "===============================<br>";
+
+    }
+
+    ui->txtMutationResult->insertHtml(result.c_str());
+
+    //currentStructure->calculateInterations();
+
+    QMessageBox::information(this,"Mutation Analysis","The mutations were successfully calculated");
+    ui->cmdCalculateMutations->setEnabled(true);
+}
+
+void MainWindow::on_radioMutationAlignment_clicked(bool checked)
+{
+    if(checked){
+        ui->radioMutationSequence->setChecked(false);
+        ui->radioMutationPDB->setChecked(false);
+        ui->cmbMutationRefSeq->setEnabled(false);
+    }
+}
+
+void MainWindow::on_radioMutationSequence_clicked(bool checked)
+{
+    if(checked){
+        ui->radioMutationAlignment->setChecked(false);
+        ui->radioMutationPDB->setChecked(false);
+        ui->cmbMutationRefSeq->setEnabled(true);
+    }
+}
+
+void MainWindow::on_radioMutationPDB_clicked(bool checked)
+{
+    if(checked){
+        ui->radioMutationAlignment->setChecked(false);
+        ui->radioMutationSequence->setChecked(false);
+        ui->cmbMutationRefSeq->setEnabled(false);
+    }
 }

@@ -173,6 +173,7 @@ public:
     vector<string> filterCorrGraph(vector<tuple<string,string> > tup, int refseq);
     void CalculateReferenceVector(int seqnumber); // Seqnumber starts with 1
     unsigned int AlignNumbering2Sequence(int seqnumber, int position); // Seqnumber starts with 1
+    unsigned int sequencenumbering2alignment(int seqnumber, int position); //seqnumber starts with 1
     void clearCommunity();
     void resetCommunities();
     tuple<string,string,int> getCorrelationEdge(int i);
@@ -259,6 +260,12 @@ public:
     void updateCommunitiesData();
     void updateSequencesData();
     string getResidueColor(string residue);
+    vector<string> getReducedSequences(string alphabet);
+    char getReducedAminoAcid(char c, string alphabet);
+    float getResidueFrequence(char aa, int pos, string alphabet);
+    bool containsSequence(string seq);
+    int getSequenceIndex(string refseq);
+    int getEdge(string v1, string v2); //0 if doesnt exists
 };
 
 #endif // FILTER_H

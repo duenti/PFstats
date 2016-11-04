@@ -1,26 +1,40 @@
-// Dimensions of sunburst.
+jQuery.fn.d3Click = function () {
+  this.each(function (i, e) {
+    var evt = new MouseEvent("click");
+    e.dispatchEvent(evt);
+  });
+};
 
-//nessa versao: dimensoes passadas dinamicamente por jquery
 var width = $('#main').width();
 var height = ($('#main').width()) * 0.8;
-var radius = Math.min(width, height) / 2;
+var radius = (Math.min(width, height) / 2) - 10;
 
 var body_margin_top = d3.select("body").attr("margin-top", height / 60);
 var seq_height = d3.select("#sequence").attr("height", width * 0.093334);
-
-//a guia explanation herda o posicionamento de #chart que herda de #main. logo deve ser possivel definir seu posicionamento absoluto aqui
-//usando os valores de height e width de #main, que por sua vez sao definidos a partir do % de body que herda do % de html gerado a partir
-//da tela completa
-var explanation_pos = $("#explanation").css({top: height * 0.43333333, left: height * 0.50833333, position:'absolute', width: height * 0.23333333});
 
 // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
 var b = {
   w: 75, h: 30, s: 3, t: 10
 };
 
-// Mapping of step names to colors.
+/*var explanation_pos = $("#explanation").css({top: height * 0.43333333, left: height * 0.50833333, position:'absolute', width: height * 0.23333333});
+*/
 
-var colors = {
+/*var width = 800,
+    height = 700,
+    radius = (Math.min(width, height) / 2) - 10;*/
+
+var formatNumber = d3.format(",d");
+
+var x = d3.scale.linear()
+    .range([0, 2 * Math.PI]);
+
+var y = d3.scale.sqrt()
+    .range([0, radius]);
+
+var color = d3.scale.category20c();
+
+var colors1 = {
   "Archea": "#660000",
   "Bacteria": "#666600",
   "Eukaryota": "#000066",
@@ -29,78 +43,65 @@ var colors = {
   "Other": "#202020"
 };
 
-// Total size of all segments; we set this later, after loading the data.
-var totalSize = 0; 
-
-var vis = d3.select("#chart").append("svg:svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("svg:g")
-    .attr("id", "container")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
 var partition = d3.layout.partition()
-    .size([2 * Math.PI, radius * radius])
     .value(function(d) { return d.size; });
 
 var arc = d3.svg.arc()
-    .startAngle(function(d) { return d.x; })
-    .endAngle(function(d) { return d.x + d.dx; })
-    .innerRadius(function(d) { return Math.sqrt(d.y); })
-    .outerRadius(function(d) { return Math.sqrt(d.y + d.dy); });
+    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
-// Use d3.text and d3.csv.parseRows so that we do not need to have a header
-// row, and can receive the csv as an array of arrays.
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+  .attr("id", "container")
+    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+
 d3.text("clades.csv", function(text) {
   var csv = d3.csv.parseRows(text);
   var json = buildHierarchy(csv);
   createVisualization(json);
+  $("#togglelegend").d3Click();
+  //falta colorir objeto root de branco aqui
 });
 
-// Main function to draw and set up the visualization, once we have the data.
 function createVisualization(json) {
-
-  // Basic setup of page elements.
-  initializeBreadcrumbTrail();
   drawLegend();
+  initializeBreadcrumbTrail();
   d3.select("#togglelegend").on("click", toggleLegend);
-
-  // Bounding circle underneath the sunburst, to make it easier to detect
-  // when the mouse leaves the parent g.
-  vis.append("svg:circle")
+  svg.append("circle")
       .attr("r", radius)
       .style("opacity", 0);
-
-  // For efficiency, filter nodes to keep only those large enough to see.
-  var nodes = partition.nodes(json)
-      .filter(function(d) {
-      return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
-      });
-
-  var path = vis.data([json]).selectAll("path")
-      .data(nodes)
-      .enter().append("svg:path")
-      .attr("display", function(d) { return d.depth ? null : "none"; })
+  svg.data([json]).selectAll("path")
+      .data(partition.nodes(json))
+    .enter().append("path")
       .attr("d", arc)
-      .attr("fill-rule", "evenodd")
-      //.style("fill", function(d) { return colors[d.name]; })
-      //above is original
+      //.style("fill", function(d) { return color((d.children ? d : d.parent).name); }) usa escala automatica ordinal de 20 cores diferentes de acordo com os ramos paternos
       .style("fill", function(d) { return d.cor; })
-      //here not colors anymore, using colors from cor defined in hierarquical array by colorify function
-      //.style("fill", function(d) { return colorify(d.lineage); })on
-      //.style("fill", function(d) { var s = d.lineage;  console.log(s); var cor = colorify(s); return cor; })
-      //above does not work, idk why
       .style("opacity", 1)
-      .on("mouseover", mouseover);
-
-  // Add the mouseleave handler to the bounding circle.
+      .on("click", click)
+      .on("mouseover", mouseover)
+    .append("title")
+      .text(function(d) { return d.name + "\n" + formatNumber(d.value); });
   d3.select("#container").on("mouseleave", mouseleave);
+  totalSize = svg.node().__data__.value;
+};
 
-  // Get total size of the tree = value of root node from partition.
-  totalSize = path.node().__data__.value;
- };
+function click(d) {
+  svg.transition()
+      .duration(400)
+      .tween("scale", function() {
+        var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+            yd = d3.interpolate(y.domain(), [d.y, 1]),
+            yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+        return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
+      })
+    .selectAll("path")
+      .attrTween("d", function(d) { return function() { return arc(d); }; });
+}
 
-// Fade all but the current sequence, and show it in the breadcrumb trail.
 function mouseover(d) {
 
   var percentage = (100 * d.value / totalSize).toPrecision(3);
@@ -108,13 +109,16 @@ function mouseover(d) {
   if (percentage < 0.1) {
     percentageString = "< 0.1%";
   }
-
+  var writeString = percentageString + "of clade: " + d.name + " in this alignment.";
+  if (d.name === 'root') {
+    writeString = "Root: (Last universal common ancestor).";
+  }
   d3.select("#percentage")
-      .text(percentageString);
+      .text(percentageString)
+      .text(writeString);
 
   d3.select("#explanation")
       .style("visibility", "");
-
   var sequenceArray = getAncestors(d);
   updateBreadcrumbs(sequenceArray, percentageString);
   //below tests to see if it works or not
@@ -125,7 +129,7 @@ function mouseover(d) {
       .style("opacity", 0.3);
 
   // Then highlight only those that are an ancestor of the current segment.
-  vis.selectAll("path")
+  svg.selectAll("path")
       .filter(function(node) {
                 return (sequenceArray.indexOf(node) >= 0);
               })
@@ -155,48 +159,14 @@ function mouseleave(d) {
       .style("visibility", "hidden");
 }
 
-
-//colors nodes by their lineage
-function colorify(lineage) {
-  var lineage_array = lineage.split('-');
-  var color_input_pal = {
-    "Archea" : d3.scale.linear().domain([0, 7]).range(['#660000', '#ff9999']),
-    "Bacteria" : d3.scale.linear().domain([0, 7]).range(['#666600', '#ffff99']),
-    "Eukaryota" : d3.scale.linear().domain([0, 7]).range(['#000066', '#9999ff']),
-    "Virus" : d3.scale.linear().domain([0, 7]).range(['#006600', '#99ff99']),
-    "Viroids" : d3.scale.linear().domain([0, 7]).range(['#006666', '#99ffff']),
-    "Other" : d3.scale.linear().domain([0, 7]).range(['#202020', '#e0e0e0'])
-  }
-  var rgb_string_scale = color_input_pal[lineage_array[0]];
-  if (rgb_string_scale == null) {
-    rgb_string_scale = color_input_pal["Other"];
-    var rgb_color = rgb_string_scale(lineage_array.length);
-    return rgb_color;
-  }
-  var rgb_color = rgb_string_scale(lineage_array.length);
-  return rgb_color;
-}
-
-// Given a node in a partition layout, return an array of all of its ancestor
-// nodes, highest first, but excluding the root.
-function getAncestors(node) {
-  var path = [];
-  var current = node;
-  while (current.parent) {
-    path.unshift(current);
-    current = current.parent;
-  }
-  return path;
-}
-
 function initializeBreadcrumbTrail() {
   // Add the svg area.
-  var trail = d3.select("#sequence").append("svg:svg")
+  var trail = d3.select("#sequence").append("svg")
       .attr("width", width)
       .attr("height", 50)
       .attr("id", "trail");
   // Add the label at the end, for the percentage.
-  trail.append("svg:text")
+  trail.append("text")
     .attr("id", "endlabel")
     .style("fill", "#000");
 }
@@ -224,9 +194,9 @@ function updateBreadcrumbs(nodeArray, percentageString) {
       .data(nodeArray, function(d) { return d.name + d.depth; });
 
   // Add breadcrumb and label for entering nodes.
-  var entering = g.enter().append("svg:g");
+  var entering = g.enter().append("g");
 
-  entering.append("svg:polygon")
+  entering.append("polygon")
       .attr("points", breadcrumbPoints)
       //.style("fill", function(d) { return colors[d.name]; });
       //original function above
@@ -236,7 +206,7 @@ function updateBreadcrumbs(nodeArray, percentageString) {
       //.style("fill", function(d) { var s = d.lineage; console.log(s); var cor = colorify(s); return cor; });
       //idk why the above does not work. go figure
 
-  entering.append("svg:text")
+  entering.append("text")
       .attr("x", (b.w + b.t) / 2)
       .attr("y", b.h / 2)
       .attr("dy", "0.35em")
@@ -265,6 +235,7 @@ function updateBreadcrumbs(nodeArray, percentageString) {
 
 }
 
+
 function drawLegend() {
 
   // Dimensions of legend item: width, height, spacing, radius of rounded rect.
@@ -272,25 +243,25 @@ function drawLegend() {
     w: 75, h: 30, s: 3, r: 3
   };
 
-  var legend = d3.select("#legend").append("svg:svg")
+  var legend = d3.select("#legend").append("svg")
       .attr("width", li.w)
-      .attr("height", d3.keys(colors).length * (li.h + li.s));
+      .attr("height", d3.keys(colors1).length * (li.h + li.s));
 
   var g = legend.selectAll("g")
-      .data(d3.entries(colors))
-      .enter().append("svg:g")
+      .data(d3.entries(colors1))
+      .enter().append("g")
       .attr("transform", function(d, i) {
               return "translate(0," + i * (li.h + li.s) + ")";
            });
 
-  g.append("svg:rect")
+  g.append("rect")
       .attr("rx", li.r)
       .attr("ry", li.r)
       .attr("width", li.w)
       .attr("height", li.h)
       .style("fill", function(d) { return d.value; });
 
-  g.append("svg:text")
+  g.append("text")
       .attr("x", li.w / 2)
       .attr("y", li.h / 2)
       .attr("dy", "0.35em")
@@ -305,6 +276,39 @@ function toggleLegend() {
   } else {
     legend.style("visibility", "hidden");
   }
+}
+
+//colors nodes by their lineage
+function colorify(lineage) {
+  var lineage_array = lineage.split('-');
+  var color_input_pal = {
+    "Archea" : d3.scale.linear().domain([0, 7]).range(['#660000', '#ff9999']),
+    "Bacteria" : d3.scale.linear().domain([0, 7]).range(['#666600', '#ffff99']),
+    "Eukaryota" : d3.scale.linear().domain([0, 7]).range(['#000066', '#9999ff']),
+    "Virus" : d3.scale.linear().domain([0, 7]).range(['#006600', '#99ff99']),
+    "Viroids" : d3.scale.linear().domain([0, 7]).range(['#006666', '#99ffff']),
+    "Other" : d3.scale.linear().domain([0, 7]).range(['#202020', '#e0e0e0'])
+  }
+  var rgb_string_scale = color_input_pal[lineage_array[0]];
+  if (rgb_string_scale == null) {
+    rgb_string_scale = color_input_pal["Other"];
+    var rgb_color = rgb_string_scale(lineage_array.length);
+    return rgb_color;
+  }
+  var rgb_color = rgb_string_scale(lineage_array.length);
+  return rgb_color;
+}
+
+//d3.select(self.frameElement).style("height", height + "px");
+
+function getAncestors(node) {
+  var path = [];
+  var current = node;
+  while (current.parent) {
+    path.unshift(current);
+    current = current.parent;
+  }
+  return path;
 }
 
 // Take a 2-column CSV and transform it into a hierarchical structure suitable
@@ -330,26 +334,26 @@ function buildHierarchy(csv) {
       var childNode;
       if (j + 1 < parts.length) {
    // Not yet at the end of the sequence; move down the tree.
- 	var foundChild = false;
- 	for (var k = 0; k < children.length; k++) {
- 	  if (children[k]["name"] == nodeName) {
- 	    childNode = children[k];
- 	    foundChild = true;
- 	    break;
- 	  }
- 	}
+  var foundChild = false;
+  for (var k = 0; k < children.length; k++) {
+    if (children[k]["name"] == nodeName) {
+      childNode = children[k];
+      foundChild = true;
+      break;
+    }
+  }
   // If we don't already have a child node for this branch, create it.
- 	if (!foundChild) {
+  if (!foundChild) {
     //childNode = {"name": nodeName, "children": []}; //"lineage": lineage };
- 	  childNode = {"name": nodeName, "children": [], "lineage": lineage, "cor": colorify(lineage) };
- 	  children.push(childNode);
- 	}
- 	currentNode = childNode;
+    childNode = {"name": nodeName, "children": [], "lineage": lineage, "cor": colorify(lineage) };
+    children.push(childNode);
+  }
+  currentNode = childNode;
       } else {
- 	// Reached the end of the sequence; create a leaf node.
+  // Reached the end of the sequence; create a leaf node.
   //childNode = {"name": nodeName, "size": size}; //"lineage": lineage };
- 	childNode = {"name": nodeName, "size": size, "lineage": lineage, "cor": colorify(lineage)  };
- 	children.push(childNode);
+  childNode = {"name": nodeName, "size": size, "lineage": lineage, "cor": colorify(lineage)  };
+  children.push(childNode);
       }
     }
   }

@@ -34,6 +34,7 @@ private:
     Ui::NetworkVisualization *ui;
     Filter* currentFilter;
     string libpath;
+    map<string,string> mapPreTaxons;
     void createVisualization(bool hideanticorr, bool commcolor, bool scaleEdges);
 };
 

@@ -102,17 +102,28 @@ bool TaxonomicVisualization::generateSunburst(vector<string> sequencenames){
         out << html;
 
         //LISTWIDGET
+        mapPreTaxons.clear();
         map<string,int> mapSpecie;
         ui->lstSunburstTaxon->clear();
         vector<string> lines = this->split(html.toStdString(),'\n');
         int index = ui->cmbSunburstTaxon->currentIndex();
         for(unsigned int i = 0; i < lines.size(); i++){
             if(lines[i] != ""){
-                string currentTaxon = this->split(lines[i],'-')[index];
+                vector<string> taxVec = this->split(lines[i],'-');
+                string currentTaxon = taxVec[index];
                 string specie = this->split(currentTaxon,',')[0];
                 int count = atoi(split(lines[i],',')[1].c_str());
-                if(mapSpecie.find(specie) == mapSpecie.end()) mapSpecie[specie] = count;
-                else mapSpecie[specie] = mapSpecie[specie] + count;
+                if(mapSpecie.find(specie) == mapSpecie.end()){
+                    mapSpecie[specie] = count;
+
+                    string taxline = "";
+                    for(int j = 0; j < index; j++){
+                        taxline += taxVec[j] + "-";
+                    }
+                    taxline += taxVec[index];
+                    mapPreTaxons[specie] = split(taxline,',')[0];
+                }else
+                    mapSpecie[specie] = mapSpecie[specie] + count;
             }
         }
         vector<pair<string,int> > species(mapSpecie.begin(), mapSpecie.end());
@@ -268,4 +279,19 @@ void TaxonomicVisualization::on_cmdSunburstFilter_clicked()
 void TaxonomicVisualization::on_cmbSunburstTaxon_activated(int index)
 {
     emit this->on_cmdSunburstFilter_clicked();
+}
+
+void TaxonomicVisualization::on_lstSunburstTaxon_itemActivated(QListWidgetItem *item)
+{
+    string currentTax = split(item->text().toStdString(),'(')[0];
+    if(currentTax[currentTax.size()-1] == ' ') currentTax = currentTax.substr(0,currentTax.size()-1);
+    //printf("Especie: %s\tPre-Taxon: %s\n",currentTax.c_str(),mapPreTaxons[currentTax].c_str());
+
+    QWebSettings *websettings = QWebSettings::globalSettings();
+    websettings->setAttribute(QWebSettings::JavascriptEnabled,true);
+    websettings->clearMemoryCaches();
+    websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    QWebFrame *frame = ui->webTaxons->page()->mainFrame();
+    string js = "zoomFoundLineage('" + mapPreTaxons[currentTax] + "')";
+    frame->evaluateJavaScript(QString::fromStdString(js));
 }

@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "filter.h"
 #include <QWebFrame>
+#include <QListWidgetItem>
 
 using namespace std;
 
@@ -40,10 +41,13 @@ private slots:
 
     void on_cmbSunburstTaxon_activated(int index);
 
+    void on_lstSunburstTaxon_itemActivated(QListWidgetItem *item);
+
 private:
     Ui::TaxonomicVisualization *ui;
     Filter* currentFilter;
     string libpath;
+    map<string,string> mapPreTaxons;
 
     vector<string> split(string text, char sep);
     bool generateSunburst(vector<string> sequencenames);

@@ -1,5 +1,8 @@
 #include "pdb.h"
 
+Pdb::Pdb(){
+    id = "nothing";
+}
 
 Pdb::Pdb(string pdb){
     vector<string> lines = split(pdb,'\n');
@@ -32,12 +35,17 @@ Pdb::Pdb(string pdb){
         header += lines[i] + "\n";
     }
 
+    bool NTerminal = true;
     PdbAtom *firstatom = new PdbAtom(lines[i]);
     int currentPos = firstatom->getResidueNumber();
     PdbResidues *residue = new PdbResidues();
     for(i; i < lines.size(); i++){
         if(lines[i].substr(0,4) == "ATOM"){
             PdbAtom *atom = new PdbAtom(lines[i]);
+            if(NTerminal && atom->getAtomName() == "N"){
+                atom->setAtomName("NmH2");
+                NTerminal = false;
+            }
             atoms.push_back(atom);
             if(currentPos != atom->getResidueNumber()){
                 residues.push_back(residue);
@@ -209,6 +217,18 @@ PdbAtom *Pdb::getAtom(int i){
 
 void Pdb::addAtom(PdbAtom *atom){
     atoms.push_back(atom);
+}
+
+int Pdb::countResidues(){
+    return residues.size();
+}
+
+void Pdb::clearResidues(){
+    residues.clear();
+}
+
+PdbResidues* Pdb::getResidue(int i){
+    return residues[i];
 }
 
 //NOT USED ANYMORE
@@ -556,22 +576,22 @@ float Pdb::distance2atoms(PdbPseudoAtom *a1, PdbPseudoAtom *a2){
 }
 
 float Pdb::angle3atoms(PdbAtom *a1, PdbAtom *a2, PdbAtom *a3){
-    float ABx = a1->getX() - a2->getX();
-    float ABy = a1->getY() - a2->getY();
-    float ABz = a1->getZ() - a2->getZ();
+    float ABx = a2->getX() - a1->getX();
+    float ABy = a2->getY() - a1->getY();
+    float ABz = a2->getZ() - a1->getZ();
     float BCx = a3->getX() - a2->getX();
     float BCy = a3->getY() - a2->getY();
-    float BCz = a3->getZ() - a3->getZ();
+    float BCz = a3->getZ() - a2->getZ();
     float ABvec = sqrt(ABx*ABx + ABy*ABy + ABz*ABz);
     float BCvec = sqrt(BCx*BCx + BCy*BCy + BCz*BCz);
     float ABnormalX = ABx/ABvec;
     float ABnormalY = ABy/ABvec;
     float ABnormalZ = ABz/ABvec;
-    float BCnormalX = ABx/BCvec;
-    float BCnormalY = ABy/BCvec;
-    float BCnormalZ = ABz/BCvec;
+    float BCnormalX = BCx/BCvec;
+    float BCnormalY = BCy/BCvec;
+    float BCnormalZ = BCz/BCvec;
     float result = ABnormalX*BCnormalX + ABnormalY*BCnormalY + ABnormalZ*BCnormalZ;
-
+    //printf("%f\n",acos(result)*180/3.141592653589793);
     return acos(result)*180/3.141592653589793;
 }
 
@@ -581,15 +601,15 @@ float Pdb::angle3atoms(PdbAtom *a1, PdbPseudoAtom *a2, PdbAtom *a3){
     float ABz = a1->getZ() - a2->getZ();
     float BCx = a3->getX() - a2->getX();
     float BCy = a3->getY() - a2->getY();
-    float BCz = a3->getZ() - a3->getZ();
+    float BCz = a3->getZ() - a2->getZ();
     float ABvec = sqrt(ABx*ABx + ABy*ABy + ABz*ABz);
     float BCvec = sqrt(BCx*BCx + BCy*BCy + BCz*BCz);
     float ABnormalX = ABx/ABvec;
     float ABnormalY = ABy/ABvec;
     float ABnormalZ = ABz/ABvec;
-    float BCnormalX = ABx/BCvec;
-    float BCnormalY = ABy/BCvec;
-    float BCnormalZ = ABz/BCvec;
+    float BCnormalX = BCx/BCvec;
+    float BCnormalY = BCy/BCvec;
+    float BCnormalZ = BCz/BCvec;
     float result = ABnormalX*BCnormalX + ABnormalY*BCnormalY + ABnormalZ*BCnormalZ;
 
     return acos(result)*180/3.141592653589793;
@@ -636,7 +656,7 @@ bool Pdb::isPositiveCharged(PdbAtom *atom){
     else{
         if(residue == "HIS" && (name == "ND1" || name == "NE2")) return true;
         else if(residue == "LYS" && name == "NZ") return true;
-        else if(residue == "ARG" && (name == "NH!" || name == "NE" || name == "NH2")) return true;
+        else if(residue == "ARG" && (name == "NH1" || name == "NE" || name == "NH2")) return true;
     }
 
     return false;
@@ -659,7 +679,7 @@ bool Pdb::isHydrogenDonor(PdbAtom *atom){
     string residue = atom->getResidue();
     string name = atom->getAtomName();
 
-    if(name == "N" && residue != "HOH" && residue != "PRO") return true;
+    if(name == "N" && residue != "PRO") return true;
     else{
         if(residue == "THR" && name == "OG1") return true;
         else if(residue == "TRP" && name == "NE1") return true;
@@ -679,7 +699,7 @@ bool Pdb::isHydrogenAcceptor(PdbAtom *atom){
     string residue = atom->getResidue();
     string name = atom->getAtomName();
 
-    if(name == "O" && residue != "HOH") return true;
+    if(name == "O") return true;
     else{
         if(residue == "CYS" && name == "SG") return true;
         else if(residue == "THR" && name == "OG1") return true;
@@ -737,6 +757,8 @@ bool Pdb::isHydrophobic(PdbAtom *atom){
     }else if(residue == "ARG"){
         if(name == "CB" || name == "CG") return true;
     }
+
+    return false;
 }
 
 
@@ -744,8 +766,17 @@ void Pdb::calculateInterations(){
     map<int,set<PdbAtom*> > bonded_list;
     vector<PdbPseudoAtom*> pseudoatoms;
 
+    QProgressDialog progress("Reading covalent bonded atoms pairs...(1/4)", "Abort", 0,atoms.size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
     //#leitura dos pares de atomos ligados covalentemente
     for(unsigned int i = 0; i < atoms.size()-1; i++){
+        progress.setValue(i);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled());
+
         for(unsigned int j = i+1; j < atoms.size(); j++){
             PdbAtom* atom1 = atoms[i];
             PdbAtom* atom2 = atoms[j];
@@ -758,8 +789,16 @@ void Pdb::calculateInterations(){
         }
     }
 
+    progress.setLabelText("Calculating aromatic centers...(2/4)");
+    progress.setValue(0);
+    progress.setMaximum(residues.size());
+
     //#geracao dos centros aromaticos
     for(unsigned int i = 0; i < residues.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return;
+
         PdbAtom* pre_ring_atom;
         vector<PdbAtom*> aromatics;
         PdbResidues* residue = residues[i];
@@ -768,7 +807,7 @@ void Pdb::calculateInterations(){
         string flag = "";
 
         for(unsigned int j = 0; j < residue_atoms.size(); j++){
-            PdbAtom* atom = residue_atoms[i];
+            PdbAtom* atom = residue_atoms[j];
 
             if(resname == "TYR" || resname == "PHE"){
                 if(atom->getAtomName() == "CG" || atom->getAtomName() == "CD1" || atom->getAtomName() == "CD2" || atom->getAtomName() == "CE1" || atom->getAtomName() == "CE2" || atom->getAtomName() == "CZ")
@@ -810,8 +849,16 @@ void Pdb::calculateInterations(){
         }
     }
 
+    progress.setLabelText("Calculating non-covalent interatomics bonds...(3/4)");
+    progress.setValue(0);
+    progress.setMaximum(atoms.size()-1);
+
     //#calculo interacoes inter-atomicas nao covalentes
     for(unsigned int i = 0; i < atoms.size()-1; i++){
+        progress.setValue(i);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return;
+
         for(unsigned int j = i+1; j < atoms.size(); j++){
             PdbAtom* atom1 = atoms[i];
             PdbAtom* atom2 = atoms[j];
@@ -822,6 +869,7 @@ void Pdb::calculateInterations(){
 
             if(isValidResidue(resname1) && isValidResidue(resname2)){
                 float dist = this->distance2atoms(atom1,atom2);
+
                 if(dist <= 3 && atomname1 == "SG" && resname1 == "CYS" && atomname2 == "SG" && resname2 == "CYS"){
                     PdbInteraction *interaction = new Disulfide(atom1,atom2,dist);
                     interactions.push_back(interaction);
@@ -834,9 +882,9 @@ void Pdb::calculateInterations(){
                         if(respos1 == respos2){
                             if((atomname1 == "N" && atomname2 == "O") || (atomname2 == "N" && atomname1 == "O"))
                                 continue;
-                            if(resname1 == "ASN" && (atomname1 == "ND2" && atomname2 == "OD1") || (atomname2 == "ND2" && atomname1 == "OD1"))
+                            if(resname1 == "ASN" && ((atomname1 == "ND2" && atomname2 == "OD1") || (atomname2 == "ND2" && atomname1 == "OD1")))
                                 continue;
-                            if(resname1 == "GLN" && (atomname1 == "NE2" && atomname2 == "OE1") || (atomname2 == "NE2" && atomname1 == "OE1"))
+                            if(resname1 == "GLN" && ((atomname1 == "NE2" && atomname2 == "OE1") || (atomname2 == "NE2" && atomname1 == "OE1")))
                                 continue;
                             if(resname1 == "HIS"){
                                 if((atomname1 == "ND1" || atomname1 == "NE2") && (atomname2 == "ND1" || atomname2 == "NE2"))
@@ -848,20 +896,52 @@ void Pdb::calculateInterations(){
                         float ang1 = angle3atoms(atom1,ant_acceptor1,atom2);
                         float ang2 = angle3atoms(atom1,ant_acceptor2,atom2);
                         if(ang1 >= 90 || ang2 >= 90){
-                            PdbInteraction *interaction = new Hidrogen(atom1,atom2,dist,ang1,ang2,ant_acceptor1,ant_acceptor2);
-                            //if (new_obj.num_diff() >= 3): SERÁ MODIFICADO, NÃO FUNCIONANDO!!
-                                interactions.push_back(interaction);
+                            PdbInteraction *interaction = new Hydrogen(atom1,atom2,dist,ang1,ang2,ant_acceptor1,ant_acceptor2);
+                            printf("%s%d(%s) - %s%d(%s)\n",atom1->getResidue().c_str(),atom1->getResidueNumber(),atom1->getAtomName().c_str(),atom2->getResidue().c_str(),atom2->getResidueNumber(),atom2->getAtomName().c_str());
+                            interactions.push_back(interaction);
                         }
                     }else{
+                        string respos1 = resname1 + to_string(atom1->getResidueNumber());
+                        string respos2 = resname2 + to_string(atom2->getResidueNumber());
+
+                        if(respos1 == respos2){
+                            if((atomname1 == "N" && atomname2 == "O") || (atomname2 == "N" && atomname1 == "O"))
+                                continue;
+                            if(resname1 == "ASN" && ((atomname1 == "ND2" && atomname2 == "OD1") || (atomname2 == "ND2" && atomname1 == "OD1")))
+                                continue;
+                            if(resname1 == "GLN" && ((atomname1 == "NE2" && atomname2 == "OE1") || (atomname2 == "NE2" && atomname1 == "OE1")))
+                                continue;
+                            if(resname1 == "HIS"){
+                                if((atomname1 == "ND1" || atomname1 == "NE2") && (atomname2 == "ND1" || atomname2 == "NE2"))
+                                    continue;
+                            }
+                        }
+
                         PdbAtom* ant_acceptor1 = *std::next(ant_acceptor.begin(),0);
                         float ang = angle3atoms(atom1,ant_acceptor1,atom2);
                         if(ang >= 90){
-                            PdbInteraction *interaction = new Hidrogen(atom1,atom2,dist,ang,ant_acceptor1);
-                            //if (new_obj.num_diff() >= 3): ERRADO
-                                interactions.push_back(interaction);
+                            PdbInteraction *interaction = new Hydrogen(atom1,atom2,dist,ang,ant_acceptor1);
+                            printf("%s%d(%s) - %s%d(%s)\n",atom1->getResidue().c_str(),atom1->getResidueNumber(),atom1->getAtomName().c_str(),atom2->getResidue().c_str(),atom2->getResidueNumber(),atom2->getAtomName().c_str());
+                            interactions.push_back(interaction);
                         }
                     }
                 }else if(dist <= 3.9 && isHydrogenAcceptor(atom2) && isHydrogenDonor(atom1)){
+                    string respos1 = resname1 + to_string(atom1->getResidueNumber());
+                    string respos2 = resname2 + to_string(atom2->getResidueNumber());
+
+                    if(respos1 == respos2){
+                        if((atomname1 == "N" && atomname2 == "O") || (atomname2 == "N" && atomname1 == "O"))
+                            continue;
+                        if(resname1 == "ASN" && ((atomname1 == "ND2" && atomname2 == "OD1") || (atomname2 == "ND2" && atomname1 == "OD1")))
+                            continue;
+                        if(resname1 == "GLN" && ((atomname1 == "NE2" && atomname2 == "OE1") || (atomname2 == "NE2" && atomname1 == "OE1")))
+                            continue;
+                        if(resname1 == "HIS"){
+                            if((atomname1 == "ND1" || atomname1 == "NE2") && (atomname2 == "ND1" || atomname2 == "NE2"))
+                                continue;
+                        }
+                    }
+
                     set<PdbAtom*> ant_acceptor = bonded_list[atom2->getAtomNumber()];
                     if(ant_acceptor.size() > 1){
                         PdbAtom* ant_acceptor1 = *std::next(ant_acceptor.begin(),0);
@@ -869,17 +949,33 @@ void Pdb::calculateInterations(){
                         float ang1 = angle3atoms(atom2,ant_acceptor1,atom1);
                         float ang2 = angle3atoms(atom2,ant_acceptor2,atom1);
                         if(ang1 >= 90 || ang2 >= 90){
-                            PdbInteraction *interaction = new Hidrogen(atom1,atom2,dist,ang1,ang2,ant_acceptor1,ant_acceptor2);
-                            //if (new_obj.num_diff() >= 3): ERRADO
-                                interactions.push_back(interaction);
+                            PdbInteraction *interaction = new Hydrogen(atom1,atom2,dist,ang1,ang2,ant_acceptor1,ant_acceptor2);
+                            printf("%s%d(%s) - %s%d(%s)\n",atom1->getResidue().c_str(),atom1->getResidueNumber(),atom1->getAtomName().c_str(),atom2->getResidue().c_str(),atom2->getResidueNumber(),atom2->getAtomName().c_str());
+                            interactions.push_back(interaction);
                         }
                     }else{
+                        string respos1 = resname1 + to_string(atom1->getResidueNumber());
+                        string respos2 = resname2 + to_string(atom2->getResidueNumber());
+
+                        if(respos1 == respos2){
+                            if((atomname1 == "N" && atomname2 == "O") || (atomname2 == "N" && atomname1 == "O"))
+                                continue;
+                            if(resname1 == "ASN" && ((atomname1 == "ND2" && atomname2 == "OD1") || (atomname2 == "ND2" && atomname1 == "OD1")))
+                                continue;
+                            if(resname1 == "GLN" && ((atomname1 == "NE2" && atomname2 == "OE1") || (atomname2 == "NE2" && atomname1 == "OE1")))
+                                continue;
+                            if(resname1 == "HIS"){
+                                if((atomname1 == "ND1" || atomname1 == "NE2") && (atomname2 == "ND1" || atomname2 == "NE2"))
+                                    continue;
+                            }
+                        }
+
                         PdbAtom* ant_acceptor1 = *std::next(ant_acceptor.begin(),0);
                         float ang = angle3atoms(atom2,ant_acceptor1,atom1);
                         if(ang >= 90){
-                            PdbInteraction *interaction = new Hidrogen(atom1,atom2,dist,ang,ant_acceptor1);
-                            //if (new_obj.num_diff() >= 3): ERRADO
-                                interactions.push_back(interaction);
+                            PdbInteraction *interaction = new Hydrogen(atom1,atom2,dist,ang,ant_acceptor1);
+                            printf("%s%d(%s) - %s%d(%s)\n",atom1->getResidue().c_str(),atom1->getResidueNumber(),atom1->getAtomName().c_str(),atom2->getResidue().c_str(),atom2->getResidueNumber(),atom2->getAtomName().c_str());
+                            interactions.push_back(interaction);
                         }
                     }
                 }else if(dist <= 5 && isHydrophobic(atom1) && isHydrophobic(atom2)){
@@ -893,8 +989,16 @@ void Pdb::calculateInterations(){
         }
     }
 
+    progress.setLabelText("Calculating aromatic bonds...(4/4)");
+    progress.setValue(0);
+    progress.setMaximum(atoms.size()+pseudoatoms.size());
+
     //#definicao interacoes aromaticas
     for(unsigned int i = 0; i < atoms.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return;
+
         for(unsigned int j = 0; j < pseudoatoms.size(); j++){
             PdbAtom* atom1 = atoms[i];
             PdbPseudoAtom* pseudoatom = pseudoatoms[j];
@@ -911,8 +1015,9 @@ void Pdb::calculateInterations(){
                     }else if(dist <= 5.3 && atom1->getElement() == "S"){
                         PdbInteraction *interaction = new AromaticSulphur(atom1,pseudoatom,dist,j);
                         interactions.push_back(interaction);
-                    }else if(dist <= 6 && isPositiveCharged(atom1)){
+                    }else if(dist <= 6.0 && isPositiveCharged(atom1)){
                         PdbInteraction *interaction = new CationPi(atom1,pseudoatom,dist,j);
+                        //printf("%s%d(%s)-%d\n",atom1->getResidue().c_str(),atom1->getResidueNumber(),atom1->getAtomName().c_str(),pseudoatom->getResidueNumber());
                         interactions.push_back(interaction);
                     }
                 }
@@ -921,6 +1026,10 @@ void Pdb::calculateInterations(){
     }
 
     for(unsigned int i = 0; i < pseudoatoms.size() -1; i++){
+        progress.setValue(atoms.size()+ i);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return;
+
         for(unsigned int j = i + 1; j < pseudoatoms.size(); j++){
             PdbPseudoAtom *a1 = pseudoatoms[i];
             PdbPseudoAtom *a2 = pseudoatoms[j];
@@ -931,5 +1040,42 @@ void Pdb::calculateInterations(){
             }
         }
     }
+
+
+    //TEMP
+    int disulfide = 0;
+    int hydrogen = 0;
+    int hydrofobic = 0;
+    int ionic = 0;
+    int amidepi = 0;
+    int sulphurpi = 0;
+    int cationpi = 0;
+    int pipi = 0;
+    int unknown = 0;
+    for(unsigned int i = 0; i < interactions.size(); i++){
+        PdbInteraction* inte = interactions[i];
+        string type = inte->getType();
+
+        if(type == "disulfide") disulfide++;
+        else if(type == "hydrogen") hydrogen++;
+        else if(type == "ionic") ionic++;
+        else if(type == "hydrofobic") hydrofobic++;
+        else if(type == "amide-pi") amidepi++;
+        else if(type == "sulphur-pi") sulphurpi++;
+        else if(type == "cation-pi") cationpi++;
+        else if(type == "pi-pi") pipi++;
+        else unknown++;
+    }
+    printf("DISULFIDE: %d\n",disulfide);
+    printf("HYDROGEN: %d\n",hydrogen);
+    printf("HYDROFOBIC: %d\n",hydrofobic);
+    printf("IONIC: %d\n",ionic);
+    printf("AMIDE-PI: %d\n",amidepi);
+    printf("SULPHUR-PI: %d\n",sulphurpi);
+    printf("CATION-PI: %d\n",cationpi);
+    printf("PI-PI: %d\n",pipi);
+    printf("UNKNOWN: %d\n",unknown);
+
+    progress.close();
 }
 

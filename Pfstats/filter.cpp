@@ -993,6 +993,24 @@ unsigned int Filter::AlignNumbering2Sequence(int seqnumber, int position){
     return 0;
 }
 
+unsigned int Filter::sequencenumbering2alignment(int seqnumber, int position){
+    //printf("SEQNUMB2ALIGN: %s\n",sequencenames[seqnumber-1].c_str());
+    vector<string> temp = split(sequencenames[seqnumber-1],'/');
+    int offset = atoi(split(temp[1],'-')[0].c_str());
+    int newpos = position-offset;
+    int countGAP = 0;
+    int countAA = 0;
+
+    for(unsigned int i = 0; i < sequences[0].size(); i++){
+        if(sequences[seqnumber-1][i] == '-' || sequences[seqnumber-1][i] == '.')
+            countGAP++;
+        else countAA++;
+        if(countAA == newpos)
+            return newpos+countGAP+1;
+    }
+    return -1;
+}
+
 void Filter::clearCommunity(){
     comunidades.clear();
 }
@@ -1153,6 +1171,64 @@ void Filter::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
     progress.close();
 }
 
+int Filter::getEdge(string v1, string v2){
+    for(unsigned int i = 0; i < corrGraph.size(); i++){
+        string gv1 = get<0>(corrGraph[i]);
+        string gv2 = get<1>(corrGraph[i]);
+        if((v1==gv1 && v2 == gv2) || (v1==gv2 && v2==gv1)){
+            return get<2>(corrGraph[i]);
+        }
+    }
+    return 0;
+}
+
+void Filter::DeltaCommunitiesCalculation(){
+    QProgressDialog progress("Calculating Deltas...(5/6)", "Abort", 0,this->getNumOfUtilComms()-1);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    Deltas.clear();
+
+    for(unsigned int i = 0; i < this->getNumOfUtilComms(); i++){
+        vector<float> vec;
+        for(unsigned int j = 0; j < this->getNumOfUtilComms(); j++){
+            vec.push_back(0);
+        }
+        Deltas.push_back(vec);
+    }
+
+    if(comunidades.size() > 0){
+        for(unsigned int i = 0; i < this->getNumOfUtilComms()-1; i++){
+            progress.setValue(i);
+            if(progress.wasCanceled()) return;
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            for(unsigned int j = i+1; j < this->getNumOfUtilComms(); j++){
+                vector<string> commA = comunidades[i];
+                vector<string> commB = comunidades[j];
+                float N = commA.size();
+                float M = commB.size();
+                float sumW = 0;
+
+                for(unsigned int k = 0; k < commA.size(); k++){
+                    for(unsigned int l = 0; l < commB.size(); l++){
+                        string an = commA[k];
+                        string bm = commB[l];
+                        int pvalue = getEdge(an,bm);
+                        if(pvalue != 0){
+                            sumW += pvalue;
+                        }
+                    }
+                }
+
+                Deltas[i][j] = sumW/(N*M);
+            }
+        }
+    }
+
+    printf("OK\n");
+}
+
+/*
 void Filter::DeltaCommunitiesCalculation(){
     float Delta;
     int c1,c2,c3,c4;
@@ -1193,7 +1269,7 @@ void Filter::DeltaCommunitiesCalculation(){
 
     progress.close();
 }
-
+*/
 void Filter::pMatrix2HTMLRAM(bool renumber, int seqnumber){
     this->communityXps.clear();
     this->residuesCommPs.clear();
@@ -1517,9 +1593,9 @@ vector<tuple<string,string,float> > Filter::getDeltasEdges(float cutoff){
     for(unsigned int i = 0; i < this->getNumOfUtilComms(); i++){
         for(unsigned int j = 0; j < this->getNumOfUtilComms(); j++){
             if(i!=j){
-                if((Deltas[i][j] > 0 && Deltas[i][j] > cutoff && Deltas[i][j] < 100) || (Deltas[i][j] < 0 && Deltas[i][j] < (-1*cutoff) && Deltas[i][j] > -100)){
-                    string c1 = "C" + std::to_string(i+1);
-                    string c2 = "C" + std::to_string(j+1);
+                if((Deltas[i][j] > 0 && Deltas[i][j] > cutoff) || (Deltas[i][j] < 0 && Deltas[i][j] < (-1*cutoff))){
+                    string c1 = "Comm" + std::to_string(i+1);
+                    string c2 = "Comm" + std::to_string(j+1);
                     tuple<string,string,float> edge (c1,c2,Deltas[i][j]);
                     graph.push_back(edge);
                     //printf("%s\t%s\t%f\n",c1.c_str(),c2.c_str(),Deltas[i][j]);
@@ -4749,4 +4825,514 @@ string Filter::getResidueColor(string residue){
     }
 
     return "";
+}
+
+vector<string> Filter::getReducedSequences(string alphabet){
+    vector<string> oldChars;
+    vector<char> newChars;
+
+    if(alphabet == "T2"){
+        oldChars.push_back("AGTSNQDEHRKP");
+        newChars.push_back('P');
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('Y');
+    }else if(alphabet == "T5"){
+        oldChars.push_back("IVL");
+        newChars.push_back('I');
+        oldChars.push_back("FYWH");
+        newChars.push_back('F');
+        oldChars.push_back("KRDE");
+        newChars.push_back('K');
+        oldChars.push_back("GACS");
+        newChars.push_back('G');
+        oldChars.push_back("TMQNP");
+        newChars.push_back('T');
+    }else if(alphabet == "T6"){
+        oldChars.push_back("IVL");
+        newChars.push_back('I');
+        oldChars.push_back("FYWH");
+        newChars.push_back('F');
+        oldChars.push_back("KR");
+        newChars.push_back('K');
+        oldChars.push_back("DE");
+        newChars.push_back('D');
+        oldChars.push_back("GACS");
+        newChars.push_back('G');
+        oldChars.push_back("TMQNP");
+        newChars.push_back('T');
+    }else if(alphabet == "3IMG"){
+        oldChars.push_back("IVLFCMAW");
+        newChars.push_back('I');
+        oldChars.push_back("GTSYPH");
+        newChars.push_back('G');
+        oldChars.push_back("DNEQKR");
+        newChars.push_back('D');
+    }else if(alphabet == "5IMG"){
+        oldChars.push_back("GAS");
+        newChars.push_back('G');
+        oldChars.push_back("CDPNT");
+        newChars.push_back('C');
+        oldChars.push_back("EVQH");
+        newChars.push_back('E');
+        oldChars.push_back("MILKR");
+        newChars.push_back('M');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+    }else if(alphabet == "11IMG"){
+        oldChars.push_back("AVIL");
+        newChars.push_back('A');
+        oldChars.push_back("F");
+        newChars.push_back('F');
+        oldChars.push_back("CM");
+        newChars.push_back('C');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("ST");
+        newChars.push_back('S');
+        oldChars.push_back("W");
+        newChars.push_back('W');
+        oldChars.push_back("Y");
+        newChars.push_back('Y');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("DE");
+        newChars.push_back('D');
+        oldChars.push_back("NQ");
+        newChars.push_back('N');
+        oldChars.push_back("HKR");
+        newChars.push_back('H');
+    }else if(alphabet == "Murphy15"){
+        oldChars.push_back("LVIM");
+        newChars.push_back('L');
+        oldChars.push_back("C");
+        newChars.push_back('C');
+        oldChars.push_back("A");
+        newChars.push_back('A');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("S");
+        newChars.push_back('S');
+        oldChars.push_back("T");
+        newChars.push_back('T');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("FY");
+        newChars.push_back('F');
+        oldChars.push_back("W");
+        newChars.push_back('W');
+        oldChars.push_back("E");
+        newChars.push_back('E');
+        oldChars.push_back("D");
+        newChars.push_back('D');
+        oldChars.push_back("N");
+        newChars.push_back('N');
+        oldChars.push_back("Q");
+        newChars.push_back('Q');
+        oldChars.push_back("KR");
+        newChars.push_back('K');
+        oldChars.push_back("H");
+        newChars.push_back('H');
+    }else if(alphabet == "Murphy10"){
+        oldChars.push_back("LVIM");
+        newChars.push_back('L');
+        oldChars.push_back("C");
+        newChars.push_back('C');
+        oldChars.push_back("A");
+        newChars.push_back('A');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("ST");
+        newChars.push_back('S');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+        oldChars.push_back("EDNQ");
+        newChars.push_back('E');
+        oldChars.push_back("KR");
+        newChars.push_back('K');
+        oldChars.push_back("H");
+        newChars.push_back('H');
+    }else if(alphabet == "Murphy8"){
+        oldChars.push_back("LVIMC");
+        newChars.push_back('L');
+        oldChars.push_back("AG");
+        newChars.push_back('A');
+        oldChars.push_back("ST");
+        newChars.push_back('S');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+        oldChars.push_back("EDNQ");
+        newChars.push_back('E');
+        oldChars.push_back("KR");
+        newChars.push_back('K');
+        oldChars.push_back("H");
+        newChars.push_back('H');
+    }else if(alphabet == "Murphy4"){
+        oldChars.push_back("LVIMC");
+        newChars.push_back('L');
+        oldChars.push_back("AGSTP");
+        newChars.push_back('A');
+        oldChars.push_back("FYW");
+        newChars.push_back('F');
+        oldChars.push_back("EDNQKRH");
+        newChars.push_back('E');
+    }else if(alphabet == "Murphy2"){
+        oldChars.push_back("LVIMCAGSTPFYW");
+        newChars.push_back('P');
+        oldChars.push_back("EDNQKRH");
+        newChars.push_back('E');
+    }else if(alphabet == "Wang5"){
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('I');
+        oldChars.push_back("ATH");
+        newChars.push_back('A');
+        oldChars.push_back("GP");
+        newChars.push_back('G');
+        oldChars.push_back("DE");
+        newChars.push_back('E');
+        oldChars.push_back("SNQRK");
+        newChars.push_back('K');
+    }else if(alphabet == "Wang5v"){
+        oldChars.push_back("CMFI");
+        newChars.push_back('I');
+        oldChars.push_back("LVWY");
+        newChars.push_back('L');
+        oldChars.push_back("ATGS");
+        newChars.push_back('A');
+        oldChars.push_back("NQDE");
+        newChars.push_back('E');
+        oldChars.push_back("HPRK");
+        newChars.push_back('K');
+    }else if(alphabet == "Wang3"){
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('I');
+        oldChars.push_back("ATHGPR");
+        newChars.push_back('A');
+        oldChars.push_back("DESNQK");
+        newChars.push_back('E');
+    }else if(alphabet == "Wang2"){
+        oldChars.push_back("CMFILVWY");
+        newChars.push_back('I');
+        oldChars.push_back("ATHGPRDESNQK");
+        newChars.push_back('A');
+    }else if(alphabet == "Li10"){
+        oldChars.push_back("C");
+        newChars.push_back('C');
+        oldChars.push_back("FYW");
+        newChars.push_back('Y');
+        oldChars.push_back("ML");
+        newChars.push_back('L');
+        oldChars.push_back("IV");
+        newChars.push_back('V');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("P");
+        newChars.push_back('P');
+        oldChars.push_back("ATS");
+        newChars.push_back('S');
+        oldChars.push_back("NH");
+        newChars.push_back('N');
+        oldChars.push_back("QED");
+        newChars.push_back('E');
+        oldChars.push_back("RK");
+        newChars.push_back('K');
+    }else if(alphabet == "Li5"){
+        oldChars.push_back("CFYW");
+        newChars.push_back('Y');
+        oldChars.push_back("MLIV");
+        newChars.push_back('I');
+        oldChars.push_back("G");
+        newChars.push_back('G');
+        oldChars.push_back("PATS");
+        newChars.push_back('S');
+        oldChars.push_back("NHQEDRK");
+        newChars.push_back('N');
+    }else if(alphabet == "Li4"){
+        oldChars.push_back("CFYW");
+        newChars.push_back('Y');
+        oldChars.push_back("MLIV");
+        newChars.push_back('I');
+        oldChars.push_back("GPATS");
+        newChars.push_back('S');
+        oldChars.push_back("NHQEDRK");
+        newChars.push_back('E');
+    }else if(alphabet == "Li3"){
+        oldChars.push_back("CFYWMLIV");
+        newChars.push_back('I');
+        oldChars.push_back("GPATS");
+        newChars.push_back('S');
+        oldChars.push_back("NHQEDRK");
+        newChars.push_back('E');
+    }
+
+    Filter* filter = new Filter();
+    filter->addSequences(sequencenames,sequences);
+    filter->applyAlphabetReduction(oldChars,newChars);
+    return filter->sequences;
+}
+
+char Filter::getReducedAminoAcid(char c, string alphabet){
+    if(alphabet != "T2" && alphabet != "T5" && alphabet != "T6" && alphabet != "3IMG" && alphabet != "5IMG"
+            && alphabet != "11IMG" && alphabet != "Murphy15" && alphabet != "Murphy10" && alphabet != "Murphy8"
+            && alphabet != "Murphy4" && alphabet != "Murphy2" && alphabet != "Wang5" && alphabet != "Wang5v"
+            && alphabet != "Wang3" && alphabet != "Wang2" && alphabet != "Li10" && alphabet != "Li5"
+            && alphabet != "Li4" && alphabet != "Li3") return 'X';
+    else{
+        if(alphabet == "T2"){
+            string a1 = "AGTSNQDEHRKP";
+            string a2 = "CMFILVWY";
+            if(a1.find(c) != std::string::npos) return 'P';
+            else if(a2.find(c) != std::string::npos) return 'Y';
+        }else if(alphabet == "T5"){
+            string a1 = "IVL";
+            string a2 = "FYWH";
+            string a3 = "KRDE";
+            string a4 = "GACS";
+            string a5 = "TMQNP";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'F';
+            else if(a3.find(c) != std::string::npos) return 'K';
+            else if(a4.find(c) != std::string::npos) return 'G';
+            else if(a5.find(c) != std::string::npos) return 'T';
+        }else if(alphabet == "T6"){
+            string a1 = "IVL";
+            string a2 = "FYWH";
+            string a3 = "KR";
+            string a4 = "DE";
+            string a5 = "GACS";
+            string a6 = "TMQNP";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'F';
+            else if(a3.find(c) != std::string::npos) return 'K';
+            else if(a4.find(c) != std::string::npos) return 'D';
+            else if(a5.find(c) != std::string::npos) return 'G';
+            else if(a6.find(c) != std::string::npos) return 'T';
+        }else if(alphabet == "3IMG"){
+            string a1 = "IVLFCMAW";
+            string a2 = "GTSYPH";
+            string a3 = "DNEQKR";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'G';
+            else if(a3.find(c) != std::string::npos) return 'D';
+        }else if(alphabet == "5IMG"){
+            string a1 = "GAS";
+            string a2 = "CDPNT";
+            string a3 = "EVQH";
+            string a4 = "MILKR";
+            string a5 = "FYW";
+            if(a1.find(c) != std::string::npos) return 'G';
+            else if(a2.find(c) != std::string::npos) return 'C';
+            else if(a3.find(c) != std::string::npos) return 'E';
+            else if(a4.find(c) != std::string::npos) return 'M';
+            else if(a5.find(c) != std::string::npos) return 'F';
+        }else if(alphabet == "11IMG"){
+            string a1 = "HKR";
+            string a2 = "AVIL";
+            string a3 = "CM";
+            string a4 = "ST";
+            string a5 = "DE";
+            string a6 = "NQ";
+            if(a1.find(c) != std::string::npos) return 'H';
+            else if(a2.find(c) != std::string::npos) return 'A';
+            else if(c == 'F') return 'F';
+            else if(a3.find(c) != std::string::npos) return 'C';
+            else if(c == 'G') return 'G';
+            else if(a4.find(c) != std::string::npos) return 'S';
+            else if(c == 'W') return 'W';
+            else if(c == 'Y') return 'Y';
+            else if(c == 'P') return 'P';
+            else if(a5.find(c) != std::string::npos) return 'D';
+            else if(a6.find(c) != std::string::npos) return 'N';
+        }else if(alphabet == "Murphy15"){
+            string a1 = "LVIM";
+            string a2 = "FY";
+            string a3 = "KR";
+            if(a1.find(c) != std::string::npos) return 'L';
+            else if(a2.find(c) != std::string::npos) return 'F';
+            else if(a3.find(c) != std::string::npos) return 'K';
+            else if(c == 'C') return 'C';
+            else if(c == 'A') return 'A';
+            else if(c == 'G') return 'G';
+            else if(c == 'S') return 'S';
+            else if(c == 'T') return 'T';
+            else if(c == 'P') return 'P';
+            else if(c == 'W') return 'W';
+            else if(c == 'E') return 'E';
+            else if(c == 'D') return 'D';
+            else if(c == 'N') return 'N';
+            else if(c == 'Q') return 'Q';
+            else if(c == 'H') return 'H';
+        }else if(alphabet == "Murphy10"){
+            string a1 = "LVIM";
+            string a2 = "ST";
+            string a3 = "FYW";
+            string a4 = "EDNQ";
+            string a5 = "KR";
+            if(a1.find(c) != std::string::npos) return 'L';
+            else if(a2.find(c) != std::string::npos) return 'S';
+            else if(a3.find(c) != std::string::npos) return 'F';
+            else if(a4.find(c) != std::string::npos) return 'E';
+            else if(a5.find(c) != std::string::npos) return 'K';
+            else if(c == 'C') return 'C';
+            else if(c == 'A') return 'A';
+            else if(c == 'G') return 'G';
+            else if(c == 'P') return 'P';
+            else if(c == 'H') return 'H';
+        }else if(alphabet == "Murphy8"){
+            string a1 = "LVIMC";
+            string a2 = "AG";
+            string a3 = "ST";
+            string a4 = "FYW";
+            string a5 = "EDNQ";
+            string a6 = "KR";
+            if(a1.find(c) != std::string::npos) return 'L';
+            else if(a2.find(c) != std::string::npos) return 'A';
+            else if(a3.find(c) != std::string::npos) return 'S';
+            else if(a4.find(c) != std::string::npos) return 'F';
+            else if(a5.find(c) != std::string::npos) return 'E';
+            else if(a6.find(c) != std::string::npos) return 'K';
+            else if(c == 'H') return 'H';
+            else if(c == 'P') return 'P';
+        }else if(alphabet == "Murphy4"){
+            string a1 = "LVIMC";
+            string a2 = "AGSTP";
+            string a3 = "FYW";
+            string a4 = "EDNQKRH";
+            if(a1.find(c) != std::string::npos) return 'L';
+            else if(a2.find(c) != std::string::npos) return 'A';
+            else if(a3.find(c) != std::string::npos) return 'F';
+            else if(a4.find(c) != std::string::npos) return 'E';
+        }else if(alphabet == "Murphy2"){
+            string a1 = "LVIMCAGSTPFYW";
+            string a2 = "EDNQKRH";
+            if(a1.find(c) != std::string::npos) return 'P';
+            else if(a2.find(c) != std::string::npos) return 'E';
+        }else if(alphabet == "Wang5"){
+            string a1 = "CMFILVWY";
+            string a2 = "ATH";
+            string a3 = "GP";
+            string a4 = "DE";
+            string a5 = "SNQRK";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'A';
+            else if(a3.find(c) != std::string::npos) return 'G';
+            else if(a4.find(c) != std::string::npos) return 'E';
+            else if(a5.find(c) != std::string::npos) return 'K';
+        }else if(alphabet == "Wang5v"){
+            string a1 = "CMFI";
+            string a2 = "LVWY";
+            string a3 = "ATGS";
+            string a4 = "NQDE";
+            string a5 = "HPRK";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'L';
+            else if(a3.find(c) != std::string::npos) return 'A';
+            else if(a4.find(c) != std::string::npos) return 'E';
+            else if(a5.find(c) != std::string::npos) return 'K';
+        }else if(alphabet == "Wang3"){
+            string a1 = "CMFILVWY";
+            string a2 = "ATHGPR";
+            string a3 = "DESNQK";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'A';
+            else if(a3.find(c) != std::string::npos) return 'E';
+        }else if(alphabet == "Wang2"){
+            string a1 = "CMFILVWY";
+            string a2 = "ATHGPRDESNQK";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'A';
+        }else if(alphabet == "Li10"){
+            string a1 = "FYW";
+            string a2 = "ML";
+            string a3 = "IV";
+            string a4 = "ATS";
+            string a5 = "NH";
+            string a6 = "QED";
+            string a7 = "RK";
+            if(a1.find(c) != std::string::npos) return 'Y';
+            else if(a2.find(c) != std::string::npos) return 'L';
+            else if(a3.find(c) != std::string::npos) return 'V';
+            else if(a4.find(c) != std::string::npos) return 'S';
+            else if(a5.find(c) != std::string::npos) return 'N';
+            else if(a6.find(c) != std::string::npos) return 'E';
+            else if(a7.find(c) != std::string::npos) return 'K';
+            else if(c == 'C') return 'C';
+            else if(c == 'G') return 'G';
+            else if(c == 'P') return 'P';
+        }else if(alphabet == "Li5"){
+            string a1 = "CFYW";
+            string a2 = "MLIV";
+            string a3 = "PATS";
+            string a4 = "NHQEDRK";
+            if(a1.find(c) != std::string::npos) return 'Y';
+            else if(a2.find(c) != std::string::npos) return 'I';
+            else if(a3.find(c) != std::string::npos) return 'S';
+            else if(a4.find(c) != std::string::npos) return 'N';
+            else if(c == 'G') return 'G';
+        }else if(alphabet == "Li4"){
+            string a1 = "CFYW";
+            string a2 = "MLIV";
+            string a3 = "GPATS";
+            string a4 = "NHQEDRK";
+            if(a1.find(c) != std::string::npos) return 'Y';
+            else if(a2.find(c) != std::string::npos) return 'I';
+            else if(a3.find(c) != std::string::npos) return 'S';
+            else if(a4.find(c) != std::string::npos) return 'E';
+        }else if(alphabet == "Li3"){
+            string a1 = "CFYWMLIV";
+            string a2 = "GPATS";
+            string a3 = "NHQEDRK";
+            if(a1.find(c) != std::string::npos) return 'I';
+            else if(a2.find(c) != std::string::npos) return 'S';
+            else if(a3.find(c) != std::string::npos) return 'E';
+        }
+    }
+
+    return 'X';
+}
+
+float Filter::getResidueFrequence(char aa, int pos, string alphabet){//alignmentpos
+    int countAA = 0;
+
+    if(pos > sequences[0].size()) return -1;
+
+    if(alphabet == "T20"){
+            for(unsigned int i = 0; i < sequences.size(); i++){
+                if(sequences[i][pos-1] == aa) countAA++;
+            }
+    }else{
+        if(alphabet != "T2" && alphabet != "T5" && alphabet != "T6" && alphabet != "3IMG" && alphabet != "5IMG"
+                && alphabet != "11IMG" && alphabet != "Murphy15" && alphabet != "Murphy10" && alphabet != "Murphy8"
+                && alphabet != "Murphy4" && alphabet != "Murphy2" && alphabet != "Wang5" && alphabet != "Wang5v"
+                && alphabet != "Wang3" && alphabet != "Wang2" && alphabet != "Li10" && alphabet != "Li5"
+                && alphabet != "Li4" && alphabet != "Li3") return -1;
+
+        vector<string> reducedsequences = getReducedSequences(alphabet);
+        char newAA = getReducedAminoAcid(aa,alphabet);
+
+        for(unsigned int i = 0; i < reducedsequences.size(); i++){
+            if(reducedsequences[i][pos-1] == newAA) countAA++;
+        }
+    }
+
+    //printf("%d/%d = %f\n",countAA,sequences.size(),(float)countAA/(float)sequences.size());
+    return (float)countAA/(float)sequences.size();
+}
+
+bool Filter::containsSequence(string seq){
+    for(unsigned int i = 0; i < sequencenames.size(); i++)
+        if(seq == sequencenames[i]) return true;
+    return false;
+}
+
+int Filter::getSequenceIndex(string refseq){
+    for(unsigned int i = 0; i < sequencenames.size(); i++){
+        if(sequencenames[i] == refseq)
+            return i;
+    }
+
+    return -1;
 }

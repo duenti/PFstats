@@ -11,6 +11,7 @@
 #include "pdb.h"
 #include <QCompleter>
 #include <QWebFrame>
+#include <ctype.h>
 #include "networkvisualization.h"
 #include "taxonomicvisualization.h"
 
@@ -117,6 +118,7 @@ private slots:
     void setLibPath();
     void changeToAlphabetReduction();
     void changeToGenSubAlignments();
+    void changeToMutationAnalysis();
     void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
     void renameFilter();
     void removeFilter();
@@ -203,10 +205,6 @@ private slots:
 
     void on_cmdBackCommGraph_clicked();
 
-    void on_txtGraphCutoff_editingFinished();
-
-    void on_cmdCorrCommCutoff_clicked();
-
     void on_chkApplyMinCover_clicked(bool checked);
 
     void on_chkApplyMinId_clicked(bool checked);
@@ -278,6 +276,14 @@ private slots:
     void on_cmdExpandNetworkVisualization_clicked();
 
     void on_cmdExpandTaxonomy_clicked();
+
+    void on_cmdCalculateMutations_clicked();
+
+    void on_radioMutationAlignment_clicked(bool checked);
+
+    void on_radioMutationSequence_clicked(bool checked);
+
+    void on_radioMutationPDB_clicked(bool checked);
 
 private:
     enum Constants{

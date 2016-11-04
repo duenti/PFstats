@@ -8,21 +8,18 @@ jQuery.fn.d3Click = function () {
 var width = $('#main').width();
 var height = ($('#main').width()) * 0.8;
 var radius = (Math.min(width, height) / 2) - 10;
+var body_width = $('#body').width()
+
 
 var body_margin_top = d3.select("body").attr("margin-top", height / 60);
+var seq_height = d3.select("#sequence").attr("width", body_width);
 var seq_height = d3.select("#sequence").attr("height", width * 0.093334);
 
 // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
 var b = {
-  w: 75, h: 30, s: 3, t: 10
+  //w: 75, h: 30, s: 3, t: 10
+  w: width / 8, h: 30, s: 3, t: 10
 };
-
-/*var explanation_pos = $("#explanation").css({top: height * 0.43333333, left: height * 0.50833333, position:'absolute', width: height * 0.23333333});
-*/
-
-/*var width = 800,
-    height = 700,
-    radius = (Math.min(width, height) / 2) - 10;*/
 
 var formatNumber = d3.format(",d");
 
@@ -38,7 +35,7 @@ var colors1 = {
   "Archea": "#660000",
   "Bacteria": "#666600",
   "Eukaryota": "#000066",
-  "Virus": "#006600",
+  "Viruses": "#006600",
   "Viroids": "#006666",
   "Other": "#202020"
 };
@@ -55,6 +52,7 @@ var arc = d3.svg.arc()
 var svg = d3.select("#chart").append("svg")
     .attr("width", width)
     .attr("height", height)
+    .attr("id", "eita") //comentar
   .append("g")
   .attr("id", "container")
     .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
@@ -62,14 +60,42 @@ var svg = d3.select("#chart").append("svg")
 d3.text("clades.csv", function(text) {
   var csv = d3.csv.parseRows(text);
   var json = buildHierarchy(csv);
-  createVisualization(json);
+  createVisualization(json, csv);
   $("#togglelegend").d3Click();
+  zoomFoundLineage('Eukaryota-Metazoa');  
+  //$("#").d3Click();
   //falta colorir objeto root de branco aqui
 });
 
-function createVisualization(json) {
+/*
+function printMe(){
+  var valor = $("#querylook").val();
+  console.log(valor);
+};
+*/
+function createVisualization(json, csv) {
+
+  var all_lineages = getAllLineages(csv);
+  //console.log(all_lineages);
+  /*
+  d3.select("#querybox").append("input").attr("id", "querylook")
+      .attr("type", "text")
+      .attr("class","form-control")
+      .attr("placeholder", "Input Lineage");
+
+  $( "#querylook" ).autocomplete({
+    source: all_lineages
+  });
+  */
   drawLegend();
   initializeBreadcrumbTrail();
+  //make_buttom();
+  //var paths = 
+  //d3.select("#thebutton").on("click", zoomFoundLineage);
+  //d3.select("#thebutton").on("click", printMe);
+  //nao sei se funciona
+  //<input id='gene_search_box' type="text" class="form-control" placeholder="Input Gene" aria-describedby="sizing-addon2">
+
   d3.select("#togglelegend").on("click", toggleLegend);
   svg.append("circle")
       .attr("r", radius)
@@ -84,9 +110,51 @@ function createVisualization(json) {
       .on("click", click)
       .on("mouseover", mouseover)
     .append("title")
-      .text(function(d) { return d.name + "\n" + formatNumber(d.value); });
+      //.text(function(d) { return d.name + "\n" + formatNumber(d.value); });
+      .text(function(d) { return d.lineage + " \n" + formatNumber(d.value); });
   d3.select("#container").on("mouseleave", mouseleave);
+/*  var paths = d3.selectAll("path");
+  console.log(paths);*/
   totalSize = svg.node().__data__.value;
+};
+
+/*
+function make_buttom() {
+  var button = d3.select("#querybox").append("button")
+          .attr("id", "thebutton")
+          .attr("type","button")
+          .attr("class","btn-btn")
+          .append("div")
+          .attr("class","label")
+          .text("Buscar");
+};
+*/
+//inicialmente achei que precisa utilizar o centroid e converter os valores por elemento absoluto mas e bem simples
+//a funcao d3click recebe um objeto jquery correspondente a um elemento dom e clica nele.
+//.each pega cada um dos paths dentro de #eita path
+//e a data associada a eles.
+//se a data associada a eles e igual a linhagem em querylook
+//convertemos this (HTML DOM) para um Jquery Object e invocamos um click nisso
+function zoomFoundLineage(linhagem) {
+  //var $linhagem = $("#querylook").val(); //pega valor de querylook
+  d3.selectAll("#eita path")
+  .each(function (d, i) { //para cada elemento path
+    if (d.lineage === linhagem ) { //se a linhagem = linhagem achada
+      //console.log(d.lineage); //linhagem e impressa
+      //var jelm = $(this); //jquery object recebe this do d3, que e um HTML DOM
+      //$(jelm).d3Click(); //invoco minha funcao click no DOM.
+      svg.transition()
+      .duration(400)
+      .tween("scale", function() {
+        var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+            yd = d3.interpolate(y.domain(), [d.y, 1]),
+            yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+        return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
+      })
+    .selectAll("path")
+      .attrTween("d", function(d) { return function() { return arc(d); }; });
+    }
+  });
 };
 
 function click(d) {
@@ -122,8 +190,8 @@ function mouseover(d) {
   var sequenceArray = getAncestors(d);
   updateBreadcrumbs(sequenceArray, percentageString);
   //below tests to see if it works or not
-  //console.log(d.name);
-  //console.log(d.lineage);
+  console.log(d.name);
+  console.log(d.lineage);
   // Fade all the segments.
   d3.selectAll("path")
       .style("opacity", 0.3);
@@ -138,7 +206,6 @@ function mouseover(d) {
 
 // Restore everything to full opacity when moving off the visualization.
 function mouseleave(d) {
-
   // Hide the breadcrumb trail
   d3.select("#trail")
       .style("visibility", "hidden");
@@ -149,7 +216,7 @@ function mouseleave(d) {
   // Transition each segment to full opacity and then reactivate it.
   d3.selectAll("path")
       .transition()
-      .duration(1000)
+      .duration(10)
       .style("opacity", 1)
       .each("end", function() {
               d3.select(this).on("mouseover", mouseover);
@@ -211,7 +278,13 @@ function updateBreadcrumbs(nodeArray, percentageString) {
       .attr("y", b.h / 2)
       .attr("dy", "0.35em")
       .attr("text-anchor", "middle")
-      .text(function(d) { return d.name; });
+      .text(function(d) { 
+        if (d.name.length > 10) {
+          return d.name.substring(0,8 ) + '...';
+        }
+        else {
+        return d.name;
+        } });
 
   // Set position for entering and updating nodes.
   g.attr("transform", function(d, i) {
@@ -285,7 +358,7 @@ function colorify(lineage) {
     "Archea" : d3.scale.linear().domain([0, 7]).range(['#660000', '#ff9999']),
     "Bacteria" : d3.scale.linear().domain([0, 7]).range(['#666600', '#ffff99']),
     "Eukaryota" : d3.scale.linear().domain([0, 7]).range(['#000066', '#9999ff']),
-    "Virus" : d3.scale.linear().domain([0, 7]).range(['#006600', '#99ff99']),
+    "Viruses" : d3.scale.linear().domain([0, 7]).range(['#006600', '#99ff99']),
     "Viroids" : d3.scale.linear().domain([0, 7]).range(['#006666', '#99ffff']),
     "Other" : d3.scale.linear().domain([0, 7]).range(['#202020', '#e0e0e0'])
   }
@@ -311,12 +384,10 @@ function getAncestors(node) {
   return path;
 }
 
-// Take a 2-column CSV and transform it into a hierarchical structure suitable
-// for a partition layout. The first column is a sequence of step names, from
-// root to leaf, separated by hyphens. The second column is a count of how 
-// often that sequence occurred.
-function buildHierarchy(csv) {
-  var root = {"name": "root", "children": [], "lineage": lineage};
+function getAllLineages(csv) {
+  var root = {"name": "root", "children": []};
+  var lineages_list = [];
+  var lineages_sizes = {};
   for (var i = 0; i < csv.length; i++) {
     var sequence = csv[i][0];
     var size = +csv[i][1];
@@ -346,6 +417,9 @@ function buildHierarchy(csv) {
   if (!foundChild) {
     //childNode = {"name": nodeName, "children": []}; //"lineage": lineage };
     childNode = {"name": nodeName, "children": [], "lineage": lineage, "cor": colorify(lineage) };
+    //console.log(lineage);
+    //console.log(childNode.lineage);
+    lineages_list.push(lineage);
     children.push(childNode);
   }
   currentNode = childNode;
@@ -353,9 +427,69 @@ function buildHierarchy(csv) {
   // Reached the end of the sequence; create a leaf node.
   //childNode = {"name": nodeName, "size": size}; //"lineage": lineage };
   childNode = {"name": nodeName, "size": size, "lineage": lineage, "cor": colorify(lineage)  };
+  //console.log(lineage);
+  //console.log(childNode.lineage);
+  lineages_list.push(lineage);
+  children.push(childNode);
+      }
+    }
+  }
+  return lineages_list;//, root;
+};
+
+// Take a 2-column CSV and transform it into a hierarchical structure suitable
+// for a partition layout. The first column is a sequence of step names, from
+// root to leaf, separated by hyphens. The second column is a count of how 
+// often that sequence occurred. // "lineage": lineage, "cor": 'white'
+function buildHierarchy(csv) {
+  var root = {"name": "root", "children": [], "lineage": lineage, "cor": 'white'};
+  for (var i = 0; i < csv.length; i++) {
+    var sequence = csv[i][0];
+    var size = +csv[i][1];
+    if (isNaN(size)) { // e.g. if this is a header row
+      continue;
+    }
+    var parts = sequence.split("-");
+    var currentNode = root;
+    for (var j = 0; j < parts.length; j++) {
+      var children = currentNode["children"];
+      //modifications to save ancestors
+      var subarray = parts.slice(0,j+1);
+      var lineage = subarray.join('-');
+      var nodeName = parts[j];
+      var childNode;
+      if (j + 1 < parts.length) {
+   // Not yet at the end of the sequence; move down the tree.
+  var foundChild = false;
+  for (var k = 0; k < children.length; k++) {
+    if (children[k]["name"] == nodeName) {
+      childNode = children[k];
+      foundChild = true;
+      break;
+    }
+  }
+  // If we don't already have a child node for this branch, create it.
+  if (!foundChild) {
+    //childNode = {"name": nodeName, "children": []}; //"lineage": lineage };
+    childNode = {"name": nodeName, "children": [], "lineage": lineage, "cor": colorify(lineage) };
+    //console.log(lineage);
+    //console.log(childNode.lineage);
+    children.push(childNode);
+  }
+  currentNode = childNode;
+      } else {
+  // Reached the end of the sequence; create a leaf node.
+  //childNode = {"name": nodeName, "size": size}; //"lineage": lineage };
+  childNode = {"name": nodeName, "size": size, "lineage": lineage, "cor": colorify(lineage)  };
+  //console.log(lineage);
+  //console.log(childNode.lineage);
   children.push(childNode);
       }
     }
   }
   return root;
+};
+
+function test(linhagem){
+	alert(linhagem);
 };

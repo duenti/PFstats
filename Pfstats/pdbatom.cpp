@@ -8,7 +8,6 @@ PdbAtom::PdbAtom()
 PdbAtom::PdbAtom(string line){
     char c = ' ';
     string temp = "";
-    int countN = 1;
 
     //Atom Number
     for(int i = 6; i <= 10; i++){
@@ -24,11 +23,7 @@ PdbAtom::PdbAtom(string line){
         c = line[i];
         if(c != ' ') temp += c;
     }
-
-    if(temp == "N" && countN == 1){
-        this->atomName = "NmH2";
-    }else
-        this->atomName = temp;
+    this->atomName = temp;
 
     //Alternate Location Indicator
     this->alternateLocation = line[16];

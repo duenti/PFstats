@@ -863,8 +863,8 @@ vector<string> Alignment::getRecommendsPDBs(string protein){
     vector<string> recommended;
 
     for(unsigned int i = 0; i < recommendPdbs.size(); i++){
-        string temp = std::get<0>(recommendPdbs[i]);
-        string prot = split(temp,'/')[0];
+        string prot = std::get<0>(recommendPdbs[i]);
+        //string prot = split(temp,'/')[0];
         if(protein == prot){
             string pdb = std::get<1>(recommendPdbs[i]);
             char chain = std::get<2>(recommendPdbs[i]);

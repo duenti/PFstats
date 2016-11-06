@@ -81,6 +81,7 @@ private:
     long double stirling(int x);
     long double lnbdf (int N, int nx, float px);
     char num2aa(int n);
+    bool isaa(char c);
     bool isaax(char c);
     vector<vector<int> > createBlankIntMatrix(int i1, int j1, int v);
     unsigned int GetOffsetFromSeqName (string seqname);
@@ -92,6 +93,8 @@ private:
     Feature* parseFeature(string feature);
     int countAA(char aa, int col);
     string typeToString();
+    int blosum_indexes(char c);
+    int BLOSUM62(char c1, char c2);
 
 public:
     vector<string> sequences;
@@ -162,7 +165,8 @@ public:
     unsigned int AlignNumbering2Sequence2(int seqnumber, int position, vector<string> fullSequences);
     void printRefSeqs();
     void CalculateFrequencies();
-    void dGCalculation();
+    string getAAList(string alphabet);
+    void dGCalculation(float alpha, float beta);
     void dGWrite();
     void FreqWrite();
     vector<float> ShannonEntropy(int repetitions);
@@ -218,6 +222,7 @@ public:
     vector<tuple<string,string,float> > getDeltasEdges(float cutoff);
     string getNoGAPSequence(int refseq);
     vector<float> createConservationVector(int refseq);
+    vector<float> createConservationVectorDG(int refseq);
     bool uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, float minCons, vector<string> fullAlignment, vector<string> fullSequences);
     void removeItemOfCommunity(int comm, int item);
     void addItemToCommunity(string res, int commindex);

@@ -191,7 +191,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -1957,12 +1957,12 @@
                  <item>
                   <widget class="QLabel" name="label_28">
                    <property name="text">
-                    <string>Minumum Conservation:</string>
+                    <string>Alpha (entropy weight):</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QDoubleSpinBox" name="txtMinConserv">
+                  <widget class="QDoubleSpinBox" name="txtAlpha">
                    <property name="maximumSize">
                     <size>
                      <width>60</width>
@@ -1976,7 +1976,7 @@
                     <double>0.010000000000000</double>
                    </property>
                    <property name="value">
-                    <double>0.800000000000000</double>
+                    <double>1.000000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -1984,6 +1984,36 @@
                </item>
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_14">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_33">
+                   <item>
+                    <widget class="QLabel" name="label_31">
+                     <property name="text">
+                      <string>Beta (sthereochemistry weight):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QDoubleSpinBox" name="txtBeta">
+                     <property name="maximumSize">
+                      <size>
+                       <width>60</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="maximum">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
                  <item>
                   <widget class="QLabel" name="label_17">
                    <property name="text">

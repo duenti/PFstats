@@ -199,6 +199,13 @@ char Filter::num2aa(int n){
     return('-');
 }
 
+bool Filter::isaa(char c){
+    if((c=='A')||(c=='C')||(c=='D')||(c=='E')||(c=='F')||(c=='G')||(c=='H')||(c=='I')||(c=='K')||(c=='L')||
+        (c=='M')||(c=='N')||(c=='P')||(c=='Q')||(c=='R')||(c=='S')||(c=='T')||(c=='V')||(c=='W')||(c=='Y'))
+         return true;
+    else return false;
+}
+
 bool Filter::isaax(char c){
     if((c=='A')||(c=='C')||(c=='D')||(c=='E')||(c=='F')||(c=='G')||(c=='H')||(c=='I')||(c=='K')||(c=='L')||
         (c=='M')||(c=='N')||(c=='P')||(c=='Q')||(c=='R')||(c=='S')||(c=='T')||(c=='V')||(c=='W')||(c=='Y')||
@@ -409,6 +416,62 @@ string Filter::typeToString(){
     }
 
     return "Full Alignment";
+}
+
+int Filter::blosum_indexes(char c){
+    switch(c){
+        case 'A': return 0;
+        case 'R': return 1;
+        case 'N': return 2;
+        case 'D': return 3;
+        case 'C': return 4;
+        case 'Q': return 5;
+        case 'E': return 6;
+        case 'G': return 7;
+        case 'H': return 8;
+        case 'I': return 9;
+        case 'L': return 10;
+        case 'K': return 11;
+        case 'M': return 12;
+        case 'F': return 13;
+        case 'P': return 14;
+        case 'S': return 15;
+        case 'T': return 16;
+        case 'W': return 17;
+        case 'Y': return 18;
+        case 'V': return 19;
+        default: return -1;
+    }
+}
+
+int Filter::BLOSUM62(char c1, char c2){
+    int matrix[20][20] = {
+        { 4, -1, -2, -2,  0, -1, -1,  0, -2, -1, -1, -1, -1, -2, -1,  1,  0, -3, -2,  0},
+        {-1,  5,  0, -2, -3,  1,  0, -2,  0, -3, -2,  2, -1, -3, -2, -1, -1, -3, -2, -3},
+        {-2,  0,  6,  1, -3,  0,  0,  0,  1, -3, -3,  0, -2, -3, -2,  1,  0, -4, -2, -3},
+        {-2, -2,  1,  6, -3,  0,  2, -1, -1, -3, -4, -1, -3, -3, -1,  0, -1, -4, -3, -3},
+        { 0, -3, -3, -3,  9, -3, -4, -3, -3, -1, -1, -3, -1, -2, -3, -1, -1, -2, -2, -1},
+        {-1,  1,  0,  0, -3,  5,  2, -2,  0, -3, -2,  1,  0, -3, -1,  0, -1, -2, -1, -2},
+        {-1,  0,  0,  2, -4,  2,  5, -2,  0, -3, -3,  1, -2, -3, -1,  0, -1, -3, -2, -2},
+        { 0, -2,  0, -1, -3, -2, -2,  6, -2, -4, -4, -2, -3, -3, -2,  0, -2, -2, -3, -3},
+        {-2,  0,  1, -1, -3,  0,  0, -2,  8, -3, -3, -1, -2, -1, -2, -1, -2, -2,  2, -3},
+        {-1, -3, -3, -3, -1, -3, -3, -4, -3,  4,  2, -3,  1,  0, -3, -2, -1, -3, -1,  3},
+        {-1, -2, -3, -4, -1, -2, -3, -4, -3,  2,  4, -2,  2,  0, -3, -2, -1, -2, -1,  1},
+        {-1,  2,  0, -1, -3,  1,  1, -2, -1, -3, -2,  5, -1, -3, -1,  0, -1, -3, -2, -2},
+        {-1, -1, -2, -3, -1,  0, -2, -3, -2,  1,  2, -1,  5,  0, -2, -1, -1, -1, -1,  1},
+        {-2, -3, -3, -3, -2, -3, -3, -3, -1,  0,  0, -3,  0,  6, -4, -2, -2,  1,  3, -1},
+        {-1, -2, -2, -1, -3, -1, -1, -2, -2, -3, -3, -1, -2, -4,  7, -1, -1, -4, -3, -2},
+        { 1, -1,  1,  0, -1,  0,  0,  0, -1, -2, -2,  0, -1, -2, -1,  4,  1, -3, -2, -2},
+        { 0, -1,  0, -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -2, -1,  1,  5, -2, -2,  0},
+        {-3, -3, -4, -4, -2, -2, -3, -2, -2, -3, -2, -3, -1,  1, -4, -3, -2, 11,  2, -3},
+        {-2, -2, -2, -3, -2, -1, -2, -3,  2, -1, -1, -2, -1,  3, -3, -2, -2,  2,  7, -1},
+        { 0, -3, -3, -3, -1, -2, -2, -3, -3,  3,  1, -2,  1, -1, -2, -2,  0, -3, -1,  4}
+    };
+    int x = blosum_indexes(c1);
+    int y = blosum_indexes(c2);
+
+    if(x == -1 || y == -1) return 0;
+    else return matrix[x][y];
 }
 
 string Filter::getName(){
@@ -683,9 +746,277 @@ void Filter::CalculateFrequencies(){
     }
 }
 
+string Filter::getAAList(string alphabet){
+    if(alphabet == "T2"){
+        return "PY";
+    }else if(alphabet == "T5"){
+        return "IFKGC";
+    }else if(alphabet == "T6"){
+        return "IFKDGT";
+    }else if(alphabet == "3IMG"){
+        return "IGD";
+    }else if(alphabet == "5IMG"){
+        return "GCEMF";
+    }else if(alphabet == "11IMG"){
+        return "AFCGSWYPDNH";
+    }else if(alphabet == "Murphy15"){
+        return "LCAGSTPFWEDNQKH";
+    }else if(alphabet == "Murphy10"){
+        return "LCAGSPFEKH";
+    }else if(alphabet == "Murphy8"){
+        return "LASPFEKH";
+    }else if(alphabet == "Murphy4"){
+        return "LAFE";
+    }else if(alphabet == "Murphy2"){
+        return "PE";
+    }else if(alphabet == "Wang5"){
+        return "IAGEK";
+    }else if(alphabet == "Wang5v"){
+        return "ILAEK";
+    }else if(alphabet == "Wang3"){
+        return "IAE";
+    }else if(alphabet == "Wang2"){
+        return "IA";
+    }else if(alphabet == "Li10"){
+        return "CYLVGPSNEK";
+    }else if(alphabet == "Li5"){
+        return "YIGSN";
+    }else if(alphabet == "Li4"){
+        return "YISE";
+    }else if(alphabet == "Li3"){
+        return "ISE";
+    }
+
+    return "ACDEFGHIKLMNPQRSTVWY";
+}
+
+//Carrijo
+
+void Filter::dGCalculation(float alpha, float beta){
+    vector<vector<char> > aa_types;
+    vector<string> newsequences;
+
+    QProgressDialog progress("Parsing sequences...(1/4)", "Abort", 0,sequences.size()+sequences[0].size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    //Adapta caracteres minusculos e gaps
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        string newseq = "";
+        for(unsigned int j = 0; j < sequences[i].size(); j++){
+            char aa = sequences[i][j];
+            if(aa == '.') newseq += '-';
+            else newseq += toupper(aa);
+        }
+        newsequences.push_back(newseq);
+    }
+
+    //Obtem os tipos de aminoacidos presentes em cada posicao.
+    set<char> types;
+    for(unsigned int i = 0; i < newsequences[0].size(); i++){
+        progress.setValue(i+sequences.size());
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        set<char> set_aa_types;
+        for(unsigned int j = 0; j < newsequences.size(); j++){
+            set_aa_types.insert(newsequences[j][i]);
+            types.insert(newsequences[j][i]);
+        }
+        //printf("%s\n",newsequences[i].c_str());
+        vector<char> vec_aa_types(set_aa_types.begin(),set_aa_types.end());
+        aa_types.push_back(vec_aa_types);
+        //typesCount.push_back(vec_aa_types.size());
+    }
+
+    progress.setLabelText("Calculating Henikoff weights...(2/4)");
+    progress.setMaximum(newsequences.size());
+    progress.setValue(0);
+    //# Algoritmo de Henikoff & Henikoff (atribui pesos as sequencias visando diminuir a redundancia em alinhamentos enviesados).
+    int length = newsequences[0].size();
+
+    //Para cada sequencia ele vai dar um peso
+    vector<float> ws;
+    for(unsigned int i = 0; i < newsequences.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        float sum = 0;
+
+        //Percorrer colunas para somar
+        for(unsigned j = 0; j < length; j++){
+            char actualAA = newsequences[i][j];
+
+            //Conta quantas vezes este AA esta presente na coluna
+            int nxi = countAA(actualAA,j);
+            float calc = (float)1/((float)aa_types[j].size()*(float)nxi);
+            sum += calc;
+        }
+        ws.push_back(sum/(float)length);
+    }
+
+    progress.setLabelText("Calculating entropy...(3/4)");
+    progress.setMaximum(aa_types.size()+newsequences[0].size());
+    progress.setValue(0);
+
+    //GET P
+    float lambda_t = 1/log2(types.size());
+    vector<float> entropies;
+    string aalist = this->getAAList(this->alphabet);
+    vector<float> max_entropy;
+    for(unsigned int i = 0; i < aa_types.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        map<char,float> pmap = {{'A',0.0},{'C',0.0},{'D',0.0},{'E',0.0},{'F',0.0},{'G',0.0},{'H',0.0},{'I',0.0},{'K',0.0},{'L',0.0},{'M',0.0},{'N',0.0},{'P',0.0},{'Q',0.0},{'R',0.0},{'S',0.0},{'T',0.0},{'V',0.0},{'W',0.0},{'Y',0.0},{'-',0.0}};
+        bool gap = false;
+        vector<char> aas = aa_types[i];
+        for(unsigned int j = 0; j < aas.size(); j++){
+            char aa = aas[j];
+            float p = 0;
+            for(unsigned int k = 0; k < newsequences.size(); k++){
+                string seq = newsequences[k];
+                if(seq[i] == aa){
+                    p+= ws[k];
+                    if(aa == '-') gap = true;
+                }
+            }
+            pmap[aa] = p;
+        }
+
+        float entropy = 0;
+        for(auto const& ent1 : pmap){
+            float p = ent1.second;
+            if(p > 0) entropy += (p*log2(p))*(-1);
+        }
+        entropies.push_back(lambda_t*entropy);
+
+        float pgap = 0;
+        if(gap)
+            pgap = pmap['-'];
+
+        //Aqui
+        map<char,float> p;
+        for(unsigned int i = 0; i < aalist.size(); i++){
+            char t = aalist[i];
+            p[t] = (1-pgap)/aalist.size();
+        }
+
+        entropy = 0;
+        for(auto const& ent1 : p){
+            entropy += (ent1.second*log2(ent1.second))*(-1);
+        }
+        float val = lambda_t*entropy;
+        if(isnan(val))
+            max_entropy.push_back(0);
+        else
+            max_entropy.push_back(lambda_t*entropy);
+    }
+
+    //get_corrected_entropy
+    vector<float> corrected_entropy;
+    float biggestMaxEntropy = *max_element(max_entropy.begin(),max_entropy.end());
+
+    for(unsigned int i = 0; i < newsequences[0].size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        float delta_entropy = entropies[i]-max_entropy[i];
+        corrected_entropy.push_back(delta_entropy + biggestMaxEntropy);
+    }
+
+    progress.setLabelText("Calculating sthereochemistry variety...(4/4)");
+    progress.setMaximum(aalist.size()+aa_types.size()+newsequences[0].size());
+    progress.setValue(0);
+
+    //#Calcula diversidade estereoquimica para cada posicao.
+    vector<float> sthereochemistry;
+    map<char,vector<int> > matrix;
+     set<int> m;
+    for(unsigned int i = 0; i < aalist.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        char aa1 = aalist[i];
+        vector<int> temp;
+        matrix[aa1] = temp;
+       for(unsigned int j = 0; j < aalist.size(); j++){
+           char aa2 = aalist[j];
+           matrix[aa1].push_back(BLOSUM62(aa1,aa2));
+       }
+       if(aa1 != '-' && aa1 != 'X'){
+           vector<int> matrixaa = matrix[aa1];
+           for(unsigned int j = 0; j < matrixaa.size(); j++){
+               m.insert(matrixaa[j]);
+           }
+       }
+    }
+
+    int m_max = *max_element(m.begin(),m.end());
+    int m_min = *min_element(m.begin(),m.end());
+    float lambda_r = (float)1/sqrt(20*pow((float)m_max-(float)m_min,2));
+
+    for(unsigned int i = 0; i < aa_types.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        vector<char> column = aa_types[i];
+        vector<int> sum_x {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        vector<vector<int> > X;
+        for(unsigned int j = 0; j < column.size(); j++){
+            char aa = column[j];
+            if(aa != '-' && aa != 'X'){
+                vector<int> x = matrix[aa];
+                X.push_back(x);
+                std::transform (sum_x.begin(), sum_x.end(), x.begin(), sum_x.begin(), std::plus<int>());
+            }
+        }
+        vector<float> mean_x;
+        int sum_dist = 0;
+        for(unsigned int j = 0; j < sum_x.size(); j++){
+            mean_x.push_back((float)sum_x[j]/(float)column.size());
+        }
+        for(unsigned int j = 0; j < X.size(); j++){
+            vector<float> dist_vector;
+            for(unsigned int k = 0; k < mean_x.size(); k++)
+                dist_vector.push_back(mean_x[k] - X[j][k]);
+            int sqr_sum = 0;
+            for(unsigned int k = 0; k < dist_vector.size(); k++){
+                float d = dist_vector[k];
+                sqr_sum += d*d;
+            }
+            sum_dist = sqrt(sqr_sum);
+        }
+        float mean_dist = (float)sum_dist/(float)column.size();
+        sthereochemistry.push_back(lambda_r*mean_dist);
+    }
+
+    for(unsigned int i = 0; i < newsequences[0].size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()) return;
+
+        dG.push_back((pow(1-corrected_entropy[i],alpha))*(pow(1-sthereochemistry[i],beta)));
+    }
+
+    progress.close();
+}
+
+
+/*//Lockless
 void Filter::dGCalculation(){
     unsigned int c1,c2;
     long double partialresult;
+    dG.clear();
     for(c1=0;c1<=sequences[0].size()-1;c1++){
         partialresult=0;
         for(c2=1; c2<=20; c2++){
@@ -694,12 +1025,14 @@ void Filter::dGCalculation(){
         dG.push_back(sqrt(partialresult));
     }
 }
+*/
 
 void Filter::dGWrite(){
     consDG.clear();
     for(unsigned int i = 0; i<sequences[0].size();i++){//for(unsigned int i = 0; i<sequences[0].size()-1;i++){
-        consDG.push_back(float(dG[i]));
-        //printf("%d - %f\n",i,dG[i]);
+        consDG.push_back((float)dG[i]);
+        //consDG.push_back(float(dG[i]));
+        printf("%d - %f\n",i,consDG[i]);
     }
 }
 
@@ -1644,6 +1977,20 @@ string Filter::getNoGAPSequence(int refseq){
     }
 
     return seq;
+}
+
+vector<float> Filter::createConservationVectorDG(int refseq){//REFSEQ STARTS WITH 1
+    vector<float> consvec;
+
+    for(unsigned int i = 0; i < sequences[0].size(); i++){
+        char aa = sequences[refseq-1][i];
+
+        if(aa != '-' && aa != '.' && aa != ' ')
+            if(dG[i] < 0) consvec.push_back(0);
+            else consvec.push_back(dG[i]*100);
+    }
+
+    return consvec;
 }
 
 vector<float> Filter::createConservationVector(int refseq){//REFSEQ STARTS WITH 1

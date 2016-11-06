@@ -239,7 +239,8 @@ void MainWindow::resetObjects(){
     ui->lstRecomendedPDBs->clear();
     ui->txtOffset->setText("0");
     ui->txtChain->setText("A");
-    ui->txtMinConserv->setValue(0.8);
+    ui->txtAlpha->setValue(1);
+    ui->txtBeta->setValue(1);
     ui->cmbRefSeq_2->clear();
     //MINSS
     ui->graficMinss->clearGraphs();
@@ -717,8 +718,10 @@ void MainWindow::applyHenikoffFilter(){
 }
 
 void MainWindow::conservation(int refseq, int offset, char chain, float minCons, string pdbid){
+    float alpha = ui->txtAlpha->value();
+    float beta = ui->txtBeta->value();
     currentFilter->CalculateFrequencies();
-    currentFilter->dGCalculation();
+    currentFilter->dGCalculation(alpha,beta);
     currentFilter->dGWrite();
     currentFilter->FreqWrite();
 
@@ -744,7 +747,8 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
         path = filename.toStdString();
 
         //pdb->printSeqNumbers();
-        vector<float> consvec = currentFilter->createConservationVector(refseq);
+        //vector<float> consvec = currentFilter->createConservationVector(refseq);
+        vector<float> consvec = currentFilter->createConservationVectorDG(refseq);
         pdb->exportStructure(filename,consvec,chain);
 
         currentFilter->setConsPDBPath(path);
@@ -3906,7 +3910,7 @@ void MainWindow::on_cmdConservation_clicked()
     alignfilename = ui->listWidget->currentItem()->text().toStdString();
     refseq = ui->cmbRefSeq_2->currentIndex();
     chain = ui->txtChain->text().at(0).toLatin1();
-    minCons = ui->txtMinConserv->value();
+    minCons = 0.8;
     offset = ui->txtOffset->text().toInt();
 
     this->conservation(refseq,offset,chain,minCons,pdbfilename);
@@ -5621,7 +5625,7 @@ void MainWindow::exportConsResTXT(){
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    currentFilter->exportConsRes(filename,0,ui->txtMinConserv->value(),refSeqs,fullAlignment,fullSequences);
+    currentFilter->exportConsRes(filename,0,0.8,refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportConsResXML(){
@@ -5659,7 +5663,7 @@ void MainWindow::exportConsResXML(){
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    currentFilter->exportConsRes(filename,1,ui->txtMinConserv->value(),refSeqs,fullAlignment,fullSequences);
+    currentFilter->exportConsRes(filename,1,0.8,refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportConsResHTML(){
@@ -5697,7 +5701,7 @@ void MainWindow::exportConsResHTML(){
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    currentFilter->exportConsRes(filename,2,ui->txtMinConserv->value(),refSeqs,fullAlignment,fullSequences);
+    currentFilter->exportConsRes(filename,2,0.8,refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportCorrListTXT(){

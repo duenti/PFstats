@@ -20,25 +20,9 @@ edges:{smooth: false}
 };
 
 var nodes = [
-{id: 1, label: 'Comm1'},
-{id: 2, label: 'Comm2'},
-{id: 3, label: 'Comm3'},
-{id: 4, label: 'Comm4'},
-{id: 5, label: 'Comm5'},
-{id: 6, label: 'Comm6'}];
+{id: 1, label: 'Comm1', color:{background:'#7fffa1'}},
+{id: 2, label: 'Comm3', color:{background:'#7fffa1'}}];
 
 var edges = [
-{from: 2, to: 1, color:{color:'green'}, title: 2},
-{from: 3, to: 1, color:{color:'green'}, title: 3},
-{from: 3, to: 2, color:{color:'green'}, title: 3},
-{from: 4, to: 1, color:{color:'green'}, title: 4},
-{from: 4, to: 2, color:{color:'green'}, title: 4},
-{from: 4, to: 3, color:{color:'red'}, title: 0},
-{from: 5, to: 1, color:{color:'green'}, title: 5},
-{from: 5, to: 2, color:{color:'green'}, title: 5},
-{from: 5, to: 3, color:{color:'red'}, title: 0},
-{from: 5, to: 4, color:{color:'green'}, title: 3},
-{from: 6, to: 1, color:{color:'green'}, title: 6},
-{from: 6, to: 2, color:{color:'green'}, title: 6},
-{from: 6, to: 4, color:{color:'green'}, title: 4},
+{from: 1, to: 2, color:{color:'red'}, title: 0},
 ];

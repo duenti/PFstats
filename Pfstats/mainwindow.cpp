@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->listWidget2->addAction(ui->actionNewFilter);
     ui->listWidget2->addAction(ui->actionRenameFilter);
     ui->listWidget2->addAction(ui->actionRemoveFilter);
+    ui->listWidget2->addAction(ui->actionDuplicateFilter);
 
     //Conecta Slots
     connect(ui->actionOpen_XML,SIGNAL(triggered()),this,SLOT(Open_XML_triggered()));
@@ -132,7 +133,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionMutation_Analysis,SIGNAL(triggered()),this,SLOT(changeToMutationAnalysis()));
     connect(ui->actionRenameFilter,SIGNAL(triggered()),this,SLOT(renameFilter()));
     connect(ui->actionRemoveFilter,SIGNAL(triggered()),this,SLOT(removeFilter()));
-
+    connect(ui->actionDuplicateFilter,SIGNAL(triggered()),this,SLOT(duplicateFilter()));
 
     string filepath = libpath + "taxons.txt";
     printf("%s",filepath.c_str());
@@ -1298,8 +1299,9 @@ void MainWindow::createCorrelationJSON(){
     string absPath = info.absoluteFilePath().toStdString();
     string localUrl = "file:///" + absPath;
 
+    QWebSettings *websettings = QWebSettings::globalSettings();
+    websettings->clearMemoryCaches();
     ui->webCorrGraph->load(QUrl(localUrl.c_str()));
-
 }
 
 void MainWindow::on_cmdHideShowAntiCorr_clicked()
@@ -1488,21 +1490,36 @@ void MainWindow::corrBetweenComms(){
     out << "edges:{smooth: false}\n";
     out << "};\n\n";
 
+    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(0);
+    set<string> nameset;
+    for(unsigned int i = 0; i < graph.size(); i++){
+        tuple<string,string,int> tupCorr = graph[i];
+        string n1 = get<0>(tupCorr);
+        string n2 = get<1>(tupCorr);
+        nameset.insert(n1);
+        nameset.insert(n2);
+    }
+
+    vector<string> commList;
+    copy(nameset.begin(), nameset.end(), std::back_inserter(commList));
 
     out << "var nodes = [\n";
-    for(unsigned int i = 0; i < currentFilter->getNumOfUtilComms(); i++){
+    for(unsigned int i = 0; i < commList.size(); i++){
         if(i != 0){
             out << ",\n";
         }
-        string name = "Comm" + to_string(i+1);
-        out << "{id: " + QString::number(i+1) + ", label: 'Comm" + QString::number(i+1) + "'}";
-        dic[name] = i+1;
+
+        if(commList[i].substr(0,2) == "Co")
+            out << "{id: " + QString::number(i+1) + ", label: '" + commList[i].c_str() + "', color:{background:'#7fffa1'}}";
+        else
+            out << "{id: " + QString::number(i+1) + ", label: '" + commList[i].c_str() + "', color:{background:'#ffffff'}}";
+
+        dic[commList[i]] = i+1;
     }
     out << "];\n\n";
 
 
     out << "var edges = [\n";
-    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(0);
     for(unsigned int i = 0; i < graph.size(); i++){
         tuple<string,string,int> tupCorr = graph[i];
         string n1 = get<0>(tupCorr);
@@ -2734,7 +2751,6 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
     }
 
     ui->tableFullAlignment->clear();
-    ui->lstExtraView->clear();
     ui->tableFullAlignment->setColumnCount(currentFilter->sequences[0].size());
     ui->tableFullAlignment->setRowCount(nrows);
 
@@ -3250,39 +3266,6 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
     }
 
-    //LISTA EXTRA
-    vector<pair<string,int> > classes(mapClass.begin(), mapClass.end());
-    vector<pair<string,int> > species(mapSpecies.begin(), mapSpecies.end());
-    sort(classes.begin(),classes.end(),less_second<string,int>());
-    sort(species.begin(),species.end(),less_second<string,int>());
-
-    QTreeWidgetItem *itemClass = new QTreeWidgetItem();
-    itemClass->setText(0,"Class");
-    QTreeWidgetItem *itemSpecie = new QTreeWidgetItem();
-    itemSpecie->setText(0,"Specie");
-
-    for(unsigned int i = 0; i < classes.size(); i++){
-        pair<string,int> p = classes[i];
-        if(p.second > 1){
-            string itemName = p.first + " (" + to_string(p.second) + "/" + to_string(nrows) + ")";
-            QTreeWidgetItem *classChild = new QTreeWidgetItem();
-            classChild->setText(0,itemName.c_str());
-            itemClass->addChild(classChild);
-        }
-    }
-
-    for(unsigned int i = 0; i < species.size(); i++){
-        pair<string,int> p = species[i];
-        if(p.second > 1){
-            string itemName = p.first + " (" + to_string(p.second) + "/" + to_string(nrows) + ")";
-            QTreeWidgetItem *specieChild = new QTreeWidgetItem();
-            specieChild->setText(0,itemName.c_str());
-            itemSpecie->addChild(specieChild);
-        }
-    }
-
-    ui->lstExtraView->addTopLevelItem(itemClass);
-    ui->lstExtraView->addTopLevelItem(itemSpecie);
 
     progress.close();
 
@@ -4350,7 +4333,6 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_FULLALIGN:
     {
-        ui->lstExtraView->clear();
         ui->tableFullAlignment->clear();
 
         this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
@@ -4365,6 +4347,8 @@ void MainWindow::updateResultsViews(){
 
 void MainWindow::on_listWidget_activated(const QModelIndex &index)
 {
+    if(ui->listWidget->count() == 0) return;
+
     QProgressDialog progress("Loading the alignment...","Cancel",0,0);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
@@ -7212,9 +7196,8 @@ void MainWindow::changeToGenSubAlignments(){
     }
 
     ui->cmbSubAlignComms->clear();
-    ui->txtSubAlignResidues->clear();
     ui->txtSubAlignName->clear();
-    ui->treeResiduesSubAlign->clear();
+    ui->txtResiduesSubAlign->clear();
 
     if(currentFilter->getCommListSize() > 0){
         ui->cmbSubAlignComms->addItem(" ");
@@ -7441,7 +7424,6 @@ void MainWindow::changeToFullAlignment(){
         return;
     }
 
-    ui->lstExtraView->clear();
     ui->tableFullAlignment->clear();
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
@@ -9224,71 +9206,88 @@ void MainWindow::removeFilter(){
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 }
 
+void MainWindow::duplicateFilter(){
+    bool ok;
+    string possibleName = currentFilter->getName() + "_2";
+    QString text = QInputDialog::getText(this, tr("Duplicate Filter"),
+                                         tr("Type the new filtered sub-alignment name:"), QLineEdit::Normal,
+                                         possibleName.c_str(), &ok);
+    if (ok && !text.isEmpty()){
+        vector<Filter*> loaded = currentAlign->getFilters();
+
+        for(unsigned int i = 0; i < loaded.size(); i++){
+            Filter* f = loaded[i];
+
+            if(f->getName() == text.toStdString()){
+                QMessageBox::information(this,"Warning","Invalid filter name");
+                return;
+            }
+        }
+
+        Filter *filter = new Filter(text.toStdString(),currentFilter->getAlphabet(),currentFilter->getType());
+        filter->setRefSeq(currentFilter->getRefSeq());
+        filter->setTaxon(currentFilter->getTaxon());
+        filter->setMinId(currentFilter->getMinId());
+        filter->setMinOcc(currentFilter->getMinOcc());
+        filter->setMaxId(currentFilter->getMaxId());
+        filter->addSequences(currentFilter->getSequenceNames(),currentFilter->getSequences());
+        filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+        currentAlign->addFilter(filter);
+        ui->listWidget2->addItem(text);
+        ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+    }
+}
+
 void MainWindow::on_cmdSubAlignAddRes_clicked()
 {
+    string text = "";
     if(ui->cmbSubAlignComms->currentText() != " " && ui->cmbSubAlignComms->currentText() != ""){
         vector<string> residues = currentFilter->getCommunitie(ui->cmbSubAlignComms->currentIndex()-1);
 
         for(unsigned int i = 0; i < residues.size(); i++){
-            string res = residues[i];
-            string aa(1,res[0]);
-            string strPos = res.substr(1);
-            QString temp = strPos.c_str();
-            bool ok;
-            temp.toInt(&ok);
-            if(ok){
-                QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeResiduesSubAlign);
-                item->setText(0,QString::fromStdString(aa));
-                item->setText(1,temp);
-            }
+            text += residues[i] + "\n";
         }
     }
 
-    if(ui->txtSubAlignResidues->text() != ""){
-        string res = ui->txtSubAlignResidues->text().toStdString();
-        string aa(1,res[0]);
-        string strPos = res.substr(1);
-        QString temp = strPos.c_str();
-        bool ok;
-        temp.toInt(&ok);
-        if(ok){
-            QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeResiduesSubAlign);
-            item->setText(0,QString::fromStdString(aa));
-            item->setText(1,temp);
-        }
-    }
-
-    ui->txtSubAlignResidues->setText("");
+    ui->txtResiduesSubAlign->setText(text.c_str());
 }
 
 void MainWindow::on_cmdGenerateSubAlignment_clicked()
 {
+    ui->cmdGenerateSubAlignment->setEnabled(false);
     string name = ui->txtSubAlignName->text().toStdString();
 
     if(!currentAlign->verifyValidFilterName(name)){
         QMessageBox::warning(this,"Invalid Filter Name","Invalid filter name.");
+        ui->cmdGenerateSubAlignment->setEnabled(true);
         return;
     }
 
-    if(ui->treeResiduesSubAlign->topLevelItemCount() == 0){
+    if(ui->txtResiduesSubAlign->toPlainText() == ""){
         QMessageBox::warning(this,"Invalid Dataset","There's none key residue set");
+        ui->cmdGenerateSubAlignment->setEnabled(true);
         return;
     }
 
+    vector<string> lines = split(ui->txtResiduesSubAlign->toPlainText().toStdString(),'\n');
     vector<string> sequences, sequencenames;
-    int numOfKeys = ui->treeResiduesSubAlign->topLevelItemCount();
-    int numOfValidHits = numOfKeys * ui->txtSubAlignHitRate->value();
+    int numOfValidHits = lines.size() * ui->txtSubAlignHitRate->value();
     vector<tuple<char,int> > residuesHits;
     int hits;
 
-    for(unsigned int i = 0; i < numOfKeys; i++){
-        QTreeWidgetItem *item = ui->treeResiduesSubAlign->topLevelItem(i);
-        string aa = item->text(0).toStdString();
-        int pos = item->text(1).toInt();
-        std::tuple<char,int> tup (aa[0],pos);
-        residuesHits.push_back(tup);
+    for(unsigned int i = 0; i < lines.size(); i++){
+        string res = lines[i];
+        string aa(1,res[0]);
+        string strPos = res.substr(1);
+        QString temp = strPos.c_str();
+        bool ok;
+        int pos = temp.toInt(&ok);
+        if(ok){
+            std::tuple<char,int> tup (aa[0],pos);
+            residuesHits.push_back(tup);
+        }
     }
-
 
     for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
         hits = 0;
@@ -9308,6 +9307,7 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
 
     if(sequences.size() == 0){
         QMessageBox::warning(this,"Null Alignment","The query result in a null alignment.");
+        ui->cmdGenerateSubAlignment->setEnabled(true);
         return;
     }else{
         Filter *filter = new Filter();
@@ -9330,7 +9330,11 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
 
         QString msg = "The sub-alignmente were generated with " + QString::number(sequences.size()) + " sequences.";
         QMessageBox::information(this,"Sub-alignment generated",msg);
+
+        ui->txtSubAlignName->clear();
+        ui->txtResiduesSubAlign->clear();
     }
+    ui->cmdGenerateSubAlignment->setEnabled(true);
 }
 
 void MainWindow::on_cmbAddSeq1_activated(const QString &arg1)

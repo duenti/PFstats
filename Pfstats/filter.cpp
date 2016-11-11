@@ -1522,20 +1522,20 @@ void Filter::DeltaCommunitiesCalculation(){
 
     Deltas.clear();
 
-    for(unsigned int i = 0; i < this->getNumOfUtilComms(); i++){
+    for(unsigned int i = 0; i < this->comunidades.size(); i++){
         vector<float> vec;
-        for(unsigned int j = 0; j < this->getNumOfUtilComms(); j++){
+        for(unsigned int j = 0; j < this->comunidades.size(); j++){
             vec.push_back(0);
         }
         Deltas.push_back(vec);
     }
 
     if(comunidades.size() > 0){
-        for(unsigned int i = 0; i < this->getNumOfUtilComms()-1; i++){
+        for(unsigned int i = 0; i < this->comunidades.size()-1; i++){
             progress.setValue(i);
             if(progress.wasCanceled()) return;
             QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-            for(unsigned int j = i+1; j < this->getNumOfUtilComms(); j++){
+            for(unsigned int j = i+1; j < this->comunidades.size(); j++){
                 vector<string> commA = comunidades[i];
                 vector<string> commB = comunidades[j];
                 float N = commA.size();
@@ -1923,14 +1923,24 @@ vector<tuple<string,string,int> > Filter::getEdgesByComm(int comm){
 vector<tuple<string,string,float> > Filter::getDeltasEdges(float cutoff){
     vector<tuple<string,string,float> > graph;
 
-    for(unsigned int i = 0; i < this->getNumOfUtilComms(); i++){
-        for(unsigned int j = 0; j < this->getNumOfUtilComms(); j++){
+    for(unsigned int i = 0; i < this->comunidades.size(); i++){
+        for(unsigned int j = 0; j < this->comunidades.size(); j++){
             if(i!=j){
                 if((Deltas[i][j] > 0 && Deltas[i][j] > cutoff) || (Deltas[i][j] < 0 && Deltas[i][j] < (-1*cutoff))){
-                    string c1 = "Comm" + std::to_string(i+1);
-                    string c2 = "Comm" + std::to_string(j+1);
+                    string c1 = "";
+                    string c2 = "";
+                    if(comunidades[i].size() > 1)
+                        c1 = "Comm" + std::to_string(i+1);
+                    else
+                        c1 = comunidades[i][0];
+                    if(comunidades[j].size() > 1)
+                        c2 = "Comm" + std::to_string(j+1);
+                    else
+                        c2 = comunidades[j][0];
+
                     tuple<string,string,float> edge (c1,c2,Deltas[i][j]);
-                    graph.push_back(edge);
+                    if(c1.substr(0,2) == "Co" || c2.substr(0,2) == "Co")
+                        graph.push_back(edge);
                     //printf("%s\t%s\t%f\n",c1.c_str(),c2.c_str(),Deltas[i][j]);
                 }
             }
@@ -3033,10 +3043,10 @@ void Filter::exportCorrGraph(QString filename, int type){
 
             QTextStream out(&f);
 
-            out << "#FILTER: " << name.c_str() << "\n";
-            out << "#REFSEQ: " << sequencenames[corr_refseq-1].c_str() << "\n";
-            out << "#MIN SCORE: " << QString::number(corr_min_score) << "\n";
-            out << "#MINSS FRACTION: " << QString::number(corr_min_score) << "\n";
+            out << "#FILTER: " << name.c_str() << " ";
+            out << "#REFSEQ: " << sequencenames[corr_refseq-1].c_str() << " ";
+            out << "#MIN SCORE: " << QString::number(corr_min_score) << " ";
+            out << "#MINSS FRACTION: " << QString::number(corr_minssfraction) << " ";
             out << "#DELTA FREQ: " << QString::number(corr_min_delta) << "\n";
 
             for(unsigned int i = 0; i < this->corrGraph.size(); i++){

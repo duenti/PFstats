@@ -122,6 +122,7 @@ private slots:
     void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
     void renameFilter();
     void removeFilter();
+    void duplicateFilter();
 
     void on_cmdStartWizard_clicked();
     void on_cmdMain_clicked();

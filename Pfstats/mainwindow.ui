@@ -117,71 +117,6 @@
       </item>
      </layout>
     </item>
-    <item row="1" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_9">
-      <item>
-       <widget class="QPushButton" name="cmdMain">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Main</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdBack">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Back</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdAdvance">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Advance</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdSaveResults">
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Save Results</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
@@ -191,7 +126,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>8</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -2668,7 +2603,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>15</number>
+             <number>13</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -4643,21 +4578,6 @@
                   </attribute>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QTreeWidget" name="lstExtraView">
-                  <property name="maximumSize">
-                   <size>
-                    <width>200</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <column>
-                   <property name="text">
-                    <string>Specificities</string>
-                   </property>
-                  </column>
-                 </widget>
-                </item>
                </layout>
               </item>
              </layout>
@@ -5363,27 +5283,7 @@
       </widget>
       <widget class="QWidget" name="page_32">
        <layout class="QGridLayout" name="gridLayout_22">
-        <item row="1" column="2">
-         <widget class="QTreeWidget" name="treeResiduesSubAlign">
-          <property name="allColumnsShowFocus">
-           <bool>false</bool>
-          </property>
-          <attribute name="headerDefaultSectionSize">
-           <number>120</number>
-          </attribute>
-          <column>
-           <property name="text">
-            <string>Position</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Amino Acid</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="3">
+        <item row="0" column="0">
          <widget class="QLabel" name="label_84">
           <property name="minimumSize">
            <size>
@@ -5417,13 +5317,13 @@
               <rect>
                <x>10</x>
                <y>30</y>
-               <width>337</width>
-               <height>101</height>
+               <width>639</width>
+               <height>107</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_40">
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_91">
+               <layout class="QHBoxLayout" name="horizontalLayout_35">
                 <item>
                  <widget class="QLabel" name="label_61">
                   <property name="text">
@@ -5434,24 +5334,13 @@
                 <item>
                  <widget class="QComboBox" name="cmbSubAlignComms"/>
                 </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_92">
                 <item>
-                 <widget class="QLabel" name="label_85">
+                 <widget class="QPushButton" name="cmdSubAlignAddRes">
                   <property name="text">
-                   <string>Proper residue (E.g. A151):</string>
+                   <string>Add</string>
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QLineEdit" name="txtSubAlignResidues"/>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_35">
                 <item>
                  <spacer name="horizontalSpacer_43">
                   <property name="orientation">
@@ -5465,13 +5354,6 @@
                   </property>
                  </spacer>
                 </item>
-                <item>
-                 <widget class="QPushButton" name="cmdSubAlignAddRes">
-                  <property name="text">
-                   <string>Add</string>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </item>
              </layout>
@@ -5479,20 +5361,18 @@
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
+           <layout class="QVBoxLayout" name="verticalLayout_50">
+            <item>
+             <widget class="QLabel" name="label_98">
+              <property name="text">
+               <string>Residues List (E.g. A142; one per line):</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="txtResiduesSubAlign"/>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QGroupBox" name="groupBox_11">
@@ -5587,12 +5467,9 @@
          </layout>
         </item>
         <item row="1" column="1">
-         <spacer name="horizontalSpacer_73">
+         <spacer name="horizontalSpacer_60">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -5921,6 +5798,71 @@
        </layout>
       </widget>
      </widget>
+    </item>
+    <item row="1" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QPushButton" name="cmdMain">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Main</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdBack">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Back</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdAdvance">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Advance</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdSaveResults">
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Save Results</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -6636,7 +6578,7 @@
   </action>
   <action name="actionNewAlignment">
    <property name="text">
-    <string>newAlignment</string>
+    <string>New Alignment</string>
    </property>
    <property name="toolTip">
     <string>New Alignment</string>
@@ -6644,7 +6586,7 @@
   </action>
   <action name="actionRemoveAlignment">
    <property name="text">
-    <string>removeAlignment</string>
+    <string>Remove</string>
    </property>
    <property name="toolTip">
     <string>Remove Alignment</string>
@@ -6652,7 +6594,7 @@
   </action>
   <action name="actionNewFilter">
    <property name="text">
-    <string>newFilter</string>
+    <string>New Filter</string>
    </property>
    <property name="toolTip">
     <string>New Filter</string>
@@ -6660,7 +6602,7 @@
   </action>
   <action name="actionRenameFilter">
    <property name="text">
-    <string>renameFilter</string>
+    <string>Rename</string>
    </property>
    <property name="toolTip">
     <string>Rename Filter</string>
@@ -6668,7 +6610,7 @@
   </action>
   <action name="actionRemoveFilter">
    <property name="text">
-    <string>removeFilter</string>
+    <string>Remove</string>
    </property>
    <property name="toolTip">
     <string>Remove Filter</string>
@@ -6702,6 +6644,14 @@
   <action name="actionCommunitiesNetwork">
    <property name="text">
     <string>Communities Network</string>
+   </property>
+  </action>
+  <action name="actionDuplicateFilter">
+   <property name="text">
+    <string>Duplicate</string>
+   </property>
+   <property name="toolTip">
+    <string>Duplicate Filter</string>
    </property>
   </action>
  </widget>

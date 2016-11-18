@@ -167,13 +167,16 @@ public:
     void CalculateFrequencies();
     string getAAList(string alphabet);
     void dGCalculation(float alpha, float beta);
+    void dGCalculation();
     void dGWrite();
     void FreqWrite();
     vector<float> ShannonEntropy(int repetitions);
     void alignment2UpperCase();
     void SubAlignmentIndices(char aa,int pos);
+    vector<int> subalignmentIndicesW(char aa, int pos);
     int Singlepvalue(char aa1,int pos1, char aa2, int pos2);
     void SympvalueCalculation (int minlogp, float minssfraction, float mindeltafreq);
+    void henikoffpvalueCalculation(int minlogp, float minssfraction, float mindeltafreq);
     vector<string> filterCorrGraph(vector<tuple<string,string> > tup, int refseq);
     void CalculateReferenceVector(int seqnumber); // Seqnumber starts with 1
     unsigned int AlignNumbering2Sequence(int seqnumber, int position); // Seqnumber starts with 1
@@ -183,6 +186,7 @@ public:
     tuple<string,string,int> getCorrelationEdge(int i);
     unsigned int getCorrelationGraphSize();
     void addCommunity(vector<string> comm);
+    void addToCommunity(string res, int i);
     void getCommunitiesFromRAM();
     int SubAlignmentFrequency(char aa,int pos);
     void SelfCorrelationMatrixCalculation(const std::vector <char> &aalist, const std::vector <int> &poslist);
@@ -271,6 +275,9 @@ public:
     bool containsSequence(string seq);
     int getSequenceIndex(string refseq);
     int getEdge(string v1, string v2); //0 if doesnt exists
+    void convertLowerDots();
+    int getWeightsSize();
+    void sortCommunitiesVector();
 };
 
 #endif // FILTER_H

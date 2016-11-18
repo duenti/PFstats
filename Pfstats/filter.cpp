@@ -796,7 +796,7 @@ void Filter::dGCalculation(float alpha, float beta){
     vector<vector<char> > aa_types;
     vector<string> newsequences;
 
-    QProgressDialog progress("Parsing sequences...(1/4)", "Abort", 0,sequences.size()+sequences[0].size());
+    QProgressDialog progress("Parsing sequences...(1/3)", "Abort", 0,sequences.size()+sequences[0].size());
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
@@ -833,34 +833,7 @@ void Filter::dGCalculation(float alpha, float beta){
         //typesCount.push_back(vec_aa_types.size());
     }
 
-    progress.setLabelText("Calculating Henikoff weights...(2/4)");
-    progress.setMaximum(newsequences.size());
-    progress.setValue(0);
-    //# Algoritmo de Henikoff & Henikoff (atribui pesos as sequencias visando diminuir a redundancia em alinhamentos enviesados).
-    int length = newsequences[0].size();
-
-    //Para cada sequencia ele vai dar um peso
-    vector<float> ws;
-    for(unsigned int i = 0; i < newsequences.size(); i++){
-        progress.setValue(i);
-        QApplication::processEvents();
-        if(progress.wasCanceled()) return;
-
-        float sum = 0;
-
-        //Percorrer colunas para somar
-        for(unsigned j = 0; j < length; j++){
-            char actualAA = newsequences[i][j];
-
-            //Conta quantas vezes este AA esta presente na coluna
-            int nxi = countAA(actualAA,j);
-            float calc = (float)1/((float)aa_types[j].size()*(float)nxi);
-            sum += calc;
-        }
-        ws.push_back(sum/(float)length);
-    }
-
-    progress.setLabelText("Calculating entropy...(3/4)");
+    progress.setLabelText("Calculating entropy...(2/3)");
     progress.setMaximum(aa_types.size()+newsequences[0].size());
     progress.setValue(0);
 
@@ -883,7 +856,7 @@ void Filter::dGCalculation(float alpha, float beta){
             for(unsigned int k = 0; k < newsequences.size(); k++){
                 string seq = newsequences[k];
                 if(seq[i] == aa){
-                    p+= ws[k];
+                    p+= weights[k];
                     if(aa == '-') gap = true;
                 }
             }
@@ -932,7 +905,7 @@ void Filter::dGCalculation(float alpha, float beta){
         corrected_entropy.push_back(delta_entropy + biggestMaxEntropy);
     }
 
-    progress.setLabelText("Calculating sthereochemistry variety...(4/4)");
+    progress.setLabelText("Calculating sthereochemistry variety...(3/3)");
     progress.setMaximum(aalist.size()+aa_types.size()+newsequences[0].size());
     progress.setValue(0);
 
@@ -1012,7 +985,7 @@ void Filter::dGCalculation(float alpha, float beta){
 }
 
 
-/*//Lockless
+//Lockless
 void Filter::dGCalculation(){
     unsigned int c1,c2;
     long double partialresult;
@@ -1025,7 +998,7 @@ void Filter::dGCalculation(){
         dG.push_back(sqrt(partialresult));
     }
 }
-*/
+
 
 void Filter::dGWrite(){
     consDG.clear();
@@ -1176,6 +1149,16 @@ void Filter::SubAlignmentIndices(char aa, int pos){
             subalignmentseqs.push_back(c1);
 }
 
+vector<int> Filter::subalignmentIndicesW(char aa, int pos){
+    vector<int> indices;
+
+    for(unsigned int i = 0; i < sequences.size(); i++)
+        if(sequences[i][pos] == aa)
+            indices.push_back(i);
+
+    return indices;
+}
+
 int Filter::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
     unsigned int aa2pos2count=0;
     unsigned int c2;
@@ -1212,20 +1195,29 @@ void Filter::SympvalueCalculation(int minlogp, float minssfraction, float mindel
         progress.setValue(pos1);
         QApplication::processEvents();
 
-        if(progress.wasCanceled()) break;
+        if(progress.wasCanceled()){
+            corrGraph.clear();
+            return;
+        }
 
         for (aa1=1;aa1<=20;aa1++){
             if(frequencies[pos1][aa1]>minssfraction*((float)sequences.size()))
                 for(pos2=pos1+1;pos2<=sequences[0].size()-1;pos2++){
                     for(aa2=1;aa2<=20;aa2++){
                         if(frequencies[pos2][aa2]>minssfraction*((float)sequences.size())){
+                            QApplication::processEvents();
+
+                            if(progress.wasCanceled()){
+                                corrGraph.clear();
+                                return;
+                            }
                             SubAlignmentIndices(num2aa(aa1),pos1);
                             aa2pos2count=0;
 
                             for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
                                 if (sequences[subalignmentseqs[c2]][pos2]==num2aa(aa2)) aa2pos2count++;
 
-                            if(((float)aa2pos2count)/((float)subalignmentseqs.size())>((float)frequencies[pos2][freqmatrixposition(aa2)])/(float(sequences.size()))){
+                            if(((float)aa2pos2count)/((float)subalignmentseqs.size())>((float)frequencies[pos2][aa2])/(float(sequences.size()))){
                                 if(((float)aa2pos2count)/((float)subalignmentseqs.size())>(1.0-mindeltafreq)){
                                     SubAlignmentIndices(num2aa(aa2),pos2);
                                     aa1pos1count=0;
@@ -1255,6 +1247,123 @@ void Filter::SympvalueCalculation(int minlogp, float minssfraction, float mindel
                                 pvalue1=Singlepvalue(num2aa(aa1),pos1,num2aa(aa2),pos2);
                                 pvalue2=Singlepvalue(num2aa(aa2),pos2,num2aa(aa1),pos1);
                                 //fprintf(temp,"%c%d %c%d \n",num2aa(aa1),pos1,num2aa(aa2),pos2);
+                                if((abs((pvalue1+pvalue2)/2)>=minlogp)&&(abs(pvalue2)>=minlogp)&&(abs(pvalue2)>=minlogp)){
+                                    //printf ("%c%d %c%d %i\n",num2aa(aa1),pos1+1,num2aa(aa2),pos2+1,(pvalue1+pvalue2)/2);
+                                    string residue1 = num2aa(aa1) + QString::number(pos1+1).toStdString();
+                                    string residue2 = num2aa(aa2) + QString::number(pos2+1).toStdString();
+                                    int edgeValue = (pvalue1+pvalue2)/2;
+                                    tuple<string,string,int> node(residue1,residue2,edgeValue);
+                                    //printf("%s %s %d\n",residue1.c_str(),residue2.c_str(),edgeValue);
+                                    this->corrGraph.push_back(node);
+                                    //out << num2aa(aa1) << pos1+1 << " " << num2aa(aa2) << pos2+1 << " " << (pvalue1+pvalue2)/2 << "\n";
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    progress.close();
+}
+
+void Filter::henikoffpvalueCalculation(int minlogp, float minssfraction, float mindeltafreq){
+    int aa1,aa2;
+    unsigned int c2,pos1,pos2;
+    short int pvalue1,pvalue2;
+    bool mindeltafreqok;
+    this->corrGraph.clear();
+
+    QProgressDialog progress("Calculating correlations...(1/6)", "Abort", 0,sequences[0].size()-1);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for (pos1=0;pos1<=sequences[0].size()-2;pos1++){
+        progress.setValue(pos1);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            corrGraph.clear();
+            return;
+        }
+
+        for (aa1=1;aa1<=20;aa1++){
+            vector<int> subalignmentseqs1 = subalignmentIndicesW(num2aa(aa1),pos1);
+            float f0a1 = 0.0;
+
+            for(unsigned int i = 0; i < subalignmentseqs1.size(); i++){
+                f0a1 += weights[subalignmentseqs1[i]];
+            }
+
+            if(f0a1>minssfraction)
+                for(pos2=pos1+1;pos2<=sequences[0].size()-1;pos2++){
+                    for(aa2=1;aa2<=20;aa2++){
+                        QApplication::processEvents();
+
+                        if(progress.wasCanceled()){
+                            corrGraph.clear();
+                            return;
+                        }
+                        vector<int> subalignmentseqs2 = subalignmentIndicesW(num2aa(aa2),pos2);
+                        float f0a2 = 0.0;
+
+                        for(unsigned int i = 0; i < subalignmentseqs2.size(); i++){
+                            f0a2 += weights[subalignmentseqs2[i]];
+                        }
+
+                        if(f0a2>minssfraction){
+                            float f1a2 = 0.0;
+
+                            for(c2=0;c2<=subalignmentseqs1.size()-1;c2++)
+                                if (sequences[subalignmentseqs1[c2]][pos2]==num2aa(aa2)) f1a2 += weights[subalignmentseqs1[c2]];
+
+                            f1a2 = f1a2/(float)f0a1;
+
+                            float f1a1 = 0.0;
+                            if(f1a2 > f0a2){
+                                if(f1a2 > (1.0-mindeltafreq)){
+                                    for(c2=0;c2<=subalignmentseqs2.size()-1;c2++){
+                                        if (sequences[subalignmentseqs2[c2]][pos1]==num2aa(aa1)) f1a1 += weights[subalignmentseqs2[c2]];
+                                    }
+
+                                    f1a1 = f1a1/(float)f0a2;
+
+                                    if(f1a1 > (1.0-mindeltafreq))
+                                        mindeltafreqok=true;
+                                    else mindeltafreqok=false;
+                                }else mindeltafreqok=false;
+                            }else{
+                                if(f1a2<(mindeltafreq)){
+                                    for(c2=0;c2<=subalignmentseqs2.size()-1;c2++){
+                                        if (sequences[subalignmentseqs2[c2]][pos1]==num2aa(aa1)) f1a1 += weights[subalignmentseqs2[c2]];
+                                    }
+
+                                    f1a1 = f1a1/(float)f0a2;
+
+                                    if(f1a1<(mindeltafreq))
+                                        mindeltafreqok=true;
+                                    else mindeltafreqok=false;
+                                }else mindeltafreqok=false;
+                            }
+
+                            if(mindeltafreqok){
+                                //P-Value1
+                                if(f1a2 > f0a2){
+                                    pvalue1 = -cbd(f0a1*sequences.size(),f1a2*f0a1*sequences.size(),f0a2,true);
+                                }else if(f1a2 < f0a2){
+                                    pvalue1 = cbd(f0a1*sequences.size(),f1a2*f0a1*sequences.size(),f0a2,false);
+                                }else{
+                                    pvalue1 = 0;
+                                }
+                                //P-Value 2
+                                if(f1a1 > f0a1){
+                                    pvalue2 = -cbd(f0a2*sequences.size(),f1a1*f0a2*sequences.size(),f0a1,true);
+                                }else if(f1a1 < f0a1){
+                                    pvalue2 = cbd(f0a2*sequences.size(),f1a1*f0a2*sequences.size(),f0a1,false);
+                                }else{
+                                    pvalue2 = 0;
+                                }
+
                                 if((abs((pvalue1+pvalue2)/2)>=minlogp)&&(abs(pvalue2)>=minlogp)&&(abs(pvalue2)>=minlogp)){
                                     //printf ("%c%d %c%d %i\n",num2aa(aa1),pos1+1,num2aa(aa2),pos2+1,(pvalue1+pvalue2)/2);
                                     string residue1 = num2aa(aa1) + QString::number(pos1+1).toStdString();
@@ -1371,6 +1480,13 @@ unsigned int Filter::getCorrelationGraphSize(){
 
 void Filter::addCommunity(vector<string> comm){
     comunidades.push_back(comm);
+}
+
+void Filter::addToCommunity(string res, int i){
+    if(i < comunidades.size())
+        comunidades[i].push_back(res);
+    else
+        printf("error adding %s to community %d\n",res.c_str(),i);
 }
 
 void Filter::getCommunitiesFromRAM(){
@@ -5004,13 +5120,13 @@ string Filter::generateXML(){
 }
 
 bool Filter::henikoffWeights(){
-    vector<int> typesCount;
+    vector<string> aa_list;
     int length = sequences[0].size();
 
     weights.clear();
 
     int progressCount = 0;
-    QProgressDialog progress("Calculating...", "Abort", 0,length + sequences.size() + 1);
+    QProgressDialog progress("Creating the list of alphabets...(1/3)", "Abort", 0,length);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
@@ -5033,9 +5149,67 @@ bool Filter::henikoffWeights(){
                 return false;
             }
         }
-        typesCount.push_back(types.size());
+        string str = "";
+        for(auto c : types){
+            str += c;
+        }
+        aa_list.push_back(str);
     }
 
+    progress.setLabelText("Calculating occurrences...(2/3)");
+    progress.setMaximum(aa_list.size());
+    progress.setValue(0);
+
+    vector<map<char,int> > occurences;
+    for(unsigned int i = 0; i < aa_list.size(); i++){
+        progressCount++;
+        progress.setValue(progressCount);
+        if(progress.wasCanceled()){
+            return false;
+        }
+
+        string aas = aa_list[i];
+        map<char,int> aa_count;
+        for(unsigned int j = 0; j < aas.size(); j++){
+            char aa = aas[j];
+            int count = 0;
+            for(unsigned int k = 0; k < sequences.size(); k++){
+                if(progress.wasCanceled()){
+                    return false;
+                }
+
+                if(sequences[k][i] == aa) count++;
+            }
+            aa_count[aa] = count;
+        }
+        occurences.push_back(aa_count);
+    }
+
+    progress.setLabelText("Calculating weights...(3/3)");
+    progress.setMaximum(sequences.size());
+    progress.setValue(0);
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        progressCount++;
+        progress.setValue(progressCount);
+        if(progress.wasCanceled()){
+            return false;
+        }
+
+        float sum_w = 0.0;
+        for(unsigned int j = 0; j < sequences[0].size(); j++){
+            if(progress.wasCanceled()){
+                return false;
+            }
+
+            int k = aa_list[j].size();
+            int n = occurences[j][sequences[i][j]];
+            float temp = 1/((float)k*(float)n);
+            sum_w += temp;
+        }
+        weights.push_back(sum_w/(float)length);
+    }
+
+    /*
     //Para cada sequencia ele vai dar um peso
     for(unsigned int i = 0; i < sequences.size(); i++){
         float sum = 0;
@@ -5063,10 +5237,10 @@ bool Filter::henikoffWeights(){
         }
         weights.push_back(sum/(float)length);
     }
-
-    for(unsigned int i = 0; i < sequences.size(); i++){
-        printf("%s - %f\n",sequencenames[i].c_str(), weights[i]);
-    }
+    */
+    //for(unsigned int i = 0; i < sequences.size(); i++){
+    //    printf("%s - %f\n",sequencenames[i].c_str(), weights[i]);
+    //}
 
     progress.close();
     return true;
@@ -5692,4 +5866,24 @@ int Filter::getSequenceIndex(string refseq){
     }
 
     return -1;
+}
+
+void Filter::convertLowerDots(){
+    for(unsigned int i = 0; i < sequences.size(); i++){
+        for(unsigned int j = 0; j < sequences[i].size(); j++){
+            if(sequences[i][j] == '.') sequences[i][j] = '-';
+            else sequences[i][j] = toupper(sequences[i][j]);
+        }
+    }
+}
+
+int Filter::getWeightsSize(){
+    return weights.size();
+}
+
+void Filter::sortCommunitiesVector(){
+    sort(comunidades.begin(),comunidades.end(),
+         [](const std::vector<string>& a, const std::vector<string>& b) {
+        return a.size() > b.size();
+    });
 }

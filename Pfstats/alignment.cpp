@@ -301,7 +301,6 @@ void Alignment::readSTO(){
             for(unsigned int i = 1; i < splittedLine.size(); i++){
                 if(splittedLine[i] != ""){
                     sequence = splittedLine[i];
-                    printf("%s\n",splittedLine[i].c_str());
                     break;
                 }
             }
@@ -343,7 +342,6 @@ void Alignment::readSTO(vector<string> pfam){
             for(unsigned int i = 1; i < splittedLine.size(); i++){
                 if(splittedLine[i] != ""){
                     sequence = splittedLine[i];
-                    printf("%s\n",splittedLine[i].c_str());
                     break;
                 }
             }
@@ -500,6 +498,11 @@ bool Alignment::GetFromFile(){
     else if(line[0] == '>') readFASTA();
     else readPFAM();
 
+    QProgressDialog progress("Loading the alignment...","Cancel",0,0,NULL);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+
     // CHECKS ALIGNMENT CONSISTENCY
     SortOrder.clear();
     if (subsetfrequencies.size()>0) for(c1=0;c1<=subsetfrequencies.size()-1;c1++)
@@ -514,6 +517,11 @@ bool Alignment::GetFromFile(){
 
         for (c1=0;c1<=sequences.size()-1;c1++) SortOrder.push_back(c1);
         for(c1=0;c1<=sequences[0].size();c1++){ // total positions: sequencesize + 1 (positions + totals)
+            QApplication::processEvents();
+            if(progress.wasCanceled()){
+                return false;
+            }
+
             subsetfrequencies.push_back( vector<int>(21) );
             for(c2=0; c2<=20; c2++)
                 subsetfrequencies[c1].push_back(0);
@@ -521,6 +529,7 @@ bool Alignment::GetFromFile(){
 
         Filter* fullFilter = new Filter("Full Alignment","T20",9);
         for(unsigned int i = 0; i < sequencenames.size(); i++){
+            QApplication::processEvents();
             fullFilter->addSequences(sequencenames[i],sequences[i]);
         }
 
@@ -532,6 +541,7 @@ bool Alignment::GetFromFile(){
         return true;
     }
 
+    progress.close();
     return false;
 }
 
@@ -829,6 +839,7 @@ void Alignment::IdentityTrimming(float maxid){
     while(true){ //for(seq1=0;seq1<=sequences.size()-2;seq1++)
         progress.setValue(seq1);
         progress.setMaximum(sequences.size());
+        QApplication::processEvents();
         //printf("%d\n",seq1);
         if(progress.wasCanceled()) break;
 
@@ -836,6 +847,7 @@ void Alignment::IdentityTrimming(float maxid){
 
         seq2=seq1+1;
         while(true){
+            QApplication::processEvents();
             if(seq2>=sequences.size()-1) break;
             if(Identity(seq1,seq2)>maxid){
                 if(SeqSize(seq2)<=SeqSize(seq1)){

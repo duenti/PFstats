@@ -342,6 +342,9 @@ private:
     QCPItemText *minssLabel;
     vector<Alignment> alinhamentos;
     vector<Pdb*> pdbs;
+    map<string,set<string> > adjMap;//FOR TRIVCOMM
+    map<string,bool> visited;//FOR TRIVCOMM
+    void dfsUtil(string node, int id);
     void addAlignment(string path);
     vector<string> split(string text, char sep);
     char num2aa(int n);

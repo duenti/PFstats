@@ -700,20 +700,8 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
 }
 
 void MainWindow::applyHenikoffFilter(){
-    string name = ui->txtFilterName->text().toStdString();
-    string alphabet = currentFilter->getAlphabet();
     currentAlign->convertLowerDots();
-    currentAlign->dots2dashs();
-
-    Filter *filter = new Filter(name,alphabet,2);
-    filter->addSequences(currentFilter->sequencenames,currentFilter->sequences);
-    filter->henikoffWeights();
-
-    currentAlign->addFilter(filter);
-    ui->listWidget2->addItem(name.c_str());
-
-    ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
-    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+    currentFilter->henikoffWeights();
 
     QMessageBox::information(this,"Alignment filters","The sequences were weighed correctly.");
 }
@@ -722,7 +710,8 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
     float alpha = ui->txtAlpha->value();
     float beta = ui->txtBeta->value();
     currentFilter->CalculateFrequencies();
-    currentFilter->dGCalculation(alpha,beta);
+    if(currentFilter->getWeightsSize() == 0) currentFilter->dGCalculation();
+    else currentFilter->dGCalculation(alpha,beta);
     currentFilter->dGWrite();
     currentFilter->FreqWrite();
 
@@ -778,9 +767,75 @@ vector<float> MainWindow::minss(int repetitions){
 
 void MainWindow::pcalc(int minlogp, float minssfraction, float mindeltafreq){
     currentFilter->CalculateFrequencies();
-    currentFilter->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
+
+    if(currentFilter->getWeightsSize() == 0)
+        currentFilter->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
+    else
+        currentFilter->henikoffpvalueCalculation(minlogp,minssfraction,mindeltafreq);
 }
 
+void MainWindow::dfsUtil(string node, int id){
+    visited[node] = true;
+    currentFilter->addToCommunity(node,id);
+
+    set<string> adj = adjMap[node];
+    for(string no : adj){
+        if(!visited[no])
+            dfsUtil(no,id);
+    }
+}
+
+bool MainWindow::trivcomm(){
+    adjMap.clear();
+    visited.clear();
+    currentFilter->clearCommunity();
+
+    //create adjMap
+    set<string> nodes = currentFilter->getCorrelationNodes();
+    for(string no : nodes){
+        set<string> blank;
+        adjMap[no] = blank;
+        visited[no] = false;
+    }
+
+    for(unsigned int i = 0; i < currentFilter->getCorrelationGraphSize(); i++){
+        tuple<string,string,int> edge = currentFilter->getCorrelationEdge(i);
+        int score = std::get<2>(edge);
+
+        //Only positive edges are considered
+        if(score > 0){
+            string v1 = std::get<0>(edge);
+            string v2 = std::get<1>(edge);
+            adjMap[v1].insert(v2);
+            adjMap[v2].insert(v1);
+        }
+    }
+
+    //Percorre cada no e seu vetor de adjacencias
+    int count = 0;
+    for(string no : nodes){
+        if(visited[no] == false){
+            vector<string> comm;
+            currentFilter->addCommunity(comm);
+
+            this->dfsUtil(no,count);
+
+
+            count++;//cout "\n";
+        }
+    }
+
+    //Limpa os mapas
+    adjMap.clear();
+    visited.clear();
+
+    //Ordena comunidades
+    currentFilter->sortCommunitiesVector();
+
+    return true;
+}
+
+/*
 bool MainWindow::trivcomm(){
     unsigned int maxsize;
     unsigned int biggestcommunity;
@@ -1015,6 +1070,8 @@ bool MainWindow::trivcomm(){
     progress.close();
     //currentAlign->printCommunity();
 }
+*/
+
 
 void MainWindow::output(int seqnumber, int offset){
     currentFilter->getCommunitiesFromRAM();
@@ -3551,10 +3608,6 @@ void MainWindow::on_cmdOpen_clicked()
         return;
     }
 
-    QProgressDialog progress("Loading the alignment...","Cancel",0,0,this);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.show();
-
     //Cria Alinhamento
     Alignment align;
     align.setFilepath(fileName.toUtf8().constData());
@@ -3562,11 +3615,6 @@ void MainWindow::on_cmdOpen_clicked()
     if(!a){
         ui->cmdOpen->setEnabled(true);
         QMessageBox::warning(this,"Warning","Ivalid input format.");
-        return;
-    }
-
-    if(progress.wasCanceled()){
-        ui->cmdOpen->setEnabled(true);
         return;
     }
 
@@ -3597,8 +3645,6 @@ void MainWindow::on_cmdOpen_clicked()
 
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     emit ui->listWidget->activated(ui->listWidget->currentIndex());
-
-    progress.close();
 
     QString msg = "Alignment loaded with " + QString::number(align.sequences.size()) + " sequences.";
     QMessageBox::information(this,"Alignment loaded",msg);
@@ -3764,7 +3810,7 @@ void MainWindow::on_cmdApplyFilter_clicked()
     }
 
     //Filter name cant be blank
-    if(ui->txtFilterName->text() == ""){
+    if(ui->txtFilterName->text() == "" && ui->cmbFilterMethod->currentIndex() != 2){
         QMessageBox::warning(this,"Validation problem","You must set a filter name.");
         ui->cmdApplyFilter->setEnabled(true);
         return;
@@ -3772,8 +3818,8 @@ void MainWindow::on_cmdApplyFilter_clicked()
 
     //Filter names must be different
     for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
-        if(ui->txtFilterName->text() == ui->listWidget2->currentItem()->text()){
-            QMessageBox::warning(this,"Validation p'roblem","There is already a filter with this name. Pleasy change the name and try again.");
+        if(ui->txtFilterName->text() == ui->listWidget2->currentItem()->text() && ui->cmbFilterMethod->currentIndex() != 2){
+            QMessageBox::warning(this,"Validation problem","There is already a filter with this name. Pleasy change the name and try again.");
             ui->cmdApplyFilter->setEnabled(true);
             return;
         }
@@ -3843,7 +3889,9 @@ void MainWindow::on_cmdApplyFilter_clicked()
         this->alignfilter(occupancy,maxId,ui->chkApplyMinCover->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
     else if(method == 1)
         this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
-    //else if(method == 2) applyHenikoffFilter();
+    else if(method == 2){
+        applyHenikoffFilter();
+    }
 
     ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
@@ -8976,6 +9024,9 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
         emit ui->chkApplyMinId->clicked(false);
         ui->chkApplyMaxId->setEnabled(true);
         ui->chkApplyMaxId->setChecked(true);
+        ui->chkIntermediate->setChecked(false);
+        ui->chkIntermediate->setEnabled(true);
+        ui->txtFilterName->setEnabled(true);
         emit ui->chkApplyMaxId->clicked(true);
 
     }else if(index == 1){
@@ -8990,6 +9041,9 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
         emit ui->chkApplyMinId->clicked(true);
         ui->chkApplyMaxId->setEnabled(true);
         ui->chkApplyMaxId->setChecked(true);
+        ui->chkIntermediate->setChecked(false);
+        ui->chkIntermediate->setEnabled(true);
+        ui->txtFilterName->setEnabled(true);
         emit ui->chkApplyMaxId->clicked(true);
 
     }else if(index == 2){
@@ -9008,6 +9062,9 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
         ui->chkApplyMaxId->setEnabled(false);
         ui->chkApplyMaxId->setChecked(false);
         emit ui->chkApplyMaxId->clicked(false);
+        ui->chkIntermediate->setChecked(false);
+        ui->chkIntermediate->setEnabled(false);
+        ui->txtFilterName->setEnabled(false);
         ui->cmdApplyFilter->setEnabled(true);
     }
 }
@@ -9224,7 +9281,11 @@ void MainWindow::duplicateFilter(){
             }
         }
 
-        Filter *filter = new Filter(text.toStdString(),currentFilter->getAlphabet(),currentFilter->getType());
+        int type;
+        if(currentFilter->getType() == 9) type = 7;
+        else type = currentFilter->getType();
+
+        Filter *filter = new Filter(text.toStdString(),currentFilter->getAlphabet(),type);
         filter->setRefSeq(currentFilter->getRefSeq());
         filter->setTaxon(currentFilter->getTaxon());
         filter->setMinId(currentFilter->getMinId());

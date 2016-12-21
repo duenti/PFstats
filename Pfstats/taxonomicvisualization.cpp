@@ -119,6 +119,7 @@ bool TaxonomicVisualization::generateSunburst(vector<string> sequencenames){
                     string taxline = "";
                     for(int j = 0; j < index; j++){
                         taxline += taxVec[j] + "-";
+
                     }
                     taxline += taxVec[index];
                     mapPreTaxons[specie] = split(taxline,',')[0];

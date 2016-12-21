@@ -220,13 +220,9 @@ private slots:
 
     void on_cmdApplyAlphabetReduction_clicked();
 
-    void on_cmbRefSeq_2_activated(const QString &arg1);
-
     void on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item);
 
     void on_chkRemoveContactResidues_clicked(bool checked);
-
-    void on_cmbRefSeq_3_activated(const QString &arg1);
 
     void on_lstPDBsLoaded_2_itemActivated(QListWidgetItem *item);
 
@@ -285,6 +281,14 @@ private slots:
     void on_radioMutationSequence_clicked(bool checked);
 
     void on_radioMutationPDB_clicked(bool checked);
+
+    void on_cmdUpdateGraphNumbering_clicked();
+
+    void on_cmdUpdateGraphNumbering2_clicked();
+
+    void on_cmdUpdateGraphPdbNumbering_clicked();
+
+    void on_cmdUpdateGraphPdbNumbering_2_clicked();
 
 private:
     enum Constants{
@@ -349,14 +353,14 @@ private:
     vector<string> split(string text, char sep);
     char num2aa(int n);
     int GetOffsetFromSeqName (string seqname);
-    void alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true, bool taxfilter=false);
-    void alignfilter(float occupancy,float maxId,bool filterOcc = true, bool filterMaxId=true, bool filterTaxon = false);
-    void applyHenikoffFilter();
-    void conservation(int refseq, int offset, char chain, float minCons, string pdbid = "");
-    vector<float> minss(int repetitions); //from 100 to 1;
+    bool alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1=true, bool filter2=true, bool filter3=true, bool taxfilter=false);
+    bool alignfilter(float occupancy,float maxId,bool filterOcc = true, bool filterMaxId=true, bool filterTaxon = false);
+    bool applyHenikoffFilter();
+    void conservation(char chain, float minCons, string pdbid = "");
+    vector<float> minss(int repetitions, int cores); //from 100 to 1;
     void pcalc(int minlogp, float minssfraction, float mindeltafreq);
     bool trivcomm();
-    void output(int seqnumber, int offset);
+    void output();
     //Show Results
     void listSequences();
     bool generateSunburst(vector<string> sequencenames);//csv

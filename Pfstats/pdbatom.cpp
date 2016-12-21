@@ -125,7 +125,7 @@ PdbAtom::PdbAtom(string line){
 
     this->charge = temp;
 
-    this->seqnumber = 0;
+    //this->seqnumber = 0;
 
     //printf("%d %s %c %s %c %d %c %f %f %f %f %f %s %s %s\n",atomNumber,atomName.c_str(),alternateLocation,residue.c_str(),chain,residueNumber,insertionResiduesCode,x,y,z,occ,bfactor,segmentIdentifier.c_str(),element.c_str(),charge.c_str());
 }
@@ -277,14 +277,6 @@ char PdbAtom::getResidueCode(){
 
 void PdbAtom::setResidueCode(char r){
     this->residueCode = r;
-}
-
-int PdbAtom::getSeqnumber(){
-    return this->seqnumber;
-}
-
-void PdbAtom::setSeqnumber(int n){
-    this->seqnumber = n;
 }
 
 string PdbAtom::to_string(float bf){
@@ -514,10 +506,15 @@ string PdbAtom::to_string(float bf){
 
     //B-FACTOR (SUBSTITUTE)
     stringstream stream5;
-    stream5 << fixed << setprecision(2) << bf;
+    stream5 << fixed << setprecision(1) << bf;
     temp = stream5.str();
 
     switch(temp.size()){
+    case 3:
+    {
+        line += "   " + temp;
+        break;
+    }
     case 4:
     {
         line += "  " + temp;

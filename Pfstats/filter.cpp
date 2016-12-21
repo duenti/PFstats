@@ -27,13 +27,10 @@ Filter::Filter(string name, string alphabet, int type){
     minId = 0;
     maxId = 0;
     conservedPDBpath = "";
-    cons_offset = 0;
     cons_min = 0.8;
-    cons_refseq = 0;
     corr_min_score = 0;
     corr_minssfraction = 0;
     corr_min_delta = 0;
-    corr_offset = 0;
     corr_refseq = 0;
     commPDBPath = "";
 
@@ -58,15 +55,12 @@ void Filter::clear(){
     maxId = 0;
     cons_pdb.clear();
     cons_pdb.shrink_to_fit();
-    cons_offset = 0;
     cons_min = 0;
-    cons_refseq = 0;
     corr_pdb.clear();
     corr_pdb.shrink_to_fit();
     corr_min_score = 0;
     corr_minssfraction = 0;
     corr_min_delta = 0;
-    corr_offset = 0;
     corr_refseq = 0;
     conservedPDBpath.clear();
     conservedPDBpath.shrink_to_fit();
@@ -546,14 +540,6 @@ void Filter::setConsPDB(string pdb){
     this->cons_pdb = pdb;
 }
 
-int Filter::getConsOffset(){
-    return this->cons_offset;
-}
-
-void Filter::setConsOffset(int offset){
-    this->cons_offset = offset;
-}
-
 float Filter::getConsMin(){
     return this->cons_min;
 }
@@ -562,6 +548,7 @@ void Filter::setConsMin(float value){
     this->cons_min = value;
 }
 
+/*
 int Filter::getConsRefseq(){
     return this->cons_refseq;
 }
@@ -583,6 +570,7 @@ void Filter::setConsRefseq(string seq){
 
     this->cons_refseq = i;
 }
+*/
 
 string Filter::getCorrPDB(){
     return this->corr_pdb;
@@ -614,26 +602,6 @@ float Filter::getCorrMinDelta(){
 
 void Filter::setCorrMinDelta(float value){
     this->corr_min_delta = value;
-}
-
-int Filter::getCorrOffset(){
-    return this->corr_offset;
-}
-
-void Filter::setCorrOffset(int value){
-    this->corr_offset = value;
-}
-
-int Filter::getCorrRefseq(){
-    return this->corr_refseq;
-}
-
-string Filter::getStrCorrRefseq(){
-    return this->sequencenames[this->corr_refseq];
-}
-
-void Filter::setCorrRefSeq(int seq){
-    this->corr_refseq = seq;
 }
 
 void Filter::setCorrRefSeq(string seq){
@@ -989,14 +957,31 @@ void Filter::dGCalculation(float alpha, float beta){
 void Filter::dGCalculation(){
     unsigned int c1,c2;
     long double partialresult;
+    float max = -99999;
+    float min = 99999;
+
     dG.clear();
     for(c1=0;c1<=sequences[0].size()-1;c1++){
         partialresult=0;
         for(c2=1; c2<=20; c2++){
             partialresult+=pow(lnbdf(sequences.size(),frequencies[c1][c2],meanf[c2])-lnbdf(sequences.size(),(int)(((long double)frequencies[sequences[0].size()][c2])/(long double)sequences[0].size()),meanf[c2]),2);
         }
-        dG.push_back(sqrt(partialresult));
+
+        partialresult = sqrt(partialresult);
+
+        if(partialresult > max) max = partialresult;
+        if(partialresult < min) min = partialresult;
+
+        dG.push_back(partialresult);
     }
+
+    //NORMALIZA
+    for(unsigned int i = 0; i < dG.size(); i++){
+        float value = (dG[i] - min)/(max-min);
+        dG[i] = value;
+    }
+
+
 }
 
 
@@ -1005,7 +990,7 @@ void Filter::dGWrite(){
     for(unsigned int i = 0; i<sequences[0].size();i++){//for(unsigned int i = 0; i<sequences[0].size()-1;i++){
         consDG.push_back((float)dG[i]);
         //consDG.push_back(float(dG[i]));
-        printf("%d - %f\n",i,consDG[i]);
+        //printf("%d - %f\n",i,consDG[i]);
     }
 }
 
@@ -1031,24 +1016,47 @@ void Filter::FreqWrite(){
      }
 }
 
-vector<float> Filter::ShannonEntropy(int repetitions){
+vector<float> Filter::ShannonEntropy(int repetitions, int cores){
     vector<int> populatedpos;
     vector<float> outputVec;
     vector<vector<int> > subsetTemp;
+    vector<float> blank;
     double partialsum=0;
     int tamanhoSeq = 0;
+    int currentProgress = 0;
     int currentsize = sequences.size();
-    for(unsigned int i = 0; i < frequencies[0].size(); i++)
+
+    int size = frequencies[0].size() + frequencies.size() + frequencies.size() + sequences.size() + subsetfrequencies.size() + 5;
+    QProgressDialog progress("Pré-calculating...", "Abort", 0,size);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for(unsigned int i = 0; i < frequencies[0].size(); i++){
+        currentProgress++;
+        progress.setValue(currentProgress);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) return blank;
         tamanhoSeq += frequencies[0][i];
+    }
 
     //Filtro por GAP
     for(unsigned int i = 0; i < frequencies.size(); i++){
-        //if (frequencies[i][0]/tamanhoSeq <= gapFilter)
-            populatedpos.push_back(i);
+        currentProgress++;
+        progress.setValue(currentProgress);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) return blank;
+        populatedpos.push_back(i);
     }
 
     //Primeira Iteração
     for(unsigned int k = 0; k < populatedpos.size() -1; k++){
+        currentProgress++;
+        progress.setValue(currentProgress);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) return blank;
         for(unsigned int l = 0; l <= 20; l++){
             double subsetfreq = (double)frequencies[k][l]/(double)currentsize;
             if(subsetfreq > 0)
@@ -1060,41 +1068,49 @@ vector<float> Filter::ShannonEntropy(int repetitions){
 
     //Cria sortOrder
     SortOrder.clear();
-    for(unsigned int i = 0; i < sequences.size()-1; i++)
+    for(unsigned int i = 0; i < sequences.size()-1; i++){
+        currentProgress++;
+        progress.setValue(currentProgress);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) return blank;
         SortOrder.push_back(i);
+    }
 
     //Populaciona subsetlocal
     for(unsigned int i = 0; i < subsetfrequencies.size(); i++){
         vector<int> temp;
+        currentProgress++;
+        progress.setValue(currentProgress);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) return blank;
         for(unsigned int j = 0; j < subsetfrequencies[0].size(); j++){
             temp.push_back(0);
         }
         subsetTemp.push_back(temp);
     }
 
-    QProgressDialog progress("Calculating...", "Abort", 0,99);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.show();
+    progress.setLabelText("Calculating...");
+    progress.setMaximum(110);
+    progress.setMinimum(0);
 
     for(unsigned int i = 1; i < 100; i++){
         progress.setValue(i);
         QApplication::processEvents();
 
-        if(progress.wasCanceled()) break;
+        if(progress.wasCanceled()) return blank;
 
         partialsum = 0;
         currentsize=sequences.size()-((i*sequences.size())/(100));
 
         if (currentsize<=0) break;
 
-
-
-        omp_set_num_threads(8);
+        omp_set_num_threads(cores);
         #pragma omp parallel for firstprivate(subsetTemp) reduction (+:partialsum)
         //Teste sem filtro
         for(int j = 0; j < repetitions; j++){
             random_shuffle(SortOrder.begin(),SortOrder.end());
-
             //Calcula frequência do subalinhamento
             for (unsigned int i1 = 0; i1 < subsetTemp.size(); i1++)
                 for(unsigned int j1 = 0; j1 < subsetTemp[0].size(); j1++)
@@ -1123,9 +1139,15 @@ vector<float> Filter::ShannonEntropy(int repetitions){
 
     minssData.clear();
     for(unsigned int i = 0; i < outputVec.size(); i++){
+        progress.setValue(i+100);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()) return blank;
         //printf("%f\n",outputVec[i]);
         this->minssData.push_back(outputVec.at(i));
     }
+
+    progress.close();
 
     return outputVec;
 }
@@ -1764,31 +1786,17 @@ unsigned int Filter::getNumOfUtilComms(){
     return this->communityX.size();
 }
 
-vector<float> Filter::createCommuntitiesVector(int refseq){
-    vector<float> commvec;
-    string sequence = sequences[refseq-1];
+vector<tuple<int, float> > Filter::createCommuntitiesVector(int refseq){
+    vector<tuple<int,float> > commvec;
     int nOfComms = this->getNumOfUtilComms();
-    float offset = 100.00/nOfComms;
 
-    //printf("%s\n",sequence.c_str());
-    for(unsigned int i = 0; i < sequence.size(); i++){
-        if(sequence[i] != '-')
-        commvec.push_back(0);
-    }
-
-    float total = offset;
-    for(unsigned int i = 0; i < comunidades.size(); i++){
-        if(comunidades[i].size() > 1){
-            for(unsigned int j = 0; j < comunidades[i].size(); j++){
-                char commres = comunidades[i][j][0];
-                int commpos = atoi(comunidades[i][j].substr(1).c_str());
-                int seqpos = AlignNumbering2Sequence(refseq,commpos-1);
-
-                if(sequence[commpos-1] == commres){
-                    commvec[seqpos-1] = total;
-                }
-            }
-            total += offset;
+    for(unsigned int i = 0; i < nOfComms; i++){
+        for(unsigned int j = 0; j < comunidades[i].size(); j++){
+            int commpos = atoi(comunidades[i][j].substr(1).c_str());
+            tuple<int,float> tup;
+            get<0>(tup) = commpos;
+            get<1>(tup) = (float)(i+1)/(float)nOfComms;
+            commvec.push_back(tup);
         }
     }
 
@@ -2105,15 +2113,23 @@ string Filter::getNoGAPSequence(int refseq){
     return seq;
 }
 
-vector<float> Filter::createConservationVectorDG(int refseq){//REFSEQ STARTS WITH 1
-    vector<float> consvec;
+vector<tuple<int, float> > Filter::createConservationVectorDG(int refseq){//REFSEQ STARTS WITH 1
+    vector<tuple<int,float> > consvec;
 
     for(unsigned int i = 0; i < sequences[0].size(); i++){
         char aa = sequences[refseq-1][i];
 
-        if(aa != '-' && aa != '.' && aa != ' ')
-            if(dG[i] < 0) consvec.push_back(0);
-            else consvec.push_back(dG[i]*100);
+        if(aa != '-' && aa != '.' && aa != ' '){
+            tuple<int,float> tup;
+            if(dG[i] < 0){
+                get<0>(tup) = i+1;
+                get<1>(tup) = 0.0;
+            }else{
+                get<0>(tup) = i+1;
+                get<1>(tup) = dG[i];
+            }
+            consvec.push_back(tup);
+        }
     }
 
     return consvec;
@@ -2220,7 +2236,7 @@ vector<float> Filter::createConservationVector(int refseq){//REFSEQ STARTS WITH 
 }
 
 bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<int> idproteins, float minCons, vector<string> fullAlignment, vector<string> fullSequences){
-    QProgressDialog progress("Reading data from webservice (1/2","Abort",10,100);
+    QProgressDialog progress("Reading data from webservice (1/3)","Abort",0,0);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
@@ -2232,9 +2248,6 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
     for(unsigned int i = 0; i < proteins.size(); i++){
         post_content += proteins[i] + "\n";
     }
-
-    if(progress.wasCanceled()) return false;
-    progress.setValue(20);
 
     QByteArray const data = QString::fromStdString(post_content).toUtf8();
     QNetworkRequest request(QUrl(QString::fromStdString(url)));
@@ -2248,13 +2261,18 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
     event.exec();
     QString result = response->readAll();
     //printf("%s",result.toStdString().c_str());
-    progress.setValue(50);
-    if(progress.wasCanceled()) return false;
 
     vector<string> lines = split(result.toStdString(),'\n');
 
+    progress.setLabelText("Parsing UniprotKb data (2/3)");
+    progress.setValue(0);
+    progress.setMaximum(lines.size()+1);
+
     //Percorre linhas de proteínas
     for(unsigned int i = 0; i < lines.size(); i++){
+        if(progress.wasCanceled()) return false;
+        progress.setValue(i);
+
         vector<string> featVec = split(lines[i],'\t');
         if(featVec.size() > 2){
             string function = "";
@@ -2283,9 +2301,7 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
             dataprot.push_back(unientry);
         }
     }
-    //QMessageBox::information(NULL,"a","1");
-    progress.setValue(65);
-    if(progress.wasCanceled()) return false;
+
 
     //QMessageBox::information(NULL,"A","PRIMERA PARTE OK");
     //SEGUNDA PARTE => TRABALHAR OS DADOS OBTIDOS
@@ -2300,6 +2316,7 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
 
         for(unsigned int i = 0; i <= frequencies.size()-2; i++){
             for(unsigned int j = 1; j <= 20; j++){
+                if(progress.wasCanceled()) return false;
                 float freq = (float)frequencies[i][j]/((float)sequences.size());
                 //printf("freq=%f / minCons=%f\n",freq,minCons);
                 if(freq >= minCons){
@@ -2313,17 +2330,20 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
         if(progress.wasCanceled()) return false;
 
         for(unsigned int i = 0; i < conservedaa.size(); i++){
+            if(progress.wasCanceled()) return false;
             string alignRes = conservedaa[i] + to_string(conservedpos[i]);
             residuesList.push_back(alignRes);
         }
     }
 
-    progress.setValue(75);
-    if(progress.wasCanceled()) return false;
+    progress.setLabelText("Looking for matchs (3/3)");
+    progress.setValue(0);
+    progress.setMaximum(dataprot.size());
 
     uniprotMined.clear();
 
     for(unsigned int i = 0; i < dataprot.size(); i++){
+        progress.setValue(i);
         Uniprot *entry = new Uniprot(*dataprot[i]);
         Uniprot *out = new Uniprot();
         out->setName(entry->getName());
@@ -2343,8 +2363,8 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
                     string respos = residuesList[k];
                     char aa = respos[0];
                     int alignPos = stoi(respos.substr(1));
-                    if(AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) > 0){
-                        int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]])-1;
+                    int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]);
+                    if(pos > 0){
                         string newResPos = fullSequences[idproteins[i]][alignPos-1] + to_string(pos);
                         string newAlignPos = aa + to_string(alignPos);
 
@@ -2374,11 +2394,11 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
                         string respos = comunidades[k][l];
                         char aa = respos[0];
                         int alignPos = stoi(respos.substr(1));
-                        if(AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) > 0){
-                            int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]) -1;
+                        int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos-1,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]);
+                        if( pos > 0){
                             string newResPos = fullSequences[idproteins[i]][alignPos-1] + QString::number(pos).toStdString();
-                            string newAlignPos = aa + QString::number(alignPos).toStdString();
-                            //printf("SEQUENCE: %s - ALIGNN: %s - SEQN: %s\n",fullAlignment[idproteins[i]].c_str(),newAlignPos.c_str(),newResPos.c_str());
+                            string newAlignPos = aa + to_string(alignPos);
+                            printf("SEQUENCE: %s - ALIGNN: %s - SEQN: %s\n",fullAlignment[idproteins[i]].c_str(),newAlignPos.c_str(),newResPos.c_str());
 
                             //printf("POS: %d   -   %d  %d-%d\n",pos,f->getPosition(),f->getBegin(),f->getEnd());
                             if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
@@ -2406,7 +2426,7 @@ bool Filter::uniprotLook(bool cons, bool comm, vector<string> proteins, vector<i
         entry->kill();
         uniprotMined.push_back(out);
     }
-    progress.setValue(100);
+    progress.close();
 
     QMessageBox::information(NULL,"Uniprot Looking","Uniprot Looking has finished successfully");
 
@@ -2480,7 +2500,7 @@ void Filter::exportFilteredAlignment(QString filename, int type){
             }
 
             QTextStream out(&f);
-            for(unsigned int i = 1; i < sequences.size(); i++){
+            for(unsigned int i = 0; i < sequences.size(); i++){
                 out << sequencenames[i].c_str() << " " << sequences[i].c_str() << "\n";
             }
 
@@ -2500,7 +2520,7 @@ void Filter::exportFilteredAlignment(QString filename, int type){
             }
 
             QTextStream out(&f);
-            for(unsigned int i = 1; i < sequences.size(); i++){
+            for(unsigned int i = 0; i < sequences.size(); i++){
                 out << sequencenames[i].c_str() << " " << sequences[i].c_str() << "\n";
             }
 
@@ -2531,7 +2551,7 @@ void Filter::exportFilteredAlignment(QString filename, int type){
             if(refseq == "") refseq = "NULL";
 
             out << "      <filter occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
-            for(unsigned int i = 1; i < sequences.size(); i++){
+            for(unsigned int i = 0; i < sequences.size(); i++){
                 out << "         <entry id='" << i-1 << "' name='" << sequencenames[i].c_str() << "'>" << sequences[i].c_str() << "</entry>\n";
             }
 
@@ -2628,8 +2648,8 @@ void Filter::exportFreq(QString filename, int type, bool perc){
 
             QTextStream out(&f);
 
-            out << "#FILTER REFSEQ OFFSET MIN_CONS\n";
-            out << "#" << name.c_str() << " " << sequencenames[cons_refseq-1].c_str() << " " << QString::number(cons_offset) << " " << QString::number(cons_min) << "\n";
+            out << "#FILTER MIN_CONS\n";
+            out << "#" << name.c_str() << " " << QString::number(cons_min) << "\n";
 
             if(perc){
                 out.setRealNumberPrecision(1);
@@ -2743,8 +2763,6 @@ void Filter::exportFreq(QString filename, int type, bool perc){
             out << "      <parameters>\n";
 
             out << "         <filter>" << name.c_str() << "</filter>\n";
-            out << "         <refseq>" << sequencenames[cons_refseq-1].c_str() << "</refseq>\n";
-            out << "         <offset>" << QString::number(cons_offset) << "</offset>\n";
             out << "         <min_conservation>" << QString::number(cons_min) << "</min_conservation>\n";
 
             out << "      </parameters>\n";
@@ -2921,7 +2939,6 @@ void Filter::exportFreq(QString filename, int type, bool perc){
             out << "\t\t" << name.c_str() << "\n";
             out << "\t</tr>\n";
             out << "\t<tr>\n";
-            out << "\t\tOffset: " << to_string(cons_offset).c_str() <<"\n";
             //out << "\t\tChain: " << chain.c_str() << "\n";
             out << "\t</tr>\n";
             out << "\t<tr>\n";
@@ -4881,9 +4898,7 @@ string Filter::generateXML(){
         xml += "\t\t<parameters>\n";
 
         if(conservedPDBpath != "") xml += "\t\t\t<pdb>" + conservedPDBpath + "</pdb>\n";
-        xml += "\t\t\t<offset>" + QString::number(cons_offset).toStdString() + "</offset>\n";
         xml += "\t\t\t<minimum>" + QString::number(cons_min).toStdString() + "</minimum>\n";
-        xml += "\t\t\t<refseq>" + QString::number(cons_refseq).toStdString() + "</refseq>\n";
 
         xml += "\t\t</parameters>\n";
 
@@ -4999,7 +5014,6 @@ string Filter::generateXML(){
         xml += "\t\t<parameters>\n";
 
         if(commPDBPath != "") xml += "\t\t\t<pdb>" + commPDBPath + "</pdb>\n";
-        xml += "\t\t\t<offset>" + QString::number(corr_offset).toStdString() + "</offset>\n";
         xml += "\t\t\t<min_score>" + QString::number(corr_min_score).toStdString() + "</min_score>\n";
         xml += "\t\t\t<minss>" + QString::number(corr_minssfraction).toStdString() + "</minss>\n";
         xml += "\t\t\t<min_delta>" + QString::number(corr_min_delta).toStdString() + "</min_delta>\n";
@@ -5274,6 +5288,14 @@ void Filter::printConsFreqPerc(){
 
 void Filter::setConsDG(vector<float> dg){
     this->consDG = dg;
+}
+
+int Filter::getDGsize(){
+    return consDG.size();
+}
+
+float Filter::getDGPosition(int i){
+    return consDG[i];
 }
 
 void Filter::setMinss(vector<float> data){

@@ -62,13 +62,14 @@ public:
     bool getFromStd(string text); //[OK]
     float Identity(int seq1, int seq2);//ok
     unsigned int SeqSize(int seq);//ok
-    void taxonTrimming(string taxon, string refseqName, string refSeq);//ok
-    void hmmCoverageTrimmimg(float occ);//ok
-    void IdentityTrimming(float maxid);//ok
-    void IdentityMinimum(float minid, int refseq);//ok
-    void AlignmentTrimming(float minocc, int refseq);//ok
-    void AlignmentTrimming(float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive);//ok
+    bool taxonTrimming(string taxon, string refseqName, string refSeq);//ok
+    bool hmmCoverageTrimmimg(float occ);//ok
+    bool IdentityTrimming(float maxid);//ok
+    bool IdentityMinimum(float minid, int refseq);//ok
+    bool AlignmentTrimming(float minocc, int refseq);//ok
+    bool AlignmentTrimming(float minocc, int refseq, string refSeq, string firstrefseqname, bool caseSesitive);//ok
     int seqname2seqint2(string refseqcode);//ok
+    int seqname2seqint3(string refseqcode);//ok
     vector<string> getSequencesName();//ok
     vector<string> getSequences();//ok
     vector<string> getRecommendsPDBs(string protein);//ok

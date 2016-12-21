@@ -636,6 +636,15 @@ float Alignment::Identity(int seq1, int seq2){
     return((float)identcount/(float)alignsize);
 }
 
+int Alignment::seqname2seqint3(string refseqcode){
+    vector<string> fullAlignment = this->getFullAlignment();
+
+    for(unsigned int i = 0; i < fullAlignment.size(); i++){
+        if(fullAlignment[i] == refseqcode) return i;
+    }
+    return 0;
+}
+
 int Alignment::seqname2seqint2(string refseqcode){
     vector<string> fullAlignment = this->getFullAlignment();
 
@@ -646,9 +655,12 @@ int Alignment::seqname2seqint2(string refseqcode){
     return 0;
 }
 
-void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq){
+bool Alignment::taxonTrimming(string taxon, string refseqName, string refSeq){
     string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxon-filter/" + taxon;
     string text = "";
+
+    QProgressDialog progress("Filtering by taxon...", "Abort", 0, 0);
+
     for(unsigned int i = 0; i < sequencenames.size(); i++){
         text += split(sequencenames[i],'/')[0] + "\n";
     }
@@ -669,6 +681,7 @@ void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq){
     QString html = response->readAll();
     //printf("%s\n",html.toStdString().c_str());
     for(unsigned int i = 0; i < sequences.size(); i++){
+        if(progress.wasCanceled()) return false;
         string protname = split(sequencenames[i],'/')[0];
         if(!html.contains(protname.c_str())){
             sequences[i].clear();
@@ -681,15 +694,19 @@ void Alignment::taxonTrimming(string taxon, string refseqName, string refSeq){
 
 
     if(refseqName != "0"){
+        if(progress.wasCanceled()) return false;
         if(sequencenames[0] != refseqName){
             sequences.insert(sequences.begin(),refSeq);
             sequencenames.insert(sequencenames.begin(),refseqName);
         }
     }
+
+    progress.close();
+    return true;
 }
 
-void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, string refseqName, bool casesensitive){
-    int c1,totalseq,totalaln;
+bool Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, string refseqName, bool casesensitive){
+    int totalseq,totalaln;
     unsigned int c2;
     string referencesequence=sequences[refseq];
     vector<int> seqstoremove;
@@ -697,10 +714,10 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size());
     progress.show();
 
-    for(c1 = sequences.size()-1; c1 >= 0; c1--){
+    for(int c1 = sequences.size()-1; c1 >= 0; c1--){
         progress.setValue(sequences.size() - c1);
 
-        if(progress.wasCanceled()) break;
+        if(progress.wasCanceled()) return false;
         if(c1!=refseq){
             totalseq = 0;
             totalaln = 0;
@@ -719,8 +736,8 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
         }
     }
 
-    for (c1=0;c1<=seqstoremove.size()-1;c1++){
-        //printf("SEQ: %d - SIZE: %d\n",c1,seqstoremove.size());
+    for (int c1=0;c1<seqstoremove.size();c1++){
+        if(progress.wasCanceled()) return false;
         sequences[seqstoremove[c1]].clear();
         sequencenames[seqstoremove[c1]].clear();
         sequences.erase(sequences.begin()+seqstoremove[c1]);
@@ -732,10 +749,11 @@ void Alignment::AlignmentTrimming(float minocc, int refseq, string refSeq, strin
         sequencenames.insert(sequencenames.begin(),refseqName);
     }
 
-    progress.setValue(sequences.size());
+    progress.close();
+    return true;
 }
 
-void Alignment::AlignmentTrimming(float minocc, int refseq){
+bool Alignment::AlignmentTrimming(float minocc, int refseq){
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Alignment...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -748,7 +766,7 @@ void Alignment::AlignmentTrimming(float minocc, int refseq){
         progress.setValue(c1);
         progress.setMaximum(sequences.size()-1);
 
-        if(progress.wasCanceled()) break;
+        if(progress.wasCanceled()) return false;
 
         if(c1 != refseq){
             totalseq = 0;
@@ -770,9 +788,10 @@ void Alignment::AlignmentTrimming(float minocc, int refseq){
     }
 
     progress.close();
+    return true;
 }
 
-void Alignment::IdentityMinimum(float minid, int refseq){
+bool Alignment::IdentityMinimum(float minid, int refseq){
     //printf("%d",sequences.size());
     QProgressDialog progress("Culling Minimum Identity...", "Abort", 0, sequences.size()-1);
     progress.setWindowModality(Qt::WindowModal);
@@ -784,7 +803,7 @@ void Alignment::IdentityMinimum(float minid, int refseq){
         //printf("%d\n",c1);
         progress.setValue(c1);
 
-        if(progress.wasCanceled()) break;
+        if(progress.wasCanceled()) return false;
 
         if(c1!=refseq){
             if (Identity(c1,refseq)<minid){
@@ -798,9 +817,10 @@ void Alignment::IdentityMinimum(float minid, int refseq){
     }
 
     progress.close();
+    return true;
 }
 
-void Alignment::hmmCoverageTrimmimg(float occ){
+bool Alignment::hmmCoverageTrimmimg(float occ){
     int intProgress = sequences.size()-1;
     QProgressDialog progress("Trimming Coverage...", "Abort", 0, intProgress);
     progress.setWindowModality(Qt::WindowModal);
@@ -810,7 +830,7 @@ void Alignment::hmmCoverageTrimmimg(float occ){
         nvalidpositions = 0;
 
         progress.setValue(intProgress-i);
-        if(progress.wasCanceled()) return;
+        if(progress.wasCanceled()) return false;
 
         for(unsigned int j = 0; j < hmmpositions.size(); j++){
             if(isaa(sequences[i][hmmpositions[j]],false)) nvalidpositions++;
@@ -823,12 +843,13 @@ void Alignment::hmmCoverageTrimmimg(float occ){
         }
     }
 
-    if(sequences.size() == 0) return;
+    if(sequences.size() == 0) return false;
 
     progress.close();
+    return true;
 }
 
-void Alignment::IdentityTrimming(float maxid){
+bool Alignment::IdentityTrimming(float maxid){
     //QMessageBox::information(NULL,"a","TESTE");
     //printf("%d",sequences.size());
     QProgressDialog progress("Trimming Identity...", "Abort", 0, sequences.size()-1);
@@ -841,12 +862,12 @@ void Alignment::IdentityTrimming(float maxid){
         progress.setMaximum(sequences.size());
         QApplication::processEvents();
         //printf("%d\n",seq1);
-        if(progress.wasCanceled()) break;
 
         if(seq1>=sequences.size()-2) break;
 
         seq2=seq1+1;
         while(true){
+            if(progress.wasCanceled()) return false;
             QApplication::processEvents();
             if(seq2>=sequences.size()-1) break;
             if(Identity(seq1,seq2)>maxid){
@@ -869,6 +890,7 @@ void Alignment::IdentityTrimming(float maxid){
     }
 
     progress.close();
+    return true;
 }
 
 vector<string> Alignment::getRecommendsPDBs(string protein){

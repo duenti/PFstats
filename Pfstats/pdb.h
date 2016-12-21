@@ -27,8 +27,8 @@ class Pdb
 private:
     string id;
     float resolution;
-    int interval1, interval2;
     string refseq;
+    int refseq_id;
     char refseq_chain;
     string header, footer;
     vector<PdbAtom*> atoms;
@@ -54,6 +54,8 @@ public:
     Pdb(QString filepath);
     Pdb();
     ~Pdb();
+    int getRefSeqId();
+    void setRefSeqId(int ref);
     string getId();
     void setId(string id);
     float getResolution();
@@ -75,13 +77,9 @@ public:
     void clearResidues();
     PdbResidues* getResidue(int i);
     void setResiduesSeqNumber(char chain);
-    int setResiduesSeqNumber(string pfamsequence, char chain); //IMPLEMENTAR
-    vector<tuple<string,string> > getResiduesInContact(float dist, char chain);
+    int setResiduesSeqNumber(string pfamsequence, char chain, string fullSeq);
     string getPDBSequence(char chain);
-    bool SWSalign(int offset, char chain);
-    string getSWSSeq(char chain);
-    bool exportStructure(QString filepath, vector<float> bfactors, char chain);
-    void printSeqNumbers();
+    bool exportStructure(QString filepath, vector<tuple<int,float> > bfactors, char chain);
     tuple<string, string, int> needleman_wunsch(string a, string b); //ALIGN_A, ALIGN_B, SCORE
     void calculateInterations();
 };

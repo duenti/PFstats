@@ -38,14 +38,11 @@ private:
     float minId;
     float maxId;
     string cons_pdb;
-    int cons_offset;
     float cons_min;
-    int cons_refseq;
     string corr_pdb;
     int corr_min_score;
     float corr_minssfraction;
     float corr_min_delta;
-    int corr_offset;
     int corr_refseq;
     string conservedPDBpath;
     string commPDBPath;
@@ -125,8 +122,6 @@ public:
     void setMaxId(float id);
     string getConsPDB();
     void setConsPDB(string pdb);
-    int getConsOffset();
-    void setConsOffset(int offset);
     float getConsMin();
     void setConsMin(float value);
     int getConsRefseq();
@@ -141,11 +136,6 @@ public:
     void setCorrMinssFraction(float value);
     float getCorrMinDelta();
     void setCorrMinDelta(float value);
-    int getCorrOffset();
-    void setCorrOffset(int value);
-    int getCorrRefseq();
-    string getStrCorrRefseq();
-    void setCorrRefSeq(int seq);
     void setCorrRefSeq(string seq);
     void setConsPDBPath(string path);
     string getConsPDBPath();
@@ -170,7 +160,7 @@ public:
     void dGCalculation();
     void dGWrite();
     void FreqWrite();
-    vector<float> ShannonEntropy(int repetitions);
+    vector<float> ShannonEntropy(int repetitions, int cores);
     void alignment2UpperCase();
     void SubAlignmentIndices(char aa,int pos);
     vector<int> subalignmentIndicesW(char aa, int pos);
@@ -194,7 +184,7 @@ public:
     void DeltaCommunitiesCalculation(void);
     void pMatrix2HTMLRAM(bool renumber, int seqnumber);
     unsigned int getNumOfUtilComms();
-    vector<float> createCommuntitiesVector(int refseq);
+    vector<tuple<int,float> > createCommuntitiesVector(int refseq);
     void setSorOrder(vector<int> order);
     vector<vector<int> > getSubsetFrequencies();
     void setSubsetFrequencies(vector<vector<int> > subset);
@@ -226,7 +216,7 @@ public:
     vector<tuple<string,string,float> > getDeltasEdges(float cutoff);
     string getNoGAPSequence(int refseq);
     vector<float> createConservationVector(int refseq);
-    vector<float> createConservationVectorDG(int refseq);
+    vector<tuple<int,float> > createConservationVectorDG(int refseq);
     bool uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, float minCons, vector<string> fullAlignment, vector<string> fullSequences);
     void removeItemOfCommunity(int comm, int item);
     void addItemToCommunity(string res, int commindex);
@@ -259,6 +249,8 @@ public:
     void printConsFreq();
     void printConsFreqPerc();
     void setConsDG(vector<float> dg);
+    int getDGsize();
+    float getDGPosition(int i);
     void setMinss(vector<float> data);
     void addCorrEdge(string v1, string v2, int score);
     void addResiduesComm(vector<string> residues);

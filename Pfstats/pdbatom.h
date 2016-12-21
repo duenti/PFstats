@@ -28,7 +28,8 @@ private:
     string element;
     string charge;
     char residueCode;
-    int seqnumber;
+    //int seqnumber;
+    //int alignPosition;
 
     char aa3lto1l(string res);
 
@@ -64,8 +65,6 @@ public:
     void setCharge(string c);
     char getResidueCode();
     void setResidueCode(char r);
-    int getSeqnumber();
-    void setSeqnumber(int n);
     string to_string(float bf);
 };
 

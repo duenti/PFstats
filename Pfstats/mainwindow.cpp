@@ -232,25 +232,19 @@ void MainWindow::resetObjects(){
     ui->lstRecommendedPDBs->clear();
     ui->lstPDBsInMemory->clear();
     ui->chkDownloadPDB->setChecked(false);
-    ui->txtPDBFrom->setValue(0);
-    ui->txtPDBTo->setValue(0);
     ui->cmbRefSeq_4->clear();
     //CONSERVATION
     ui->txtPDBName->clear();
     ui->lstRecomendedPDBs->clear();
-    ui->txtOffset->setText("0");
     ui->txtChain->setText("A");
     ui->txtAlpha->setValue(1);
     ui->txtBeta->setValue(1);
-    ui->cmbRefSeq_2->clear();
+    ui->floatMinCons->setValue(0.8);
     //MINSS
     ui->graficMinss->clearGraphs();
     ui->graficMinss->setVisible(false);
     ui->txtNoAlignments->setValue(100);
     //CORRELATION
-    ui->chkRemoveContactResidues->setChecked(false);
-    ui->txtAtomDistance->setValue(4.5);
-    ui->txtAtomDistance->setEnabled(false);
     ui->txtPDBName_2->clear();
     ui->txtPDBName_2->setEnabled(false);
     ui->txtChain_2->setText("A");
@@ -261,8 +255,6 @@ void MainWindow::resetObjects(){
     ui->txtMinScore->setValue(10);
     ui->txtMinssFraction->clear();
     ui->txtMinDeltaFreq->setValue(0.3);
-    ui->txtOffset_2->setText("0");
-    ui->cmbRefSeq_3->clear();
     //RESULTS
     //MAIN RESULT PAGE
     ui->checkResults1->setChecked(false);
@@ -281,59 +273,49 @@ void MainWindow::resetObjects(){
     //LIST SEQUENCES
     ui->lstProteinsFiltered->clear();
     ui->txtSequence->clear();
-    ui->lblRefSeq->setText("Reference Sequence:");
+    ui->lblRefSeq1->setText("Reference Sequence:");
     ui->lblTaxon->setText("Taxon:");
     ui->lblMinId->setText("Minimum Identity: ");
     ui->lblOccupancy->setText("Occupancy: ");
     ui->lblMaxId->setText("Maximum Identity: ");
     //FREQ CONSERVATION
-    ui->lblFilter->setText("Filter: ");
-    ui->lblRefSeq->setText("Reference Sequence: ");
-    ui->lblOffset->setText("Offset: ");
-    ui->lblMinimumCons->setText("Minimum Conservation: ");
     ui->tableFreq->clearContents();
     //PERC CONSERVATION
-    ui->lblFilter_2->setText("Filter: ");
-    ui->lblRefSeq_2->setText("Reference Sequence: ");
-    ui->lblOffset_2->setText("Offset: ");
-    ui->lblMinimumCons_2->setText("Minimum Conservation: ");
     ui->tableFreqPerc->clearContents();
     //CONSERVED RESIDUES
-    ui->lblFilter_8->setText("Filter: ");
     ui->lblMinCons->setText("Minimum Conservation: ");
     ui->tableConsRes->clear();
     //CORRELATION LIST
-    ui->lblFilter_3->setText("Filter: ");
     ui->lblMinLogP->setText("Minimum Score: ");
     ui->lblMinss->setText("Minss Fraction: ");
     ui->lblDeltaFreq->setText("Delta Frequence: ");
+    ui->cmbRefSeq_2->clear();
+    ui->cmbRefSeq_2->addItem("Alignment");
+    ui->cmbRefPdb_2->clear();
     ui->treeCorrelation->clear();
     //LIST OF COMMUNITIES
-    ui->lblFilter_4->setText("Filter: ");
     ui->lblMinLogP_2->setText("Minimum Score: ");
     ui->lblMinss_2->setText("Minss Fraction: ");
     ui->lblDeltaFreq_2->setText("Delta Frequence: ");
     ui->treeCorrelationComm->clear();
+    ui->cmbRefSeq_3->clear();
+    ui->cmbRefPdb_3->clear();
     //CORRELATION TABLES %
-    ui->lblFilter_5->setText("Filter: ");
-    ui->lblComunidade->setText("Communitie: ");
+    ui->lblComunidade->setText("Community: ");
     ui->lblMinLogP_3->setText("Minimum Score: ");
     ui->lblMinss_3->setText("Minss Fraction: ");
     ui->lblDeltaFreq_3->setText("Delta Frequence: ");
     ui->tableComm1->clear();
     //CORRELATION TABLES LOG P
-    ui->lblFilter_6->setText("Filter: ");
-    ui->lblComunidade_2->setText("Communitie: ");
+    ui->lblComunidade_2->setText("Community: ");
     ui->lblMinLogP_4->setText("Minimum Score: ");
     ui->lblMinss_4->setText("Minss Fraction: ");
     ui->lblDeltaFreq_4->setText("Delta Frequence: ");
     ui->tableComm2->clear();
     //ADHERENCE
-    ui->lblFilter_7->setText("Filter: ");
     ui->tableAdherence->clear();
     //RESIDUES OF COMMUNITIE
-    ui->lblFilter_9->setText("Filter: ");
-    ui->lblComunidade_3->setText("Communitie: ");
+    ui->lblComunidade_3->setText("Community: ");
     ui->tableResiduesComm->clear();
     //RESULTS UNIPROT 1
     ui->lstProteinsMined->clear();
@@ -342,7 +324,7 @@ void MainWindow::resetObjects(){
     ui->treeMinerComms->clear();
     ui->tableProteinsMined2->clearContents();
     //COMM GRAPHS
-    ui->lblComunidade_4->setText("Communitie ");
+    ui->lblComunidade_4->setText("Community: ");
     //CORRELATION BETWEEN COMMS GRAPH
     //Uniprot Looking Tool
     ui->chkConserveds->setChecked(false);
@@ -422,7 +404,7 @@ int MainWindow::GetOffsetFromSeqName(string seqname){
     return(atoi(offsetstr.c_str())-1);
 }
 
-void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1, bool filter2, bool filter3, bool taxfilter){
+bool MainWindow::alignfilter(float occupancy, float minId, float maxId, int refseq, bool filter1, bool filter2, bool filter3, bool taxfilter){
     QString msg = "The filters were successfully applied\n";
     int seqSize;
     int seqCut;
@@ -449,7 +431,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     string namePars = "";
 
     if(taxfilter){
-        currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq);
+        if(!currentAlign->taxonTrimming(taxon,firstrefseqname,firstrefseq)) return false;
 
         if(intermediate){
             namePars += taxon;
@@ -475,7 +457,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
 
     if(filter1){
         //if(method == 0) currentAlign->hmmCoverageTrimmimg(taxon,occupancy,alphabet,inter);
-        currentAlign->AlignmentTrimming(occupancy,0,firstrefseq,firstrefseqname,true);
+        if(!currentAlign->AlignmentTrimming(occupancy,0,firstrefseq,firstrefseqname,true)) return false;
 
         if(intermediate){
             if(namePars.size() > 0) namePars += "," + QString::number(occupancy,'f',2).toStdString();
@@ -501,7 +483,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 
     if(filter2){
-        currentAlign->IdentityMinimum(minId,0);
+        if(!currentAlign->IdentityMinimum(minId,0)) return false;
 
         if(intermediate){
             if(namePars.size() > 0) namePars += "," + QString::number(minId,'f',2).toStdString();
@@ -527,7 +509,7 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     }
 
     if(filter3){
-        currentAlign->IdentityTrimming(maxId);
+        if(!currentAlign->IdentityTrimming(maxId)) return false;
 
         if(intermediate){
             if(namePars.size() > 0) namePars += "," + QString::number(maxId,'f',2).toStdString();
@@ -558,9 +540,9 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
         Filter *filter = new Filter(name,alphabet,type);
         filter->setRefSeq(firstrefseqname);
         filter->setTaxon(taxon);
-        filter->setMinOcc(occupancy);
-        filter->setMinId(minId);
-        filter->setMaxId(maxId);
+        if(filter1) filter->setMinOcc(occupancy);
+        if(filter2) filter->setMinId(minId);
+        if(filter3) filter->setMaxId(maxId);
         filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
         filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
@@ -573,9 +555,11 @@ void MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     QMessageBox::information(this,"Alignment filters",msg);
+
+    return true;
 }
 
-void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool filterMaxId, bool filterTaxon){
+bool MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool filterMaxId, bool filterTaxon){
     QString msg = "The filters were successfully applied\n";
     int seqSize;
     int seqCut;
@@ -600,7 +584,7 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     string namePars = "";
 
     if(filterTaxon){
-        currentAlign->taxonTrimming(taxon,"0","");
+        if(!currentAlign->taxonTrimming(taxon,"0","")) return false;
 
         if(intermediate){
             namePars += taxon;
@@ -623,11 +607,11 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     }
 
     if(filterOcc){
-        currentAlign->hmmCoverageTrimmimg(occupancy);
-
-        if(currentAlign->sequences.size() == 0){
-            QMessageBox::warning(this,"Filter","Your parameters filtered all sequences of the alignment.");
-            return;
+        if(!currentAlign->hmmCoverageTrimmimg(occupancy)){
+            if(currentAlign->sequences.size() == 0){
+                QMessageBox::warning(this,"Filter","Your parameters filtered all sequences of the alignment.");
+            }
+            return false;
         }
 
         if(intermediate){
@@ -652,7 +636,7 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     }
 
     if(filterMaxId){
-        currentAlign->IdentityTrimming(maxId);
+        if(!currentAlign->IdentityTrimming(maxId)) return false;
 
         if(intermediate){
             if(namePars.size() > 0) namePars += "," + QString::number(maxId,'f',2).toStdString();
@@ -684,8 +668,8 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     if(!intermediate){
         Filter *filter = new Filter(name,alphabet,type);
         filter->setTaxon(taxon);
-        filter->setMinOcc(occupancy);
-        filter->setMaxId(maxId);
+        if(filterOcc) filter->setMinOcc(occupancy);
+        if(filterMaxId) filter->setMaxId(maxId);
         filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
         filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
@@ -697,16 +681,19 @@ void MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
     emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     QMessageBox::information(this,"Alignment filters",msg);
+
+    return false;
 }
 
-void MainWindow::applyHenikoffFilter(){
+bool MainWindow::applyHenikoffFilter(){
     currentAlign->convertLowerDots();
-    currentFilter->henikoffWeights();
+    if(!currentFilter->henikoffWeights()) return false;
 
     QMessageBox::information(this,"Alignment filters","The sequences were weighed correctly.");
+    return true;
 }
 
-void MainWindow::conservation(int refseq, int offset, char chain, float minCons, string pdbid){
+void MainWindow::conservation(char chain, float minCons, string pdbid){
     float alpha = ui->txtAlpha->value();
     float beta = ui->txtBeta->value();
     currentFilter->CalculateFrequencies();
@@ -738,7 +725,7 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
 
         //pdb->printSeqNumbers();
         //vector<float> consvec = currentFilter->createConservationVector(refseq);
-        vector<float> consvec = currentFilter->createConservationVectorDG(refseq);
+        vector<tuple<int,float> > consvec = currentFilter->createConservationVectorDG(pdb->getRefSeqId());
         pdb->exportStructure(filename,consvec,chain);
 
         currentFilter->setConsPDBPath(path);
@@ -746,21 +733,17 @@ void MainWindow::conservation(int refseq, int offset, char chain, float minCons,
     }
 
     currentFilter->setConsMin(minCons);
-    currentFilter->setConsOffset(offset);
     currentFilter->setConsPDB(pdbid);
-    currentFilter->setConsRefseq(refseq);
 
     if(pdbid != "") QMessageBox::information(this,"Conservation","Conservation has been calculated and the structure file has been successfully created at the above path:\n\n" + QString::fromStdString(path));
     else QMessageBox::information(this,"Conservation","Conservation has been calculated.");
 }
 
-vector<float> MainWindow::minss(int repetitions){
+vector<float> MainWindow::minss(int repetitions, int cores){
     vector<float> outputVec;
     currentFilter->CalculateFrequencies();
     //outputVec = currentAlign->DTRandomElimination(repetitions,99,1,1);
-    outputVec = currentFilter->ShannonEntropy(repetitions);
-
-    QMessageBox::information(this,"Minss","Minss calculated.");
+    outputVec = currentFilter->ShannonEntropy(repetitions,cores);
 
     return outputVec;
 }
@@ -1073,11 +1056,11 @@ bool MainWindow::trivcomm(){
 */
 
 
-void MainWindow::output(int seqnumber, int offset){
+void MainWindow::output(){
     currentFilter->getCommunitiesFromRAM();
 
-    if(seqnumber > 0) currentFilter->Cluster2SCMFromRAM(true,seqnumber,offset);
-    else currentFilter->Cluster2SCMFromRAM(false,seqnumber,offset);
+
+    currentFilter->Cluster2SCMFromRAM(false,0,0);
 
     currentFilter->DeltaCommunitiesCalculation();
     currentFilter->pMatrix2HTMLRAM(false,1);
@@ -1156,15 +1139,6 @@ void MainWindow::tableFreq(){
     //QHeaderView *HorzHdr = ui->tableFreq->horizontalHeader();
     //HorzHdr->setStretchLastSection(true);
 
-    //Parâmetros
-    ui->lblFilter->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
-    ui->lblRefSeq->setText("Reference Sequence: " + QString::fromStdString(currentFilter->getRefSeq()));
-    ui->lblOffset->setText("Offset: " + QString::fromStdString(to_string(currentFilter->getConsOffset())));
-    ui->lblMinimumCons->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin())));
-
-    if(currentFilter->getRefSeq() == "") ui->lblRefSeq->setVisible(false);
-    else ui->lblRefSeq->setVisible(true);
-
     //Preenche a tabela
     ui->tableFreq->setRowCount(nrows);
 
@@ -1210,14 +1184,6 @@ void MainWindow::tableFreqPerc(){
 
     ui->tableFreqPerc->verticalHeader()->setVisible(false);
 
-    ui->lblFilter_2->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
-    ui->lblRefSeq_2->setText("Reference Sequence: " + QString::fromStdString(currentFilter->getRefSeq()));
-    ui->lblOffset_2->setText("Offset: " + QString::fromStdString(to_string(currentFilter->getConsOffset())));
-    ui->lblMinimumCons_2->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin()).c_str()));
-
-    if(currentFilter->getRefSeq() == "") ui->lblRefSeq_2->setVisible(false);
-    else ui->lblRefSeq_2->setVisible(true);
-
     //Preenche a tabela
     ui->tableFreqPerc->setRowCount(nrows);
 
@@ -1249,7 +1215,6 @@ void MainWindow::correlationList(){
     ui->treeCorrelation->clear();
 
     //Recupera parametros
-    ui->lblFilter_3->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
     ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore())));
     ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction())));
     ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta())));
@@ -1263,8 +1228,134 @@ void MainWindow::correlationList(){
         item->setText(1,std::get<1>(tupCorr).c_str());
         item->setText(2,QString::number(std::get<2>(tupCorr)));
     }
-
 }
+
+void MainWindow::on_cmdUpdateGraphNumbering_clicked()
+{
+    ui->cmdUpdateGraphNumbering->setEnabled(false);
+
+    unsigned int nrows = currentFilter->getCorrGraphSize();
+
+    //Limpa a tabela
+    ui->treeCorrelation->clear();
+
+    //Recupera parametros
+    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore())));
+    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction())));
+    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta())));
+
+    //Preenche a tabela
+    for(unsigned int i = 0; i < nrows; i++){
+        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelation);
+        string res1 = std::get<0>(tupCorr).c_str();
+        string res2 = std::get<1>(tupCorr).c_str();
+        char aa1 = res1[0];
+        char aa2 = res2[0];
+        int pos1 = atoi(res1.substr(1).c_str());
+        int pos2 = atoi(res2.substr(1).c_str());
+        QString newAA1;
+        QString newAA2;
+
+        if(ui->cmbRefSeq_2->currentIndex() == 0){
+            newAA1 = aa1 + QString::number(pos1);
+            newAA2 = aa2 + QString::number(pos2);
+        }else{
+            int newPos1 = currentFilter->AlignNumbering2Sequence2(ui->cmbRefSeq_2->currentIndex(),pos1-1,currentAlign->getFullSequences());
+            int newPos2 = currentFilter->AlignNumbering2Sequence2(ui->cmbRefSeq_2->currentIndex(),pos2-1,currentAlign->getFullSequences());
+            if(newPos1 == 0) newAA1 = "-";
+            else{
+                newPos1 += GetOffsetFromSeqName(ui->cmbRefSeq_2->currentText().toStdString());
+                newAA1 = aa1 + QString::number(newPos1);
+            }
+            if(newPos2 == 0) newAA2 = "-";
+            else{
+                newPos2 += GetOffsetFromSeqName(ui->cmbRefSeq_2->currentText().toStdString());
+                newAA2 = aa2 + QString::number(newPos2);
+            }
+        }
+
+        item->setText(0,newAA1);
+        item->setText(1,newAA2);
+        item->setText(2,QString::number(std::get<2>(tupCorr)));
+    }
+
+    ui->cmdUpdateGraphNumbering->setEnabled(true);
+}
+
+void MainWindow::on_cmdUpdateGraphPdbNumbering_clicked()
+{
+    ui->cmdUpdateGraphPdbNumbering->setEnabled(false);
+
+    //Validaçao
+    if(!ui->cmbRefPdb_2->isEnabled()){
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
+        return;
+    }
+    if(ui->cmbRefPdb_2->currentText() == ""){
+        QMessageBox::warning(this,"Warning","You must inform a pdb file");
+        if(pdbs.size() == 0) ui->stackedWidget->setCurrentIndex(STACK_PDB);
+        ui->cmbRefPdb_2->setFocus();
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
+        return;
+    }
+    Pdb* pdb = NULL;
+    string pdbid = ui->cmbRefPdb_2->currentText().toStdString();
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        if(pdbid == pdbs[i]->getId()){
+            pdb = pdbs[i];
+            break;
+        }
+    }
+
+    if(pdb == NULL){
+        QMessageBox::warning(this,"Warning","PDB not found. Maybe it hasn't been loaded.");
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
+        return;
+    }
+
+    unsigned int nrows = currentFilter->getCorrGraphSize();
+
+    //Limpa a tabela
+    ui->treeCorrelation->clear();
+
+    //Recupera parametros
+    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore())));
+    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction())));
+    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta())));
+
+    //Preenche a tabela
+    for(unsigned int i = 0; i < nrows; i++){
+        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelation);
+        string res1 = std::get<0>(tupCorr).c_str();
+        string res2 = std::get<1>(tupCorr).c_str();
+        char aa1 = res1[0];
+        char aa2 = res2[0];
+        int pos1 = atoi(res1.substr(1).c_str());
+        int pos2 = atoi(res2.substr(1).c_str());
+        string newAA1 = "";
+        string newAA2 = "";
+
+        for(unsigned int j = 0; j < pdb->countResidues(); j++){
+            PdbResidues* residue = pdb->getResidue(j);
+            if(residue->getAlignPos() == pos1)
+                newAA1 = aa1 + to_string(residue->getResidueNumber());
+            else if(residue->getAlignPos() == pos2)
+                newAA2 = aa2 + to_string(residue->getResidueNumber());
+
+            if(newAA1 != "" && newAA2 != "")
+                break;
+        }
+
+        item->setText(0,newAA1.c_str());
+        item->setText(1,newAA2.c_str());
+        item->setText(2,QString::number(std::get<2>(tupCorr)));
+
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
+    }
+}
+
 
 void MainWindow::createCorrelationJSON(){
     unsigned int nrows = currentFilter->getCorrGraphSize();
@@ -1469,7 +1560,7 @@ void MainWindow::communitiesGraphs(){
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
 
-    ui->lblComunidade_4->setText("Communitie 1");
+    ui->lblComunidade_4->setText("Community: 1");
 
     vector<string> nodes = currentFilter->getCommunitie(0);
     vector<tuple<string,string,int> > graph = currentFilter->getEdgesByComm(0);
@@ -1560,6 +1651,13 @@ void MainWindow::corrBetweenComms(){
     vector<string> commList;
     copy(nameset.begin(), nameset.end(), std::back_inserter(commList));
 
+    if(commList.size() == 0){
+        QWebSettings *websettings = QWebSettings::globalSettings();
+        websettings->clearMemoryCaches();
+        ui->webCorrComm->setHtml("");
+        return;
+    }
+
     out << "var nodes = [\n";
     for(unsigned int i = 0; i < commList.size(); i++){
         if(i != 0){
@@ -1620,78 +1718,10 @@ void MainWindow::corrBetweenComms(){
     string absPath = info.absoluteFilePath().toStdString();
     string localUrl = "file:///" + absPath;
 
+    QWebSettings *websettings = QWebSettings::globalSettings();
+    websettings->clearMemoryCaches();
     ui->webCorrComm->load(QUrl(localUrl.c_str()));
 }
-
-/*
-void MainWindow::corrBetweenComms(){
-    string pathJSON = libpath + "abor/in3.json";
-    QFile fileJSON(pathJSON.c_str());
-    fileJSON.open(QIODevice::WriteOnly);
-    QTextStream out(&fileJSON);
-
-    unsigned int nDeltas = currentFilter->getNumOfUtilComms();
-
-    out << "{\n\t\"nodes\": {\n";
-    for(unsigned int i = 0; i < nDeltas; i++){
-        out << ("\t\t\"C" + std::to_string(i+1) + "\": {\n").c_str();
-        out << ("\t\t\t\"alignName\": \"C" + std::to_string(i+1) + "\"\n").c_str();
-
-        if(i+1 < nDeltas) out << "\t\t\t},\n";
-        else out << "\t\t}\n\t},\n";
-    }
-
-    out << "\t\"edges\":{\n";
-    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(0.5);
-    for(unsigned int i = 0; i < nDeltas; i++){
-        string comm = "C" + std::to_string(i+1);
-
-        if(i != 0) out << ",\n";
-        out << ("\t\t\"" + comm + "\": {\n").c_str();
-
-        int count = 0;
-        for(unsigned int j = 0; j < graph.size(); j++){
-            tuple<string,string,float> edge = graph[j];
-
-
-            if(std::get<0>(edge) == comm){
-                string comm2 = std::get<1>(edge);
-                float weight = std::get<2>(edge);
-
-                if(count > 0) out << ",\n";
-                count++;
-
-                string unformatedValue = std::to_string(weight);
-                string formated = "";
-
-                for(unsigned int k = 0; k < unformatedValue.size(); k++){
-                    if(unformatedValue[k] == ','){
-                        formated += '.';
-                        formated += unformatedValue[k+1];
-                        formated += unformatedValue[k+2];
-                        break;
-                    }else
-                        formated += unformatedValue[k];
-                }
-
-                out << ("\t\t\t\"" + comm2 + "\": {\n").c_str();
-                out << ("\t\t\t\t\"value\": " + formated + "\n").c_str();
-                out << "\t\t\t\t}";
-            }
-        }
-        out << "\n\t\t}";
-    }
-    out << "\t},\n\"_\": \"zebra finch bk42w74 syllable transition graph\"\n}";
-
-    string path = libpath + "abor/index3.html";
-    QFile file(path.c_str());
-    file.open(QIODevice::ReadOnly);
-    QFileInfo info(file);
-    string absPath = info.absoluteFilePath().toStdString();
-    string localUrl = "file:///" + absPath;
-    ui->webCorrComm->load(QUrl(localUrl.c_str()));
-}
-*/
 
 string MainWindow::makeVisPDBHTML(string pdb){
     string html = "";
@@ -1908,7 +1938,7 @@ void MainWindow::on_cmdNexCommGraph_clicked()
     if(currComm == nComm ) currComm = 0;
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm + 1).toStdString();
+    temp = "Community: " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade_4->setText(temp.c_str());
 
     string pathJSON = libpath + "abor/in2.json";
@@ -1985,7 +2015,7 @@ void MainWindow::on_cmdBackCommGraph_clicked()
     if(currComm == 0 ) currComm = nComm;
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm).toStdString();
+    temp = "Community: " + QString::number(currComm).toStdString();
     ui->lblComunidade_4->setText(temp.c_str());
 
     string pathJSON = libpath + "abor/in2.json";
@@ -2043,7 +2073,6 @@ void MainWindow::communitiesList(){
     ui->treeCorrelationComm->clear();
 
     //Recupera parametros
-    ui->lblFilter_4->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
     ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
     ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
     ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
@@ -2053,13 +2082,154 @@ void MainWindow::communitiesList(){
         vector<string> residues = currentFilter->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
 
-        string text = "Community " + QString::number(i+1).toStdString();
+        string text = "Community " + QString::number(i+1).toStdString() + " [" + QString::number(residues.size()).toStdString() + "]";
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < residues.size(); j++){
             item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(residues[j].c_str()))));
         }
     }
+}
+
+void MainWindow::on_cmdUpdateGraphNumbering2_clicked()
+{
+    ui->cmdUpdateGraphNumbering2->setEnabled(false);
+
+    unsigned int nrows = currentFilter->getCommListSize();
+
+    vector<int> expandeds;
+    //Pega os itens ja expandidos
+    for(unsigned int i = 0; i < nrows; i++){
+        bool expanded = ui->treeCorrelationComm->isExpanded(ui->treeCorrelationComm->model()->index(i,0));
+        if(expanded) expandeds.push_back(i);
+    }
+
+    //Limpa a tabela
+    ui->treeCorrelationComm->clear();
+
+    //Recupera parametros
+    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
+    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
+    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+
+    //Preenche a tabela
+    for(unsigned int i = 0; i < nrows; i++){
+        vector<string> residues = currentFilter->getCommunitie(i);
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
+
+        string text = "Community " + QString::number(i+1).toStdString() + " [" + QString::number(residues.size()).toStdString() + "]";
+        item->setText(0,text.c_str());
+
+        for(unsigned int j = 0; j < residues.size(); j++){
+            string res = residues[j];
+            char aa = res[0];
+            int pos = atoi(res.substr(1).c_str());
+            QString newAA;
+
+            if(ui->cmbRefSeq_3->currentIndex() == 0)
+                newAA = res.c_str();
+            else{
+                int newPos = currentFilter->AlignNumbering2Sequence2(ui->cmbRefSeq_3->currentIndex(),pos-1,currentAlign->getFullSequences());
+                if(newPos == 0) newAA = "-";
+                else{
+                    newPos += GetOffsetFromSeqName(ui->cmbRefSeq_3->currentText().toStdString());
+                    newAA = aa + QString::number(newPos);
+                }
+            }
+
+            item->addChild(new QTreeWidgetItem(QStringList(newAA)));
+        }
+    }
+
+    //Retorna expandidos
+    for(unsigned int i = 0; i < expandeds.size(); i++){
+        ui->treeCorrelationComm->setExpanded(ui->treeCorrelationComm->model()->index(expandeds[i],0),true);
+    }
+
+    ui->cmdUpdateGraphNumbering2->setEnabled(true);
+}
+
+void MainWindow::on_cmdUpdateGraphPdbNumbering_2_clicked()
+{
+    ui->cmdUpdateGraphNumbering2->setEnabled(false);
+
+    //Validaçao
+    if(!ui->cmbRefPdb_3->isEnabled()){
+        ui->cmdUpdateGraphPdbNumbering_2->setEnabled(true);
+        return;
+    }
+    if(ui->cmbRefPdb_3->currentText() == ""){
+        QMessageBox::warning(this,"Warning","You must inform a pdb file");
+        if(pdbs.size() == 0) ui->stackedWidget->setCurrentIndex(STACK_PDB);
+        ui->cmbRefPdb_3->setFocus();
+        ui->cmdUpdateGraphPdbNumbering_2->setEnabled(true);
+        return;
+    }
+    Pdb* pdb = NULL;
+    string pdbid = ui->cmbRefPdb_3->currentText().toStdString();
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        if(pdbid == pdbs[i]->getId()){
+            pdb = pdbs[i];
+            break;
+        }
+    }
+
+    if(pdb == NULL){
+        QMessageBox::warning(this,"Warning","PDB not found. Maybe it hasn't been loaded.");
+        ui->cmdUpdateGraphPdbNumbering_2->setEnabled(true);
+        return;
+    }
+
+    unsigned int nrows = currentFilter->getCommListSize();
+
+    vector<int> expandeds;
+    //Pega os itens ja expandidos
+    for(unsigned int i = 0; i < nrows; i++){
+        bool expanded = ui->treeCorrelationComm->isExpanded(ui->treeCorrelationComm->model()->index(i,0));
+        if(expanded) expandeds.push_back(i);
+    }
+
+    //Limpa a tabela
+    ui->treeCorrelationComm->clear();
+
+    //Recupera parametros
+    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
+    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
+    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+
+    //Preenche a tabela
+    for(unsigned int i = 0; i < nrows; i++){
+        vector<string> residues = currentFilter->getCommunitie(i);
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
+
+        string text = "Community " + QString::number(i+1).toStdString() + " [" + QString::number(residues.size()).toStdString() + "]";
+        item->setText(0,text.c_str());
+
+        for(unsigned int j = 0; j < residues.size(); j++){
+            string res = residues[j];
+            char aa = res[0];
+            int pos = atoi(res.substr(1).c_str());
+            string newAA;
+
+            for(unsigned int j = 0; j < pdb->countResidues(); j++){
+                PdbResidues* residue = pdb->getResidue(j);
+                if(residue->getAlignPos() == pos){
+                    newAA = aa + to_string(residue->getResidueNumber());
+                    break;
+                }
+
+            }
+
+            item->addChild(new QTreeWidgetItem(QStringList(newAA.c_str())));
+        }
+    }
+
+    //Retorna expandidos
+    for(unsigned int i = 0; i < expandeds.size(); i++){
+        ui->treeCorrelationComm->setExpanded(ui->treeCorrelationComm->model()->index(expandeds[i],0),true);
+    }
+
+    ui->cmdUpdateGraphNumbering2->setEnabled(true);
 }
 
 void MainWindow::corrTable1(){
@@ -2069,11 +2239,10 @@ void MainWindow::corrTable1(){
     ui->tableComm1->clear();
 
     //Recupera parametros
-    ui->lblFilter_5->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
     ui->lblMinLogP_3->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
     ui->lblMinss_3->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
     ui->lblDeltaFreq_3->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
-    ui->lblComunidade->setText("Community 1:");
+    ui->lblComunidade->setText("Community: 1");
 
     //Monta a tabela
     vector<string> residues = currentFilter->getResiduesComm(0);
@@ -2123,11 +2292,10 @@ void MainWindow::corrTable2(){
     ui->tableComm2->clear();
 
     //Recupera parametros
-    ui->lblFilter_6->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
     ui->lblMinLogP_4->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
     ui->lblMinss_4->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
     ui->lblDeltaFreq_4->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
-    ui->lblComunidade_2->setText("Community 1:");
+    ui->lblComunidade_2->setText("Community: 1");
 
     //Montar a Tabela
     vector<string> residues = currentFilter->getResiduesCommPs(0);
@@ -2157,11 +2325,12 @@ void MainWindow::corrTable2(){
 }
 
 void MainWindow::adh(){
-    ui->lblFilter_7->setText(currentFilter->getName().c_str());
+    QProgressDialog progress("Calculating adherence for each community", "Abort", 0,currentFilter->sequences.size()+currentFilter->getNumOfUtilComms());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
 
     unsigned int nComm = currentFilter->getNumOfUtilComms();
     unsigned int nSequences = currentFilter->sequences.size()-1;
-    currentFilter->CalculateFrequencies();
 
     //currentAlign->printFrequencies();
 
@@ -2173,12 +2342,24 @@ void MainWindow::adh(){
     ui->tableAdherence->setHorizontalHeaderItem(0,new QTableWidgetItem("PROTEIN SEQUENCE"));
 
     for(unsigned int i = 0; i < nComm; i++){
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        progress.setValue(i);
+        if(progress.wasCanceled()){
+            ui->tableAdherence->clear();
+            return;
+        }
         string temp = "Comm " + QString::number(i+1).toStdString();
         ui->tableAdherence->setHorizontalHeaderItem(i+1,new QTableWidgetItem(temp.c_str()));
     }
 
     //------ADHERENCE-----
     for(unsigned int i = 0; i < currentFilter->sequences.size()-1; i++){
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        progress.setValue(i+nComm);
+        if(progress.wasCanceled()){
+            ui->tableAdherence->clear();
+            return;
+        }
         QTableWidgetItem *protItem = new QTableWidgetItem();
         protItem->setText(currentFilter->sequencenames[i].c_str());
         ui->tableAdherence->setItem(i,0,protItem);
@@ -2197,6 +2378,7 @@ void MainWindow::adh(){
     }
     //Ajusta tamanho das colunas
     ui->tableAdherence->resizeColumnsToContents();
+    progress.close();
 }
 
 void MainWindow::showConservedResidues(){
@@ -2207,25 +2389,47 @@ void MainWindow::showConservedResidues(){
     float minCons = currentFilter->getConsMin();
 
     //Parâmetros
-    ui->lblFilter_8->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
     ui->lblMinCons->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin())));
-
-
-    currentFilter->CalculateFrequencies();
 
     for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
         string ref1 = currentFilter->getRefSeq(i);
-        refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
+        refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
     }
 
-    for(unsigned int i = 0; i < currentFilter->frequencies.size()-2; i++){
-        for(unsigned int j = 1; j <= 20; j++){
-            float freq = (float)currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
-            //printf("freq=%f / minCons=%f\n",freq,minCons);
-            if(freq >= minCons){
-                conservedaa.push_back(num2aa(j));
+    currentFilter->CalculateFrequencies();
+
+    if(currentFilter->getWeightsSize() != 0){
+        //HENIKOFF BASED CONSERVATION
+        for(unsigned int i = 0; i < currentFilter->getDGsize(); i++){
+            float dG = currentFilter->getDGPosition(i);
+
+            if(dG >= minCons){
+                //FIND HIGHER FREQUENCY AA
+                float hiFreq = 0;
+                int hiAA = 0;
+                for(unsigned int j = 1; j <= 20; j++){
+                    float freq = (float)currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
+                    if(freq > hiFreq){
+                        hiFreq = freq;
+                        hiAA = j;
+                    }
+                }
+                conservedaa.push_back(num2aa(hiAA));
                 conservedpos.push_back(i);
-                conservedfreq.push_back(100.0*freq);
+                conservedfreq.push_back(100.0*dG);
+            }
+        }
+    }else{
+        //FREQUENCY BASED CONSERVATION
+        for(unsigned int i = 0; i < currentFilter->frequencies.size()-2; i++){
+            for(unsigned int j = 1; j <= 20; j++){
+                float freq = (float)currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
+                //printf("freq=%f / minCons=%f\n",freq,minCons);
+                if(freq >= minCons){
+                    conservedaa.push_back(num2aa(j));
+                    conservedpos.push_back(i);
+                    conservedfreq.push_back(100.0*freq);
+                }
             }
         }
     }
@@ -2282,13 +2486,11 @@ void MainWindow::showResiduesComm(){
     for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
         string ref1 = currentFilter->getRefSeq(i);
 
-        refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
+        refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
     }
 
     //Parâmetros
-    ui->lblComunidade_3->setText("Comumunity 1");
-
-    ui->lblFilter_9->setText("Filter: " + QString::fromStdString(currentFilter->getName()));
+    ui->lblComunidade_3->setText("Community: 1");
 
     //Cabeçalho
     ui->tableResiduesComm->setColumnCount(currentFilter->Communities[0].pos.size());
@@ -2382,7 +2584,7 @@ void MainWindow::showUniprotGroupByComms(){
 
 vector<float> MainWindow::generateAMCL(int alfabetIndex){
     int alignCoulumnsSize = currentFilter->sequences[0].size();
-    int countMatrix[alignCoulumnsSize][21];//21 is the total size without gaps
+    int countMatrix[alignCoulumnsSize][22];//21 is the total size without gaps /22 is size of gaps
     memset(countMatrix,0,sizeof(countMatrix));
     vector<float> maxValues;
 
@@ -2414,6 +2616,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'W') countMatrix[j][18] ++;
                 else if(c == 'Y') countMatrix[j][19] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2429,6 +2632,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'C' || c == 'M' || c == 'F' || c == 'I' || c == 'L' || c == 'V' || c == 'W' || c == 'Y')
                     countMatrix[j][1] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2450,6 +2654,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
                     countMatrix[j][4] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2473,6 +2678,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
                     countMatrix[j][5] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2490,6 +2696,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'D' || c == 'N' || c == 'E' || c == 'Q' || c == 'K' || c == 'R')
                     countMatrix[j][2] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2511,6 +2718,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'F' || c == 'Y' || c == 'W')
                     countMatrix[j][4] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2533,6 +2741,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'C' || c == 'M') countMatrix[j][9] ++;
                 else if(c == 'Q' || c == 'N') countMatrix[j][10] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2559,6 +2768,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'N') countMatrix[j][13] ++;
                 else if(c == 'H') countMatrix[j][14] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2580,6 +2790,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'C') countMatrix[j][8] ++;
                 else if(c == 'H') countMatrix[j][9] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2599,6 +2810,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'T' || c == 'S') countMatrix[j][6] ++;
                 else if(c == 'H') countMatrix[j][7] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2614,6 +2826,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'F' || c == 'Y' || c == 'W') countMatrix[j][2] ++;
                 else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') countMatrix[j][3] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2627,6 +2840,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 if(c == 'W' || c == 'Y' || c == 'F' || c == 'P' || c == 'T' || c == 'S' || c == 'G' || c == 'A' || c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') countMatrix[j][0] ++;
                 else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q' || c == 'K' || c == 'R' || c == 'H') countMatrix[j][1] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2648,6 +2862,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'S' || c == 'N' || c == 'Q' || c == 'R' || c == 'K')
                     countMatrix[j][4] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2669,6 +2884,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'H' || c == 'P' || c == 'R' || c == 'K')
                     countMatrix[j][4] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2686,6 +2902,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'K' || c == 'Q' || c == 'N' || c == 'S' || c == 'D' || c == 'E')
                     countMatrix[j][2] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2701,6 +2918,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'A' || c == 'T' || c == 'H' || c == 'G' || c == 'P' || c == 'R' || c == 'D' || c == 'E' || c == 'N' || c == 'S' || c == 'Q' || c == 'K')
                     countMatrix[j][1] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2722,6 +2940,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'G') countMatrix[j][8] ++;
                 else if(c == 'N' || c == 'H') countMatrix[j][9] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2743,6 +2962,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'H' || c == 'N' || c == 'Q' || c == 'E' || c == 'D' || c == 'R' || c == 'K')
                     countMatrix[j][4] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2758,6 +2978,7 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'M' || c == 'L' || c == 'I' || c == 'V') countMatrix[j][2] ++;
                 else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') countMatrix[j][3] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
@@ -2775,20 +2996,21 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
                 else if(c == 'K' || c == 'Q' || c == 'N' || c == 'H' || c == 'D' || c == 'E' || c == 'R')
                     countMatrix[j][2] ++;
                 if(c != '-') countMatrix[j][20] ++;
+                else if (c== '.' || c == '-') countMatrix[j][21]++;
             }
         }
         break;
     }
     }
 
+    //CONTINUAR
+    //Frequence of most conserved residues between the non-gaps * frequence of non-gaps between all positions
     for(int i = 0; i < alignCoulumnsSize; i++){
-        //Desconsiderar sequências com mais de 95% de gap
-        if(countMatrix[i][20] < currentFilter->sequences.size()*0.05) maxValues.push_back(0);
-        else{
-            float maxFreq = (float)*max_element(countMatrix[i],countMatrix[i]+20)/(float)countMatrix[i][20];
-            maxValues.push_back(maxFreq);
-            //printf("%d/%d = %f\n",*max_element(countMatrix[i],countMatrix[i]+20),countMatrix[i][20],maxFreq);
-        }
+        float resFreq = (float)*max_element(countMatrix[i],countMatrix[i]+20)/(float)countMatrix[i][20];
+        float gapFreq = 1 - (float) countMatrix[i][21]/(float) currentFilter->sequences.size();
+
+        maxValues.push_back(resFreq*gapFreq);
+        //printf("%d/%d = %f\n",*max_element(countMatrix[i],countMatrix[i]+20),countMatrix[i][20],maxFreq);
     }
 
     return maxValues;
@@ -2796,8 +3018,6 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
 
 void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
     unsigned int nrows = currentFilter->sequences.size();
-    map<string,int> mapClass;
-    map<string,int> mapSpecies;
 
     if(currentFilter->getAlphabet() == "T20"){
         ui->cmbAlphabetColor->setEnabled(true);
@@ -2827,7 +3047,7 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
 
             ui->tableFullAlignment->showColumn(i);
 
-        }else if(colorFreq[i] > 0.75){
+        }else if(colorFreq[i] > 0.8){
             font.setUnderline(true);
 
             if(columnsIndex == 1) ui->tableFullAlignment->hideColumn(i);
@@ -2851,18 +3071,6 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
     for(unsigned int i = 0; i < nrows; i++){
         if(progress.wasCanceled()) break;
         progress.setValue(i);
-
-        //Make Maps
-        vector<string> vecProts = this->split(currentFilter->sequencenames[i],'/');
-        vector<string> splitedName = this->split(vecProts[0],'_');
-        string classs = splitedName[0];
-        string specie = splitedName[1];
-
-        if(mapClass.find(classs) == mapClass.end()) mapClass[classs] = 1;
-        else mapClass[classs] = mapClass[classs] + 1;
-
-        if(mapSpecies.find(specie) == mapSpecies.end()) mapSpecies[specie] = 1;
-        else mapSpecies[specie] = mapSpecies[specie] + 1;
 
         QTableWidgetItem *item = new QTableWidgetItem(currentFilter->sequencenames[i].c_str());
         ui->tableFullAlignment->setVerticalHeaderItem(i,item);
@@ -3323,12 +3531,10 @@ void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
         }
     }
 
-
-    progress.close();
-
     //Ajusta tamanho das colunas
     ui->tableFullAlignment->resizeColumnsToContents();
     ui->tableFullAlignment->resizeRowsToContents();
+    progress.close();
 }
 
 void MainWindow::addAlignment(string path){
@@ -3575,11 +3781,6 @@ void MainWindow::on_cmdAdvance_clicked()
             if (reply == QMessageBox::No) return;
         }
 
-        if(pdbs.size() == 0){
-            ui->chkRemoveContactResidues->setChecked(false);
-            emit ui->chkRemoveContactResidues->clicked(false);
-        }
-
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         ui->cmdAdvance->setEnabled(false);
         ui->cmdBack->setEnabled(true);
@@ -3657,20 +3858,45 @@ void MainWindow::on_cmdFetch_clicked()
     ui->cmdFetch->setEnabled(false);
     QString filename;
     Alignment align;
+    string pfamid = ui->txtAccession->text().toStdString();
 
     //Validação de Dados
-    if(ui->txtAccession->text() == ""){
+    if(pfamid == ""){
         QMessageBox::warning(this,"Error","You must fill all fields");
         ui->cmdFetch->setText("Fetch");
+        ui->txtAccession->setFocus();
         ui->cmdFetch->setEnabled(true);
         return ;
     }
 
+    if(pfamid.size() > 7){
+        QMessageBox::warning(this,"Error","Invalid PFAM id");
+        ui->cmdFetch->setText("Fetch");
+        ui->txtAccession->setFocus();
+        ui->cmdFetch->setEnabled(true);
+        return ;
+    }else if(pfamid.size() != 7){
+        int size = pfamid.size();
+
+        if(size == 6){
+            QMessageBox::warning(this,"Error","Invalid PFAM id");
+            ui->cmdFetch->setText("Fetch");
+            ui->txtAccession->setFocus();
+            ui->cmdFetch->setEnabled(true);
+            return;
+        }
+
+        for(unsigned int i = 2; i < 7-size; i++){
+            pfamid = "0" + pfamid;
+        }
+        pfamid = "pf" + pfamid;
+    }
+
     if(ui->chkDownloadAlignment->isChecked()){
-        QString finalName;
-        if(ui->cmbFetchFormat->currentIndex() == 0) finalName = ui->txtAccession->text() + ".sto";
-        else finalName = ui->txtAccession->text() + ".pfam";
-        filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName,tr("TEXT Files (*.pfam *.txt *.sto *.stockholm)"));
+        string finalName;
+        if(ui->cmbFetchFormat->currentIndex() == 0) finalName = pfamid + ".sto";
+        else finalName = pfamid + ".pfam";
+        filename = QFileDialog::getSaveFileName(this,tr("Export File"),finalName.c_str(),tr("TEXT Files (*.pfam *.txt *.sto *.stockholm)"));
 
         if(filename == ""){
             ui->cmdFetch->setText("Fetch");
@@ -3684,7 +3910,7 @@ void MainWindow::on_cmdFetch_clicked()
     progress.show();
 
     //Monta URL
-    QString url = "http://pfam.xfam.org/family/" + ui->txtAccession->text() + "/alignment/";
+    QString url = "http://pfam.xfam.org/family/" + QString::fromStdString(pfamid) + "/alignment/";
     QString format = "";
 
     if(ui->cmbFetchFormat->currentIndex() == 0) format = "stockholm";
@@ -3699,8 +3925,8 @@ void MainWindow::on_cmdFetch_clicked()
     if(ui->radioButton_3->isChecked()) url += "t&amp;case=";
     else url += "a&amp;case=";
 
-    if(ui->cmbAlignmentType->currentIndex() == 0) url += "l&amp;gaps=dashes&amp;download=0";
-    else url += "u&amp;gaps=default&amp;download=0";
+    if(ui->cmbAlignmentType->currentIndex() == 0) url += "u&amp;gaps=dashes&amp;download=0";
+    else url += "l&amp;gaps=default&amp;download=0";
 
     //Faz a conexão
     QUrl qurl = url;
@@ -3753,11 +3979,11 @@ void MainWindow::on_cmdFetch_clicked()
             //Add na Lista
             bool same = false;
             for(int i = 0; i < ui->listWidget->count(); i++){
-                if(ui->txtAccession->text() ==  ui->listWidget->item(i)->text()) same = true;
+                if(pfamid.c_str() ==  ui->listWidget->item(i)->text()) same = true;
             }
             if(!same){
-                ui->listWidget->addItem(ui->txtAccession->text());
-                align.setFilepath(ui->txtAccession->text().toStdString());
+                ui->listWidget->addItem(pfamid.c_str());
+                align.setFilepath(pfamid);
             }
         }
 
@@ -3812,14 +4038,16 @@ void MainWindow::on_cmdApplyFilter_clicked()
     //Filter name cant be blank
     if(ui->txtFilterName->text() == "" && ui->cmbFilterMethod->currentIndex() != 2){
         QMessageBox::warning(this,"Validation problem","You must set a filter name.");
+        ui->txtFilterName->setFocus();
         ui->cmdApplyFilter->setEnabled(true);
         return;
     }
 
     //Filter names must be different
     for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
-        if(ui->txtFilterName->text() == ui->listWidget2->currentItem()->text() && ui->cmbFilterMethod->currentIndex() != 2){
+        if(ui->txtFilterName->text() == ui->listWidget2->item(i)->text() && ui->cmbFilterMethod->currentIndex() != 2){
             QMessageBox::warning(this,"Validation problem","There is already a filter with this name. Pleasy change the name and try again.");
+            ui->txtFilterName->setFocus();
             ui->cmdApplyFilter->setEnabled(true);
             return;
         }
@@ -3865,9 +4093,6 @@ void MainWindow::on_cmdApplyFilter_clicked()
         }
     }
 
-    ui->cmbRefSeq_2->setCurrentIndex(ui->cmbRefSeq->currentIndex());
-    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
-    ui->cmbRefSeq_3->setCurrentIndex(ui->cmbRefSeq->currentIndex());
     ui->cmbRefSeq_4->setCurrentIndex(ui->cmbRefSeq->currentIndex());
     ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 
@@ -3885,16 +4110,24 @@ void MainWindow::on_cmdApplyFilter_clicked()
 
     int method = ui->cmbFilterMethod->currentIndex();
 
-    if(method == 0)
-        this->alignfilter(occupancy,maxId,ui->chkApplyMinCover->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
-    else if(method == 1)
-        this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked());
-    else if(method == 2){
-        applyHenikoffFilter();
+    if(method == 0){
+        if(this->alignfilter(occupancy,maxId,ui->chkApplyMinCover->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked())){
+            ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+            emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        }
+    }else if(method == 1){
+        if(this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked())){
+            ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+            emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        }
+    }else if(method == 2){
+        if(applyHenikoffFilter()){
+            ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+            emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        }
     }
 
-    ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
-    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+
 
     ui->cmdApplyFilter->setEnabled(true);
 }
@@ -3903,48 +4136,31 @@ void MainWindow::on_cmdConservation_clicked()
 {
     ui->cmdConservation->setEnabled(false);
 
-    //Validação
-    if(ui->cmbRefSeq_2->currentText() == ""){
-        QMessageBox::warning(this,"Error","You must select a pfam input file.");
-        ui->cmdConservation->setEnabled(true);
-        return ;
-    }
+    string alignfilename;
+    string pdbfilename = "";
+    char chain;
+    float minCons;
 
-    bool ok;
-    int offset = ui->txtOffset->text().toInt(&ok,10);
-    if(!ok){
-        QMessageBox::warning(this,"Error","Offset must be integer.");
-        ui->cmdConservation->setEnabled(true);
-        return;
-    }
-    if(ui->txtChain->text().length() > 1){
-        QMessageBox::warning(this,"Error","Chain must be a character.");
-        ui->cmdConservation->setEnabled(true);
-        return;
-    }
+    //Validação
+    if(ui->txtChain->text().length() != 1) chain = 'A';
+
     if(ui->chkGenerateConsPDB->isChecked() && ui->txtPDBName->text() == ""){
         QMessageBox::warning(this,"Error","You checked to generate structure visualization, but didnt inform any PDB file.");
+        ui->txtPDBName->setFocus();
         ui->cmdConservation->setEnabled(true);
         return;
     }
 
     //Calcular a conservaçao
-    string alignfilename;
-    string pdbfilename = "";
-    char chain;
-    int refseq;
-    float minCons;
 
     if(ui->chkGenerateConsPDB->isChecked())
         pdbfilename = ui->txtPDBName->text().toStdString();
 
     alignfilename = ui->listWidget->currentItem()->text().toStdString();
-    refseq = ui->cmbRefSeq_2->currentIndex();
     chain = ui->txtChain->text().at(0).toLatin1();
-    minCons = 0.8;
-    offset = ui->txtOffset->text().toInt();
+    minCons = ui->floatMinCons->value();
 
-    this->conservation(refseq,offset,chain,minCons,pdbfilename);
+    this->conservation(chain,minCons,pdbfilename);
 
     ui->cmdConservation->setEnabled(true);
 }
@@ -3953,16 +4169,21 @@ void MainWindow::on_cmdMinss_clicked()
 {
     ui->cmdMinss->setEnabled(false);
 
-    if(ui->listWidget->selectedItems().size() == 0){
-        QMessageBox::warning(this,"Error","You must select a alignment.");
-        ui->cmdMinss->setEnabled(true);
-        return;
+    int repetitions = ui->txtNoAlignments->value();
+    int cores = ui->intNumOfCores->value();
+    int concurentThreadsSupported = omp_get_num_procs();
+
+    if(cores > concurentThreadsSupported){
+        QMessageBox::StandardButton mbox;
+        mbox = QMessageBox::question(this, "Warning", "Running more threads than cores can slown down your computer or even crash the system. Do you want to continue?",
+                                    QMessageBox::Yes|QMessageBox::No);
+        if (mbox == QMessageBox::No) {
+            return;
+        }
     }
 
-    int repetitions = ui->txtNoAlignments->value();
-
     vector<float> minssData;
-    minssData = this->minss(repetitions);
+    minssData = this->minss(repetitions,cores);
 
     QVector<double> x(100), y(100);
     for (int j=0; j<100; ++j)
@@ -3992,63 +4213,33 @@ void MainWindow::on_cmdCorrelation_clicked()
     char chain = ui->txtChain_2->text()[0].toLatin1();
 
     //Validação de dados
-    if(ui->listWidget->selectedItems().size() == 0){
-        QMessageBox::warning(this,"Error","You must select a alignment.");
-        ui->cmdCorrelation->setEnabled(true);
-        return;
-    }
-
     if(ui->txtMinssFraction->text() == ""){
         QMessageBox::warning(this,"Error","You must set a minss fraction value to run correlation.");
+        ui->txtMinssFraction->setFocus();
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
 
     if(!isFloat(ui->txtMinssFraction->text().toStdString())){
         QMessageBox::warning(this,"Parse Error","Minss fraction must be a float number.");
+        ui->txtMinssFraction->setFocus();
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
     float minssfraction = ui->txtMinssFraction->text().toFloat();
     if(minssfraction < 0.05 || minssfraction > 0.9){
         QMessageBox::warning(this,"Error","Minss fraction must be in the 0.05 - 0.9 interval.");
+        ui->txtMinssFraction->setFocus();
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
 
     vector<tuple<string, string> > contactResidues;
 
-    //Contact Filters
-    if(ui->chkRemoveContactResidues->isChecked()){
-       if(ui->txtPDBName_2->text() == ""){
-           QMessageBox::warning(this,"Warning","You must choose a PDB loaded to apply the contact filter");
-           ui->cmdCorrelation->setEnabled(true);
-           return;
-       }
-
-       Pdb* pdb = NULL;
-       for(unsigned int i = 0; i < pdbs.size(); i++){
-           if(ui->txtPDBName_2->text().toStdString() == pdbs[i]->getId()){
-               pdb = pdbs[i];
-               break;
-           }
-       }
-
-       if(pdb == NULL){
-           QMessageBox::warning(this,"Warning","This is not a valid loaded structure.");
-           ui->cmdConservation->setEnabled(true);
-           return;
-       }
-
-       contactResidues = pdb->getResiduesInContact(ui->txtAtomDistance->value(),chain);
-    }
-
     //Chamar PCalc
     //string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
     int minlogp = ui->txtMinScore->value();
     float mindeltafreq = ui->txtMinDeltaFreq->value();
-    int offset = ui->txtOffset_2->text().toInt();
-    int refseq = ui->cmbRefSeq_3->currentIndex();
     string pdbid = "";
 
     //USA ALINHAMENTO TODO EM MAIUSCULAS
@@ -4057,24 +4248,8 @@ void MainWindow::on_cmdCorrelation_clicked()
     currentFilter->setCorrMinScore(minlogp);
     currentFilter->setCorrMinDelta(mindeltafreq);
     currentFilter->setCorrMinssFraction(minssfraction);
-    currentFilter->setCorrOffset(offset);
-    currentFilter->setCorrRefSeq(refseq);
 
     this->pcalc(minlogp,minssfraction,mindeltafreq);
-
-    //Aplica filtro
-    if(contactResidues.size() > 0){
-        vector<string> filtered = currentFilter->filterCorrGraph(contactResidues,refseq);
-
-        if(filtered.size() > 0){
-            msg += "The pairs above were removed in the filtered:\n\n";
-            for(unsigned int i = 0; i < filtered.size(); i++){
-                msg += filtered[i] + " ";
-            }
-            msg += "\n\n";
-        }else msg += "None correlation pair were removed in the filter.\n\n";
-
-    }
 
     //Chamar Trivcomm
     bool ok = this->trivcomm();
@@ -4084,7 +4259,7 @@ void MainWindow::on_cmdCorrelation_clicked()
     }
 
     //Chamar Output
-    this->output(1,offset);
+    this->output();
 
     //Comm2Align
     if(ui->chkComm2Align->isChecked())
@@ -4115,7 +4290,7 @@ void MainWindow::on_cmdCorrelation_clicked()
         QApplication::processEvents();
         string pdbfilename = ui->txtPDBName_2->text().toStdString() + "_COMMS.pdb";
         QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),pdbfilename.c_str(),tr("TEXT Files (*.pdb)"));
-        vector<float> commvec = currentFilter->createCommuntitiesVector(refseq);
+        vector<tuple<int,float> > commvec = currentFilter->createCommuntitiesVector(pdb->getRefSeqId());
         pdb->exportStructure(filename,commvec,chain);
         currentFilter->setCommPDBPath(filename.toStdString());
     }
@@ -4417,9 +4592,9 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbRefSeq->clear();
     ui->cmbRefSeq->addItem("");
     ui->cmbRefSeq_2->clear();
-    ui->cmbRefSeq_2->addItem("");
+    ui->cmbRefSeq_2->addItem("Alignment");
     ui->cmbRefSeq_3->clear();
-    ui->cmbRefSeq_3->addItem("");
+    ui->cmbRefSeq_3->addItem("Alignment");
     ui->cmbRefSeq_4->clear();
     ui->cmbRefSeq_4->addItem("");
     ui->txtSecRefSeqs->clear();
@@ -4430,8 +4605,9 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     ui->cmbComm->clear();
     ui->lstManageComms->clear();
     ui->graficMinss->setVisible(false);
+    ui->cmbRefPdb_2->clear();
+    ui->cmbRefPdb_3->clear();
 
-    QStringList refseqs, selRefseqs;
     vector<string> fullAlign = currentAlign->getFullAlignment();
     currentFilter = currentAlign->getFullFilter();
     //printf("\n%d\n",fullAlign.size());
@@ -4442,32 +4618,8 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
         //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
 
-        string prot = splitVec[0];
-        bool contains = false;
-
-        for(unsigned int j = 0; j < currentFilter->getRefSeqsSize(); j++){
-            string ref1 = currentFilter->getRefSeq(j);
-            if(splitVec[0] == ref1){
-                contains = true;
-                break;
-            }
-        }
-
-        if(contains){
-            ui->lstRefSeqSelected->addItem(prot.c_str());
-            selRefseqs.append(prot.c_str());
-        }else{
-            ui->lstRefSeqs->addItem(prot.c_str());
-            refseqs.append(prot.c_str());
-        }
+        ui->lstRefSeqs->addItem(fullAlign[i1].c_str());
     }
-
-    QCompleter* refseqsCompleter = new QCompleter(refseqs);
-    refseqsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-    QCompleter* selRefseqsCompleter = new QCompleter(selRefseqs);
-    selRefseqsCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-    ui->txtSecRefSeqs->setCompleter(refseqsCompleter);
-    ui->txtSelectedSecRefseqs->setCompleter(selRefseqsCompleter);
 
     if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
         ui->cmbComm->clear();
@@ -4504,53 +4656,24 @@ void MainWindow::on_cmbRefSeq_activated(int index)
 {
     if(index == 0) return;
 
-    ui->cmbRefSeq_2->setCurrentIndex(index);
-    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
-    ui->cmbRefSeq_3->setCurrentIndex(index);
     ui->cmbRefSeq_4->setCurrentIndex(index);
     ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 
     //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
     currentFilter->setRefSeqName(currentFilter->sequencenames[index-1]);
-    int offset = currentFilter->getRefSeqOffset();
-    QString qoffset = QString::number(offset);
-    ui->txtOffset->setText(qoffset);
-    ui->txtOffset_2->setText(qoffset);
+    //int offset = currentFilter->getRefSeqOffset();
 }
 
 void MainWindow::on_cmbRefSeq_2_activated(int index)
 {
-    //TAMBEM TEM EVENTO ACTIVATED COM PARAMETRO STRING
-    if(index == 0) return;
-
-    ui->cmbRefSeq->setCurrentIndex(index);
     ui->cmbRefSeq_3->setCurrentIndex(index);
-
-    //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
-    currentFilter->setRefSeqName(currentFilter->sequencenames[index-1]);
-    int offset = currentFilter->getRefSeqOffset();
-    QString qoffset = QString::number(offset);
-    ui->txtOffset->setText(qoffset);
-    ui->txtOffset_2->setText(qoffset);
 }
 
 
 
 void MainWindow::on_cmbRefSeq_3_activated(int index)
 {
-    if(index == 0) return;
-
-    string path = ui->listWidget->currentItem()->text().toUtf8().constData();
     ui->cmbRefSeq->setCurrentIndex(index);
-    ui->cmbRefSeq_2->setCurrentIndex(index);
-    ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
-
-    //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
-    currentFilter->setRefSeqName(currentFilter->sequencenames[index-1]);
-    int offset = currentFilter->getRefSeqOffset();
-    QString qoffset = QString::number(offset);
-    ui->txtOffset->setText(qoffset);
-    ui->txtOffset_2->setText(qoffset);
 }
 
 void MainWindow::on_cmdSaveResults_clicked()
@@ -4586,7 +4709,7 @@ void MainWindow::on_cmdNextComm_clicked()
     ui->tableComm1->clear();
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm + 1).toStdString();
+    temp = "Community: " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
@@ -4652,7 +4775,7 @@ void MainWindow::on_cmdBackComm_clicked()
     ui->tableComm1->clear();
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm).toStdString();
+    temp = "Community: " + QString::number(currComm).toStdString();
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
@@ -4717,7 +4840,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
     ui->tableComm2->clear();
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm + 1).toStdString();
+    temp = "Community: " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
@@ -4769,7 +4892,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
     ui->tableComm2->clear();
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm).toStdString();
+    temp = "Community: " + QString::number(currComm).toStdString();
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
@@ -4823,13 +4946,13 @@ void MainWindow::on_cmdNextResComm_clicked()
     ui->tableResiduesComm->clear();
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm + 1).toStdString();
+    temp = "Community: " + QString::number(currComm + 1).toStdString();
     ui->lblComunidade_3->setText(temp.c_str());
 
     vector<int> refSeqs;
 
     for(unsigned int j = 0; j < currentFilter->getRefSeqsSize(); j++){
-        refSeqs.push_back(currentAlign->seqname2seqint2(currentFilter->getRefSeq(j)));
+        refSeqs.push_back(currentAlign->seqname2seqint3(currentFilter->getRefSeq(j)));
     }
 
     //Cabeçalho
@@ -4897,13 +5020,13 @@ void MainWindow::on_cmdBackResComm_clicked()
     ui->tableResiduesComm->clear();
 
     //Modifica parâmetros
-    temp = "Community " + QString::number(currComm).toStdString();
+    temp = "Community: " + QString::number(currComm).toStdString();
     ui->lblComunidade_3->setText(temp.c_str());
 
     vector<int> refSeqs;
 
     for(unsigned int j = 0; j < currentFilter->getRefSeqsSize(); j++){
-        refSeqs.push_back(currentAlign->seqname2seqint2(currentFilter->getRefSeq(j)));
+        refSeqs.push_back(currentAlign->seqname2seqint3(currentFilter->getRefSeq(j)));
     }
 
     //Cabeçalho
@@ -5029,8 +5152,10 @@ void MainWindow::Open_XML_triggered(){
                                     if(reader.isStartElement() && reader.name() == "sequence"){
                                         string reference = reader.readElementText().toStdString();
                                         filter->addRefSeq(reference);
-                                    }else if(reader.isEndElement() && reader.name() == "references")
+                                    }else if(reader.isEndElement() && reader.name() == "references"){
+                                        //this->updateRefSeqsCompleters();
                                         break;
+                                    }
                                 }
                             }else if(reader.name() == "conservation"){
                                 vector<float> dg;
@@ -5046,14 +5171,16 @@ void MainWindow::Open_XML_triggered(){
                                                     string pdb = reader.readElementText().toStdString();
                                                     filter->setConsPDB(pdb);
                                                 }else if(reader.name() == "offset"){
-                                                    int offset = reader.readElementText().toInt();
-                                                    filter->setConsOffset(offset);
+                                                    //old code
+                                                    //int offset = reader.readElementText().toInt();
+                                                    //filter->setConsOffset(offset);
                                                 }else if(reader.name() == "minimum"){
                                                     float min = reader.readElementText().toFloat();
                                                     filter->setConsMin(min);
                                                 }else if(reader.name() == "refseq"){
-                                                    int ref = reader.readElementText().toInt();
-                                                    filter->setConsRefseq(ref);
+                                                    //old
+                                                    //int ref = reader.readElementText().toInt();
+                                                    //filter->setConsRefseq(ref);
                                                 }
                                             }else if(reader.isEndElement() && reader.name() == "parameters"){
                                                 break;
@@ -5123,8 +5250,9 @@ void MainWindow::Open_XML_triggered(){
                                                         string pdb = reader.readElementText().toStdString();
                                                         filter->setCorrPDB(pdb);
                                                     }else if(reader.name() == "offset"){
-                                                        int offset = reader.readElementText().toInt();
-                                                        filter->setCorrOffset(offset);
+                                                        //old
+                                                        //int offset = reader.readElementText().toInt();
+                                                        //filter->setCorrOffset(offset);
                                                     }else if(reader.name() == "min_score"){
                                                         float score = reader.readElementText().toFloat();
                                                         filter->setCorrMinScore(score);
@@ -5135,8 +5263,9 @@ void MainWindow::Open_XML_triggered(){
                                                         float delta = reader.readElementText().toFloat();
                                                         filter->setCorrMinDelta(delta);
                                                     }else if(reader.name() == "refseq"){
-                                                        int refseq = reader.readElementText().toInt();
-                                                        filter->setCorrRefSeq(refseq);
+                                                        //old
+                                                        //int refseq = reader.readElementText().toInt();
+                                                        //filter->setCorrRefSeq(refseq);
                                                     }
                                                 }else if(reader.isEndElement() && reader.name() == "parameters")
                                                     break;
@@ -5302,6 +5431,8 @@ void MainWindow::Open_XML_triggered(){
 
 void MainWindow::on_cmdRemoveFilter_clicked()
 {
+    Filter *filter = currentAlign->getFilterByName(ui->listWidget2->currentItem()->text().toStdString());
+    currentFilter = filter;
 
     if(ui->listWidget2->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a filter to remove.");
@@ -6198,9 +6329,6 @@ void MainWindow::startWizard(){
 }
 
 void MainWindow::changeToOpenAlignment(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6209,9 +6337,6 @@ void MainWindow::changeToOpenAlignment(){
 }
 
 void MainWindow::changetoFilterStack(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6220,9 +6345,6 @@ void MainWindow::changetoFilterStack(){
 }
 
 void MainWindow::changeToRefSeqs(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6231,9 +6353,6 @@ void MainWindow::changeToRefSeqs(){
 }
 
 void MainWindow::changeToLoadPDBs(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6242,9 +6361,6 @@ void MainWindow::changeToLoadPDBs(){
 }
 
 void MainWindow::changeToConservationStack(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6254,14 +6370,17 @@ void MainWindow::changeToConservationStack(){
         emit ui->chkGenerateConsPDB->clicked(false);
     }
 
+    if(pdbs.size() > 0) ui->chkGenerateConsPDB->setChecked(true);
+    else ui->chkGenerateConsPDB->setChecked(false);
+
     ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
 }
 
 void MainWindow::changetoMinssStack(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
+
+    unsigned cores = omp_get_num_procs();
+    ui->intNumOfCores->setValue(cores);
 
     this->changeWizardCmds(false);
 
@@ -6269,31 +6388,15 @@ void MainWindow::changetoMinssStack(){
 }
 
 void MainWindow::changetoCorrelationStack(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
 
     this->changeWizardCmds(false);
-
-    if(pdbs.size() == 0){
-        ui->chkRemoveContactResidues->setChecked(false);
-        emit ui->chkRemoveContactResidues->clicked(false);
-    }
 
     ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
 }
 
 void MainWindow::changeToUniprotLookingTool(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select a alignment.");
-        return;
-    }
-
     if(currentFilter->getConsFreqSize() > 0){
         ui->chkConserveds->setCheckable(true);
         ui->chkConserveds->setChecked(true);
@@ -6306,6 +6409,7 @@ void MainWindow::changeToUniprotLookingTool(){
 
     if(currentFilter->getConsFreqSize() == 0 && currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run at least Conservation or Correlation programs before use this.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6320,6 +6424,7 @@ void MainWindow::changeToMutationAnalysis(){
     //Validação
     if(pdbs.size() == 0){
         QMessageBox::warning(this,"Warning","You must have at least one structure file loaded.");
+        ui->stackedWidget->setCurrentIndex(STACK_PDB);
         return;
     }
     /*
@@ -6438,18 +6543,15 @@ void MainWindow::on_cmdLook_clicked()
 {
     ui->cmdLook->setEnabled(false);
 
-    if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment.");
-        return;
-    }
-
     if(!ui->chkConserveds->isChecked() && !ui->chkComm->isChecked()){
         QMessageBox::warning(this,"Error","You must select at least one kind of targets.");
+        ui->cmdLook->setEnabled(true);
         return;
     }
 
     if(ui->lstLookingRefs->selectedItems().size() == 0){
         QMessageBox::warning(this,"Error","You must select at least one protein of the list.");
+        ui->cmdLook->setEnabled(true);
         return;
     }
 
@@ -6466,7 +6568,7 @@ void MainWindow::on_cmdLook_clicked()
     if(minCons == 0) minCons = 0.8;
     vector<string> fullAlignment = currentAlign->getFullAlignment();
     vector<string> fullSequences = currentAlign->getFullSequences();
-
+    printf("%s %s",fullAlignment[0].c_str(),fullSequences[0].c_str());
     currentFilter->uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins,minCons,fullAlignment,fullSequences);
 
     ui->cmdLook->setEnabled(true);
@@ -6486,65 +6588,67 @@ void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
 {
     ui->tableProteinsMined1->clearContents();
     string name = index.data().toString().split(' ')[0].toStdString();
+    vector<int> indexes;
 
     //Acha a entrada uniprot selecionada
-    unsigned int j = 0;
-    for(j = 0; j < currentFilter->getUniprotMinedSize(); j++){
+    for(unsigned int j = 0; j < currentFilter->getUniprotMinedSize(); j++){
         if(currentFilter->getUniprotEntryName(j) == name){
-            break;
+            indexes.push_back(j);
         }
     }
 
-    string function = "Function: " + currentFilter->getUniprotFunction(j);
-    ui->lblUniprotFunction->setText(function.c_str());
-    ui->lblUniprotFunction->setWordWrap(true);
+    for(int j : indexes){
+        string function = "Function: " + currentFilter->getUniprotFunction(j);
+        ui->lblUniprotFunction->setText(function.c_str());
+        ui->lblUniprotFunction->setWordWrap(true);
 
-    ui->tableProteinsMined1->setRowCount(currentFilter->getUniprotEntryNofFeatures(j));
-    for(unsigned int k = 0; k < currentFilter->getUniprotEntryNofFeatures(j); k++){
-        Feature *f = currentFilter->getUniprotFeature(j,k);
+        ui->tableProteinsMined1->setRowCount(currentFilter->getUniprotEntryNofFeatures(j));
+        for(unsigned int k = 0; k < currentFilter->getUniprotEntryNofFeatures(j); k++){
+            Feature *f = currentFilter->getUniprotFeature(j,k);
 
-        printf("\nRES: %s\nAGREG:%d\n",f->getResidueColigated().c_str(),f->getAgregate());
+            printf("\nRES: %s\nAGREG:%d\n",f->getResidueColigated().c_str(),f->getAgregate());
 
-        if(f->getResidueColigated() != "" && f->getAgregate() != -1){
-            QTableWidgetItem *itemA = new QTableWidgetItem();
-            itemA->setText(f->getAlignResidue().c_str());
-            ui->tableProteinsMined1->setItem(k,0,itemA);
+            if(f->getResidueColigated() != "" && f->getAgregate() != -1){
+                QTableWidgetItem *itemA = new QTableWidgetItem();
+                itemA->setText(f->getAlignResidue().c_str());
+                ui->tableProteinsMined1->setItem(k,0,itemA);
 
-            QTableWidgetItem *item = new QTableWidgetItem();
-            if(f->getAlignResidue()[0] != f->getResidueColigated()[0])
-                item->setTextColor(QColor(255,0,0));
-            item->setText(f->getResidueColigated().c_str());
-            ui->tableProteinsMined1->setItem(k,1,item);
+                QTableWidgetItem *item = new QTableWidgetItem();
+                if(f->getAlignResidue()[0] != f->getResidueColigated()[0])
+                    item->setTextColor(QColor(255,0,0));
+                item->setText(f->getResidueColigated().c_str());
+                ui->tableProteinsMined1->setItem(k,1,item);
 
-            QTableWidgetItem *item2 = new QTableWidgetItem();
-            if(f->getAgregate() == 0) item2->setText("CONS");
-            else item2->setText(QString::number(f->getAgregate()));
-            ui->tableProteinsMined1->setItem(k,2,item2);
+                QTableWidgetItem *item2 = new QTableWidgetItem();
+                if(f->getAgregate() == 0) item2->setText("CONS");
+                else item2->setText(QString::number(f->getAgregate()));
+                ui->tableProteinsMined1->setItem(k,2,item2);
 
-            QTableWidgetItem *item3 = new QTableWidgetItem();
-            item3->setText(f->getType().c_str());
-            ui->tableProteinsMined1->setItem(k,3,item3);
+                QTableWidgetItem *item3 = new QTableWidgetItem();
+                item3->setText(f->getType().c_str());
+                ui->tableProteinsMined1->setItem(k,3,item3);
 
-            QTableWidgetItem *item4 = new QTableWidgetItem();
-            item4->setText(f->getDescription().c_str());
-            ui->tableProteinsMined1->setItem(k,4,item4);
+                QTableWidgetItem *item4 = new QTableWidgetItem();
+                item4->setText(f->getDescription().c_str());
+                ui->tableProteinsMined1->setItem(k,4,item4);
 
-            if(f->getPosition() != -1){
-                QTableWidgetItem *item5 = new QTableWidgetItem();
-                item5->setText(QString::number(f->getPosition()));
-                ui->tableProteinsMined1->setItem(k,5,item5);
-            }
+                if(f->getPosition() != -1){
+                    QTableWidgetItem *item5 = new QTableWidgetItem();
+                    item5->setText(QString::number(f->getPosition()));
+                    ui->tableProteinsMined1->setItem(k,5,item5);
+                }
 
-            if(f->getBegin() != -1){
-                QTableWidgetItem *item6 = new QTableWidgetItem();
-                item6->setText(QString::number(f->getBegin()));
-                ui->tableProteinsMined1->setItem(k,6,item6);
-            }
+                if(f->getBegin() != -1){
+                    QTableWidgetItem *item6 = new QTableWidgetItem();
+                    item6->setText(QString::number(f->getBegin()));
+                    ui->tableProteinsMined1->setItem(k,6,item6);
+                }
 
-            if(f->getEnd() != -1){
-                QTableWidgetItem *item7 = new QTableWidgetItem();
-                item7->setText(QString::number(f->getEnd()));
-                ui->tableProteinsMined1->setItem(k,7,item7);
+                if(f->getEnd() != -1){
+                    QTableWidgetItem *item7 = new QTableWidgetItem();
+                    item7->setText(QString::number(f->getEnd()));
+                    ui->tableProteinsMined1->setItem(k,7,item7);
+                }
             }
         }
     }
@@ -6812,21 +6916,20 @@ void MainWindow::exportLookCommHTML(){
 }
 
 void MainWindow::changeToCreateCommunity(){
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-
     wizard = false;
     ui->cmbComm->clear();
     ui->lstManageComms->clear();
 
     this->changeWizardCmds(false);
 
+    unsigned int nOfComms = currentFilter->getCommListSize();
+
     //Validação
-    if(!ui->listWidget->currentItem()){
+    if(nOfComms == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
-
-    unsigned int nOfComms = currentFilter->getCommListSize();
 
     for(unsigned int j = 1; j <= nOfComms; j++)
         ui->cmbComm->addItem(QString::number(j));
@@ -6837,12 +6940,14 @@ void MainWindow::changeToCreateCommunity(){
 
 void MainWindow::on_cmbComm_currentIndexChanged(int index)
 {
-    vector<string> comms = currentFilter->getCommunitie(index);
+    if(index >= 0){
+        vector<string> comms = currentFilter->getCommunitie(index);
 
-    ui->lstManageComms->clear();
+        ui->lstManageComms->clear();
 
-    for(unsigned int j = 0; j < comms.size(); j++){
-        ui->lstManageComms->addItem(comms[j].c_str());
+        for(unsigned int j = 0; j < comms.size(); j++){
+            ui->lstManageComms->addItem(comms[j].c_str());
+        }
     }
 }
 
@@ -6869,10 +6974,10 @@ void MainWindow::on_cmdAddResComm_clicked()
     QString text = QInputDialog::getText(this, tr("Adding residue to community"),
                                          tr("Type the new amino acid/position pair (Ex: G124, A32):"), QLineEdit::Normal,
                                          "", &ok);
-    if (ok && !text.isEmpty()){
-        QChar aa = text.at(0);
-        string pos = text.toStdString().substr(1);
+    QChar aa = text.at(0);
+    string pos = text.toStdString().substr(1);
 
+    if (ok && !text.isEmpty()){
         if(!this->isaa(aa.toLatin1())){
             QMessageBox::warning(this,"Warning","Invalid pair amino acid/position.");
             return;
@@ -6883,6 +6988,11 @@ void MainWindow::on_cmdAddResComm_clicked()
             return;
         }
 
+    }
+
+    if(stoi(pos) > currentFilter->sequences[0].size()){
+        QMessageBox::warning(this,"Warning","Invalid position");
+        return;
     }
 
     int nc = ui->cmbComm->currentIndex();
@@ -6935,12 +7045,6 @@ void MainWindow::on_cmdNewComm_clicked()
 }
 
 void MainWindow::changeToListOfSequences(){
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Error","You must select an alignment");
-        return;
-    }
-
     //Resetar campos de resultado
     ui->lstProteinsFiltered->clear();
     ui->txtSequence->clear();
@@ -7025,12 +7129,6 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
 }
 
 void MainWindow::changeToTaxonomicView(){
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Error","You must select an alignment");
-        return;
-    }
-
     if(!this->generateSunburst(vector<string>())) return;
     //printf("%s",csv.c_str());
 
@@ -7039,17 +7137,10 @@ void MainWindow::changeToTaxonomicView(){
 }
 
 void MainWindow::changeToConservationFrequence(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Error","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
         return;
     }
 
@@ -7063,17 +7154,10 @@ void MainWindow::changeToConservationFrequence(){
 }
 
 void MainWindow::changeToConservationPercentage(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Error","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getConsFreqPercSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
         return;
     }
 
@@ -7087,17 +7171,10 @@ void MainWindow::changeToConservationPercentage(){
 }
 
 void MainWindow::changeToConservedResidues(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must select some reference sequences.");
+        ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
         return;
     }
 
@@ -7112,18 +7189,27 @@ void MainWindow::changeToConservedResidues(){
 
 void MainWindow::changetoCorrelationList(){
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getCorrGraphSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
     //Resetar campos de resultado
     ui->treeCorrelation->clear();
+    ui->cmbRefSeq_2->setCurrentIndex(0);
+    ui->cmbRefPdb_2->clear();
+    if(pdbs.size() == 0){
+        ui->cmbRefPdb_2->setEnabled(false);
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(false);
+    }else{
+        for(unsigned int i = 0; i < pdbs.size(); i++){
+            Pdb* pdb = pdbs[i];
+            ui->cmbRefPdb_2->addItem(pdb->getId().c_str());
+        }
+        ui->cmbRefPdb_2->setEnabled(true);
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
+    }
 
     this->correlationList();
 
@@ -7136,15 +7222,13 @@ void MainWindow::changeToCorrelationGraph(){
     //ui->cmdBackResult->setVisible(false);
 
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
+    if(currentFilter->getCorrGraphSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
-    if(currentFilter->getCorrGraphSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation method.");
-        return;
-    }
+    ui->cmdHideShowAntiCorr->setText("Hide Anti-Correlations");
 
     createCorrelationJSON();
 
@@ -7154,13 +7238,9 @@ void MainWindow::changeToCorrelationGraph(){
 
 void MainWindow::changeToCommunitiesGraphs(){
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -7172,13 +7252,9 @@ void MainWindow::changeToCommunitiesGraphs(){
 
 void MainWindow::changeToCorrelationBetweenComms(){
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getDeltasSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -7191,13 +7267,9 @@ void MainWindow::changeToCorrelationBetweenComms(){
 
 void MainWindow::changeToPDBVisualization(){
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getConsPDBPath() == ""){
         QMessageBox::warning(this,"Warning","You must run conservation method and send a PDB file.");
+        ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
         return;
     }
 
@@ -7209,13 +7281,9 @@ void MainWindow::changeToPDBVisualization(){
 
 void MainWindow::changeToPDBVisualization2(){
     //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getCommPDBPath() == ""){
         QMessageBox::warning(this,"Warning","You must run correlation method and send a PDB file.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -7226,23 +7294,11 @@ void MainWindow::changeToPDBVisualization2(){
 }
 
 void MainWindow::changeToAlphabetReduction(){
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     emit ui->cmbAlphabetList->currentIndexChanged(0);
     ui->stackedWidget->setCurrentIndex(STACK_ALPHABET);
 }
 
 void MainWindow::changeToGenSubAlignments(){
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     ui->cmbSubAlignComms->clear();
     ui->txtSubAlignName->clear();
     ui->txtResiduesSubAlign->clear();
@@ -7259,12 +7315,6 @@ void MainWindow::changeToGenSubAlignments(){
 }
 
 void MainWindow::changeToAddSequence(){
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     ui->cmbAddSeq1->clear();
     ui->cmbAddSeq2->clear();
     ui->lstAddSeq1->clear();
@@ -7291,22 +7341,28 @@ void MainWindow::changeToAddSequence(){
 }
 
 void MainWindow::changeToCommunitiesList(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
     //Resetar campos de resultado
     ui->treeCorrelationComm->clear();
+    ui->cmbRefSeq_3->setCurrentIndex(0);
+    ui->cmbRefPdb_3->clear();
+
+    if(pdbs.size() == 0){
+        ui->cmdUpdateGraphPdbNumbering_2->setEnabled(false);
+        ui->cmbRefPdb_3->setEnabled(false);
+    }else{
+        for(unsigned int i = 0; i < pdbs.size(); i++){
+            Pdb* pdb = pdbs[i];
+            ui->cmbRefPdb_3->addItem(pdb->getId().c_str());
+        }
+        ui->cmdUpdateGraphPdbNumbering_2->setEnabled(true);
+        ui->cmbRefPdb_3->setEnabled(true);
+    }
 
     this->communitiesList();
 
@@ -7315,17 +7371,9 @@ void MainWindow::changeToCommunitiesList(){
 }
 
 void MainWindow::changeToCorrelationInPerc(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -7339,17 +7387,9 @@ void MainWindow::changeToCorrelationInPerc(){
 }
 
 void MainWindow::changeToCorrelationInLogP(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -7363,17 +7403,9 @@ void MainWindow::changeToCorrelationInLogP(){
 }
 
 void MainWindow::changeToAdherenceMatrix(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -7387,22 +7419,15 @@ void MainWindow::changeToAdherenceMatrix(){
 }
 
 void MainWindow::changeToResiduesOfCommunities(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must have some reference sequences.");
+        ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
         return;
     }
 
     if(currentFilter->getNumOfUtilComms() == 0){
         QMessageBox::warning(this,"Warning","You must run correlatio methods.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -7416,17 +7441,9 @@ void MainWindow::changeToResiduesOfCommunities(){
 }
 
 void MainWindow::changeToULGroupedByProteins(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
 
@@ -7441,17 +7458,9 @@ void MainWindow::changeToULGroupedByProteins(){
 }
 
 void MainWindow::changeToULGroupedByComms(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     if(currentFilter->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
 
@@ -7466,12 +7475,6 @@ void MainWindow::changeToULGroupedByComms(){
 }
 
 void MainWindow::changeToFullAlignment(){
-    //Validação
-    if(!ui->listWidget->currentItem()){
-        QMessageBox::warning(this,"Warning","You must select an alignment");
-        return;
-    }
-
     ui->tableFullAlignment->clear();
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
@@ -7620,7 +7623,7 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
 void MainWindow::on_cmdUpdateComms_clicked()
 {
     //Chamar Output
-    this->output(1,currentFilter->getRefSeqOffset());
+    this->output();
 
     QMessageBox::information(this,"Update Communities","The communtities have been updated.");
 }
@@ -8267,19 +8270,6 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     ui->cmdApplyAlphabetReduction->setEnabled(true);
 }
 
-void MainWindow::on_cmbRefSeq_2_activated(const QString &arg1)
-{
-    //Atualizar Recommended PDBS
-    ui->lstRecomendedPDBs->clear();
-
-    for(unsigned int i = 0; i < pdbs.size(); i++){
-        Pdb* pdb = pdbs[i];
-
-        if(pdb->getRefseq() == arg1.toStdString())
-            ui->lstRecomendedPDBs->addItem(pdb->getId().c_str());
-    }
-}
-
 void MainWindow::on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item)
 {
     string strpdb = item->text().toStdString();
@@ -8299,12 +8289,10 @@ void MainWindow::on_chkRemoveContactResidues_clicked(bool checked)
 {
 
     if(checked){
-        ui->txtAtomDistance->setEnabled(true);
         ui->txtPDBName_2->setEnabled(true);
         ui->txtChain_2->setEnabled(true);
         ui->lstPDBsLoaded_2->setEnabled(true);
     }else{
-        ui->txtAtomDistance->setEnabled(false);
         if(ui->chkCommVisualization->isChecked()){
             ui->txtPDBName_2->setEnabled(true);
             ui->txtChain_2->setEnabled(true);
@@ -8314,19 +8302,6 @@ void MainWindow::on_chkRemoveContactResidues_clicked(bool checked)
             ui->txtChain_2->setEnabled(false);
             ui->lstPDBsLoaded_2->setEnabled(false);
         }
-    }
-}
-
-void MainWindow::on_cmbRefSeq_3_activated(const QString &arg1)
-{
-    //Atualizar Recommended PDBS
-    ui->lstPDBsLoaded_2->clear();
-
-    for(unsigned int i = 0; i < pdbs.size(); i++){
-        Pdb* pdb = pdbs[i];
-
-        if(pdb->getRefseq() == arg1.toStdString())
-            ui->lstPDBsLoaded_2->addItem(pdb->getId().c_str());
     }
 }
 
@@ -8357,8 +8332,6 @@ void MainWindow::on_cmbRefSeq_4_activated(const QString &arg1)
     }
 
     int index = ui->cmbRefSeq_4->currentIndex();
-    ui->cmbRefSeq_2->setCurrentIndex(index);
-    emit ui->cmbRefSeq_2->activated(index);
 }
 
 void MainWindow::on_lstRecommendedPDBs_itemActivated(QListWidgetItem *item)
@@ -8374,9 +8347,6 @@ void MainWindow::on_lstRecommendedPDBs_itemActivated(QListWidgetItem *item)
     string interval = currentAlign->getPDBInterval(pdb);
 
     vector<string> intervals = split(interval,'-');
-
-    ui->txtPDBFrom->setValue(stoi(intervals[0].c_str()));
-    ui->txtPDBTo->setValue(stoi(intervals[1].c_str()));
 }
 
 void MainWindow::on_cmdPDBFile_clicked()
@@ -8397,6 +8367,7 @@ void MainWindow::on_cmdPDBFetch_clicked()
     //Validação
     if(ui->txtPdbId->text() == ""){
         QMessageBox::warning(this,"Error","You must fill PDB name");
+        ui->txtPdbId->setFocus();
         ui->cmdPDBFetch->setEnabled(true);
         return;
     }
@@ -8484,20 +8455,29 @@ void MainWindow::on_cmdLoadPDB_clicked()
 {
     ui->cmdLoadPDB->setEnabled(false);
     Pdb* pdb = NULL;
-    int intervalFrom = ui->txtPDBFrom->value();
-    int intervalTo = ui->txtPDBTo->value();
     string refseq = ui->cmbRefSeq_4->currentText().toStdString();
 
     //Validação
     if(refseq == " "){
         QMessageBox::warning(this,"Warning","You must set a reference sequence for this structure.");
+        ui->cmbRefSeq_4->setFocus();
         ui->cmdLoadPDB->setEnabled(true);
         return;
     }
 
-    if(intervalFrom >= intervalTo){
-        QMessageBox::warning(this,"Warning","The second value of intervals must be higher than first.");
+    if(ui->txtChainPDB->text() == ""){
+        QMessageBox::warning(this,"Warning","You must set a chain for this structure.");
         ui->cmdLoadPDB->setEnabled(true);
+        ui->txtChainPDB->setFocus();
+        ui->txtChainPDB->setFocus();
+        return;
+    }
+
+    if(ui->txtChainPDB->text().length() > 1){
+        QMessageBox::warning(this,"Warning","Chain must be a one letter character");
+        ui->cmdLoadPDB->setEnabled(true);
+        ui->txtChainPDB->setFocus();
+        ui->txtChainPDB->setFocus();
         return;
     }
 
@@ -8505,6 +8485,7 @@ void MainWindow::on_cmdLoadPDB_clicked()
         //Já está na memoria
         if(currentPDBContent == ""){
             QMessageBox::warning(this,"Warning","You must fetch your PDB before load.");
+            ui->txtPdbId->setFocus();
             ui->cmdLoadPDB->setEnabled(true);
             return;
         }
@@ -8516,26 +8497,42 @@ void MainWindow::on_cmdLoadPDB_clicked()
 
     if(pdb != NULL){
         string pdbname = pdb->getId();
-        char chain = ui->txtChainPDB->text().toStdString()[0];
+        char chain = toupper(ui->txtChainPDB->text().toStdString()[0]);
 
         pdb->setRefseq(refseq);
         pdb->setRefseq_chain(chain);
-        pdb->setIntervals(intervalFrom,intervalTo);
+        pdb->setRefSeqId(ui->cmbRefSeq_4->currentIndex());
         //pdb->setResiduesSeqNumber(chain);
 
 
         //Verify if pdb and sequence align
-        string currseq = currentFilter->getNoGAPSequence(ui->cmbRefSeq_3->currentIndex()-1);
+        string currseq = currentFilter->getNoGAPSequence(ui->cmbRefSeq_4->currentIndex()-1);
         string pdbseq = pdb->getPDBSequence(chain);
-        int score = pdb->setResiduesSeqNumber(currseq,chain);
+        currentFilter->convertLowerDots();
+        int score = pdb->setResiduesSeqNumber(currseq,chain,currentFilter->sequences[ui->cmbRefSeq_4->currentIndex()-1]);
+
+        if(score <= 0){
+            QMessageBox::StandardButton mbox;
+            mbox = QMessageBox::question(this, "Low alignment Score", "The alignment between your structure and reference sequence shows a very low score. It may occur because the setting of the wrong structure, reference sequence, chain or the pdb and sequence has a very divergent sizes. Do you really want to load the structure?",
+                                        QMessageBox::Yes|QMessageBox::No);
+            if (mbox == QMessageBox::No) {
+                ui->cmdLoadPDB->setEnabled(true);
+                return;
+            }
+        }
 
         ui->lstPDBsInMemory->addItem(pdbname.c_str());
 
         pdbs.push_back(pdb);
 
-        //Emit
-        emit ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
-        emit ui->cmbRefSeq_3->activated(ui->cmbRefSeq_3->currentText());
+        ui->lstRecomendedPDBs->clear();
+        ui->lstPDBsLoaded_2->clear();
+
+        for(unsigned int i = 0; i < pdbs.size(); i++){
+            Pdb* structure = pdbs[i];
+            ui->lstRecomendedPDBs->addItem(structure->getId().c_str());
+            ui->lstPDBsLoaded_2->addItem(structure->getId().c_str());
+        }
 
         string msg = "The structure file has been load and aligned with the reference sequence scoring " + to_string(score) + "/" + to_string(currseq.length() + pdbseq.length()) + ".";
 
@@ -8558,22 +8555,10 @@ void MainWindow::on_chkCommVisualization_clicked(bool checked)
         ui->txtPDBName_2->setEnabled(true);
         ui->txtChain_2->setEnabled(true);
         ui->lstPDBsLoaded_2->setEnabled(true);
-        if(ui->chkRemoveContactResidues->isChecked())
-            ui->txtAtomDistance->setEnabled(true);
-        else
-            ui->txtAtomDistance->setEnabled(false);
-    }else{
-        if(ui->chkRemoveContactResidues->isChecked()){
-            ui->txtPDBName_2->setEnabled(true);
-            ui->txtChain_2->setEnabled(true);
-            ui->lstPDBsLoaded_2->setEnabled(true);
-            ui->txtAtomDistance->setEnabled(true);
-        }else{
-            ui->txtPDBName_2->setEnabled(false);
-            ui->txtChain_2->setEnabled(false);
-            ui->lstPDBsLoaded_2->setEnabled(false);
-            ui->txtAtomDistance->setEnabled(false);
-        }
+    }else{        
+        ui->txtPDBName_2->setEnabled(false);
+        ui->txtChain_2->setEnabled(false);
+        ui->lstPDBsLoaded_2->setEnabled(false);
     }
 }
 
@@ -8632,11 +8617,13 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
         //Validação
         if(!ok){
             QMessageBox::warning(this,"Error","The annotation score value must be numeric");
+            ui->txtFilterRefSeq->setFocus();
             ui->cmdFilterRefSeqs->setEnabled(true);
             return;
         }else{
             if(score < 1 || score > 5){
                 QMessageBox::warning(this,"Error","The annotation score must be a value between 1 and 5");
+                ui->txtFilterRefSeq->setFocus();
                 ui->cmdFilterRefSeqs->setEnabled(true);
                 return;
             }
@@ -8651,6 +8638,7 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
         //Validação
         if(ui->txtFilterRefSeq->text() == ""){
             QMessageBox::warning(this,"Error","You must inform what taxon to filter.");
+            ui->txtFilterRefSeq->setFocus();
             ui->cmdFilterRefSeqs->setEnabled(true);
             return;
         }
@@ -9076,34 +9064,64 @@ void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
     currentFilter = filter;
 
     ui->cmbRefSeq_2->clear();
-    ui->cmbRefSeq_2->addItem("");
+    ui->cmbRefSeq_2->addItem("Alignment");
     ui->cmbRefSeq_3->clear();
-    ui->cmbRefSeq_3->addItem("");
+    ui->cmbRefSeq_3->addItem("Alignment");
     ui->cmbRefSeq_4->clear();
     ui->cmbRefSeq_4->addItem("");
     ui->lstProteinsFiltered->clear();
     ui->lstLookingRefs->clear();
     ui->cmbComm->clear();
     ui->lstManageComms->clear();
+    ui->cmbRefPdb_2->clear();
+    ui->cmbRefPdb_3->clear();
+    ui->lstRecomendedPDBs->clear();
+    ui->lstPDBsLoaded_2->clear();
+
+    for(unsigned int i = 0; i < pdbs.size(); i++){
+        Pdb* structure = pdbs[i];
+        ui->lstRecomendedPDBs->addItem(structure->getId().c_str());
+        ui->lstPDBsLoaded_2->addItem(structure->getId().c_str());
+    }
 
     ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(filter->getSequencesCount()));
 
+    //Add filtered sequences
     for(unsigned int i = 0; i < filter->getSequencesCount(); i++){
         //string proteinName = this->split(filter->getSequenceName(i),'/')[0];
         string proteinName = filter->getSequenceName(i);
-        ui->cmbRefSeq_2->addItem(proteinName.c_str());
-        ui->cmbRefSeq_3->addItem(proteinName.c_str());
+        //ui->cmbRefSeq_2->addItem(proteinName.c_str());
+        //ui->cmbRefSeq_3->addItem(proteinName.c_str());
         ui->cmbRefSeq_4->addItem(proteinName.c_str());
         ui->lstProteinsFiltered->addItem(proteinName.c_str());
     }
 
+    //Add Full Alignment sequences
     vector<string> fullAlignment = currentAlign->getFullAlignment();
     for(unsigned int i = 0; i < fullAlignment.size(); i++){
         vector<string> splitVec = this->split(fullAlignment[i],'/');
-        //ui->cmbRefSeq_2->addItem(QString::fromStdString(splitVec[0]));
-        //ui->cmbRefSeq_3->addItem(QString::fromStdString(splitVec[0]));
+        ui->cmbRefSeq_2->addItem(QString::fromStdString(fullAlignment[i]));
+        ui->cmbRefSeq_3->addItem(QString::fromStdString(fullAlignment[i]));
         //ui->cmbRefSeq_4->addItem(QString::fromStdString(splitVec[0]));
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
+    }
+
+    //Add PDBS to comm and corr lists
+    if(pdbs.size() == 0){
+        ui->cmbRefPdb_2->setEnabled(false);
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(false);
+        ui->cmbRefPdb_3->setEnabled(false);
+        ui->cmdUpdateGraphPdbNumbering_2->setEnabled(false);
+    }else{
+        for(unsigned int i = 0; i < pdbs.size(); i++){
+            Pdb* pdb = pdbs[i];
+            ui->cmbRefPdb_2->addItem(pdb->getId().c_str());
+            ui->cmbRefPdb_3->addItem(pdb->getId().c_str());
+        }
+        ui->cmbRefPdb_2->setEnabled(true);
+        ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
+        ui->cmbRefPdb_3->setEnabled(true);
+        ui->cmdUpdateGraphPdbNumbering_2->setEnabled(true);
     }
 
     if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
@@ -9120,9 +9138,21 @@ void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
 
     currentFilter->CalculateFrequencies();
 
-    ui->cmbRefSeq_2->setCurrentIndex(1);
+    if(currentFilter->getWeightsSize() == 0){
+        ui->label_28->setEnabled(false);
+        ui->label_31->setEnabled(false);
+        ui->txtAlpha->setEnabled(false);
+        ui->txtBeta->setEnabled(false);
+    }else{
+        ui->label_28->setEnabled(true);
+        ui->label_31->setEnabled(true);
+        ui->txtAlpha->setEnabled(true);
+        ui->txtBeta->setEnabled(true);
+    }
+
+    ui->cmbRefSeq_2->setCurrentIndex(0);
     ui->cmbRefSeq_2->activated(ui->cmbRefSeq_2->currentText());
-    ui->cmbRefSeq_3->setCurrentIndex(1);
+    ui->cmbRefSeq_3->setCurrentIndex(0);
     ui->cmbRefSeq_4->setCurrentIndex(1);
     ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 }
@@ -9245,6 +9275,9 @@ void MainWindow::renameFilter(){
 }
 
 void MainWindow::removeFilter(){
+    Filter *filter = currentAlign->getFilterByName(ui->listWidget2->currentItem()->text().toStdString());
+    currentFilter = filter;
+
     if(ui->listWidget2->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a filter to remove.");
         return;
@@ -9333,22 +9366,26 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
 
     vector<string> lines = split(ui->txtResiduesSubAlign->toPlainText().toStdString(),'\n');
     vector<string> sequences, sequencenames;
-    int numOfValidHits = lines.size() * ui->txtSubAlignHitRate->value();
     vector<tuple<char,int> > residuesHits;
     int hits;
-
+    int count = 0;
     for(unsigned int i = 0; i < lines.size(); i++){
         string res = lines[i];
-        string aa(1,res[0]);
-        string strPos = res.substr(1);
-        QString temp = strPos.c_str();
-        bool ok;
-        int pos = temp.toInt(&ok);
-        if(ok){
-            std::tuple<char,int> tup (aa[0],pos);
-            residuesHits.push_back(tup);
+        if(res != ""){
+            string aa(1,res[0]);
+            string strPos = res.substr(1);
+            QString temp = strPos.c_str();
+            bool ok;
+            int pos = temp.toInt(&ok);
+            if(ok){
+                std::tuple<char,int> tup (aa[0],pos);
+                residuesHits.push_back(tup);
+            }
+            count++;
         }
     }
+
+    int numOfValidHits = count * ui->txtSubAlignHitRate->value();
 
     for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
         hits = 0;
@@ -9616,7 +9653,7 @@ void MainWindow::on_cmdCalculateMutations_clicked()
                     string refseq = currentStructure->getRefseq();
                     vector<string> temp = split(refseq,'/');
                     int offset = atoi(split(temp[1],'-')[0].c_str());
-                    int seqnumber = atom->getSeqnumber() + offset-1;
+                    int seqnumber = i + offset;//i+1 + offset-1//TA ERRADO, CONVERTER PRA ALIGN E DEPOIS SEQ
 
                     int newpos = currentFilter->sequencenumbering2alignment(currentFilter->getSequenceIndex(refseq)+1,seqnumber);
 
@@ -9704,3 +9741,5 @@ void MainWindow::on_radioMutationPDB_clicked(bool checked)
         ui->cmbMutationRefSeq->setEnabled(false);
     }
 }
+
+

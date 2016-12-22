@@ -136,8 +136,6 @@ private slots:
     //void on_cmdGraphPath_clicked();
     void on_cmdCorrelation_clicked();
 
-    void on_listWidget_activated(const QModelIndex &index);
-
     void on_cmbRefSeq_activated(int index);
 
     void on_cmbRefSeq_2_activated(int index);
@@ -254,8 +252,6 @@ private slots:
 
     void on_cmbFilterMethod_activated(int index);
 
-    void on_listWidget2_itemActivated(QListWidgetItem *item);
-
     void on_txtSecRefSeqs_editingFinished();
 
     void on_txtSelectedSecRefseqs_editingFinished();
@@ -289,6 +285,10 @@ private slots:
     void on_cmdUpdateGraphPdbNumbering_clicked();
 
     void on_cmdUpdateGraphPdbNumbering_2_clicked();
+
+    void on_listWidget2_currentRowChanged(int currentRow);
+
+    void on_listWidget_currentRowChanged(int currentRow);
 
 private:
     enum Constants{

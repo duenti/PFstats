@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     currentAlign = nullptr;
 
-    libpath = ""; //NO windows começar com dir raiz
+    libpath = "pflibs/"; //NO windows começar com dir raiz
     //libpath = "/usr/share/pflibs/"; //No linux vai estar neste diretorio
 
     this->loadConfigurationFile();
@@ -4568,7 +4568,7 @@ void MainWindow::updateResultsViews(){
     }
 }
 
-void MainWindow::on_listWidget_activated(const QModelIndex &index)
+void MainWindow::on_listWidget_currentRowChanged(int currentRow)
 {
     if(ui->listWidget->count() == 0) return;
 
@@ -4577,7 +4577,7 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     progress.show();
     QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
-    string path = index.data().toString().toStdString();
+    string path = ui->listWidget->item(currentRow)->text().toStdString();
     vector<string> sequences;
 
     unsigned int i = 0;
@@ -9057,8 +9057,10 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
     }
 }
 
-void MainWindow::on_listWidget2_itemActivated(QListWidgetItem *item)
+void MainWindow::on_listWidget2_currentRowChanged(int currentRow)
 {
+    QListWidgetItem* item = ui->listWidget2->item(currentRow);
+
     //Recupera e atualiza o filtro atual
     Filter *filter = currentAlign->getFilterByName(item->text().toStdString());
     currentFilter = filter;
@@ -9741,5 +9743,3 @@ void MainWindow::on_radioMutationPDB_clicked(bool checked)
         ui->cmbMutationRefSeq->setEnabled(false);
     }
 }
-
-

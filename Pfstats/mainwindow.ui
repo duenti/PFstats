@@ -71,7 +71,7 @@
         <item>
          <widget class="QLabel" name="label_46">
           <property name="text">
-           <string>Filter:</string>
+           <string>Sub-Alignments:</string>
           </property>
          </widget>
         </item>
@@ -103,81 +103,18 @@
        </layout>
       </item>
       <item>
-       <widget class="QListWidget" name="listWidget2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>2</verstretch>
-         </sizepolicy>
-        </property>
+       <widget class="QTreeWidget" name="listWidget2">
         <property name="contextMenuPolicy">
          <enum>Qt::ActionsContextMenu</enum>
         </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="1" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_9">
-      <item>
-       <widget class="QPushButton" name="cmdMain">
-        <property name="enabled">
+        <property name="headerHidden">
          <bool>true</bool>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Main</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdBack">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Back</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdAdvance">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Advance</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdSaveResults">
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Save Results</string>
-        </property>
+        <column>
+         <property name="text">
+          <string>Sub-Alignments</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
@@ -2558,7 +2495,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>10</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -2828,11 +2765,28 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QLabel" name="label_73">
+                    <property name="text">
+                     <string>Aligned:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QTextEdit" name="txtSequence">
                     <property name="readOnly">
                      <bool>true</bool>
                     </property>
                    </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_85">
+                    <property name="text">
+                     <string>Without Gaps:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QTextEdit" name="txtSequenceNoGaps"/>
                   </item>
                  </layout>
                 </item>
@@ -4977,256 +4931,292 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_37">
+        <item row="1" column="0" colspan="2">
+         <layout class="QVBoxLayout" name="verticalLayout_55">
           <item>
-           <widget class="QLabel" name="label_63">
-            <property name="text">
-             <string>Alphabet:</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_37">
+            <item>
+             <widget class="QLabel" name="label_63">
+              <property name="text">
+               <string>Alphabet:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmbAlphabetList">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <item>
+               <property name="text">
+                <string>T20</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>T2</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>T5</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>T6</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>3IMG</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>5IMG</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>11IMG</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Murphy15</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Murphy10</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Murphy8</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Murphy4</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Murphy2</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Wang5</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Wang5v</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Wang3</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Wang2</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Li10</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Li5</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Li4</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Li3</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_14">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QComboBox" name="cmbAlphabetList">
-            <property name="minimumSize">
-             <size>
-              <width>250</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_88">
             <item>
-             <property name="text">
-              <string>T20</string>
-             </property>
+             <widget class="QLabel" name="lblAlphabetName">
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Name:</string>
+              </property>
+             </widget>
             </item>
             <item>
-             <property name="text">
-              <string>T2</string>
-             </property>
+             <spacer name="horizontalSpacer_66">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
-            <item>
-             <property name="text">
-              <string>T5</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>T6</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>3IMG</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>5IMG</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>11IMG</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Murphy15</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Murphy10</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Murphy8</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Murphy4</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Murphy2</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Wang5</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Wang5v</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Wang3</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Wang2</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Li10</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Li5</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Li4</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Li3</string>
-             </property>
-            </item>
-           </widget>
+           </layout>
           </item>
           <item>
-           <spacer name="horizontalSpacer_14">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="2" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_88">
-          <item>
-           <widget class="QLabel" name="lblAlphabetName">
+           <widget class="QLabel" name="lblAlphabetChanges">
             <property name="minimumSize">
              <size>
               <width>150</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="sizeIncrement">
+             <size>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
             <property name="text">
-             <string>Name:</string>
+             <string>Changes:</string>
             </property>
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_66">
+           <spacer name="verticalSpacer_14">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
-              <height>20</height>
+              <width>20</width>
+              <height>40</height>
              </size>
             </property>
            </spacer>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_36">
+            <item>
+             <widget class="QRadioButton" name="radioAlphabetCurrent">
+              <property name="text">
+               <string>current alignment filter</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioAlphabetNew">
+              <property name="text">
+               <string>New Alignment Filter</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_67">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_38">
+            <item>
+             <spacer name="horizontalSpacer_12">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cmdApplyAlphabetReduction">
+              <property name="text">
+               <string>Apply</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_13">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
          </layout>
         </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="lblAlphabetChanges">
-          <property name="minimumSize">
+        <item row="2" column="1">
+         <spacer name="verticalSpacer_12">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
            <size>
-            <width>150</width>
-            <height>40</height>
+            <width>20</width>
+            <height>437</height>
            </size>
           </property>
-          <property name="text">
-           <string>Changes:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_36">
-          <item>
-           <widget class="QRadioButton" name="radioAlphabetCurrent">
-            <property name="text">
-             <string>current alignment filter</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioAlphabetNew">
-            <property name="text">
-             <string>New Alignment Filter</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_67">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="5" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_38">
-          <item>
-           <spacer name="horizontalSpacer_12">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="cmdApplyAlphabetReduction">
-            <property name="text">
-             <string>Apply</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_13">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -5747,6 +5737,71 @@
        </layout>
       </widget>
      </widget>
+    </item>
+    <item row="1" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QPushButton" name="cmdMain">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Main</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdBack">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Back</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdAdvance">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Advance</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdSaveResults">
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Save Results</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -6556,7 +6611,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

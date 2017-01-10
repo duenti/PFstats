@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QMessageBox>
-#include "filter.h"
+#include "network.h"
 #include "colors.h"
 #include <QWebFrame>
 
@@ -16,7 +16,7 @@ class NetworkVisualization : public QDialog
     Q_OBJECT
 
 public:
-    explicit NetworkVisualization(QWidget *parent = 0, Filter* filter=NULL, string lib="");
+    explicit NetworkVisualization(QWidget *parent = 0, Network* net=NULL, string lib="");
     ~NetworkVisualization();
 
 private slots:
@@ -32,7 +32,7 @@ private slots:
 
 private:
     Ui::NetworkVisualization *ui;
-    Filter* currentFilter;
+    Network* currentNetwork;
     string libpath;
     map<string,string> mapPreTaxons;
     void createVisualization(bool hideanticorr, bool commcolor, bool scaleEdges);

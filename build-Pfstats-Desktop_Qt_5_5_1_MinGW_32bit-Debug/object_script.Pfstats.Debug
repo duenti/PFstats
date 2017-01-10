@@ -15,6 +15,7 @@ INPUT(
 ./debug\pdbresidues.o
 ./debug\pdbpseudoatom.o
 ./debug\pdbinteraction.o
+./debug\network.o
 ./debug\moc_mainwindow.o
 ./debug\moc_qcustomplot.o
 ./debug\moc_about.o

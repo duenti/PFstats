@@ -1,11 +1,11 @@
 #include "networkvisualization.h"
 #include "ui_networkvisualization.h"
 
-NetworkVisualization::NetworkVisualization(QWidget *parent, Filter *filter, string lib) :
+NetworkVisualization::NetworkVisualization(QWidget *parent, Network *net, string lib) :
     QDialog(parent),
     ui(new Ui::NetworkVisualization)
 {
-    currentFilter = filter;
+    currentNetwork = net;
     libpath = lib;
 
     ui->setupUi(this);
@@ -19,7 +19,7 @@ NetworkVisualization::~NetworkVisualization()
 }
 
 void NetworkVisualization::createVisualization(bool hideanticorr, bool commcolor, bool scaleEdges){
-    unsigned int nrows = currentFilter->getCorrGraphSize();
+    unsigned int nrows = currentNetwork->getGraphSize();
     string pathJSON = libpath + "visjs/examples/network/in.js";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
@@ -28,9 +28,9 @@ void NetworkVisualization::createVisualization(bool hideanticorr, bool commcolor
     map<string,int> dic;
 
     if(hideanticorr)
-        nodes = currentFilter->getPositiveNodeHubs();
+        nodes = currentNetwork->getPositiveNodeHubs();
     else
-        nodes = currentFilter->getNodesHubs();
+        nodes = currentNetwork->getNodesHubs();
 
     //Options
     out << "var options = {\n";
@@ -71,7 +71,7 @@ void NetworkVisualization::createVisualization(bool hideanticorr, bool commcolor
     unsigned int count = 1;
 
     for(map<string,int>::iterator it = nodes.begin(); it != nodes.end(); it++){
-        string color = currentFilter->getResidueColor(it->first);
+        string color = currentNetwork->getResidueColor(it->first);
         if(!commcolor) color = "";
 
         if(it!= nodes.begin()){
@@ -89,7 +89,7 @@ void NetworkVisualization::createVisualization(bool hideanticorr, bool commcolor
 
     out << "var edges = [\n";
     for(unsigned int i = 0; i < nrows; i++){
-        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        tuple<string,string,int> tupCorr = currentNetwork->getGraphTuple(i);
         string n1 = get<0>(tupCorr);
         int id1 = dic[n1];
         string n2 = get<1>(tupCorr);

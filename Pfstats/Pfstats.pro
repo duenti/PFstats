@@ -37,7 +37,8 @@ SOURCES += main.cpp\
     taxonomicvisualization.cpp \
     pdbresidues.cpp \
     pdbpseudoatom.cpp \
-    pdbinteraction.cpp
+    pdbinteraction.cpp \
+    network.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -53,7 +54,8 @@ HEADERS  += mainwindow.h \
     pdbatom.h \
     pdbresidues.h \
     pdbpseudoatom.h \
-    pdbinteraction.h
+    pdbinteraction.h \
+    network.h
 
 FORMS    += mainwindow.ui \
     about.ui \

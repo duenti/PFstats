@@ -1,11 +1,12 @@
 #include "taxonomicvisualization.h"
 #include "ui_taxonomicvisualization.h"
 
-TaxonomicVisualization::TaxonomicVisualization(QWidget *parent, Filter *filter, string lib) :
+TaxonomicVisualization::TaxonomicVisualization(QWidget *parent, Filter *filter, Network *network, string lib) :
     QDialog(parent),
     ui(new Ui::TaxonomicVisualization)
 {
     currentFilter = filter;
+    currentNetwork = network;
     libpath = lib;
 
     ui->setupUi(this);
@@ -19,17 +20,18 @@ TaxonomicVisualization::TaxonomicVisualization(QWidget *parent, Filter *filter, 
     ui->cmbSunburstCommunity->clear();
     ui->txtSunburstResidue->clear();
 
-    for(unsigned int i = 0; i < currentFilter->getCorrGraphSize(); i++){
-        std::tuple<string,string,int> edge = currentFilter->getCorrGraphTuple(i);
-        string n1 = std::get<0>(edge);
-        string n2 = std::get<1>(edge);
-        string text = n1 + "," + n2;
-        ui->cmbSunburstEdges->addItem(text.c_str());
+    if(network){
+        for(unsigned int i = 0; i < currentNetwork->getGraphSize(); i++){
+            std::tuple<string,string,int> edge = currentNetwork->getGraphTuple(i);
+            string n1 = std::get<0>(edge);
+            string n2 = std::get<1>(edge);
+            string text = n1 + "," + n2;
+            ui->cmbSunburstEdges->addItem(text.c_str());
+        }
+
+        for(unsigned int i = 0; i < currentNetwork->getNumOfUtilComms(); i++)
+            ui->cmbSunburstCommunity->addItem(QString::number(i+1));
     }
-
-    for(unsigned int i = 0; i < currentFilter->getNumOfUtilComms(); i++)
-        ui->cmbSunburstCommunity->addItem(QString::number(i+1));
-
     this->generateSunburst(vector<string>());
 }
 
@@ -230,32 +232,34 @@ void TaxonomicVisualization::on_cmdSunburstFilter_clicked()
 
         generateSunburst(sequences);
     }else if(ui->radioSun3->isChecked()){
-        vector<string> sequences;
-        if(ui->cmbSunburstCommunity->count() == 0) return;
-        if(currentFilter->getNumOfUtilComms() == 0) return;
+        if(currentNetwork){
+            vector<string> sequences;
+            if(ui->cmbSunburstCommunity->count() == 0) return;
+            if(currentNetwork->getNumOfUtilComms() == 0) return;
 
-        vector<string> residues = currentFilter->getCommunitie(ui->cmbSunburstCommunity->currentIndex());
+            vector<string> residues = currentNetwork->getCommunitie(ui->cmbSunburstCommunity->currentIndex());
 
-        int nOfResidues = residues.size();
-        int hits;
+            int nOfResidues = residues.size();
+            int hits;
 
-        for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
-            hits = 0;
+            for(unsigned int i = 0; i < currentFilter->sequences.size(); i++){
+                hits = 0;
 
-            for(unsigned int j = 0; j < nOfResidues; j++){
-                string residue = residues[j];
-                char aa = residue[0];
-                int pos = atoi(residue.substr(1).c_str());
+                for(unsigned int j = 0; j < nOfResidues; j++){
+                    string residue = residues[j];
+                    char aa = residue[0];
+                    int pos = atoi(residue.substr(1).c_str());
 
-                if(currentFilter->sequences[i][pos-1] == aa) hits++;
+                    if(currentFilter->sequences[i][pos-1] == aa) hits++;
+                }
+
+                if(hits == nOfResidues){
+                    sequences.push_back(currentFilter->sequencenames[i]);
+                }
             }
 
-            if(hits == nOfResidues){
-                sequences.push_back(currentFilter->sequencenames[i]);
-            }
+            generateSunburst(sequences);
         }
-
-        generateSunburst(sequences);
     }else if(ui->radioSun4->isChecked()){
         vector<string> sequences;
 

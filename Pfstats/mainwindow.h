@@ -146,8 +146,6 @@ private slots:
 
     void on_cmdSaveResults_clicked();
 
-    void on_lstProteinsFiltered_activated(const QModelIndex &index);
-
     void on_cmdNextComm_clicked();
 
     void on_cmdBackComm_clicked();
@@ -286,9 +284,11 @@ private slots:
 
     void on_cmdUpdateGraphPdbNumbering_2_clicked();
 
-    void on_listWidget2_currentRowChanged(int currentRow);
-
     void on_listWidget_currentRowChanged(int currentRow);
+
+    void on_listWidget2_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+
+    void on_lstProteinsFiltered_itemClicked(QListWidgetItem *item);
 
 private:
     enum Constants{
@@ -331,6 +331,7 @@ private:
     Ui::MainWindow *ui;
     Alignment *currentAlign;
     Filter *currentFilter;
+    Network *currentNetwork;
     string currentPDBContent;
     string exportPath = "";
     QString CONFIG = "PF_CONFIG.conf";
@@ -348,7 +349,7 @@ private:
     vector<Pdb*> pdbs;
     map<string,set<string> > adjMap;//FOR TRIVCOMM
     map<string,bool> visited;//FOR TRIVCOMM
-    void dfsUtil(string node, int id);
+    void dfsUtil(Network *net, string node, int id);
     void addAlignment(string path);
     vector<string> split(string text, char sep);
     char num2aa(int n);
@@ -358,8 +359,8 @@ private:
     bool applyHenikoffFilter();
     void conservation(char chain, float minCons, string pdbid = "");
     vector<float> minss(int repetitions, int cores); //from 100 to 1;
-    void pcalc(int minlogp, float minssfraction, float mindeltafreq);
-    bool trivcomm();
+    void pcalc(Network *net, int minlogp, float minssfraction, float mindeltafreq);
+    bool trivcomm(Network *net);
     void output();
     //Show Results
     void listSequences();
@@ -394,6 +395,7 @@ private:
     void comm2Align();
     void updateRefSeqsCompleters();
     void freeMem();
+    QTreeWidgetItem* getFilterItem();
 };
 
 #endif // MAINWINDOW_H

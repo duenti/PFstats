@@ -18,8 +18,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     //QMainWindow::showFullScreen();
+    ui->listWidget2->resizeColumnToContents(0);
 
     currentAlign = nullptr;
+    currentFilter = nullptr;
+    currentNetwork = nullptr;
 
     libpath = "pflibs/"; //NO windows começar com dir raiz
     //libpath = "/usr/share/pflibs/"; //No linux vai estar neste diretorio
@@ -37,6 +40,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Configura label do grafico Minss
     minssLabel = new QCPItemText(ui->graficMinss);
+
+    //Seta número de cores na tela do minss
+    unsigned cores = omp_get_num_procs();
+    ui->intNumOfCores->setValue(cores);
 
     //Configura actions
     ui->listWidget->addAction(ui->actionNewAlignment);
@@ -273,6 +280,7 @@ void MainWindow::resetObjects(){
     //LIST SEQUENCES
     ui->lstProteinsFiltered->clear();
     ui->txtSequence->clear();
+    ui->txtSequenceNoGaps->clear();
     ui->lblRefSeq1->setText("Reference Sequence:");
     ui->lblTaxon->setText("Taxon:");
     ui->lblMinId->setText("Minimum Identity: ");
@@ -445,9 +453,12 @@ bool MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
             filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
             filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-            currentAlign->addFilter(filter);
+            QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+            treeItem->setText(0,newName.c_str());
+            filter->setQtreeWidgetItem(treeItem);
 
-            ui->listWidget2->addItem(newName.c_str());
+            currentAlign->addFilter(filter);
+            //ui->listWidget2->addItem(newName.c_str());
         }
 
         seqCut = seqSize - currentAlign->sequences.size();
@@ -472,9 +483,12 @@ bool MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
             filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
             filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-            currentAlign->addFilter(filter);
+            QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+            treeItem->setText(0,newName.c_str());
+            filter->setQtreeWidgetItem(treeItem);
 
-            ui->listWidget2->addItem(newName.c_str());
+            currentAlign->addFilter(filter);
+            //ui->listWidget2->addItem(newName.c_str());
         }
 
         seqCut = seqSize - currentAlign->sequences.size();
@@ -498,9 +512,12 @@ bool MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
             filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
             filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-            currentAlign->addFilter(filter);
+            QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+            treeItem->setText(0,newName.c_str());
+            filter->setQtreeWidgetItem(treeItem);
 
-            ui->listWidget2->addItem(newName.c_str());
+            currentAlign->addFilter(filter);
+            //ui->listWidget2->addItem(newName.c_str());
         }
 
         seqCut = seqSize - currentAlign->sequences.size();
@@ -524,9 +541,12 @@ bool MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
             filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
             filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-            currentAlign->addFilter(filter);
+            QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+            treeItem->setText(0,newName.c_str());
+            filter->setQtreeWidgetItem(treeItem);
 
-            ui->listWidget2->addItem(newName.c_str());
+            currentAlign->addFilter(filter);
+            //ui->listWidget2->addItem(newName.c_str());
         }
 
         seqCut = seqSize - currentAlign->sequences.size();
@@ -546,13 +566,17 @@ bool MainWindow::alignfilter(float occupancy, float minId, float maxId, int refs
         filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
         filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-        currentAlign->addFilter(filter);
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+        treeItem->setText(0,name.c_str());
+        filter->setQtreeWidgetItem(treeItem);
 
-        ui->listWidget2->addItem(name.c_str());
+        currentAlign->addFilter(filter);
+        //ui->listWidget2->addItem(name.c_str());
     }
 
-    ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
-    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+    ui->listWidget2->setCurrentItem(ui->listWidget2->topLevelItem(ui->listWidget2->topLevelItemCount()-1));
+    //ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+    //emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     QMessageBox::information(this,"Alignment filters",msg);
 
@@ -596,9 +620,12 @@ bool MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
             filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
             filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-            currentAlign->addFilter(filter);
+            QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+            treeItem->setText(0,newName.c_str());
+            filter->setQtreeWidgetItem(treeItem);
 
-            ui->listWidget2->addItem(newName.c_str());
+            currentAlign->addFilter(filter);
+            //ui->listWidget2->addItem(newName.c_str());
         }
 
         seqCut = seqSize - currentAlign->sequences.size();
@@ -625,9 +652,12 @@ bool MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
             filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
             filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-            currentAlign->addFilter(filter);
+            QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+            treeItem->setText(0,newName.c_str());
+            filter->setQtreeWidgetItem(treeItem);
 
-            ui->listWidget2->addItem(newName.c_str());
+            currentAlign->addFilter(filter);
+            //ui->listWidget2->addItem(newName.c_str());
         }
 
         seqCut = seqSize - currentAlign->sequences.size();
@@ -649,9 +679,12 @@ bool MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
             filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
             filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-            currentAlign->addFilter(filter);
+            QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+            treeItem->setText(0,newName.c_str());
+            filter->setQtreeWidgetItem(treeItem);
 
-            ui->listWidget2->addItem(newName.c_str());
+            currentAlign->addFilter(filter);
+            //ui->listWidget2->addItem(newName.c_str());
         }
 
         seqCut = seqSize - currentAlign->sequences.size();
@@ -673,12 +706,17 @@ bool MainWindow::alignfilter(float occupancy, float maxId, bool filterOcc, bool 
         filter->addSequences(currentAlign->getSequencesName(),currentAlign->getSequences());
         filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
-        currentAlign->addFilter(filter);
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+        treeItem->setText(0,name.c_str());
+        filter->setQtreeWidgetItem(treeItem);
 
-        ui->listWidget2->addItem(name.c_str());
+        currentAlign->addFilter(filter);
+        //ui->listWidget2->addItem(name.c_str());
     }
-    ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
-    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+
+    ui->listWidget2->setCurrentItem(ui->listWidget2->topLevelItem(ui->listWidget2->topLevelItemCount()-1));
+    //ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
+    //emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
 
     QMessageBox::information(this,"Alignment filters",msg);
 
@@ -748,41 +786,41 @@ vector<float> MainWindow::minss(int repetitions, int cores){
     return outputVec;
 }
 
-void MainWindow::pcalc(int minlogp, float minssfraction, float mindeltafreq){
-    currentFilter->CalculateFrequencies();
+void MainWindow::pcalc(Network *net, int minlogp, float minssfraction, float mindeltafreq){
+    net->CalculateFrequencies();
 
     if(currentFilter->getWeightsSize() == 0)
-        currentFilter->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
+        net->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
     else
-        currentFilter->henikoffpvalueCalculation(minlogp,minssfraction,mindeltafreq);
+        net->henikoffpvalueCalculation(minlogp,minssfraction,mindeltafreq,currentFilter->getWeights());
 }
 
-void MainWindow::dfsUtil(string node, int id){
+void MainWindow::dfsUtil(Network *net, string node, int id){
     visited[node] = true;
-    currentFilter->addToCommunity(node,id);
+    net->addToCommunity(node,id);
 
     set<string> adj = adjMap[node];
     for(string no : adj){
         if(!visited[no])
-            dfsUtil(no,id);
+            dfsUtil(net,no,id);
     }
 }
 
-bool MainWindow::trivcomm(){
+bool MainWindow::trivcomm(Network *net){
     adjMap.clear();
     visited.clear();
-    currentFilter->clearCommunity();
+    net->clearCommunity();
 
     //create adjMap
-    set<string> nodes = currentFilter->getCorrelationNodes();
+    set<string> nodes = net->getCorrelationNodes();
     for(string no : nodes){
         set<string> blank;
         adjMap[no] = blank;
         visited[no] = false;
     }
 
-    for(unsigned int i = 0; i < currentFilter->getCorrelationGraphSize(); i++){
-        tuple<string,string,int> edge = currentFilter->getCorrelationEdge(i);
+    for(unsigned int i = 0; i < net->getCorrelationGraphSize(); i++){
+        tuple<string,string,int> edge = net->getCorrelationEdge(i);
         int score = std::get<2>(edge);
 
         //Only positive edges are considered
@@ -799,9 +837,9 @@ bool MainWindow::trivcomm(){
     for(string no : nodes){
         if(visited[no] == false){
             vector<string> comm;
-            currentFilter->addCommunity(comm);
+            net->addCommunity(comm);
 
-            this->dfsUtil(no,count);
+            this->dfsUtil(net,no,count);
 
 
             count++;//cout "\n";
@@ -813,12 +851,14 @@ bool MainWindow::trivcomm(){
     visited.clear();
 
     //Ordena comunidades
-    currentFilter->sortCommunitiesVector();
+    net->sortCommunitiesVector();
+
+    if(net->getCommListSize() == 0) return false;
 
     return true;
 }
 
-/*
+/*//OLD
 bool MainWindow::trivcomm(){
     unsigned int maxsize;
     unsigned int biggestcommunity;
@@ -1057,13 +1097,13 @@ bool MainWindow::trivcomm(){
 
 
 void MainWindow::output(){
-    currentFilter->getCommunitiesFromRAM();
+    currentNetwork->getCommunitiesFromRAM();
 
 
-    currentFilter->Cluster2SCMFromRAM(false,0,0);
+    currentNetwork->Cluster2SCMFromRAM(false,0,0);
 
-    currentFilter->DeltaCommunitiesCalculation();
-    currentFilter->pMatrix2HTMLRAM(false,1);
+    currentNetwork->DeltaCommunitiesCalculation();
+    currentNetwork->pMatrix2HTMLRAM(false,1);
 }
 
 void MainWindow::listSequences(){
@@ -1209,19 +1249,19 @@ void MainWindow::tableFreqPerc(){
 }
 
 void MainWindow::correlationList(){
-    unsigned int nrows = currentFilter->getCorrGraphSize();
+    unsigned int nrows = currentNetwork->getGraphSize();
 
     //Limpa a tabela
     ui->treeCorrelation->clear();
 
     //Recupera parametros
-    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore())));
-    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction())));
-    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta())));
+    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore())));
+    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
+    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta())));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        tuple<string,string,int> tupCorr = currentNetwork->getGraphTuple(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelation);
 
         item->setText(0,std::get<0>(tupCorr).c_str());
@@ -1234,19 +1274,19 @@ void MainWindow::on_cmdUpdateGraphNumbering_clicked()
 {
     ui->cmdUpdateGraphNumbering->setEnabled(false);
 
-    unsigned int nrows = currentFilter->getCorrGraphSize();
+    unsigned int nrows = currentNetwork->getGraphSize();
 
     //Limpa a tabela
     ui->treeCorrelation->clear();
 
     //Recupera parametros
-    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore())));
-    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction())));
-    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta())));
+    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore())));
+    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
+    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta())));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        tuple<string,string,int> tupCorr = currentNetwork->getGraphTuple(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelation);
         string res1 = std::get<0>(tupCorr).c_str();
         string res2 = std::get<1>(tupCorr).c_str();
@@ -1314,19 +1354,19 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_clicked()
         return;
     }
 
-    unsigned int nrows = currentFilter->getCorrGraphSize();
+    unsigned int nrows = currentNetwork->getGraphSize();
 
     //Limpa a tabela
     ui->treeCorrelation->clear();
 
     //Recupera parametros
-    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore())));
-    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction())));
-    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta())));
+    ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore())));
+    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
+    ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta())));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        tuple<string,string,int> tupCorr = currentNetwork->getGraphTuple(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelation);
         string res1 = std::get<0>(tupCorr).c_str();
         string res2 = std::get<1>(tupCorr).c_str();
@@ -1354,16 +1394,17 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_clicked()
 
         ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
     }
+    ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
 }
 
 
 void MainWindow::createCorrelationJSON(){
-    unsigned int nrows = currentFilter->getCorrGraphSize();
+    unsigned int nrows = currentNetwork->getGraphSize();
     string pathJSON = libpath + "visjs/examples/network/in.js";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
     QTextStream out(&fileJSON);
-    map<string,int> nodes = currentFilter->getNodesHubs();
+    map<string,int> nodes = currentNetwork->getNodesHubs();
     map<string,int> dic;
 
     //Options
@@ -1405,7 +1446,7 @@ void MainWindow::createCorrelationJSON(){
 
     out << "var edges = [\n";
     for(unsigned int i = 0; i < nrows; i++){
-        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        tuple<string,string,int> tupCorr = currentNetwork->getGraphTuple(i);
         string n1 = get<0>(tupCorr);
         int id1 = dic[n1];
         string n2 = get<1>(tupCorr);
@@ -1466,8 +1507,7 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
         ui->cmdHideShowAntiCorr->setText("Hide Anti-Correlations");
     }
 
-
-    unsigned int nrows = currentFilter->getCorrGraphSize();
+    unsigned int nrows = currentNetwork->getGraphSize();
     string path = libpath + "visjs/examples/network/in.js";
     QFile fileJSON(path.c_str());
     fileJSON.open(QIODevice::WriteOnly);
@@ -1476,9 +1516,9 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
     map<string,int> dic;
 
     if(ui->cmdHideShowAntiCorr->text() == "Show Anti-Correlations")
-        nodes = currentFilter->getPositiveNodeHubs();
+        nodes = currentNetwork->getPositiveNodeHubs();
     else
-        nodes = currentFilter->getNodesHubs();
+        nodes = currentNetwork->getNodesHubs();
 
     //Options
     out << "var options = {\n";
@@ -1517,7 +1557,7 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
 
     out << "var edges = [\n";
     for(unsigned int i = 0; i < nrows; i++){
-        tuple<string,string,int> tupCorr = currentFilter->getCorrGraphTuple(i);
+        tuple<string,string,int> tupCorr = currentNetwork->getGraphTuple(i);
         string n1 = get<0>(tupCorr);
         int id1 = dic[n1];
         string n2 = get<1>(tupCorr);
@@ -1555,6 +1595,7 @@ void MainWindow::on_cmdHideShowAntiCorr_clicked()
 }
 
 void MainWindow::communitiesGraphs(){
+    /*
     string pathJSON = libpath + "abor/in2.json";
     QFile fileJSON(pathJSON.c_str());
     fileJSON.open(QIODevice::WriteOnly);
@@ -1607,6 +1648,7 @@ void MainWindow::communitiesGraphs(){
     string absPath = info.absoluteFilePath().toStdString();
     string localUrl = "file:///" + absPath;
     ui->webCommGraphs->load(QUrl(localUrl.c_str()));
+    */
 }
 
 void MainWindow::corrBetweenComms(){
@@ -1638,7 +1680,7 @@ void MainWindow::corrBetweenComms(){
     out << "edges:{smooth: false}\n";
     out << "};\n\n";
 
-    vector<tuple<string,string,float> > graph = currentFilter->getDeltasEdges(0);
+    vector<tuple<string,string,float> > graph = currentNetwork->getDeltasEdges(0);
     set<string> nameset;
     for(unsigned int i = 0; i < graph.size(); i++){
         tuple<string,string,int> tupCorr = graph[i];
@@ -1842,7 +1884,7 @@ void MainWindow::commVisualization(){
     QFile indexHTML(path.c_str());
     indexHTML.open(QIODevice::WriteOnly);
     QTextStream out(&indexHTML);
-    QFile pdbPath(currentFilter->getCommPDBPath().c_str());
+    QFile pdbPath(currentNetwork->getCommPDBPath().c_str());
     pdbPath.open(QIODevice::ReadOnly);
     string pdb = "";
 
@@ -1914,6 +1956,7 @@ void MainWindow::commVisualization(){
 
 void MainWindow::on_cmdNexCommGraph_clicked()
 {
+    /*
     ui->cmdNexCommGraph->setEnabled(false);
 
     //Validação
@@ -1987,10 +2030,12 @@ void MainWindow::on_cmdNexCommGraph_clicked()
     ui->webCommGraphs->reload();
 
     ui->cmdNexCommGraph->setEnabled(true);
+    */
 }
 
 void MainWindow::on_cmdBackCommGraph_clicked()
 {
+    /*
     ui->cmdBackCommGraph->setEnabled(false);
 
     //Validação
@@ -2064,22 +2109,23 @@ void MainWindow::on_cmdBackCommGraph_clicked()
     ui->webCommGraphs->reload();
 
     ui->cmdBackCommGraph->setEnabled(true);
+    */
 }
 
 void MainWindow::communitiesList(){
-    unsigned int nrows = currentFilter->getCommListSize();
+    unsigned int nrows = currentNetwork->getCommListSize();
 
     //Limpa a tabela
     ui->treeCorrelationComm->clear();
 
     //Recupera parametros
-    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
-    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
-    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
+    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        vector<string> residues = currentFilter->getCommunitie(i);
+        vector<string> residues = currentNetwork->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
 
         string text = "Community " + QString::number(i+1).toStdString() + " [" + QString::number(residues.size()).toStdString() + "]";
@@ -2095,7 +2141,7 @@ void MainWindow::on_cmdUpdateGraphNumbering2_clicked()
 {
     ui->cmdUpdateGraphNumbering2->setEnabled(false);
 
-    unsigned int nrows = currentFilter->getCommListSize();
+    unsigned int nrows = currentNetwork->getCommListSize();
 
     vector<int> expandeds;
     //Pega os itens ja expandidos
@@ -2108,13 +2154,13 @@ void MainWindow::on_cmdUpdateGraphNumbering2_clicked()
     ui->treeCorrelationComm->clear();
 
     //Recupera parametros
-    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
-    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
-    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
+    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        vector<string> residues = currentFilter->getCommunitie(i);
+        vector<string> residues = currentNetwork->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
 
         string text = "Community " + QString::number(i+1).toStdString() + " [" + QString::number(residues.size()).toStdString() + "]";
@@ -2180,7 +2226,7 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_2_clicked()
         return;
     }
 
-    unsigned int nrows = currentFilter->getCommListSize();
+    unsigned int nrows = currentNetwork->getCommListSize();
 
     vector<int> expandeds;
     //Pega os itens ja expandidos
@@ -2193,13 +2239,13 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_2_clicked()
     ui->treeCorrelationComm->clear();
 
     //Recupera parametros
-    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
-    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
-    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+    ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
+    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
 
     //Preenche a tabela
     for(unsigned int i = 0; i < nrows; i++){
-        vector<string> residues = currentFilter->getCommunitie(i);
+        vector<string> residues = currentNetwork->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeCorrelationComm);
 
         string text = "Community " + QString::number(i+1).toStdString() + " [" + QString::number(residues.size()).toStdString() + "]";
@@ -2239,13 +2285,13 @@ void MainWindow::corrTable1(){
     ui->tableComm1->clear();
 
     //Recupera parametros
-    ui->lblMinLogP_3->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
-    ui->lblMinss_3->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinssFraction()).c_str()));
-    ui->lblDeltaFreq_3->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+    ui->lblMinLogP_3->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
+    ui->lblMinss_3->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblDeltaFreq_3->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
     ui->lblComunidade->setText("Community: 1");
 
     //Monta a tabela
-    vector<string> residues = currentFilter->getResiduesComm(0);
+    vector<string> residues = currentNetwork->getResiduesComm(0);
     ui->tableComm1->setRowCount(residues.size());
     ui->tableComm1->setColumnCount(residues.size()+1);
     ui->tableComm1->setHorizontalHeaderItem(0,new QTableWidgetItem("All"));
@@ -2257,7 +2303,7 @@ void MainWindow::corrTable1(){
     }
 
     //Preenche a tabela
-    vector<float> corrAll = currentFilter->getCommAll(0);
+    vector<float> corrAll = currentNetwork->getCommAll(0);
 
     for(unsigned int i = 0; i < residues.size(); i++){
         QTableWidgetItem *item = new QTableWidgetItem();
@@ -2267,7 +2313,7 @@ void MainWindow::corrTable1(){
 
         ui->tableComm1->setItem(i,0,item);
 
-        vector<float> commRow = currentFilter->getCommXRow(0,i);
+        vector<float> commRow = currentNetwork->getCommXRow(0,i);
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
 
@@ -2292,13 +2338,13 @@ void MainWindow::corrTable2(){
     ui->tableComm2->clear();
 
     //Recupera parametros
-    ui->lblMinLogP_4->setText("Minimum Score: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
-    ui->lblMinss_4->setText("Minss Fraction: " + QString::fromStdString(to_string(currentFilter->getCorrMinScore()).c_str()));
-    ui->lblDeltaFreq_4->setText("Delta Frequence: " + QString::fromStdString(to_string(currentFilter->getCorrMinDelta()).c_str()));
+    ui->lblMinLogP_4->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
+    ui->lblMinss_4->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
+    ui->lblDeltaFreq_4->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
     ui->lblComunidade_2->setText("Community: 1");
 
     //Montar a Tabela
-    vector<string> residues = currentFilter->getResiduesCommPs(0);
+    vector<string> residues = currentNetwork->getResiduesCommPs(0);
     ui->tableComm2->setRowCount(residues.size());
     ui->tableComm2->setColumnCount(residues.size());
 
@@ -2309,7 +2355,7 @@ void MainWindow::corrTable2(){
 
     //Preenche a tabela
     for(unsigned int i = 0; i < residues.size(); i++){
-        vector<int> commRow = currentFilter->getCommPsRow(0,i);
+        vector<int> commRow = currentNetwork->getCommPsRow(0,i);
 
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
@@ -2325,14 +2371,12 @@ void MainWindow::corrTable2(){
 }
 
 void MainWindow::adh(){
-    QProgressDialog progress("Calculating adherence for each community", "Abort", 0,currentFilter->sequences.size()+currentFilter->getNumOfUtilComms());
+    QProgressDialog progress("Calculating adherence for each community", "Abort", 0,currentFilter->sequences.size()+currentNetwork->getNumOfUtilComms());
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
-    unsigned int nComm = currentFilter->getNumOfUtilComms();
+    unsigned int nComm = currentNetwork->getNumOfUtilComms();
     unsigned int nSequences = currentFilter->sequences.size()-1;
-
-    //currentAlign->printFrequencies();
 
     //Montar a Tabela
     ui->tableAdherence->horizontalHeader()->setVisible(true);
@@ -2346,6 +2390,7 @@ void MainWindow::adh(){
         progress.setValue(i);
         if(progress.wasCanceled()){
             ui->tableAdherence->clear();
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
         string temp = "Comm " + QString::number(i+1).toStdString();
@@ -2358,6 +2403,7 @@ void MainWindow::adh(){
         progress.setValue(i+nComm);
         if(progress.wasCanceled()){
             ui->tableAdherence->clear();
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
         }
         QTableWidgetItem *protItem = new QTableWidgetItem();
@@ -2366,8 +2412,8 @@ void MainWindow::adh(){
 
         for(unsigned int j = 0; j < nComm; j++){
 
-            if(currentFilter->Communities[j].aa.size() > 1){
-                float psa = currentFilter->PSA(i,j);
+            if(currentNetwork->Communities[j].aa.size() > 1){
+                float psa = currentNetwork->PSA(i,j);
 
                 QTableWidgetItem *item = new QTableWidgetItem();
                 item->setData(Qt::DisplayRole,psa);
@@ -2383,10 +2429,8 @@ void MainWindow::adh(){
 
 void MainWindow::showConservedResidues(){
     vector<int> refSeqs;
-    vector<char> conservedaa;
-    vector<int> conservedpos;
-    vector<float> conservedfreq;
-    float minCons = currentFilter->getConsMin();
+    vector<string> conservedaa = currentFilter->getConsRes();
+    vector<float> dgs = currentFilter->getConservedDGs();
 
     //Parâmetros
     ui->lblMinCons->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin())));
@@ -2394,44 +2438,6 @@ void MainWindow::showConservedResidues(){
     for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
         string ref1 = currentFilter->getRefSeq(i);
         refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
-    }
-
-    currentFilter->CalculateFrequencies();
-
-    if(currentFilter->getWeightsSize() != 0){
-        //HENIKOFF BASED CONSERVATION
-        for(unsigned int i = 0; i < currentFilter->getDGsize(); i++){
-            float dG = currentFilter->getDGPosition(i);
-
-            if(dG >= minCons){
-                //FIND HIGHER FREQUENCY AA
-                float hiFreq = 0;
-                int hiAA = 0;
-                for(unsigned int j = 1; j <= 20; j++){
-                    float freq = (float)currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
-                    if(freq > hiFreq){
-                        hiFreq = freq;
-                        hiAA = j;
-                    }
-                }
-                conservedaa.push_back(num2aa(hiAA));
-                conservedpos.push_back(i);
-                conservedfreq.push_back(100.0*dG);
-            }
-        }
-    }else{
-        //FREQUENCY BASED CONSERVATION
-        for(unsigned int i = 0; i < currentFilter->frequencies.size()-2; i++){
-            for(unsigned int j = 1; j <= 20; j++){
-                float freq = (float)currentFilter->frequencies[i][j]/((float)currentFilter->sequences.size());
-                //printf("freq=%f / minCons=%f\n",freq,minCons);
-                if(freq >= minCons){
-                    conservedaa.push_back(num2aa(j));
-                    conservedpos.push_back(i);
-                    conservedfreq.push_back(100.0*freq);
-                }
-            }
-        }
     }
 
     if(conservedaa.size() == 0){
@@ -2442,7 +2448,7 @@ void MainWindow::showConservedResidues(){
     //Cabeçalho
     ui->tableConsRes->setColumnCount(conservedaa.size());
     for(unsigned int i = 0; i < conservedaa.size(); i++){
-        string textCab = conservedaa[i] + QString::number(conservedpos[i] + 1).toStdString() + " (" + QString::number(conservedfreq[i],'f',1).toStdString() + ")";
+        string textCab = conservedaa[i] + " (" + QString::number(dgs[i],'f',2).toStdString() + ")";
         ui->tableConsRes->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
 
@@ -2453,20 +2459,23 @@ void MainWindow::showConservedResidues(){
         ui->tableConsRes->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
         for(unsigned int j = 0; j < conservedaa.size(); j++){
-            if(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) == 0){
+            string res = conservedaa[j];
+            char aa = res[0];
+            int pos = stoi(res.substr(1))-1;
+            if(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) == 0){
                 QTableWidgetItem *item = new QTableWidgetItem();
                 item->setTextColor(QColor(255,0,0,255));
                 item->setText("-");
                 ui->tableConsRes->setItem(i,j,item);
             }else{
-                if(fullSequences[refSeqs[i]][conservedpos[j]]==conservedaa[j]){
+                if(fullSequences[refSeqs[i]][pos]==aa){
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = conservedaa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = aa + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableConsRes->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = fullSequences[refSeqs[i]][conservedpos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][pos] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setTextColor(QColor(255,0,0,255));
                     item->setText(textItem.c_str());
                     ui->tableConsRes->setItem(i,j,item);
@@ -2481,7 +2490,8 @@ void MainWindow::showConservedResidues(){
 void MainWindow::showResiduesComm(){
     vector<int> refSeqs;
 
-    currentFilter->CalculateFrequencies();
+    if(currentFilter->frequencies.size() == 0)
+        currentFilter->CalculateFrequencies();
 
     for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
         string ref1 = currentFilter->getRefSeq(i);
@@ -2493,9 +2503,9 @@ void MainWindow::showResiduesComm(){
     ui->lblComunidade_3->setText("Community: 1");
 
     //Cabeçalho
-    ui->tableResiduesComm->setColumnCount(currentFilter->Communities[0].pos.size());
-    for(unsigned int i = 0; i < currentFilter->Communities[0].pos.size(); i++){
-        string textCab = currentFilter->Communities[0].aa[i] + QString::number(currentFilter->Communities[0].pos[i]+1).toStdString();
+    ui->tableResiduesComm->setColumnCount(currentNetwork->Communities[0].pos.size());
+    for(unsigned int i = 0; i < currentNetwork->Communities[0].pos.size(); i++){
+        string textCab = currentNetwork->Communities[0].aa[i] + QString::number(currentNetwork->Communities[0].pos[i]+1).toStdString();
         ui->tableResiduesComm->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
 
@@ -2505,21 +2515,21 @@ void MainWindow::showResiduesComm(){
     for(unsigned int i = 0; i < refSeqs.size(); i++){
         ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
-        for(unsigned int j = 0; j < currentFilter->Communities[0].pos.size(); j++){
-            if(fullSequences[refSeqs[i]][currentFilter->Communities[0].pos[j]]==currentFilter->Communities[0].aa[j]){
+        for(unsigned int j = 0; j < currentNetwork->Communities[0].pos.size(); j++){
+            if(fullSequences[refSeqs[i]][currentNetwork->Communities[0].pos[j]]==currentNetwork->Communities[0].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = currentFilter->Communities[0].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[0].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                string textItem = currentNetwork->Communities[0].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentNetwork->Communities[0].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(fullSequences[refSeqs[i]][currentFilter->Communities[0].pos[j]]=='-'){
+                if(fullSequences[refSeqs[i]][currentNetwork->Communities[0].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = fullSequences[refSeqs[i]][currentFilter->Communities[0].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[0].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][currentNetwork->Communities[0].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentNetwork->Communities[0].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -2532,30 +2542,29 @@ void MainWindow::showResiduesComm(){
 }
 
 void MainWindow::showUniprotGroupByProteins(){
-
     ui->lstProteinsMined->clear();
-    for(unsigned int i = 0; i < currentFilter->getUniprotMinedSize(); i++){
-        if(currentFilter->getUniprotEntryNofFeatures(i) > 0){
-            string prot = currentFilter->getUniprotEntryName(i) + " [" + to_string(currentFilter->getUniprotEntryNofFeatures(i)) + "]";
+    for(unsigned int i = 0; i < currentNetwork->getUniprotMinedSize(); i++){
+        if(currentNetwork->getUniprotEntryNofFeatures(i) > 0){
+            string prot = currentNetwork->getUniprotEntryName(i) + " [" + to_string(currentNetwork->getUniprotEntryNofFeatures(i)) + "]";
             ui->lstProteinsMined->addItem(prot.c_str());
         }
     }
 }
 
 void MainWindow::showUniprotGroupByComms(){
-    unsigned int nrows = currentFilter->getCommListSize();
+    unsigned int nrows = currentNetwork->getCommListSize();
 
     ui->treeMinerComms->clear();
 
     for(unsigned int i = 0; i < nrows; i++){
-        vector<string> residues = currentFilter->getCommunitie(i);
+        vector<string> residues = currentNetwork->getCommunitie(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeMinerComms);
 
         string text = "Comm " + QString::number(i+1).toStdString();
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < residues.size(); j++){
-            int nOfResidues = currentFilter->getResidueFeaturesByCommCount(residues[j]);
+            int nOfResidues = currentNetwork->getResidueFeaturesByCommCount(residues[j]);
             if(nOfResidues > 0){
                 string child = residues[j] + " [" + to_string(nOfResidues) + "]";
                 item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
@@ -2564,8 +2573,7 @@ void MainWindow::showUniprotGroupByComms(){
     }
 
     //CONS RES
-    float minCons = currentFilter->getConsMin();
-    vector<string> consRes = currentFilter->getConsRes(minCons);
+    vector<string> consRes = currentFilter->getConsRes();
     if(consRes.size() > 0){
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeMinerComms);
 
@@ -2573,7 +2581,7 @@ void MainWindow::showUniprotGroupByComms(){
         item->setText(0,text.c_str());
 
         for(unsigned int j = 0; j < consRes.size(); j++){
-            int nOfResidues = currentFilter->getResidueFeaturesByCommCount(consRes[j]);
+            int nOfResidues = currentNetwork->getResidueFeaturesByCommCount(consRes[j]);
             if(nOfResidues > 0){
                 string child = consRes[j] + " [" + to_string(nOfResidues) + "]";
                 item->addChild(new QTreeWidgetItem(QStringList(QObject::tr(child.c_str()))));
@@ -3590,12 +3598,7 @@ void MainWindow::on_cmdMain_clicked()
 
 void MainWindow::on_cmdBack_clicked()
 {
-    //ui->cmdBack->setEnabled(false);
-    ui->listWidget->setEnabled(true);
-    ui->listWidget2->setEnabled(true);
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
+    //Verifica qual tela está aberta e qual será a proxima tela a ser exibida
     int ctIx = ui->stackedWidget->currentIndex();
 
     switch(ctIx){
@@ -3667,13 +3670,11 @@ void MainWindow::on_cmdBack_clicked()
         break;
     }
     }
-    //ui->cmdBack->setEnabled(true);
 }
 
 void MainWindow::on_cmdAdvance_clicked()
 {
-    //ui->cmdAdvance->setEnabled(false);
-
+    //Verifica qual tela está aberta e qual será a proxima tela a ser exibida
     int ctIx = ui->stackedWidget->currentIndex();
 
     switch(ctIx){
@@ -3698,7 +3699,7 @@ void MainWindow::on_cmdAdvance_clicked()
     }
     case STACK_FILTER:
     {
-        if(ui->listWidget2->count() < 2){
+        if(ui->listWidget2->topLevelItemCount() < 2){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Warning",
                                             "You are leaving this page without running any filter. Is that correct?",
@@ -3845,7 +3846,7 @@ void MainWindow::on_cmdOpen_clicked()
     alinhamentos.push_back(align);
 
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
-    emit ui->listWidget->activated(ui->listWidget->currentIndex());
+    emit ui->listWidget->activated(ui->listWidget->currentIndex());//VERIFICAR NECESSIDADE
 
     QString msg = "Alignment loaded with " + QString::number(align.sequences.size()) + " sequences.";
     QMessageBox::information(this,"Alignment loaded",msg);
@@ -4044,8 +4045,8 @@ void MainWindow::on_cmdApplyFilter_clicked()
     }
 
     //Filter names must be different
-    for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
-        if(ui->txtFilterName->text() == ui->listWidget2->item(i)->text() && ui->cmbFilterMethod->currentIndex() != 2){
+    for(unsigned int i = 0; i < ui->listWidget2->topLevelItemCount(); i++){
+        if(ui->txtFilterName->text() == ui->listWidget2->topLevelItem(i)->text(0) && ui->cmbFilterMethod->currentIndex() != 2){
             QMessageBox::warning(this,"Validation problem","There is already a filter with this name. Pleasy change the name and try again.");
             ui->txtFilterName->setFocus();
             ui->cmdApplyFilter->setEnabled(true);
@@ -4110,24 +4111,26 @@ void MainWindow::on_cmdApplyFilter_clicked()
 
     int method = ui->cmbFilterMethod->currentIndex();
 
+    //HMM
     if(method == 0){
         if(this->alignfilter(occupancy,maxId,ui->chkApplyMinCover->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked())){
-            ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
-            emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+            ui->listWidget2->setCurrentItem(ui->listWidget2->topLevelItem(ui->listWidget2->topLevelItemCount()-1));
+            //ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+            //emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
         }
-    }else if(method == 1){
+    }else if(method == 1){//RefSeq
         if(this->alignfilter(occupancy,minId,maxId,refseq,ui->chkApplyMinCover->isChecked(),ui->chkApplyMinId->isChecked(),ui->chkApplyMaxId->isChecked(),ui->chkApplyTaxonFilter->isChecked())){
-            ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
-            emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+            ui->listWidget2->setCurrentItem(ui->listWidget2->topLevelItem(ui->listWidget2->topLevelItemCount()-1));
+            //ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+            //emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
         }
-    }else if(method == 2){
+    }else if(method == 2){//Henikoff
         if(applyHenikoffFilter()){
-            ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
-            emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+            ui->listWidget2->setCurrentItem(ui->listWidget2->topLevelItem(ui->listWidget2->topLevelItemCount()-1));
+            //ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+            //emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
         }
     }
-
-
 
     ui->cmdApplyFilter->setEnabled(true);
 }
@@ -4234,29 +4237,50 @@ void MainWindow::on_cmdCorrelation_clicked()
         return;
     }
 
-    vector<tuple<string, string> > contactResidues;
-
-    //Chamar PCalc
     //string outputgraphfilename = ui->txtGraphPath->text().toStdString().c_str();
     int minlogp = ui->txtMinScore->value();
     float mindeltafreq = ui->txtMinDeltaFreq->value();
     string pdbid = "";
 
-    //USA ALINHAMENTO TODO EM MAIUSCULAS
-    currentFilter->alignment2UpperCase();
-
-    currentFilter->setCorrMinScore(minlogp);
-    currentFilter->setCorrMinDelta(mindeltafreq);
-    currentFilter->setCorrMinssFraction(minssfraction);
-
-    this->pcalc(minlogp,minssfraction,mindeltafreq);
-
-    //Chamar Trivcomm
-    bool ok = this->trivcomm();
-    if(!ok){
+    //Verifica se essa network já existe neste filtro
+    stringstream ss;
+    ss << fixed << setprecision(2) << minssfraction;
+    string strMinss = ss.str();
+    ss.str(std::string());
+    ss << fixed << setprecision(2) << mindeltafreq;
+    string strDelta = ss.str();
+    string name = to_string(minlogp) + "_" + strMinss + "_" + strDelta;
+    if(currentFilter->networkExists(name)){
+        QMessageBox::warning(this,"Error","A network with these parameters already exists.");
+        ui->txtMinScore->setFocus();
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
+
+    //Cria nova rede
+    Network *net = new Network(&currentFilter->sequences,&currentFilter->sequencenames,minlogp,minssfraction,mindeltafreq);
+
+    //USA ALINHAMENTO TODO EM MAIUSCULAS
+    net->alignment2UpperCase();
+
+    //Chama função para calcular correlações e criar a rede
+    this->pcalc(net,minlogp,minssfraction,mindeltafreq);
+
+    //Chama funçao para decompor em comunidades
+    bool ok = this->trivcomm(net);
+    if(!ok){
+        QMessageBox::warning(this,"Warning","No correlation was found.");
+        ui->cmdCorrelation->setEnabled(true);
+        return;
+    }
+
+    //Adiciona na lista de comunidades
+    QTreeWidgetItem *parent = this->getFilterItem();
+    QTreeWidgetItem *child = new QTreeWidgetItem();
+    child->setText(0,net->getName().c_str());
+    parent->addChild(child);
+    currentFilter->addNetwork(net);
+    currentNetwork = net;
 
     //Chamar Output
     this->output();
@@ -4268,7 +4292,7 @@ void MainWindow::on_cmdCorrelation_clicked()
     //Gerar Visualizações
     if(ui->chkCommVisualization->isChecked()){
         if(ui->txtPDBName_2->text() == ""){
-            QMessageBox::warning(this,"Warning","To generate communities visualization, you must set a PDB id");
+            QMessageBox::warning(this,"Warning","To generate communities visualization, you must inform a PDB");
             ui->cmdCorrelation->setEnabled(true);
             return;
         }
@@ -4290,12 +4314,12 @@ void MainWindow::on_cmdCorrelation_clicked()
         QApplication::processEvents();
         string pdbfilename = ui->txtPDBName_2->text().toStdString() + "_COMMS.pdb";
         QString filename = QFileDialog::getSaveFileName(this,tr("Save correlation structure file"),pdbfilename.c_str(),tr("TEXT Files (*.pdb)"));
-        vector<tuple<int,float> > commvec = currentFilter->createCommuntitiesVector(pdb->getRefSeqId());
+        vector<tuple<int,float> > commvec = currentNetwork->createCommuntitiesVector();
         pdb->exportStructure(filename,commvec,chain);
-        currentFilter->setCommPDBPath(filename.toStdString());
+        currentNetwork->setCommPDBPath(filename.toStdString());
     }
 
-    currentFilter->setCorrPDB(pdbid);
+    currentNetwork->setPDB(pdbid);
 
     msg += "All correlations were calculated.";
 
@@ -4368,7 +4392,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRLIST:
     {
-        if(currentFilter->getCorrGraphSize() == 0){
+        if(currentNetwork->getGraphSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4383,7 +4407,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMLIST:
     {
-        if(currentFilter->getCommListSize() == 0){
+        if(currentNetwork->getCommListSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4398,7 +4422,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRPERC:
     {
-        if(currentFilter->getNumOfUtilComms() == 0){
+        if(currentNetwork->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4413,7 +4437,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRLOG:
     {
-        if(currentFilter->getNumOfUtilComms() == 0){
+        if(currentNetwork->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4428,7 +4452,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_ADHERENCE:
     {
-        if(currentFilter->getNumOfUtilComms() == 0){
+        if(currentNetwork->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4449,7 +4473,7 @@ void MainWindow::updateResultsViews(){
             return;
         }
 
-        if(currentFilter->getNumOfUtilComms() == 0){
+        if(currentNetwork->getNumOfUtilComms() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4464,7 +4488,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_UNIPROT_PROTEINS:
     {
-        if(currentFilter->getUniprotMinedSize() == 0){
+        if(currentNetwork->getUniprotMinedSize() == 0){
             QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
             ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
@@ -4480,7 +4504,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_UNIPROT_COMMS:
     {
-        if(currentFilter->getUniprotMinedSize() == 0){
+        if(currentNetwork->getUniprotMinedSize() == 0){
             QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
             ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
@@ -4508,7 +4532,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMPDB:
     {
-        if(currentFilter->getCommPDBPath() == ""){
+        if(currentNetwork->getCommPDBPath() == ""){
             QMessageBox::warning(this,"Warning","You must run correlation with a PDB for this alignment.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4520,7 +4544,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRGRAPH:
     {
-        if(currentFilter->getCorrGraphSize() == 0){
+        if(currentNetwork->getGraphSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4532,7 +4556,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMGRAPH:
     {
-        if(currentFilter->getCorrGraphSize() == 0){
+        if(currentNetwork->getGraphSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4544,7 +4568,7 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_DELTAGRAPH:
     {
-        if(currentFilter->getDeltasSize() == 0){
+        if(currentNetwork->getDeltasSize() == 0){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4562,15 +4586,21 @@ void MainWindow::updateResultsViews(){
 
         break;
     }
-    case STACK_RESULT_TAXVIEW:
-
+    case STACK_RESULT_TAXVIEW:{
         this->generateSunburst(currentFilter->sequencenames);
+        break;
+    }
+    default:
+    {
+        //nothing
+    }
     }
 }
 
 void MainWindow::on_listWidget_currentRowChanged(int currentRow)
 {
     if(ui->listWidget->count() == 0) return;
+    if(currentRow < 0 || currentRow > ui->listWidget->count()) return;
 
     QProgressDialog progress("Loading the alignment...","Cancel",0,0);
     progress.setWindowModality(Qt::WindowModal);
@@ -4615,20 +4645,9 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
         QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
         vector<string> splitVec = this->split(fullAlign[i1],'/');
         ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
-        //ui->lstRefSeqs->addItem(QString::fromStdString(splitVec[0]));
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
 
         ui->lstRefSeqs->addItem(fullAlign[i1].c_str());
-    }
-
-    if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
-        ui->cmbComm->clear();
-        unsigned int nOfComms = currentFilter->getCommListSize();
-
-        for(unsigned int j = 1; j <= nOfComms; j++)
-            ui->cmbComm->addItem(QString::number(j));
-    }else if(ui->stackedWidget->currentIndex() == STACK_RESULTS){
-        this->updateResultsViews();
     }
 
     ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(fullAlign.size()));
@@ -4639,17 +4658,23 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
 
     for(unsigned int j = 0; j < filters.size(); j++){
         Filter* filter = filters[j];
-        ui->listWidget2->addItem(filter->getName().c_str());
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->listWidget2);
+        item->setText(0,filter->getName().c_str());
+        filter->setQtreeWidgetItem(item);
+        for(unsigned int k = 0; k < filter->countNetworks(); k++){
+            Network *net = filter->getNetwork(k);
+            QTreeWidgetItem *item2 = new QTreeWidgetItem();
+            item2->setText(0,net->getName().c_str());
+            item->addChild(item2);
+        }
     }
 
-    ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
+    ui->listWidget2->setCurrentItem(ui->listWidget2->itemAt(0,0));
 
-    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+    //Está sendo chamado automáticamente pelo setCurrentItem
+    //emit ui->listWidget2->currentItemChanged(ui->listWidget2->currentItem(),NULL);
 
-    progress.hide();
-
-    //ui->cmbRefSeq_2->setCurrentIndex(1);
-    //ui->cmbRefSeq_3->setCurrentIndex(1);
+    progress.close();
 }
 
 void MainWindow::on_cmbRefSeq_activated(int index)
@@ -4681,11 +4706,15 @@ void MainWindow::on_cmdSaveResults_clicked()
     this->saveResults();
 }
 
-void MainWindow::on_lstProteinsFiltered_activated(const QModelIndex &index)
+void MainWindow::on_lstProteinsFiltered_itemClicked(QListWidgetItem *item)
 {
-    string sequence = currentFilter->getSequence(index.data().toString().toStdString());
+    string sequence = currentFilter->getSequence(item->text().toStdString());
 
     ui->txtSequence->setText(sequence.c_str());
+
+    string nogaps = currentFilter->getNoGAPSequence(item->text().toStdString());
+
+    ui->txtSequenceNoGaps->setText(nogaps.c_str());
 }
 
 void MainWindow::on_cmdNextComm_clicked()
@@ -4702,7 +4731,7 @@ void MainWindow::on_cmdNextComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentFilter->getNumOfUtilComms();
+    int nComm = currentNetwork->getNumOfUtilComms();
     if(currComm == nComm ) currComm = 0;
 
     //Limpar tabela
@@ -4713,7 +4742,7 @@ void MainWindow::on_cmdNextComm_clicked()
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
-    vector<string> residues = currentFilter->getResiduesComm(currComm);
+    vector<string> residues = currentNetwork->getResiduesComm(currComm);
     ui->tableComm1->setRowCount(residues.size());
     ui->tableComm1->setColumnCount(residues.size()+1);
     ui->tableComm1->setHorizontalHeaderItem(0,new QTableWidgetItem("All"));
@@ -4725,7 +4754,7 @@ void MainWindow::on_cmdNextComm_clicked()
     }
 
     //Preenche a tabela
-    vector<float> corrAll = currentFilter->getCommAll(currComm);
+    vector<float> corrAll = currentNetwork->getCommAll(currComm);
 
     for(unsigned int i = 0; i < residues.size(); i++){
         QTableWidgetItem *item = new QTableWidgetItem();
@@ -4735,7 +4764,7 @@ void MainWindow::on_cmdNextComm_clicked()
 
         ui->tableComm1->setItem(i,0,item);
 
-        vector<float> commRow = currentFilter->getCommXRow(currComm,i);
+        vector<float> commRow = currentNetwork->getCommXRow(currComm,i);
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
 
@@ -4768,7 +4797,7 @@ void MainWindow::on_cmdBackComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentFilter->getNumOfUtilComms();
+    int nComm = currentNetwork->getNumOfUtilComms();
     if(currComm == 0 ) currComm = nComm;
 
     //Limpar tabela
@@ -4779,7 +4808,7 @@ void MainWindow::on_cmdBackComm_clicked()
     ui->lblComunidade->setText(temp.c_str());
 
     //Monta a Tabela
-    vector<string> residues = currentFilter->getResiduesComm(currComm-1);
+    vector<string> residues = currentNetwork->getResiduesComm(currComm-1);
     ui->tableComm1->setRowCount(residues.size());
     ui->tableComm1->setColumnCount(residues.size()+1);
     ui->tableComm1->setHorizontalHeaderItem(0,new QTableWidgetItem("All"));
@@ -4790,7 +4819,7 @@ void MainWindow::on_cmdBackComm_clicked()
     }
 
     //Preenche a tabela
-    vector<float> corrAll = currentFilter->getCommAll(currComm-1);
+    vector<float> corrAll = currentNetwork->getCommAll(currComm-1);
 
     for(unsigned int i = 0; i < residues.size(); i++){
         QTableWidgetItem *item = new QTableWidgetItem();
@@ -4800,7 +4829,7 @@ void MainWindow::on_cmdBackComm_clicked()
 
         ui->tableComm1->setItem(i,0,item);
 
-        vector<float> commRow = currentFilter->getCommXRow(currComm-1,i);
+        vector<float> commRow = currentNetwork->getCommXRow(currComm-1,i);
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
 
@@ -4833,7 +4862,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentFilter->getNumOfUtilComms();
+    int nComm = currentNetwork->getNumOfUtilComms();
     if(currComm == nComm ) currComm = 0;
 
     //Limpar tabela
@@ -4844,7 +4873,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
-    vector<string> residues = currentFilter->getResiduesCommPs(currComm);
+    vector<string> residues = currentNetwork->getResiduesCommPs(currComm);
     ui->tableComm2->setRowCount(residues.size());
     ui->tableComm2->setColumnCount(residues.size());
 
@@ -4855,7 +4884,7 @@ void MainWindow::on_cmdNextComm_2_clicked()
 
     //Preenche a tabela
     for(unsigned int i = 0; i < residues.size(); i++){
-        vector<int> commRow = currentFilter->getCommPsRow(currComm,i);
+        vector<int> commRow = currentNetwork->getCommPsRow(currComm,i);
 
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
@@ -4885,7 +4914,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentFilter->getNumOfUtilComms();
+    int nComm = currentNetwork->getNumOfUtilComms();
     if(currComm == 0 ) currComm = nComm;
 
     //Limpar tabela
@@ -4896,7 +4925,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
     ui->lblComunidade_2->setText(temp.c_str());
 
     //Montar a Tabela
-    vector<string> residues = currentFilter->getResiduesCommPs(currComm -1);
+    vector<string> residues = currentNetwork->getResiduesCommPs(currComm -1);
     ui->tableComm2->setRowCount(residues.size());
     ui->tableComm2->setColumnCount(residues.size());
 
@@ -4907,7 +4936,7 @@ void MainWindow::on_cmdBackComm_2_clicked()
 
     //Preenche a tabela
     for(unsigned int i = 0; i < residues.size(); i++){
-        vector<int> commRow = currentFilter->getCommPsRow(currComm-1,i);
+        vector<int> commRow = currentNetwork->getCommPsRow(currComm-1,i);
 
         for(unsigned int j = 0; j < commRow.size(); j++){
             QTableWidgetItem *item2 = new QTableWidgetItem();
@@ -4939,7 +4968,7 @@ void MainWindow::on_cmdNextResComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentFilter->Communities.size();
+    int nComm = currentNetwork->Communities.size();
     if(currComm == nComm ) currComm = 0;
 
     //Limpar tabela
@@ -4956,9 +4985,9 @@ void MainWindow::on_cmdNextResComm_clicked()
     }
 
     //Cabeçalho
-    ui->tableResiduesComm->setColumnCount(currentFilter->Communities[currComm].pos.size());
-    for(unsigned int i = 0; i < currentFilter->Communities[currComm].pos.size(); i++){
-        string textCab = currentFilter->Communities[currComm].aa[i] + QString::number(currentFilter->Communities[currComm].pos[i]+1).toStdString();
+    ui->tableResiduesComm->setColumnCount(currentNetwork->Communities[currComm].pos.size());
+    for(unsigned int i = 0; i < currentNetwork->Communities[currComm].pos.size(); i++){
+        string textCab = currentNetwork->Communities[currComm].aa[i] + QString::number(currentNetwork->Communities[currComm].pos[i]+1).toStdString();
         ui->tableResiduesComm->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
 
@@ -4969,21 +4998,21 @@ void MainWindow::on_cmdNextResComm_clicked()
     for(unsigned int i = 0; i < refSeqs.size(); i++){
         ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
-        for(unsigned int j = 0; j < currentFilter->Communities[currComm].pos.size(); j++){
-            if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm].pos[j]]==currentFilter->Communities[currComm].aa[j]){
+        for(unsigned int j = 0; j < currentNetwork->Communities[currComm].pos.size(); j++){
+            if(fullSequences[refSeqs[i]][currentNetwork->Communities[currComm].pos[j]]==currentNetwork->Communities[currComm].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = currentFilter->Communities[currComm].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                string textItem = currentNetwork->Communities[currComm].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentNetwork->Communities[currComm].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm].pos[j]]=='-'){
+                if(fullSequences[refSeqs[i]][currentNetwork->Communities[currComm].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = fullSequences[refSeqs[i]][currentFilter->Communities[currComm].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][currentNetwork->Communities[currComm].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentNetwork->Communities[currComm].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -5013,7 +5042,7 @@ void MainWindow::on_cmdBackResComm_clicked()
     }
 
     //Verificar se comunidade existe ou resetar
-    int nComm = currentFilter->Communities.size();
+    int nComm = currentNetwork->Communities.size();
     if(currComm == 0 ) currComm = nComm;
 
     //Limpar tabela
@@ -5030,9 +5059,9 @@ void MainWindow::on_cmdBackResComm_clicked()
     }
 
     //Cabeçalho
-    ui->tableResiduesComm->setColumnCount(currentFilter->Communities[currComm -1].pos.size());
-    for(unsigned int i = 0; i < currentFilter->Communities[currComm -1].pos.size(); i++){
-        string textCab = currentFilter->Communities[currComm -1].aa[i] + QString::number(currentFilter->Communities[currComm-1].pos[i]+1).toStdString();
+    ui->tableResiduesComm->setColumnCount(currentNetwork->Communities[currComm -1].pos.size());
+    for(unsigned int i = 0; i < currentNetwork->Communities[currComm -1].pos.size(); i++){
+        string textCab = currentNetwork->Communities[currComm -1].aa[i] + QString::number(currentNetwork->Communities[currComm-1].pos[i]+1).toStdString();
         ui->tableResiduesComm->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
 
@@ -5043,21 +5072,21 @@ void MainWindow::on_cmdBackResComm_clicked()
     for(unsigned int i = 0; i < refSeqs.size(); i++){
         ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
-        for(unsigned int j = 0; j < currentFilter->Communities[currComm -1].pos.size(); j++){
-            if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm-1].pos[j]]==currentFilter->Communities[currComm-1].aa[j]){
+        for(unsigned int j = 0; j < currentNetwork->Communities[currComm -1].pos.size(); j++){
+            if(fullSequences[refSeqs[i]][currentNetwork->Communities[currComm-1].pos[j]]==currentNetwork->Communities[currComm-1].aa[j]){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                string textItem = currentFilter->Communities[currComm-1].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm-1].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                string textItem = currentNetwork->Communities[currComm-1].aa[j] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentNetwork->Communities[currComm-1].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                 item->setTextColor(QColor(0,255,0,255));
                 item->setText(textItem.c_str());
                 ui->tableResiduesComm->setItem(i,j,item);
             }else{
-                if(fullSequences[refSeqs[i]][currentFilter->Communities[currComm-1].pos[j]]=='-'){
+                if(fullSequences[refSeqs[i]][currentNetwork->Communities[currComm-1].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
-                    string textItem = fullSequences[refSeqs[i]][currentFilter->Communities[currComm-1].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentFilter->Communities[currComm-1].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
+                    string textItem = fullSequences[refSeqs[i]][currentNetwork->Communities[currComm-1].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentNetwork->Communities[currComm-1].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
                     ui->tableResiduesComm->setItem(i,j,item);
                 }
@@ -5145,6 +5174,20 @@ void MainWindow::Open_XML_triggered(){
                                         break;
                                     }
                                 }
+                            }else if(reader.isStartElement() && reader.name() == "weights"){
+                                vector<float> weights;
+                                while(!reader.atEnd()){
+                                    reader.readNext();
+
+                                    if(reader.isStartElement() && reader.name() == "value"){
+                                        float value = reader.readElementText().toFloat();
+                                        weights.push_back(value);
+                                    }else if(reader.isEndElement() && reader.name() == "weights"){
+                                        filter->setWeights(weights);
+                                        break;
+                                    }
+                                }
+
                             }else if(reader.name() == "references"){
                                 while(!reader.atEnd()){
                                     reader.readNext();
@@ -5153,12 +5196,11 @@ void MainWindow::Open_XML_triggered(){
                                         string reference = reader.readElementText().toStdString();
                                         filter->addRefSeq(reference);
                                     }else if(reader.isEndElement() && reader.name() == "references"){
-                                        //this->updateRefSeqsCompleters();
+                                        //Atualizar no updateResults
                                         break;
                                     }
                                 }
-                            }else if(reader.name() == "conservation"){
-                                vector<float> dg;
+                            }else if(reader.isStartElement() && reader.name() == "conservation"){
                                 while(!reader.atEnd()){
                                     reader.readNext();
 
@@ -5167,59 +5209,28 @@ void MainWindow::Open_XML_triggered(){
                                             reader.readNext();
 
                                             if(reader.isStartElement()){
-                                                if(reader.name() == "pdb"){
-                                                    string pdb = reader.readElementText().toStdString();
-                                                    filter->setConsPDB(pdb);
-                                                }else if(reader.name() == "offset"){
-                                                    //old code
-                                                    //int offset = reader.readElementText().toInt();
-                                                    //filter->setConsOffset(offset);
-                                                }else if(reader.name() == "minimum"){
+                                                if(reader.name() == "minimum"){
                                                     float min = reader.readElementText().toFloat();
                                                     filter->setConsMin(min);
-                                                }else if(reader.name() == "refseq"){
-                                                    //old
-                                                    //int ref = reader.readElementText().toInt();
-                                                    //filter->setConsRefseq(ref);
+                                                }else if(reader.name() == "alpha"){
+                                                    float alpha = reader.readElementText().toFloat();
+                                                    filter->setConsAlpha(alpha);
+                                                }else if(reader.name() == "beta"){
+                                                    float beta = reader.readElementText().toFloat();
+                                                    filter->setConsBeta(beta);
                                                 }
                                             }else if(reader.isEndElement() && reader.name() == "parameters"){
                                                 break;
                                             }
                                         }
-                                    }else if(reader.isStartElement() && reader.name() == "positions"){
-                                        vector<int> freq;
-                                        vector<float> freqperc;
-
-                                        while(!reader.atEnd()){
-                                            reader.readNext();
-
-                                            if(reader.isStartElement() && reader.name() == "pos"){
-                                                while(!reader.atEnd()){
-                                                    reader.readNext();
-
-                                                    if(reader.isStartElement()){
-                                                        if(reader.name() == "deltaG")
-                                                            dg.push_back(reader.readElementText().toFloat());
-                                                        else if(reader.name() == "frequence")
-                                                            freq.push_back(reader.readElementText().toInt());
-                                                        else if(reader.name() == "percent")
-                                                            freqperc.push_back(reader.readElementText().toFloat());
-                                                    }else if(reader.isEndElement() && reader.name() == "pos"){
-                                                        filter->addConsFreqRow(freq);
-                                                        filter->addConsFreqPercRow(freqperc);
-                                                        freq.clear();
-                                                        freqperc.clear();
-                                                        break;
-                                                    }
-                                                }
-                                            }else if(reader.isEndElement() && reader.name() == "positions")
-                                                break;
-                                        }
                                     }else if(reader.isEndElement() && reader.name() == "conservation"){
-                                        filter->setConsDG(dg);
-                                        //filter->printConsFreq();
-                                        //printf("\n\n");
-                                        //filter->printConsFreqPerc();
+
+                                        filter->CalculateFrequencies();
+                                        if(filter->getWeightsSize() == 0) filter->dGCalculation();
+                                        else filter->dGCalculation(filter->getConsAlpha(),filter->getConsBeta());
+                                        filter->dGWrite();
+                                        filter->FreqWrite();
+
                                         break;
                                     }
                                 }
@@ -5240,150 +5251,157 @@ void MainWindow::Open_XML_triggered(){
                                 while(!reader.atEnd()){
                                     reader.readNext();
 
-                                    if(reader.isStartElement()){
-                                        if(reader.name() == "parameters"){
-                                            while(!reader.atEnd()){
-                                                reader.readNext();
+                                    if(reader.isStartElement() && reader.name() == "network"){
+                                        Network *net = new Network(&filter->sequences,&filter->sequencenames);
+                                        while(!reader.atEnd()){
+                                            reader.readNext();
 
-                                                if(reader.isStartElement()){
-                                                    if(reader.name() == "pdb"){
-                                                        string pdb = reader.readElementText().toStdString();
-                                                        filter->setCorrPDB(pdb);
-                                                    }else if(reader.name() == "offset"){
-                                                        //old
-                                                        //int offset = reader.readElementText().toInt();
-                                                        //filter->setCorrOffset(offset);
-                                                    }else if(reader.name() == "min_score"){
-                                                        float score = reader.readElementText().toFloat();
-                                                        filter->setCorrMinScore(score);
-                                                    }else if(reader.name() == "minss"){
-                                                        float minss = reader.readElementText().toFloat();
-                                                        filter->setCorrMinssFraction(minss);
-                                                    }else if(reader.name() == "min_delta"){
-                                                        float delta = reader.readElementText().toFloat();
-                                                        filter->setCorrMinDelta(delta);
-                                                    }else if(reader.name() == "refseq"){
-                                                        //old
-                                                        //int refseq = reader.readElementText().toInt();
-                                                        //filter->setCorrRefSeq(refseq);
+                                            if(reader.isStartElement()){
+                                                if(reader.name() == "parameters"){
+                                                    while(!reader.atEnd()){
+                                                        reader.readNext();
+
+                                                        if(reader.isStartElement()){
+                                                            if(reader.name() == "min_score"){
+                                                                float score = reader.readElementText().toFloat();
+                                                                net->setMinScore(score);
+                                                            }else if(reader.name() == "minss"){
+                                                                float minss = reader.readElementText().toFloat();
+                                                                net->setMinssFraction(minss);
+                                                            }else if(reader.name() == "min_delta"){
+                                                                float delta = reader.readElementText().toFloat();
+                                                                net->setMinDelta(delta);
+                                                            }
+                                                        }else if(reader.isEndElement() && reader.name() == "parameters")
+                                                            break;
                                                     }
-                                                }else if(reader.isEndElement() && reader.name() == "parameters")
-                                                    break;
-                                            }
-                                        }else if(reader.name() == "graph"){
-                                            while(!reader.atEnd()){
-                                                reader.readNext();
+                                                }else if(reader.name() == "graph"){
+                                                    while(!reader.atEnd()){
+                                                        reader.readNext();
 
-                                                if(reader.isStartElement() && reader.name() == "edge"){
-                                                    string v1 = reader.attributes().value("v1").toString().toStdString();
-                                                    string v2 = reader.attributes().value("v2").toString().toStdString();
-                                                    int score = reader.readElementText().toInt();
+                                                        if(reader.isStartElement() && reader.name() == "edge"){
+                                                            string v1 = reader.attributes().value("v1").toString().toStdString();
+                                                            string v2 = reader.attributes().value("v2").toString().toStdString();
+                                                            int score = reader.readElementText().toInt();
 
-                                                    filter->addCorrEdge(v1,v2,score);
-                                                }else if(reader.isEndElement() && reader.name() == "graph")
-                                                    break;
-                                            }
-                                        }else if(reader.name() == "communities"){
-                                            vector<string> comms;
-
-                                            while(!reader.atEnd()){
-                                                reader.readNext();
-
-                                                if(reader.isStartElement() && reader.name() == "community"){
-                                                    comms.clear();
-                                                    string node;
+                                                            net->addCorrEdge(v1,v2,score);
+                                                        }else if(reader.isEndElement() && reader.name() == "graph")
+                                                            break;
+                                                    }
+                                                }else if(reader.name() == "communities"){
+                                                    vector<string> comms;
 
                                                     while(!reader.atEnd()){
                                                         reader.readNext();
 
-                                                        if(reader.isStartElement() && reader.name() == "node"){
-                                                            node = reader.readElementText().toStdString();
-                                                            comms.push_back(node);
-                                                        }else if(reader.isEndElement() && reader.name() == "community"){
-                                                            filter->addCommunity(comms);
+                                                        if(reader.isStartElement() && reader.name() == "community"){
+                                                            comms.clear();
+                                                            string node;
+
+                                                            while(!reader.atEnd()){
+                                                                reader.readNext();
+
+                                                                if(reader.isStartElement() && reader.name() == "node"){
+                                                                    node = reader.readElementText().toStdString();
+                                                                    comms.push_back(node);
+                                                                }else if(reader.isEndElement() && reader.name() == "community"){
+                                                                    net->addCommunity(comms);
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }else if(reader.isEndElement() && reader.name() == "communities")
+                                                            break;
+                                                    }
+                                                }else if(reader.name() == "output"){
+                                                    vector<string> residues;
+                                                    vector<string> residuesPs;
+
+                                                    while(!reader.atEnd()){
+                                                        reader.readNext();
+
+                                                        if(reader.isStartElement()){
+                                                            if(reader.name() == "community"){
+                                                                vector<float> resAll;
+                                                                vector<vector<float> > commX;
+                                                                residues.clear();
+
+                                                                while(!reader.atEnd()){
+                                                                    reader.readNext();
+
+                                                                    if(reader.isStartElement() && reader.name() == "column"){
+                                                                        string res = reader.readElementText().toStdString();
+                                                                        if(res != "ALL") residues.push_back(res);
+                                                                    }else if(reader.isStartElement() && reader.name() == "row"){
+                                                                        vector<float> values;
+
+                                                                        resAll.push_back(reader.attributes().at(1).value().toFloat());
+
+                                                                        for(unsigned int i = 2; i < reader.attributes().size(); i++){
+                                                                            values.push_back(reader.attributes().at(i).value().toFloat()/100);
+                                                                        }
+
+                                                                        commX.push_back(values);
+                                                                    }else if(reader.isEndElement() && reader.name() == "community"){
+                                                                        net->addResiduesComm(residues);
+                                                                        net->addCommXAll(resAll);
+                                                                        net->addCommX(commX);
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }else if(reader.name() == "logP"){
+                                                                vector<vector<int> > commXPs;
+                                                                residuesPs.clear();
+
+                                                                while(!reader.atEnd()){
+                                                                    reader.readNext();
+
+                                                                    if(reader.isStartElement() && reader.name() == "column"){
+                                                                        residuesPs.push_back(reader.readElementText().toStdString());
+                                                                    }else if(reader.isStartElement() && reader.name() == "row"){
+                                                                        vector<int> values;
+
+                                                                        for(unsigned int i = 1; i < reader.attributes().size(); i++){
+                                                                            values.push_back(reader.attributes().at(i).value().toInt());
+                                                                        }
+
+                                                                        commXPs.push_back(values);
+                                                                    }else if(reader.isEndElement() && reader.name() == "logP"){
+                                                                        net->addResiduesCommPs(residuesPs);
+                                                                        net->addCommXPs(commXPs);
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }else if(reader.isEndElement() && reader.name() == "output")
+                                                            break;
+                                                    }
+                                                }else if(reader.name() == "deltas"){
+                                                    while(!reader.atEnd()){
+                                                        reader.readNext();
+
+                                                        if(reader.isStartElement() && reader.name() == "row"){
+                                                            vector<float> deltaLines;
+
+                                                            for(unsigned int i = 0; i < reader.attributes().size(); i++)
+                                                                deltaLines.push_back(reader.attributes().at(i).value().toFloat());
+
+                                                            net->addDeltaLine(deltaLines);
+                                                        }else if(reader.isEndElement() && reader.name() == "deltas"){
                                                             break;
                                                         }
                                                     }
-                                                }else if(reader.isEndElement() && reader.name() == "communities")
-                                                    break;
-                                            }
-                                        }else if(reader.name() == "output"){
-                                            vector<string> residues;
-                                            vector<string> residuesPs;
-
-                                            while(!reader.atEnd()){
-                                                reader.readNext();
-
-                                                if(reader.isStartElement()){
-                                                    if(reader.name() == "community"){
-                                                        vector<float> resAll;
-                                                        vector<vector<float> > commX;
-                                                        residues.clear();
-
-                                                        while(!reader.atEnd()){
-                                                            reader.readNext();
-
-                                                            if(reader.isStartElement() && reader.name() == "column"){
-                                                                string res = reader.readElementText().toStdString();
-                                                                if(res != "ALL") residues.push_back(res);
-                                                            }else if(reader.isStartElement() && reader.name() == "row"){
-                                                                vector<float> values;
-
-                                                                resAll.push_back(reader.attributes().at(1).value().toFloat());
-
-                                                                for(unsigned int i = 2; i < reader.attributes().size(); i++){
-                                                                    values.push_back(reader.attributes().at(i).value().toFloat()/100);
-                                                                }
-
-                                                                commX.push_back(values);
-                                                            }else if(reader.isEndElement() && reader.name() == "community"){
-                                                                filter->addResiduesComm(residues);
-                                                                filter->addCommXAll(resAll);
-                                                                filter->addCommX(commX);
-                                                                break;
-                                                            }
-                                                        }
-                                                    }else if(reader.name() == "logP"){
-                                                        vector<vector<int> > commXPs;
-                                                        residuesPs.clear();
-
-                                                        while(!reader.atEnd()){
-                                                            reader.readNext();
-
-                                                            if(reader.isStartElement() && reader.name() == "column"){
-                                                                residuesPs.push_back(reader.readElementText().toStdString());
-                                                            }else if(reader.isStartElement() && reader.name() == "row"){
-                                                                vector<int> values;
-
-                                                                for(unsigned int i = 1; i < reader.attributes().size(); i++){
-                                                                    values.push_back(reader.attributes().at(i).value().toInt());
-                                                                }
-
-                                                                commXPs.push_back(values);
-                                                            }else if(reader.isEndElement() && reader.name() == "logP"){
-                                                                filter->addResiduesCommPs(residuesPs);
-                                                                filter->addCommXPs(commXPs);
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-                                                }else if(reader.isEndElement() && reader.name() == "output")
-                                                    break;
-                                            }
-                                        }else if(reader.name() == "deltas"){
-                                            while(!reader.atEnd()){
-                                                reader.readNext();
-
-                                                if(reader.isStartElement() && reader.name() == "row"){
-                                                    vector<float> deltaLines;
-
-                                                    for(unsigned int i = 0; i < reader.attributes().size(); i++)
-                                                        deltaLines.push_back(reader.attributes().at(i).value().toFloat());
-
-                                                    filter->addDeltaLine(deltaLines);
-                                                }else if(reader.isEndElement() && reader.name() == "deltas"){
-                                                    break;
                                                 }
+                                            }else if(reader.isEndElement() && reader.name() == "network"){
+                                                stringstream ss;
+                                                ss << fixed << setprecision(2) << net->getMinssFraction();
+                                                string strMinss = ss.str();
+                                                ss.str(std::string());
+                                                ss << fixed << setprecision(2) << net->getMinDelta();
+                                                string strDelta = ss.str();
+                                                string name = to_string(net->getMinScore()) + "_" + strMinss + "_" + strDelta;
+                                                net->setName(name);
+                                                filter->addNetwork(net);
+                                                break;
                                             }
                                         }
                                     }else if(reader.isEndElement() && reader.name() == "correlation")
@@ -5411,6 +5429,8 @@ void MainWindow::Open_XML_triggered(){
     ui->listWidget->addItem(fileName);
     alinhamentos.push_back(align);
 
+    ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
+
     if(ui->stackedWidget->currentIndex() == STACK_MAIN){
         //Desativa botões do Wizard
         changeWizardCmds(false);
@@ -5420,10 +5440,9 @@ void MainWindow::Open_XML_triggered(){
         ui->cmdBack->setEnabled(false);
 
         ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+    }else if(ui->stackedWidget->currentIndex() == STACK_RESULTS){
+        this->updateResultsViews();
     }
-
-    ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
-    emit ui->listWidget->activated(ui->listWidget->currentIndex());
 
     QString msg = "Alignment loaded with " + QString::number(currentFilter->sequences.size()) + " sequences.";
     QMessageBox::information(this,"Alignment loaded",msg);
@@ -5431,24 +5450,44 @@ void MainWindow::Open_XML_triggered(){
 
 void MainWindow::on_cmdRemoveFilter_clicked()
 {
-    Filter *filter = currentAlign->getFilterByName(ui->listWidget2->currentItem()->text().toStdString());
-    currentFilter = filter;
-
     if(ui->listWidget2->currentItem() == NULL){
         QMessageBox::warning(this,"Error","You must select a filter to remove.");
         return;
     }
 
-    if(currentFilter->getType() == 9){
-        QMessageBox::warning(this,"Error","You cant remove full alignment.");
-        return;
-    }
+    QString name = ui->listWidget2->currentItem()->text(0);
+    if(!ui->listWidget2->currentItem()->parent()){
+        //Remover um filtro
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Warning", "Do you really want to remove the sub-alignment " + name + "?", QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            Filter *filter = currentAlign->getFilterByName(ui->listWidget2->currentItem()->text(0).toStdString());
+            currentFilter = filter;
 
-    int pos = ui->listWidget2->currentIndex().row();
-    currentAlign->removeFilter(ui->listWidget2->currentItem()->text().toStdString());
-    delete ui->listWidget2->item(pos);
-    ui->listWidget2->setCurrentRow(0);
-    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+            if(currentFilter->getType() == 9){
+                QMessageBox::warning(this,"Error","You cant remove full alignment.");
+                return;
+            }
+
+            currentAlign->removeFilter(name.toStdString());
+            currentFilter = NULL;
+            currentNetwork = NULL;
+            delete ui->listWidget2->currentItem();
+            ui->listWidget2->setCurrentItem(ui->listWidget2->topLevelItem(ui->listWidget2->topLevelItemCount()-1));
+        }
+    }else{
+        //Remover uma network
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Warning", "Do you really want to remove the network " + name + "?", QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            //Network* net = currentFilter->getNetworkByName(ui->listWidget2->currentItem()->text(0).toStdString());
+
+            currentFilter->removeNetwork(name.toStdString());
+            currentNetwork = NULL;
+            delete ui->listWidget2->currentItem();
+            ui->listWidget2->setCurrentItem(ui->listWidget2->topLevelItem(ui->listWidget2->topLevelItemCount()-1));
+        }
+    }
 }
 
 void MainWindow::on_cmdRemoveAlignment_clicked()
@@ -5869,17 +5908,17 @@ void MainWindow::exportConsResHTML(){
 
 void MainWindow::exportCorrListTXT(){
     if(ui->listWidget->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        QMessageBox::warning(this,"Warning","You must select a alignment to export.");
         return;
     }
 
     if(currentFilter == NULL){
-        QMessageBox::warning(this,"Error","You must select an filter to export");
+        QMessageBox::warning(this,"Warning","You must select an alignment to export.");
         return;
     }
-
-    if(currentFilter->getCorrelationGraphSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -5888,7 +5927,7 @@ void MainWindow::exportCorrListTXT(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrGraph(filename,0);
+    currentNetwork->exportCorrGraph(filename,0);
 }
 
 void MainWindow::exportCorrListCSV(){
@@ -5901,9 +5940,9 @@ void MainWindow::exportCorrListCSV(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getCorrelationGraphSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -5912,7 +5951,7 @@ void MainWindow::exportCorrListCSV(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrGraph(filename,1);
+    currentNetwork->exportCorrGraph(filename,1);
 }
 
 void MainWindow::exportCorrListXML(){
@@ -5925,9 +5964,9 @@ void MainWindow::exportCorrListXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getCorrelationGraphSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -5936,7 +5975,7 @@ void MainWindow::exportCorrListXML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrGraph(filename,2);
+    currentNetwork->exportCorrGraph(filename,2);
 }
 
 void MainWindow::exportCommsTXT(){
@@ -5949,9 +5988,9 @@ void MainWindow::exportCommsTXT(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getCommListSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -5960,7 +5999,7 @@ void MainWindow::exportCommsTXT(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCommList(filename,0);
+    currentNetwork->exportCommList(filename,0);
 }
 
 void MainWindow::exportCommsXML(){
@@ -5973,9 +6012,9 @@ void MainWindow::exportCommsXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getCommListSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -5984,7 +6023,7 @@ void MainWindow::exportCommsXML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCommList(filename,1);
+    currentNetwork->exportCommList(filename,1);
 }
 
 void MainWindow::exportCorrTablePercTXT(){
@@ -5997,9 +6036,9 @@ void MainWindow::exportCorrTablePercTXT(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6008,7 +6047,7 @@ void MainWindow::exportCorrTablePercTXT(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrTable(filename,0);
+    currentNetwork->exportCorrTable(filename,0);
 }
 
 void MainWindow::exportCorrTablePercXML(){
@@ -6021,9 +6060,9 @@ void MainWindow::exportCorrTablePercXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6032,7 +6071,7 @@ void MainWindow::exportCorrTablePercXML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrTable(filename,1);
+    currentNetwork->exportCorrTable(filename,1);
 }
 
 void MainWindow::exportCorrTablePercHTML(){
@@ -6045,9 +6084,9 @@ void MainWindow::exportCorrTablePercHTML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6056,7 +6095,7 @@ void MainWindow::exportCorrTablePercHTML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrTable(filename,2);
+    currentNetwork->exportCorrTable(filename,2);
 }
 
 void MainWindow::exportCorrTableTXT(){
@@ -6069,9 +6108,9 @@ void MainWindow::exportCorrTableTXT(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6080,7 +6119,7 @@ void MainWindow::exportCorrTableTXT(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrTable(filename,0,false);
+    currentNetwork->exportCorrTable(filename,0,false);
 }
 
 void MainWindow::exportCorrTableXML(){
@@ -6093,9 +6132,9 @@ void MainWindow::exportCorrTableXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6104,7 +6143,7 @@ void MainWindow::exportCorrTableXML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrTable(filename,1,false);
+    currentNetwork->exportCorrTable(filename,1,false);
 }
 
 void MainWindow::exportCorrTableHTML(){
@@ -6117,9 +6156,9 @@ void MainWindow::exportCorrTableHTML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6128,7 +6167,7 @@ void MainWindow::exportCorrTableHTML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportCorrTable(filename,2,false);
+    currentNetwork->exportCorrTable(filename,2,false);
 }
 
 void MainWindow::exportAdhTXT(){
@@ -6141,9 +6180,9 @@ void MainWindow::exportAdhTXT(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6152,7 +6191,7 @@ void MainWindow::exportAdhTXT(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportAdh(filename,0);
+    currentNetwork->exportAdh(filename,0);
 }
 
 void MainWindow::exportAdhCSV(){
@@ -6165,9 +6204,9 @@ void MainWindow::exportAdhCSV(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6176,7 +6215,7 @@ void MainWindow::exportAdhCSV(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportAdh(filename,1);
+    currentNetwork->exportAdh(filename,1);
 }
 
 void MainWindow::exportAdhXML(){
@@ -6189,18 +6228,17 @@ void MainWindow::exportAdhXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
-
     QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("adherence.xml"),QObject::tr("TEXT Files (*.xml)"));
 
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportAdh(filename,2);
+    currentNetwork->exportAdh(filename,2);
 }
 
 void MainWindow::exportAdhHTML(){
@@ -6213,9 +6251,9 @@ void MainWindow::exportAdhHTML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6224,7 +6262,7 @@ void MainWindow::exportAdhHTML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportAdh(filename,3);
+    currentNetwork->exportAdh(filename,3);
 }
 
 void MainWindow::exportResCommTXT(){
@@ -6237,9 +6275,9 @@ void MainWindow::exportResCommTXT(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6252,7 +6290,8 @@ void MainWindow::exportResCommTXT(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportResComm(filename,0,fullAlignment,fullSequences);
+    vector<string> refseqs = currentFilter->getRefSeqs();
+    currentNetwork->exportResComm(filename,0,fullAlignment,fullSequences,refseqs);
 }
 
 void MainWindow::exportResCommXML(){
@@ -6265,9 +6304,9 @@ void MainWindow::exportResCommXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6280,7 +6319,8 @@ void MainWindow::exportResCommXML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportResComm(filename,1,fullAlignment,fullSequences);
+    vector<string> refseqs = currentFilter->getRefSeqs();
+    currentNetwork->exportResComm(filename,1,fullAlignment,fullSequences,refseqs);
 }
 
 void MainWindow::exportResCommHTML(){
@@ -6293,9 +6333,9 @@ void MainWindow::exportResCommHTML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getNumOfUtilComms() == 0){
-        QMessageBox::warning(this,"Warning","You must run correlation before export this result");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
 
@@ -6308,7 +6348,8 @@ void MainWindow::exportResCommHTML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    currentFilter->exportResComm(filename,2,fullAlignment,fullSequences);
+    vector<string> refseqs = currentFilter->getRefSeqs();
+    currentNetwork->exportResComm(filename,2,fullAlignment,fullSequences,refseqs);
 }
 
 void MainWindow::startWizard(){
@@ -6337,6 +6378,13 @@ void MainWindow::changeToOpenAlignment(){
 }
 
 void MainWindow::changetoFilterStack(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6345,6 +6393,12 @@ void MainWindow::changetoFilterStack(){
 }
 
 void MainWindow::changeToRefSeqs(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6353,6 +6407,12 @@ void MainWindow::changeToRefSeqs(){
 }
 
 void MainWindow::changeToLoadPDBs(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6361,6 +6421,12 @@ void MainWindow::changeToLoadPDBs(){
 }
 
 void MainWindow::changeToConservationStack(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6377,6 +6443,12 @@ void MainWindow::changeToConservationStack(){
 }
 
 void MainWindow::changetoMinssStack(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     wizard = false;
 
     unsigned cores = omp_get_num_procs();
@@ -6388,6 +6460,12 @@ void MainWindow::changetoMinssStack(){
 }
 
 void MainWindow::changetoCorrelationStack(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     wizard = false;
 
     this->changeWizardCmds(false);
@@ -6397,17 +6475,23 @@ void MainWindow::changetoCorrelationStack(){
 
 void MainWindow::changeToUniprotLookingTool(){
     //Validação
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     if(currentFilter->getConsFreqSize() > 0){
         ui->chkConserveds->setCheckable(true);
         ui->chkConserveds->setChecked(true);
     }else ui->chkConserveds->setCheckable(false);
 
-    if(currentFilter->getCommListSize() > 0){
+    if(currentNetwork->getCommListSize() > 0){
         ui->chkComm->setCheckable(true);
         ui->chkComm->setChecked(true);
     }else ui->chkComm->setCheckable(false);
 
-    if(currentFilter->getConsFreqSize() == 0 && currentFilter->getCommListSize() == 0){
+    if(currentFilter->getConsFreqSize() == 0 && currentNetwork->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run at least Conservation or Correlation programs before use this.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -6421,17 +6505,19 @@ void MainWindow::changeToUniprotLookingTool(){
 }
 
 void MainWindow::changeToMutationAnalysis(){
+    /*DEVELOPING
     //Validação
+//Validação
+if(!currentFilter){
+    QMessageBox::warning(this,"Warning","You must load an alignment.");
+    ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+    return;
+}
     if(pdbs.size() == 0){
         QMessageBox::warning(this,"Warning","You must have at least one structure file loaded.");
         ui->stackedWidget->setCurrentIndex(STACK_PDB);
         return;
     }
-    /*
-    if(currentFilter->getCommListSize() == 0){
-        QMessageBox::warning(this,"Warning","You must have run correlation methods");
-        return;
-    }*/
 
     wizard = false;
 
@@ -6450,7 +6536,7 @@ void MainWindow::changeToMutationAnalysis(){
     }
 
     ui->stackedWidget->setCurrentIndex(STACK_MUTATION);
-
+*/
 }
 
 void MainWindow::graphClicked(QCPAbstractPlottable *plot, QMouseEvent *mouse){
@@ -6569,7 +6655,8 @@ void MainWindow::on_cmdLook_clicked()
     vector<string> fullAlignment = currentAlign->getFullAlignment();
     vector<string> fullSequences = currentAlign->getFullSequences();
     printf("%s %s",fullAlignment[0].c_str(),fullSequences[0].c_str());
-    currentFilter->uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins,minCons,fullAlignment,fullSequences);
+    vector<string> conserved = currentFilter->getConsRes();
+    currentNetwork->uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins,conserved,fullAlignment,fullSequences);
 
     ui->cmdLook->setEnabled(true);
 }
@@ -6591,20 +6678,20 @@ void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
     vector<int> indexes;
 
     //Acha a entrada uniprot selecionada
-    for(unsigned int j = 0; j < currentFilter->getUniprotMinedSize(); j++){
-        if(currentFilter->getUniprotEntryName(j) == name){
+    for(unsigned int j = 0; j < currentNetwork->getUniprotMinedSize(); j++){
+        if(currentNetwork->getUniprotEntryName(j) == name){
             indexes.push_back(j);
         }
     }
 
     for(int j : indexes){
-        string function = "Function: " + currentFilter->getUniprotFunction(j);
+        string function = "Function: " + currentNetwork->getUniprotFunction(j);
         ui->lblUniprotFunction->setText(function.c_str());
         ui->lblUniprotFunction->setWordWrap(true);
 
-        ui->tableProteinsMined1->setRowCount(currentFilter->getUniprotEntryNofFeatures(j));
-        for(unsigned int k = 0; k < currentFilter->getUniprotEntryNofFeatures(j); k++){
-            Feature *f = currentFilter->getUniprotFeature(j,k);
+        ui->tableProteinsMined1->setRowCount(currentNetwork->getUniprotEntryNofFeatures(j));
+        for(unsigned int k = 0; k < currentNetwork->getUniprotEntryNofFeatures(j); k++){
+            Feature *f = currentNetwork->getUniprotFeature(j,k);
 
             printf("\nRES: %s\nAGREG:%d\n",f->getResidueColigated().c_str(),f->getAgregate());
 
@@ -6663,7 +6750,7 @@ void MainWindow::on_treeMinerComms_clicked(const QModelIndex &index)
     QString item = index.data().toString().split(' ')[0];
 
     if(!item.startsWith("Comm") && !item.startsWith("Conservation")){
-        vector<Uniprot*> features = currentFilter->getAllResidueFeatures(item.toStdString());
+        vector<Uniprot*> features = currentNetwork->getAllResidueFeatures(item.toStdString());
 
         ui->tableProteinsMined2->setRowCount(features.size());
         for(unsigned int j = 0; j < features.size(); j++){
@@ -6729,9 +6816,14 @@ void MainWindow::exportLookProtTXT(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
 
@@ -6740,8 +6832,7 @@ void MainWindow::exportLookProtTXT(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-
-    currentFilter->exportLookProt(filename,0);
+    currentNetwork->exportLookProt(filename,0);
 }
 
 void MainWindow::exportLookProtCSV(){
@@ -6754,9 +6845,14 @@ void MainWindow::exportLookProtCSV(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
 
@@ -6765,8 +6861,7 @@ void MainWindow::exportLookProtCSV(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-
-    currentFilter->exportLookProt(filename,1);
+    currentNetwork->exportLookProt(filename,1);
 }
 
 void MainWindow::exportLookProtXML(){
@@ -6779,9 +6874,14 @@ void MainWindow::exportLookProtXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
 
@@ -6790,8 +6890,7 @@ void MainWindow::exportLookProtXML(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-
-    currentFilter->exportLookProt(filename,2);
+    currentNetwork->exportLookProt(filename,2);
 }
 
 void MainWindow::exportLookProtHTML(){
@@ -6804,9 +6903,14 @@ void MainWindow::exportLookProtHTML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
 
@@ -6815,8 +6919,7 @@ void MainWindow::exportLookProtHTML(){
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-
-    currentFilter->exportLookProt(filename,3);
+    currentNetwork->exportLookProt(filename,3);
 }
 
 void MainWindow::exportLookCommTXT(){
@@ -6829,18 +6932,24 @@ void MainWindow::exportLookCommTXT(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
+        return;
+    }
+    vector<string> conserved = currentFilter->getConsRes();
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
                                                  "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentFilter->exportLookComm(filename,0);
+    currentNetwork->exportLookComm(filename,0,conserved);
 }
 
 void MainWindow::exportLookCommCSV(){
@@ -6853,18 +6962,24 @@ void MainWindow::exportLookCommCSV(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
+        return;
+    }
+    vector<string> conserved = currentFilter->getConsRes();
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
                                                  "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentFilter->exportLookComm(filename,1);
+    currentNetwork->exportLookComm(filename,1,conserved);
 }
 
 void MainWindow::exportLookCommXML(){
@@ -6877,18 +6992,24 @@ void MainWindow::exportLookCommXML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
+        return;
+    }
+    vector<string> conserved = currentFilter->getConsRes();
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
                                                  "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentFilter->exportLookComm(filename,2);
+    currentNetwork->exportLookComm(filename,2,conserved);
 }
 
 void MainWindow::exportLookCommHTML(){
@@ -6901,28 +7022,40 @@ void MainWindow::exportLookCommHTML(){
         QMessageBox::warning(this,"Error","You must select an filter to export");
         return;
     }
-
-    if(currentFilter->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool to export this results.");
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You may run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
+    if(currentNetwork->getUniprotMinedSize() == 0){
+        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
+        return;
+    }
+    vector<string> conserved = currentFilter->getConsRes();
 
     QString filename = QFileDialog::getExistingDirectory(this, tr("Choose a directory to save the results file"),
                                                  "",
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
 
-    currentFilter->exportLookComm(filename,3);
+    currentNetwork->exportLookComm(filename,3,conserved);
 }
 
 void MainWindow::changeToCreateCommunity(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     wizard = false;
     ui->cmbComm->clear();
     ui->lstManageComms->clear();
 
     this->changeWizardCmds(false);
 
-    unsigned int nOfComms = currentFilter->getCommListSize();
+    unsigned int nOfComms = currentNetwork->getCommListSize();
 
     //Validação
     if(nOfComms == 0){
@@ -6941,7 +7074,7 @@ void MainWindow::changeToCreateCommunity(){
 void MainWindow::on_cmbComm_currentIndexChanged(int index)
 {
     if(index >= 0){
-        vector<string> comms = currentFilter->getCommunitie(index);
+        vector<string> comms = currentNetwork->getCommunitie(index);
 
         ui->lstManageComms->clear();
 
@@ -6997,10 +7130,10 @@ void MainWindow::on_cmdAddResComm_clicked()
 
     int nc = ui->cmbComm->currentIndex();
 
-    currentFilter->addItemToCommunity(text.toStdString(),nc);
+    currentNetwork->addItemToCommunity(text.toStdString(),nc);
 
     //Atualizar campo
-    vector<string> comms = currentFilter->getCommunitie(nc);
+    vector<string> comms = currentNetwork->getCommunitie(nc);
 
     ui->lstManageComms->clear();
 
@@ -7019,10 +7152,10 @@ void MainWindow::on_cmdDelResComm_clicked()
     int residueIndex = ui->lstManageComms->currentIndex().row();
     int nc = ui->cmbComm->currentIndex();
 
-    currentFilter->removeItemOfCommunity(nc,residueIndex);
+    currentNetwork->removeItemOfCommunity(nc,residueIndex);
 
     //Atualizar campo
-    vector<string> comms = currentFilter->getCommunitie(nc);
+    vector<string> comms = currentNetwork->getCommunitie(nc);
 
     ui->lstManageComms->clear();
 
@@ -7034,10 +7167,10 @@ void MainWindow::on_cmdDelResComm_clicked()
 void MainWindow::on_cmdNewComm_clicked()
 {
     vector<string> newComm;
-    currentFilter->addCommunity(newComm);
+    currentNetwork->addCommunity(newComm);
 
     //Atualizar campos
-    int nOfComms = currentFilter->getCommListSize();
+    int nOfComms = currentNetwork->getCommListSize();
 
     ui->cmbComm->addItem(QString::number(nOfComms));
 
@@ -7045,9 +7178,17 @@ void MainWindow::on_cmdNewComm_clicked()
 }
 
 void MainWindow::changeToListOfSequences(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+
     //Resetar campos de resultado
     ui->lstProteinsFiltered->clear();
     ui->txtSequence->clear();
+    ui->txtSequenceNoGaps->clear();
 
     this->listSequences();
 
@@ -7129,6 +7270,13 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
 }
 
 void MainWindow::changeToTaxonomicView(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+
     if(!this->generateSunburst(vector<string>())) return;
     //printf("%s",csv.c_str());
 
@@ -7138,6 +7286,11 @@ void MainWindow::changeToTaxonomicView(){
 
 void MainWindow::changeToConservationFrequence(){
     //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     if(currentFilter->getConsFreqSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
@@ -7155,6 +7308,11 @@ void MainWindow::changeToConservationFrequence(){
 
 void MainWindow::changeToConservationPercentage(){
     //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     if(currentFilter->getConsFreqPercSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
@@ -7172,6 +7330,11 @@ void MainWindow::changeToConservationPercentage(){
 
 void MainWindow::changeToConservedResidues(){
     //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must select some reference sequences.");
         ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
@@ -7189,7 +7352,12 @@ void MainWindow::changeToConservedResidues(){
 
 void MainWindow::changetoCorrelationList(){
     //Validação
-    if(currentFilter->getCorrGraphSize() == 0){
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7218,11 +7386,13 @@ void MainWindow::changetoCorrelationList(){
 }
 
 void MainWindow::changeToCorrelationGraph(){
-    //ui->cmdNextResult->setVisible(false);
-    //ui->cmdBackResult->setVisible(false);
-
     //Validação
-    if(currentFilter->getCorrGraphSize() == 0){
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7237,6 +7407,7 @@ void MainWindow::changeToCorrelationGraph(){
 }
 
 void MainWindow::changeToCommunitiesGraphs(){
+    /*//OLD
     //Validação
     if(currentFilter->getCommListSize() == 0){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
@@ -7248,11 +7419,17 @@ void MainWindow::changeToCommunitiesGraphs(){
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
     ui->stackedWidget2->setCurrentIndex(STACK_RESULT_COMMGRAPH);
+    */
 }
 
 void MainWindow::changeToCorrelationBetweenComms(){
     //Validação
-    if(currentFilter->getDeltasSize() == 0){
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7262,11 +7439,15 @@ void MainWindow::changeToCorrelationBetweenComms(){
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
     ui->stackedWidget2->setCurrentIndex(STACK_RESULT_DELTAGRAPH);
-
 }
 
 void MainWindow::changeToPDBVisualization(){
     //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     if(currentFilter->getConsPDBPath() == ""){
         QMessageBox::warning(this,"Warning","You must run conservation method and send a PDB file.");
         ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
@@ -7281,7 +7462,17 @@ void MainWindow::changeToPDBVisualization(){
 
 void MainWindow::changeToPDBVisualization2(){
     //Validação
-    if(currentFilter->getCommPDBPath() == ""){
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+    if(currentNetwork->getCommPDBPath() == ""){
         QMessageBox::warning(this,"Warning","You must run correlation method and send a PDB file.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7294,18 +7485,31 @@ void MainWindow::changeToPDBVisualization2(){
 }
 
 void MainWindow::changeToAlphabetReduction(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     emit ui->cmbAlphabetList->currentIndexChanged(0);
     ui->stackedWidget->setCurrentIndex(STACK_ALPHABET);
 }
 
 void MainWindow::changeToGenSubAlignments(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+
     ui->cmbSubAlignComms->clear();
     ui->txtSubAlignName->clear();
     ui->txtResiduesSubAlign->clear();
 
-    if(currentFilter->getCommListSize() > 0){
+    if(currentNetwork->getCommListSize() > 0){
         ui->cmbSubAlignComms->addItem(" ");
-        for(unsigned int i = 0; i < currentFilter->getCommListSize(); i++){
+        for(unsigned int i = 0; i < currentNetwork->getCommListSize(); i++){
             QString txt = "Community " + QString::number(i+1);
             ui->cmbSubAlignComms->addItem(txt);
         }
@@ -7315,6 +7519,12 @@ void MainWindow::changeToGenSubAlignments(){
 }
 
 void MainWindow::changeToAddSequence(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     ui->cmbAddSeq1->clear();
     ui->cmbAddSeq2->clear();
     ui->lstAddSeq1->clear();
@@ -7341,7 +7551,13 @@ void MainWindow::changeToAddSequence(){
 }
 
 void MainWindow::changeToCommunitiesList(){
-    if(currentFilter->getCommListSize() == 0){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7371,7 +7587,13 @@ void MainWindow::changeToCommunitiesList(){
 }
 
 void MainWindow::changeToCorrelationInPerc(){
-    if(currentFilter->getNumOfUtilComms() == 0){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7387,7 +7609,13 @@ void MainWindow::changeToCorrelationInPerc(){
 }
 
 void MainWindow::changeToCorrelationInLogP(){
-    if(currentFilter->getNumOfUtilComms() == 0){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7403,7 +7631,13 @@ void MainWindow::changeToCorrelationInLogP(){
 }
 
 void MainWindow::changeToAdherenceMatrix(){
-    if(currentFilter->getNumOfUtilComms() == 0){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7419,13 +7653,19 @@ void MainWindow::changeToAdherenceMatrix(){
 }
 
 void MainWindow::changeToResiduesOfCommunities(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
     if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must have some reference sequences.");
         ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
         return;
     }
 
-    if(currentFilter->getNumOfUtilComms() == 0){
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlatio methods.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -7441,7 +7681,17 @@ void MainWindow::changeToResiduesOfCommunities(){
 }
 
 void MainWindow::changeToULGroupedByProteins(){
-    if(currentFilter->getUniprotMinedSize() == 0){
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+    if(currentNetwork->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
@@ -7458,7 +7708,18 @@ void MainWindow::changeToULGroupedByProteins(){
 }
 
 void MainWindow::changeToULGroupedByComms(){
-    if(currentFilter->getUniprotMinedSize() == 0){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+    if(currentNetwork->getUniprotMinedSize() == 0){
         QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
@@ -7475,6 +7736,13 @@ void MainWindow::changeToULGroupedByComms(){
 }
 
 void MainWindow::changeToFullAlignment(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+
     ui->tableFullAlignment->clear();
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
@@ -7885,8 +8153,8 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
                                              tr("Alignment name:"), QLineEdit::Normal,
                                              QDir::home().dirName(), &ok);
         if (ok && !text.isEmpty()){
-            for(unsigned int i = 0; i < ui->listWidget2->count(); i++){
-                if(ui->listWidget2->item(i)->text() == text){
+            for(unsigned int i = 0; i < ui->listWidget2->topLevelItemCount(); i++){
+                if(ui->listWidget2->topLevelItem(i)->text(0) == text){
                     QMessageBox::warning(this,"Warning","There's already an alignment with that name.");
                     ui->cmdApplyAlphabetReduction->setEnabled(true);
                     return;
@@ -8238,7 +8506,7 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
     }
     }
 
-    if(newFilter){
+    if(newFilter){//ACRESCENTAR O QTREEWIDGETITEM
         Filter* filter = new Filter();
         filter->setName(alignname);
         filter->setAlphabet(type);
@@ -8250,14 +8518,17 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
         filter->setRefSeq(currentFilter->getRefSeq());
         filter->setTaxon(currentFilter->getTaxon());
         filter->addSequences(currentAlign->sequencenames,currentAlign->sequences);
+        filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
 
         filter->applyAlphabetReduction(oldChars,newChars);
 
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+        treeItem->setText(0,alignname.c_str());
+        filter->setQtreeWidgetItem(treeItem);
+
         currentAlign->addFilter(filter);
 
-        ui->listWidget2->addItem(alignname.c_str());
-        ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
-        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        ui->listWidget2->setCurrentItem(treeItem);
     }else{
         currentFilter->applyAlphabetReduction(oldChars,newChars);
         currentFilter->setAlphabet(type);
@@ -8506,9 +8777,9 @@ void MainWindow::on_cmdLoadPDB_clicked()
 
 
         //Verify if pdb and sequence align
+        currentFilter->convertLowerDots();
         string currseq = currentFilter->getNoGAPSequence(ui->cmbRefSeq_4->currentIndex()-1);
         string pdbseq = pdb->getPDBSequence(chain);
-        currentFilter->convertLowerDots();
         int score = pdb->setResiduesSeqNumber(currseq,chain,currentFilter->sequences[ui->cmbRefSeq_4->currentIndex()-1]);
 
         if(score <= 0){
@@ -9057,14 +9328,30 @@ void MainWindow::on_cmbFilterMethod_activated(int index)
     }
 }
 
-void MainWindow::on_listWidget2_currentRowChanged(int currentRow)
+void MainWindow::on_listWidget2_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
-    QListWidgetItem* item = ui->listWidget2->item(currentRow);
+    string filtername;
+    string networkname = "";
 
-    //Recupera e atualiza o filtro atual
-    Filter *filter = currentAlign->getFilterByName(item->text().toStdString());
+    //Verifica se o nó selecionado é um filtro ou uma rede, se for rede retorna seu filtro
+    if(current == NULL) return;
+
+    if(!current->parent()){
+        filtername = current->text(0).toStdString();
+    }else{
+        networkname = current->text(0).toStdString();
+        filtername = current->parent()->text(0).toStdString();
+    }
+
+    //Recupera e armazena o filtro
+    Filter *filter = currentAlign->getFilterByName(filtername);
     currentFilter = filter;
 
+    //Recupera e armazena a network atual
+    if(networkname == "") currentNetwork = currentFilter->getNetwork(0);
+    else currentNetwork = currentFilter->getNetworkByName(networkname);
+
+    //Limpa campos de resultados
     ui->cmbRefSeq_2->clear();
     ui->cmbRefSeq_2->addItem("Alignment");
     ui->cmbRefSeq_3->clear();
@@ -9080,20 +9367,13 @@ void MainWindow::on_listWidget2_currentRowChanged(int currentRow)
     ui->lstRecomendedPDBs->clear();
     ui->lstPDBsLoaded_2->clear();
 
-    for(unsigned int i = 0; i < pdbs.size(); i++){
-        Pdb* structure = pdbs[i];
-        ui->lstRecomendedPDBs->addItem(structure->getId().c_str());
-        ui->lstPDBsLoaded_2->addItem(structure->getId().c_str());
-    }
-
+    //Label na tela do minss
     ui->lblNseq->setText("Number of sequences in the alignment: " + QString::number(filter->getSequencesCount()));
+
 
     //Add filtered sequences
     for(unsigned int i = 0; i < filter->getSequencesCount(); i++){
-        //string proteinName = this->split(filter->getSequenceName(i),'/')[0];
         string proteinName = filter->getSequenceName(i);
-        //ui->cmbRefSeq_2->addItem(proteinName.c_str());
-        //ui->cmbRefSeq_3->addItem(proteinName.c_str());
         ui->cmbRefSeq_4->addItem(proteinName.c_str());
         ui->lstProteinsFiltered->addItem(proteinName.c_str());
     }
@@ -9119,6 +9399,8 @@ void MainWindow::on_listWidget2_currentRowChanged(int currentRow)
             Pdb* pdb = pdbs[i];
             ui->cmbRefPdb_2->addItem(pdb->getId().c_str());
             ui->cmbRefPdb_3->addItem(pdb->getId().c_str());
+            ui->lstRecomendedPDBs->addItem(pdb->getId().c_str());
+            ui->lstPDBsLoaded_2->addItem(pdb->getId().c_str());
         }
         ui->cmbRefPdb_2->setEnabled(true);
         ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
@@ -9126,8 +9408,9 @@ void MainWindow::on_listWidget2_currentRowChanged(int currentRow)
         ui->cmdUpdateGraphPdbNumbering_2->setEnabled(true);
     }
 
+    //Mudanças de filtros em páginas especificas
     if(ui->stackedWidget->currentIndex() == STACK_MANAGE_COMMS){
-        unsigned int nOfComms = currentFilter->getCommListSize();
+        unsigned int nOfComms = currentNetwork->getCommListSize();
         ui->cmbComm->clear();
 
         for(unsigned int j = 1; j <= nOfComms; j++)
@@ -9138,8 +9421,7 @@ void MainWindow::on_listWidget2_currentRowChanged(int currentRow)
         changeToMutationAnalysis();
     }
 
-    currentFilter->CalculateFrequencies();
-
+    //Prepara tela de conservação para usar pesos ou frequências
     if(currentFilter->getWeightsSize() == 0){
         ui->label_28->setEnabled(false);
         ui->label_31->setEnabled(false);
@@ -9172,30 +9454,33 @@ string MainWindow::getDirectory(string path){
 
 void MainWindow::comm2Align(){
     int members = 0;
-    QProgressDialog progress("Loading the alignment...","Cancel",0,currentFilter->Communities.size());
+    QProgressDialog progress("Loading the alignment...","Cancel",0,currentNetwork->Communities.size());
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
-    for(unsigned int i = 0; i < currentFilter->Communities.size(); i++){
+    for(unsigned int i = 0; i < currentNetwork->Communities.size(); i++){
         progress.setValue(i);
         if(progress.wasCanceled()) return;
 
         string name = currentFilter->getName() + "_comm" + to_string(i+1);
-        Filter* filter = new Filter(name,currentFilter->getAlphabet(),3);
+        Filter* filter = new Filter(name,currentFilter->getAlphabet(),3);//ACRESCENTAR O QTREEWIDGETITEM
 
-        for(unsigned int j = 0; j < currentFilter->sequences.size(); j++){
+        for(unsigned int j = 0; j < currentNetwork->sequences->size(); j++){
             members = 0;
 
-            for(unsigned int k = 0; k < currentFilter->Communities[i].pos.size(); k++){
-                if(currentFilter->sequences[j].c_str()[currentFilter->Communities[i].pos[k]] == currentFilter->Communities[i].aa[k])
+            for(unsigned int k = 0; k < currentNetwork->Communities[i].pos.size(); k++){
+                if(currentNetwork->sequences->at(j).c_str()[currentNetwork->Communities[i].pos[k]] == currentNetwork->Communities[i].aa[k])
                     members++;
             }
-            if(members == currentFilter->Communities[i].pos.size())
-                filter->addSequences(currentFilter->sequencenames[j],currentFilter->sequences[j]);
+            if(members == currentNetwork->Communities[i].pos.size())
+                filter->addSequences(currentNetwork->sequencenames->at(j),currentNetwork->sequences->at(j));
         }
 
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+        treeItem->setText(0,name.c_str());
+        filter->setQtreeWidgetItem(treeItem);
         currentAlign->addFilter(filter);
-        ui->listWidget2->addItem(name.c_str());
+        //ui->listWidget2->addItem(name.c_str());
     }
 
     progress.close();
@@ -9262,65 +9547,67 @@ void MainWindow::freeMem(){
 }
 
 void MainWindow::renameFilter(){
-    int currentFilterId = ui->listWidget2->currentRow();
-    bool ok;
+    if(ui->listWidget2->currentItem() == NULL){
+        QMessageBox::warning(this,"Warning","You must select a filter to remove.");
+        return;
+    }
 
-    if(currentFilterId > 0){
+    if(!ui->listWidget2->currentItem()->parent()){
+        QTreeWidgetItem *currentItem = ui->listWidget2->currentItem();
+
+        if(currentItem->text(0) == "Full Alignment"){
+            QMessageBox::warning(this,"Warning","You can't rename the Full Alignment.");
+            return;
+        }
+
+        bool ok;
         QString text = QInputDialog::getText(this, tr("New filter name"),
                                              tr("Type the new filter name:"), QLineEdit::Normal,
-                                             ui->listWidget2->currentItem()->text(), &ok);
+                                             ui->listWidget2->currentItem()->text(0), &ok);
         if (ok && !text.isEmpty()){
+            if(!currentAlign->verifyValidFilterName(text.toStdString())){
+                QMessageBox::warning(this,"Warning","Invalid filter name.");
+                return;
+            }
+
             currentFilter->setName(text.toStdString());
-            ui->listWidget2->currentItem()->setText(text);
+            ui->listWidget2->currentItem()->setText(0,text);
         }
+    }else{
+        QMessageBox::warning(this,"Warning","You can't rename a network.");
+        return;
     }
 }
 
 void MainWindow::removeFilter(){
-    Filter *filter = currentAlign->getFilterByName(ui->listWidget2->currentItem()->text().toStdString());
-    currentFilter = filter;
-
-    if(ui->listWidget2->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must select a filter to remove.");
-        return;
-    }
-
-    if(currentFilter->getType() == 9){
-        QMessageBox::warning(this,"Error","You cant remove full alignment.");
-        return;
-    }
-
-    int pos = ui->listWidget2->currentIndex().row();
-    currentAlign->removeFilter(ui->listWidget2->currentItem()->text().toStdString());
-    delete ui->listWidget2->item(pos);
-    if(pos > 0) ui->listWidget2->setCurrentRow(pos-1);
-    else ui->listWidget2->setCurrentRow(0);
-    emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+    on_cmdRemoveFilter_clicked();
 }
 
 void MainWindow::duplicateFilter(){
-    bool ok;
-    string possibleName = currentFilter->getName() + "_2";
-    QString text = QInputDialog::getText(this, tr("Duplicate Filter"),
-                                         tr("Type the new filtered sub-alignment name:"), QLineEdit::Normal,
-                                         possibleName.c_str(), &ok);
-    if (ok && !text.isEmpty()){
-        vector<Filter*> loaded = currentAlign->getFilters();
+    if(ui->listWidget2->currentItem() == NULL){
+        QMessageBox::warning(this,"Warning","You must select a filter to remove.");
+        return;
+    }
 
-        for(unsigned int i = 0; i < loaded.size(); i++){
-            Filter* f = loaded[i];
+    if(!ui->listWidget2->currentItem()->parent()){
+        //Filtro
 
-            if(f->getName() == text.toStdString()){
-                QMessageBox::information(this,"Warning","Invalid filter name");
-                return;
-            }
+        //Monta o novo nome
+        int sufixNumber = 2;
+        string possibleName = currentFilter->getName() + to_string(sufixNumber);
+        while(true){
+            possibleName = currentFilter->getName() + to_string(sufixNumber);
+            if(currentAlign->verifyValidFilterName(possibleName)){
+                break;
+            }else
+                sufixNumber++;
         }
 
         int type;
         if(currentFilter->getType() == 9) type = 7;
         else type = currentFilter->getType();
 
-        Filter *filter = new Filter(text.toStdString(),currentFilter->getAlphabet(),type);
+        Filter *filter = new Filter(possibleName,currentFilter->getAlphabet(),type);//ACRESCENTAR O QTREEWIDGETITEM
         filter->setRefSeq(currentFilter->getRefSeq());
         filter->setTaxon(currentFilter->getTaxon());
         filter->setMinId(currentFilter->getMinId());
@@ -9328,10 +9615,22 @@ void MainWindow::duplicateFilter(){
         filter->setMaxId(currentFilter->getMaxId());
         filter->addSequences(currentFilter->getSequenceNames(),currentFilter->getSequences());
         filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+        treeItem->setText(0,possibleName.c_str());
+        filter->setQtreeWidgetItem(treeItem);
+        for(unsigned int i = 0; i < currentFilter->countNetworks(); i++){//Testar duplicar, depois deletar uma network e ver se o original mantem
+            Network *net = new Network(&filter->sequences,&filter->sequencenames,currentFilter->getNetwork(i));
+            filter->addNetwork(net);
+            QTreeWidgetItem *child = new QTreeWidgetItem();
+            child->setText(0,net->getName().c_str());
+            treeItem->addChild(child);
+        }
         currentAlign->addFilter(filter);
-        ui->listWidget2->addItem(text);
-        ui->listWidget2->item(ui->listWidget2->count()-1)->setSelected(true);
-        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        ui->listWidget2->setCurrentItem(treeItem);
+    }else{
+        //Network
+        QMessageBox::warning(this,"Warning","You can't duplicate a network.");
+        return;
     }
 }
 
@@ -9339,7 +9638,7 @@ void MainWindow::on_cmdSubAlignAddRes_clicked()
 {
     string text = "";
     if(ui->cmbSubAlignComms->currentText() != " " && ui->cmbSubAlignComms->currentText() != ""){
-        vector<string> residues = currentFilter->getCommunitie(ui->cmbSubAlignComms->currentIndex()-1);
+        vector<string> residues = currentNetwork->getCommunitie(ui->cmbSubAlignComms->currentIndex()-1);
 
         for(unsigned int i = 0; i < residues.size(); i++){
             text += residues[i] + "\n";
@@ -9356,12 +9655,14 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
 
     if(!currentAlign->verifyValidFilterName(name)){
         QMessageBox::warning(this,"Invalid Filter Name","Invalid filter name.");
+        ui->txtSubAlignName->setFocus();
         ui->cmdGenerateSubAlignment->setEnabled(true);
         return;
     }
 
     if(ui->txtResiduesSubAlign->toPlainText() == ""){
-        QMessageBox::warning(this,"Invalid Dataset","There's none key residue set");
+        QMessageBox::warning(this,"Invalid Dataset","The residues list is blank.");
+        ui->txtResiduesSubAlign->setFocus();
         ui->cmdGenerateSubAlignment->setEnabled(true);
         return;
     }
@@ -9380,8 +9681,10 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
             bool ok;
             int pos = temp.toInt(&ok);
             if(ok){
-                std::tuple<char,int> tup (aa[0],pos);
-                residuesHits.push_back(tup);
+                if(pos <= currentFilter->sequences[0].size() && pos > 0){
+                    std::tuple<char,int> tup (aa[0],pos);
+                    residuesHits.push_back(tup);
+                }
             }
             count++;
         }
@@ -9421,12 +9724,14 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
         filter->setRefSeq(currentFilter->getRefSeq());
         filter->setTaxon(currentFilter->getTaxon());
         filter->addSequences(sequencenames,sequences);
+        filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+        treeItem->setText(0,name.c_str());
+        filter->setQtreeWidgetItem(treeItem);
 
         currentAlign->addFilter(filter);
 
-        ui->listWidget2->addItem(name.c_str());
-        ui->listWidget2->setCurrentRow(ui->listWidget2->count()-1);
-        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        ui->listWidget2->setCurrentItem(treeItem);
 
         QString msg = "The sub-alignmente were generated with " + QString::number(sequences.size()) + " sequences.";
         QMessageBox::information(this,"Sub-alignment generated",msg);
@@ -9516,7 +9821,8 @@ void MainWindow::on_cmdAddSeq_clicked()
 
         //printf("%s %s\n",sequence.c_str(),seq.c_str());
 
-        emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        //emit ui->listWidget2->activated(ui->listWidget2->currentIndex());
+        emit ui->listWidget2->currentItemChanged(filter2->getQTreeWidgetItem(),filter1->getQTreeWidgetItem());
 
         string msg = "The sequence " + sequence + "was added in the alignment " + ui->cmbAddSeq2->currentText().toStdString() + ".";
         QMessageBox::information(this,"Sequence added",msg.c_str());
@@ -9527,20 +9833,21 @@ void MainWindow::on_cmdAddSeq_clicked()
 
 void MainWindow::on_cmdExpandNetworkVisualization_clicked()
 {
-    NetworkVisualization* nw = new NetworkVisualization(this,currentFilter,libpath);
+    NetworkVisualization* nw = new NetworkVisualization(this,currentNetwork,libpath);
     nw->setWindowFlags(Qt::Window);
     nw->show();
 }
 
 void MainWindow::on_cmdExpandTaxonomy_clicked()
 {
-    TaxonomicVisualization* tv = new TaxonomicVisualization(this,currentFilter,libpath);
+    TaxonomicVisualization* tv = new TaxonomicVisualization(this,currentFilter,currentNetwork,libpath);
     tv->setWindowFlags(Qt::Window);
     tv->show();
 }
 
 void MainWindow::on_cmdCalculateMutations_clicked()
 {
+    /*
     ui->cmdCalculateMutations->setEnabled(false);
 
     if(ui->cmbMutationStructure->currentText() == ""){
@@ -9715,6 +10022,7 @@ void MainWindow::on_cmdCalculateMutations_clicked()
 
     QMessageBox::information(this,"Mutation Analysis","The mutations were successfully calculated");
     ui->cmdCalculateMutations->setEnabled(true);
+    */
 }
 
 void MainWindow::on_radioMutationAlignment_clicked(bool checked)
@@ -9742,4 +10050,14 @@ void MainWindow::on_radioMutationPDB_clicked(bool checked)
         ui->radioMutationSequence->setChecked(false);
         ui->cmbMutationRefSeq->setEnabled(false);
     }
+}
+
+QTreeWidgetItem* MainWindow::getFilterItem(){
+    QTreeWidgetItem* item = currentFilter->getQTreeWidgetItem();
+
+    if(!item){
+        item = ui->listWidget2->topLevelItem(0);
+    }
+
+    return item;
 }

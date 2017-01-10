@@ -25,7 +25,7 @@ class TaxonomicVisualization : public QDialog
     };
 
 public:
-    explicit TaxonomicVisualization(QWidget *parent = 0, Filter* filter=NULL, string lib="");
+    explicit TaxonomicVisualization(QWidget *parent = 0, Filter* filter=NULL, Network* network=NULL, string lib="");
     ~TaxonomicVisualization();
 
 private slots:
@@ -46,6 +46,7 @@ private slots:
 private:
     Ui::TaxonomicVisualization *ui;
     Filter* currentFilter;
+    Network* currentNetwork;
     string libpath;
     map<string,string> mapPreTaxons;
 

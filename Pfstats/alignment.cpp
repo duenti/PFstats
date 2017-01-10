@@ -229,7 +229,7 @@ void Alignment::generateXML(string outputXML){
         Filter* filter = filters[i];
 
         out << "<filters>\n";
-        string content = filter->generateXML();
+        string content = filter->generateXML(); //N SALVAR CONSERVATION (SO PARAMETROS), RODAR DE NOVO
         out << content.c_str() << "\n";
         out << "</filters>";
     }
@@ -512,6 +512,7 @@ bool Alignment::GetFromFile(){
         for(c1=1;c1<=sequences.size()-1;c1++)
         if(sequences[0].size()!=sequences[c1].size() || sequences[c1].size() == 0){
             printf("Sequence #%d (%s) does not has the same size of the first sequence. Please check your alignment file",c1+1,sequencenames[c1].c_str());
+            progress.close();
             return false;
         }
 
@@ -519,6 +520,7 @@ bool Alignment::GetFromFile(){
         for(c1=0;c1<=sequences[0].size();c1++){ // total positions: sequencesize + 1 (positions + totals)
             QApplication::processEvents();
             if(progress.wasCanceled()){
+                progress.close();
                 return false;
             }
 
@@ -538,6 +540,7 @@ bool Alignment::GetFromFile(){
 
         filters.push_back(fullFilter);
 
+        progress.close();
         return true;
     }
 
@@ -952,7 +955,10 @@ void Alignment::removeFilter(string name){
     for(unsigned int i = 0; i < filters.size(); i++){
         Filter* filter = filters[i];
 
-        if(filter->getName() == name) filters.erase(filters.begin() + i);
+        if(filter->getName() == name){
+            filter->clear();
+            filters.erase(filters.begin() + i);
+        }
     }
 }
 
@@ -999,9 +1005,12 @@ void Alignment::defineHMMpositions(){
 void Alignment::updateFiltersData(){
     for(unsigned int i = 0; i < filters.size(); i++){
         Filter *filter = filters[i];
-
-        filter->updateCommunitiesData();
         filter->updateSequencesData();
+
+        for(unsigned int i = 0; i < filter->countNetworks(); i++){
+            Network *net = filter->getNetwork(i);
+            net->updateCommunitiesData();
+        }
     }
 }
 

@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    QDesktopWidget dw;
+    //QDesktopWidget dw;
 //#pragma omp parallel for
     //for(int i = 0; i < 1000000; i++){
         //printf("%d\n",i);
@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     //int y = dw.height();
 
     //w.setFixedSize(x,y);
+
     w.startStacked();
 
     w.show();

@@ -1,6 +1,0 @@
-1 communities
-4 nodes in community 1
-G96
-C188
-C443
-H194

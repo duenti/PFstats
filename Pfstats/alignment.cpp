@@ -682,6 +682,16 @@ bool Alignment::taxonTrimming(string taxon, string refseqName, string refSeq){
     QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
     event.exec();
     QString html = response->readAll();
+
+    if(html == ""){
+        string msg = "The query returned a null content. It may be caused by one of the following cases:\n";
+        msg += "-None sequence match with the searched taxon.\n";
+        msg += "-You are having problems with your internet connection.\n";
+        msg += "-Our servers are down. You can check it by accessing www.biocomp.icb.ufmg.br";
+        QMessageBox::information(NULL,"Null result",msg.c_str());
+        return false;
+    }
+
     //printf("%s\n",html.toStdString().c_str());
     for(unsigned int i = 0; i < sequences.size(); i++){
         if(progress.wasCanceled()) return false;

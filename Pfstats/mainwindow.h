@@ -168,8 +168,6 @@ private slots:
 
     void on_cmdLookAll_clicked();
 
-    void on_lstProteinsMined_activated(const QModelIndex &index);
-
     void on_treeMinerComms_clicked(const QModelIndex &index);
 
     void on_cmbComm_currentIndexChanged(int index);
@@ -289,6 +287,8 @@ private slots:
     void on_listWidget2_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
     void on_lstProteinsFiltered_itemClicked(QListWidgetItem *item);
+
+    void on_lstProteinsMined_itemClicked(QListWidgetItem *item);
 
 private:
     enum Constants{

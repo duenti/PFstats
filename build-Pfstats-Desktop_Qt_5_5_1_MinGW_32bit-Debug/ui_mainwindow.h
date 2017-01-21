@@ -465,7 +465,10 @@ public:
     QSpacerItem *verticalSpacer_17;
     QVBoxLayout *verticalLayout_26;
     QLabel *label_34;
+    QLabel *label_73;
     QTextEdit *txtSequence;
+    QLabel *label_85;
+    QTextEdit *txtSequenceNoGaps;
     QListWidget *lstProteinsFiltered;
     QSpacerItem *horizontalSpacer_46;
     QWidget *page_10;
@@ -690,6 +693,7 @@ public:
     QWidget *page_28;
     QGridLayout *gridLayout_32;
     QLabel *label_62;
+    QVBoxLayout *verticalLayout_55;
     QHBoxLayout *horizontalLayout_37;
     QLabel *label_63;
     QComboBox *cmbAlphabetList;
@@ -698,6 +702,7 @@ public:
     QLabel *lblAlphabetName;
     QSpacerItem *horizontalSpacer_66;
     QLabel *lblAlphabetChanges;
+    QSpacerItem *verticalSpacer_14;
     QHBoxLayout *horizontalLayout_36;
     QRadioButton *radioAlphabetCurrent;
     QRadioButton *radioAlphabetNew;
@@ -706,6 +711,7 @@ public:
     QSpacerItem *horizontalSpacer_12;
     QPushButton *cmdApplyAlphabetReduction;
     QSpacerItem *horizontalSpacer_13;
+    QSpacerItem *verticalSpacer_12;
     QWidget *page_32;
     QGridLayout *gridLayout_22;
     QLabel *label_84;
@@ -808,8 +814,8 @@ public:
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
-    QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup;
+    QButtonGroup *buttonGroup_2;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -1090,6 +1096,7 @@ public:
 
         listWidget2 = new QTreeWidget(centralWidget);
         listWidget2->setObjectName(QStringLiteral("listWidget2"));
+        listWidget2->setContextMenuPolicy(Qt::ActionsContextMenu);
         listWidget2->setHeaderHidden(true);
 
         verticalLayout_11->addWidget(listWidget2);
@@ -2718,11 +2725,26 @@ public:
 
         verticalLayout_26->addWidget(label_34);
 
+        label_73 = new QLabel(page_9);
+        label_73->setObjectName(QStringLiteral("label_73"));
+
+        verticalLayout_26->addWidget(label_73);
+
         txtSequence = new QTextEdit(page_9);
         txtSequence->setObjectName(QStringLiteral("txtSequence"));
         txtSequence->setReadOnly(true);
 
         verticalLayout_26->addWidget(txtSequence);
+
+        label_85 = new QLabel(page_9);
+        label_85->setObjectName(QStringLiteral("label_85"));
+
+        verticalLayout_26->addWidget(label_85);
+
+        txtSequenceNoGaps = new QTextEdit(page_9);
+        txtSequenceNoGaps->setObjectName(QStringLiteral("txtSequenceNoGaps"));
+
+        verticalLayout_26->addWidget(txtSequenceNoGaps);
 
 
         verticalLayout_27->addLayout(verticalLayout_26);
@@ -4010,6 +4032,9 @@ public:
 
         gridLayout_32->addWidget(label_62, 0, 0, 1, 1);
 
+        verticalLayout_55 = new QVBoxLayout();
+        verticalLayout_55->setSpacing(6);
+        verticalLayout_55->setObjectName(QStringLiteral("verticalLayout_55"));
         horizontalLayout_37 = new QHBoxLayout();
         horizontalLayout_37->setSpacing(6);
         horizontalLayout_37->setObjectName(QStringLiteral("horizontalLayout_37"));
@@ -4030,7 +4055,7 @@ public:
         horizontalLayout_37->addItem(horizontalSpacer_14);
 
 
-        gridLayout_32->addLayout(horizontalLayout_37, 1, 0, 1, 1);
+        verticalLayout_55->addLayout(horizontalLayout_37);
 
         horizontalLayout_88 = new QHBoxLayout();
         horizontalLayout_88->setSpacing(6);
@@ -4046,13 +4071,18 @@ public:
         horizontalLayout_88->addItem(horizontalSpacer_66);
 
 
-        gridLayout_32->addLayout(horizontalLayout_88, 2, 0, 1, 1);
+        verticalLayout_55->addLayout(horizontalLayout_88);
 
         lblAlphabetChanges = new QLabel(page_28);
         lblAlphabetChanges->setObjectName(QStringLiteral("lblAlphabetChanges"));
         lblAlphabetChanges->setMinimumSize(QSize(150, 40));
+        lblAlphabetChanges->setSizeIncrement(QSize(0, 0));
 
-        gridLayout_32->addWidget(lblAlphabetChanges, 3, 0, 1, 1);
+        verticalLayout_55->addWidget(lblAlphabetChanges);
+
+        verticalSpacer_14 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_55->addItem(verticalSpacer_14);
 
         horizontalLayout_36 = new QHBoxLayout();
         horizontalLayout_36->setSpacing(6);
@@ -4073,7 +4103,7 @@ public:
         horizontalLayout_36->addItem(horizontalSpacer_67);
 
 
-        gridLayout_32->addLayout(horizontalLayout_36, 4, 0, 1, 1);
+        verticalLayout_55->addLayout(horizontalLayout_36);
 
         horizontalLayout_38 = new QHBoxLayout();
         horizontalLayout_38->setSpacing(6);
@@ -4092,7 +4122,14 @@ public:
         horizontalLayout_38->addItem(horizontalSpacer_13);
 
 
-        gridLayout_32->addLayout(horizontalLayout_38, 5, 0, 1, 1);
+        verticalLayout_55->addLayout(horizontalLayout_38);
+
+
+        gridLayout_32->addLayout(verticalLayout_55, 1, 0, 1, 2);
+
+        verticalSpacer_12 = new QSpacerItem(20, 437, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        gridLayout_32->addItem(verticalSpacer_12, 2, 1, 1, 1);
 
         stackedWidget->addWidget(page_28);
         page_32 = new QWidget();
@@ -4505,7 +4542,7 @@ public:
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1120, 25));
+        menuBar->setGeometry(QRect(0, 0, 1120, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuMethod = new QMenu(menuBar);
@@ -4675,9 +4712,9 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(1);
+        stackedWidget->setCurrentIndex(6);
         cmbAlignmentType->setCurrentIndex(1);
-        stackedWidget2->setCurrentIndex(10);
+        stackedWidget2->setCurrentIndex(11);
         cmbViewColumns->setCurrentIndex(2);
 
 
@@ -4843,7 +4880,7 @@ public:
          << QApplication::translate("MainWindow", "Fasta", 0)
         );
         chkDownloadAlignment->setText(QApplication::translate("MainWindow", "Download alignment", 0));
-        label_8->setText(QApplication::translate("MainWindow", "<html><head/><body><p>*These alignments use a different nomenclature for the sequences and<br/>therefore can not be used in our methods of queries to databases</p></body></html>", 0));
+        label_8->setText(QApplication::translate("MainWindow", "<html><head/><body><p>*These alignments use a different nomenclature for the sequences and<br/>therefore can not be used in methods to queries databases</p></body></html>", 0));
         cmdFetch->setText(QApplication::translate("MainWindow", "Fetch", 0));
         label_9->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Alignment Filtering</span></p><p align=\"justify\">In this phase, the alignment is filtered in order to reduce artifacts and biases. The first two filters need a reference sequence (usually, a protein with the usual size for the domain represented by the alignment). &quot;Minimum coverage&quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &quot;Minimum identity&quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &quot;Maximum identity&quot; filter is highly recommended in order to reduce the phylogenetic effect bias. It will compare each sequence to all others, removing those above the specified identity.</p></body></html>", 0));
         label_83->setText(QApplication::translate("MainWindow", "Filter Name:", 0));
@@ -4948,6 +4985,8 @@ public:
         lblOccupancy->setText(QApplication::translate("MainWindow", "Occupancy: ", 0));
         lblMaxId->setText(QApplication::translate("MainWindow", "Maximum Identity: ", 0));
         label_34->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Sequence:</span></p></body></html>", 0));
+        label_73->setText(QApplication::translate("MainWindow", "Aligned:", 0));
+        label_85->setText(QApplication::translate("MainWindow", "Without Gaps:", 0));
         label_35->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Table of frequence conservation</span></p></body></html>", 0));
         QTableWidgetItem *___qtablewidgetitem = tableFreq->horizontalHeaderItem(0);
         ___qtablewidgetitem->setText(QApplication::translate("MainWindow", "Pos", 0));

@@ -3946,7 +3946,7 @@ void MainWindow::on_cmdFetch_clicked()
     //Salvar arquivo
     if(pfam.contains("302 Found") || pfam.contains("500 Internal Server Error") || pfam == ""){
         progress.close();
-        QMessageBox::warning(this,"Error","PFAM File not Found");
+        QMessageBox::warning(this,"Error","PFAM File not Found. Check the PFAM id and your internet connection");
         ui->cmdFetch->setText("Fetch");
         ui->cmdFetch->setEnabled(true);
         return ;
@@ -6671,10 +6671,10 @@ void MainWindow::on_cmdLookAll_clicked()
     ui->lstLookingRefs->selectAll();
 }
 
-void MainWindow::on_lstProteinsMined_activated(const QModelIndex &index)
+void MainWindow::on_lstProteinsMined_itemClicked(QListWidgetItem *item)
 {
     ui->tableProteinsMined1->clearContents();
-    string name = index.data().toString().split(' ')[0].toStdString();
+    string name = item->text().split(' ')[0].toStdString();
     vector<int> indexes;
 
     //Acha a entrada uniprot selecionada
@@ -8875,7 +8875,7 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     switch(ui->cmbFilterRefseq->currentIndex()){
     case 0:
     {
-        url += "haspdb";
+        url += "haspdb/";
 
         break;
     }
@@ -8930,7 +8930,8 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
             return;
         }
         string seqname = ui->lstRefSeqs->item(i)->text().toStdString();
-        post_content += seqname + "\n";
+        vector<string> temp = split(seqname,'/');
+        post_content += temp[0] + "\n";
     }
 
     QByteArray const data = QString::fromStdString(post_content).toUtf8();
@@ -8951,6 +8952,16 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
         return;
     }
 
+    if(result == ""){
+        string msg = "The query returned a null content. It may be caused by one of the following cases:\n";
+        msg += "-None sequence match with the search.\n";
+        msg += "-You are having problems with your internet connection.\n";
+        msg += "-Our servers are down. You can check it by accessing www.biocomp.icb.ufmg.br";
+        QMessageBox::information(this,"Null result",msg.c_str());
+        ui->cmdFilterRefSeqs->setEnabled(true);
+        return;
+    }
+
     vector<string> filtered = this->split(result.toStdString(),'\n');
 
     int count = 0;
@@ -8964,8 +8975,9 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
                     return;
                 }
 
-                if(protname == ui->lstRefSeqs->item(j)->text().toStdString()){
-                    ui->lstRefSeqSelected->addItem(protname.c_str());
+                string protname2 = this->split(ui->lstRefSeqs->item(j)->text().toStdString(),'/')[0];
+                if(protname == protname2){
+                    ui->lstRefSeqSelected->addItem(ui->lstRefSeqs->item(j)->text());
                     delete ui->lstRefSeqs->item(j);
                     if(j > 0) j--;
                     count ++;
@@ -8981,8 +8993,9 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
                     return;
                 }
 
-                if(filtered[i] == ui->lstRefSeqs->item(j)->text().toStdString()){
-                    ui->lstRefSeqSelected->addItem(filtered[i].c_str());
+                string protname2 = this->split(ui->lstRefSeqs->item(j)->text().toStdString(),'/')[0];
+                if(filtered[i] == protname2){
+                    ui->lstRefSeqSelected->addItem(ui->lstRefSeqs->item(j)->text());
                     delete ui->lstRefSeqs->item(j);
                     if(j > 0) j--;
                     count ++;
@@ -9109,6 +9122,16 @@ void MainWindow::on_cmdLookingFilter_clicked()
     QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
     event.exec();
     QString result = response->readAll();
+
+    if(result == ""){
+        string msg = "The query returned a null content. It may be caused by one of the following cases:\n";
+        msg += "-None sequence match with the search.\n";
+        msg += "-You are having problems with your internet connection.\n";
+        msg += "-Our servers are down. You can check it by accessing www.biocomp.icb.ufmg.br";
+        QMessageBox::information(this,"Null result",msg.c_str());
+        ui->cmdLookingFilter->setEnabled(true);
+        return;
+    }
 
     vector<string> filtered = this->split(result.toStdString(),'\n');
 

@@ -889,14 +889,14 @@ vector<float> Filter::ShannonEntropy(int repetitions, int cores){
     outputVec.push_back((float)(partialsum/((long double)(populatedpos.size()))));
 
     //Cria sortOrder
-    SortOrder.clear();
+    vector<int> sortPos;
     for(unsigned int i = 0; i < sequences.size()-1; i++){
         currentProgress++;
         progress.setValue(currentProgress);
         QApplication::processEvents();
 
         if(progress.wasCanceled()) return blank;
-        SortOrder.push_back(i);
+        sortPos.push_back(i);
     }
 
     //Populaciona subsetlocal
@@ -929,34 +929,49 @@ vector<float> Filter::ShannonEntropy(int repetitions, int cores){
         if (currentsize<=0) break;
 
         omp_set_num_threads(cores);
-        #pragma omp parallel for firstprivate(subsetTemp) reduction (+:partialsum)
-        //Teste sem filtro
-        for(int j = 0; j < repetitions; j++){
-            random_shuffle(SortOrder.begin(),SortOrder.end());
-            //Calcula frequência do subalinhamento
-            for (unsigned int i1 = 0; i1 < subsetTemp.size(); i1++)
-                for(unsigned int j1 = 0; j1 < subsetTemp[0].size(); j1++)
-                    subsetTemp[i1][j1]=0;
+        #pragma omp parallel shared(populatedpos) reduction (+:partialsum)
+        {
+        int j = 0;
+        #pragma omp for private(j) firstprivate(sortPos)
+        for(j = 0; j < repetitions; ++j){
+            vector<vector<int> > subsetTemp2;
+            random_shuffle(sortPos.begin(),sortPos.end());
 
-            for(int i1 = 0; i1 < currentsize; i1++){
-                for(unsigned int j1 = 0; j1 < sequences[0].size(); j1++){
-                    subsetTemp[j1][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
-                    subsetTemp[sequences[0].size()][freqmatrixposition(sequences[SortOrder[i1]][j1])]++;
+            //Calcula frequência do subalinhamento
+            int i1 = 0;
+            int j1 = 0;
+            for (i1 = 0; i1 < subsetfrequencies.size(); i1++){
+                vector<int> temp;
+                for(unsigned int j1 = 0; j1 < subsetfrequencies[0].size(); j1++)
+                    temp.push_back(0);
+                subsetTemp2.push_back(temp);
+            }
+
+            for(i1 = 0; i1 < currentsize; i1++){
+                for(j1 = 0; j1 < sequences[0].size(); j1++){
+                    subsetTemp2[j1][freqmatrixposition(sequences[sortPos[i1]][j1])]++;
+                    subsetTemp2[sequences[0].size()][freqmatrixposition(sequences[sortPos[i1]][j1])]++;
                 }
             }
 
-            for(unsigned int k = 0; k < populatedpos.size() - 1; k++){
+            int k = 0;
+            for(k = 0; k < populatedpos.size() - 1; k++){
                 for(unsigned int l = 0; l <= 20; l++){
-                    double subsetfreq = (double)subsetTemp[k][l]/(double)currentsize;
+                    double subsetfreq = (float)subsetTemp2[k][l]/(float)currentsize;
                     if(subsetfreq > 0){
+                        //#pragma omp critical(soma)
+                        //{
                         if(subsetfreq* log(subsetfreq) < 0) partialsum += (subsetfreq* log(subsetfreq) * -1);
                         else partialsum += (subsetfreq* log(subsetfreq));
+                        //}
                     }
                 }
             }
 
         }
-        outputVec.push_back((float)(partialsum/((long double)(populatedpos.size()*repetitions))));
+        }
+
+        outputVec.push_back((float)(partialsum/((float)(populatedpos.size()*repetitions))));
     }
 
     minssData.clear();

@@ -15,6 +15,7 @@ INPUT(
 ./release\pdbresidues.o
 ./release\pdbpseudoatom.o
 ./release\pdbinteraction.o
+./release\network.o
 ./release\moc_mainwindow.o
 ./release\moc_qcustomplot.o
 ./release\moc_about.o

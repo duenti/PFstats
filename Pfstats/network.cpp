@@ -1432,6 +1432,14 @@ bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector
     QString result = response->readAll();
     //printf("%s",result.toStdString().c_str());
 
+    if(result == ""){
+        string msg = "The query returned a null content. It may be caused by one of the following cases:\n";
+        msg += "-You are having problems with your internet connection.\n";
+        msg += "-Our servers are down. You can check it by accessing www.biocomp.icb.ufmg.br";
+        QMessageBox::information(NULL,"Null result",msg.c_str());
+        return false;
+    }
+
     vector<string> lines = split(result.toStdString(),'\n');
 
     progress.setLabelText("Parsing UniprotKb data (2/3)");

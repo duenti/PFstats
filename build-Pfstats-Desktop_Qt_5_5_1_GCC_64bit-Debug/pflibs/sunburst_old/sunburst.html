@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sunburst with Text</title>
+    <script src="d3.v3.min.js"></script>
+    <style type="text/css">
+     html {
+     height: 300%;
+     width: 115%;
+     }
+     body {
+     font-family: 'Open Sans', sans-serif;
+     font-size: 12px;
+     font-weight: 400;
+     background-color: #fff;
+     height: 64.28%;
+     width: 71.007%;
+     }
+     #main {
+     float: left;
+     width: 78.125%;
+     }
+     #sidebar {
+     float: right;
+     width: 10.417%;
+     }
+     #sequence {
+     width: 80%;
+     }
+     #sequence text, #legend text {
+     font-weight: 600;
+     fill: #fff;
+     }
+     #chart {
+     position: relative;
+     }
+     #chart path {
+     stroke: #fff;
+     }
+     #explanation {
+     position: relative;
+     top: 20px;
+     right: 20px;
+     width: 140px;
+     text-align: center;
+     color: #666;
+     z-index: -1;
+     }
+     #percentage {
+     font-size: 1.5em;
+     }
+     #sidebar {
+     float: right;
+     width: 10.417%;
+     }
+     #legend {
+     padding: 10px 0 0 3px;
+     }
+   </style>
+  </head>
+  <body>
+   <div id="main">
+    <div id="sequence"></div>
+    <div id="chart">
+    </div>
+   </div>
+   <div id="sidebar">
+    <input type="checkbox" id="togglelegend"> Legend<br/>
+    <div id="legend" style="visibility: hidden;"></div>
+    <div id="explanation" style="visibility: hidden;">
+     <span id="percentage"></span><br/>
+   </div>
+  </div>
+  <script src="jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="final.js"></script>
+  </body>
+</html>

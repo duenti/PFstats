@@ -311,13 +311,13 @@ void MainWindow::resetObjects(){
     //CORRELATION TABLES %
     ui->lblComunidade->setText("Community: ");
     ui->lblMinLogP_3->setText("Minimum Score: ");
-    ui->lblMinss_3->setText("Minss Fraction: ");
+    ui->lblMinss_3->setText("MRsA Fraction: ");
     ui->lblDeltaFreq_3->setText("Delta Frequence: ");
     ui->tableComm1->clear();
     //CORRELATION TABLES LOG P
     ui->lblComunidade_2->setText("Community: ");
     ui->lblMinLogP_4->setText("Minimum Score: ");
-    ui->lblMinss_4->setText("Minss Fraction: ");
+    ui->lblMinss_4->setText("MRsA Fraction: ");
     ui->lblDeltaFreq_4->setText("Delta Frequence: ");
     ui->tableComm2->clear();
     //ADHERENCE
@@ -1256,7 +1256,7 @@ void MainWindow::correlationList(){
 
     //Recupera parametros
     ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore())));
-    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
+    ui->lblMinss->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
     ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta())));
 
     //Preenche a tabela
@@ -1281,7 +1281,7 @@ void MainWindow::on_cmdUpdateGraphNumbering_clicked()
 
     //Recupera parametros
     ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore())));
-    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
+    ui->lblMinss->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
     ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta())));
 
     //Preenche a tabela
@@ -1361,7 +1361,7 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_clicked()
 
     //Recupera parametros
     ui->lblMinLogP->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore())));
-    ui->lblMinss->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
+    ui->lblMinss->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction())));
     ui->lblDeltaFreq->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta())));
 
     //Preenche a tabela
@@ -2120,7 +2120,7 @@ void MainWindow::communitiesList(){
 
     //Recupera parametros
     ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
-    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblMinss_2->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
     ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
 
     //Preenche a tabela
@@ -2155,7 +2155,7 @@ void MainWindow::on_cmdUpdateGraphNumbering2_clicked()
 
     //Recupera parametros
     ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
-    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblMinss_2->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
     ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
 
     //Preenche a tabela
@@ -2240,7 +2240,7 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_2_clicked()
 
     //Recupera parametros
     ui->lblMinLogP_2->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
-    ui->lblMinss_2->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblMinss_2->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
     ui->lblDeltaFreq_2->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
 
     //Preenche a tabela
@@ -2286,7 +2286,7 @@ void MainWindow::corrTable1(){
 
     //Recupera parametros
     ui->lblMinLogP_3->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
-    ui->lblMinss_3->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
+    ui->lblMinss_3->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinssFraction()).c_str()));
     ui->lblDeltaFreq_3->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
     ui->lblComunidade->setText("Community: 1");
 
@@ -2339,7 +2339,7 @@ void MainWindow::corrTable2(){
 
     //Recupera parametros
     ui->lblMinLogP_4->setText("Minimum Score: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
-    ui->lblMinss_4->setText("Minss Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
+    ui->lblMinss_4->setText("MRsA Fraction: " + QString::fromStdString(to_string(currentNetwork->getMinScore()).c_str()));
     ui->lblDeltaFreq_4->setText("Delta Frequence: " + QString::fromStdString(to_string(currentNetwork->getMinDelta()).c_str()));
     ui->lblComunidade_2->setText("Community: 1");
 
@@ -3688,7 +3688,7 @@ void MainWindow::on_cmdAdvance_clicked()
     case STACK_ALIGNMENT:
     {
         if(ui->listWidget->count() == 0){
-            QMessageBox::warning(this,"Warning","You must fetch an alignment before goes on.");
+            QMessageBox::warning(this,"Warning","You must fetch an alignment before proceeding.");
             return;
         }
 
@@ -3777,7 +3777,7 @@ void MainWindow::on_cmdAdvance_clicked()
         if(currentFilter->getMinssVectorSize() == 0){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Warning",
-                                            "You are leaving this page without generating the minss chart. Is that correct?",
+                                            "You are leaving this page without generating the MRsA chart. Is that correct?",
                                             QMessageBox::Yes|QMessageBox::No);
             if (reply == QMessageBox::No) return;
         }
@@ -4217,21 +4217,21 @@ void MainWindow::on_cmdCorrelation_clicked()
 
     //Validação de dados
     if(ui->txtMinssFraction->text() == ""){
-        QMessageBox::warning(this,"Error","You must set a minss fraction value to run correlation.");
+        QMessageBox::warning(this,"Error","You must set a MRsA fraction value to run correlation.");
         ui->txtMinssFraction->setFocus();
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
 
     if(!isFloat(ui->txtMinssFraction->text().toStdString())){
-        QMessageBox::warning(this,"Parse Error","Minss fraction must be a float number.");
+        QMessageBox::warning(this,"Parse Error","MRsA fraction must be a float number.");
         ui->txtMinssFraction->setFocus();
         ui->cmdCorrelation->setEnabled(true);
         return;
     }
     float minssfraction = ui->txtMinssFraction->text().toFloat();
     if(minssfraction < 0.05 || minssfraction > 0.9){
-        QMessageBox::warning(this,"Error","Minss fraction must be in the 0.05 - 0.9 interval.");
+        QMessageBox::warning(this,"Error","MRsA fraction must be in the 0.05 - 0.9 interval.");
         ui->txtMinssFraction->setFocus();
         ui->cmdCorrelation->setEnabled(true);
         return;
@@ -4392,7 +4392,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRLIST:
     {
-        if(currentNetwork->getGraphSize() == 0){
+        //if(currentNetwork->getGraphSize() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4407,7 +4408,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMLIST:
     {
-        if(currentNetwork->getCommListSize() == 0){
+        //if(currentNetwork->getCommListSize() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4422,7 +4424,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRPERC:
     {
-        if(currentNetwork->getNumOfUtilComms() == 0){
+        //if(currentNetwork->getNumOfUtilComms() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4437,7 +4440,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRLOG:
     {
-        if(currentNetwork->getNumOfUtilComms() == 0){
+        //if(currentNetwork->getNumOfUtilComms() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4452,7 +4456,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_ADHERENCE:
     {
-        if(currentNetwork->getNumOfUtilComms() == 0){
+        //if(currentNetwork->getNumOfUtilComms() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4473,7 +4478,8 @@ void MainWindow::updateResultsViews(){
             return;
         }
 
-        if(currentNetwork->getNumOfUtilComms() == 0){
+        //if(currentNetwork->getNumOfUtilComms() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4488,8 +4494,9 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_UNIPROT_PROTEINS:
     {
-        if(currentNetwork->getUniprotMinedSize() == 0){
-            QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        //if(currentNetwork->getUniprotMinedSize() == 0){
+        if(!currentNetwork){
+            QMessageBox::warning(this,"Warning","You must run Uniprot Look-up.");
             ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
         }
@@ -4504,8 +4511,9 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_UNIPROT_COMMS:
     {
-        if(currentNetwork->getUniprotMinedSize() == 0){
-            QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        //if(currentNetwork->getUniprotMinedSize() == 0){
+        if(!currentNetwork){
+            QMessageBox::warning(this,"Warning","You must run Uniprot Look-up.");
             ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
             return;
         }
@@ -4532,7 +4540,12 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMPDB:
     {
-        if(currentNetwork->getCommPDBPath() == ""){
+        //if(currentNetwork->getCommPDBPath() == ""){
+        if(!currentNetwork){
+            QMessageBox::warning(this,"Warning","You must run correlation with a PDB for this alignment.");
+            ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+            return;
+        }else if(currentNetwork->getCommPDBPath() == ""){
             QMessageBox::warning(this,"Warning","You must run correlation with a PDB for this alignment.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4544,7 +4557,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_CORRGRAPH:
     {
-        if(currentNetwork->getGraphSize() == 0){
+        //if(currentNetwork->getGraphSize() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4556,7 +4570,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_COMMGRAPH:
     {
-        if(currentNetwork->getGraphSize() == 0){
+        //if(currentNetwork->getGraphSize() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -4568,7 +4583,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_DELTAGRAPH:
     {
-        if(currentNetwork->getDeltasSize() == 0){
+        //if(currentNetwork->getDeltasSize() == 0){
+        if(!currentNetwork){
             QMessageBox::warning(this,"Warning","You must run correlation method.");
             ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
             return;
@@ -6486,12 +6502,14 @@ void MainWindow::changeToUniprotLookingTool(){
         ui->chkConserveds->setChecked(true);
     }else ui->chkConserveds->setCheckable(false);
 
-    if(currentNetwork->getCommListSize() > 0){
+
+    //if(currentNetwork->getCommListSize() > 0){
+    if(!currentNetwork){
         ui->chkComm->setCheckable(true);
         ui->chkComm->setChecked(true);
     }else ui->chkComm->setCheckable(false);
 
-    if(currentFilter->getConsFreqSize() == 0 && currentNetwork->getCommListSize() == 0){
+    if(currentFilter->getConsFreqSize() == 0 && !currentNetwork){
         QMessageBox::warning(this,"Warning","You must run at least Conservation or Correlation programs before use this.");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
@@ -6822,7 +6840,7 @@ void MainWindow::exportLookProtTXT(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -6851,7 +6869,7 @@ void MainWindow::exportLookProtCSV(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -6880,7 +6898,7 @@ void MainWindow::exportLookProtXML(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -6909,7 +6927,7 @@ void MainWindow::exportLookProtHTML(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -6938,7 +6956,7 @@ void MainWindow::exportLookCommTXT(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -6968,7 +6986,7 @@ void MainWindow::exportLookCommCSV(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -6998,7 +7016,7 @@ void MainWindow::exportLookCommXML(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -7028,7 +7046,7 @@ void MainWindow::exportLookCommHTML(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You may run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You may run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -7507,7 +7525,8 @@ void MainWindow::changeToGenSubAlignments(){
     ui->txtSubAlignName->clear();
     ui->txtResiduesSubAlign->clear();
 
-    if(currentNetwork->getCommListSize() > 0){
+    //if(currentNetwork->getCommListSize() > 0){
+    if(!currentNetwork){
         ui->cmbSubAlignComms->addItem(" ");
         for(unsigned int i = 0; i < currentNetwork->getCommListSize(); i++){
             QString txt = "Community " + QString::number(i+1);
@@ -7692,7 +7711,7 @@ void MainWindow::changeToULGroupedByProteins(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You must run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -7720,7 +7739,7 @@ void MainWindow::changeToULGroupedByComms(){
         return;
     }
     if(currentNetwork->getUniprotMinedSize() == 0){
-        QMessageBox::warning(this,"Warning","You must run Uniprot Looking Tool.");
+        QMessageBox::warning(this,"Warning","You must run Uniprot Look-up.");
         ui->stackedWidget->setCurrentIndex(STACK_UNIPROT);
         return;
     }
@@ -8908,7 +8927,7 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     {
         //Validação
         if(ui->txtFilterRefSeq->text() == ""){
-            QMessageBox::warning(this,"Error","You must inform what taxon to filter.");
+            QMessageBox::warning(this,"Error","You must inform what taxon will generate the filtered alignment.");
             ui->txtFilterRefSeq->setFocus();
             ui->cmdFilterRefSeqs->setEnabled(true);
             return;

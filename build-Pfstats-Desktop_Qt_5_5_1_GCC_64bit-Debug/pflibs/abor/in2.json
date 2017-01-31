@@ -1,0 +1,98 @@
+{
+	"nodes": {
+		"G33": {
+			"alignName": "G33"
+			},
+		"H42": {
+			"alignName": "H42"
+			},
+		"G8": {
+			"alignName": "G8"
+			},
+		"D12": {
+			"alignName": "D12"
+			},
+		"Y47": {
+			"alignName": "Y47"
+			},
+		"G90": {
+			"alignName": "G90"
+			},
+		"K106": {
+			"alignName": "K106"
+			},
+		"R378": {
+			"alignName": "R378"
+			},
+		"A21": {
+			"alignName": "A21"
+		}
+	},
+	"edges":{
+		"G33": {
+			"H42": {
+				"value": 8
+				},
+			"K106": {
+				"value": 7
+				},
+			"R378": {
+				"value": 5
+				}
+		},
+		"H42": {
+
+		},
+		"G8": {
+			"D12": {
+				"value": 18
+				},
+			"Y47": {
+				"value": 6
+				}
+		},
+		"D12": {
+			"Y47": {
+				"value": 20
+				},
+			"G90": {
+				"value": 39
+				},
+			"K106": {
+				"value": 21
+				},
+			"R378": {
+				"value": 47
+				}
+		},
+		"Y47": {
+			"G90": {
+				"value": 45
+				},
+			"K106": {
+				"value": 34
+				},
+			"R378": {
+				"value": 7
+				}
+		},
+		"G90": {
+			"K106": {
+				"value": 27
+				}
+		},
+		"K106": {
+			"R378": {
+				"value": 9
+				}
+		},
+		"R378": {
+
+		},
+		"A21": {
+			"K106": {
+				"value": 17
+				}
+		}	},
+"_": "zebra finch bk42w74 syllable transition graph"
+}

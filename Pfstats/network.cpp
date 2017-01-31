@@ -533,7 +533,7 @@ int Network::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
     unsigned int aa2pos2count=0;
     unsigned int c2;
     if(pos1==pos2) return 0;
-    this->CalculateFrequencies();
+    //this->CalculateFrequencies();
     vector<int> subalignmentseqs = SubAlignmentIndices(aa1,pos1);
 
     if (subalignmentseqs.size()>0){

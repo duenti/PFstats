@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<PFStats>
+	<correlation>
+		<parameters>
+			<refseq>A0A044QPZ9_ONCVO/28-141</refseq>
+			<minScore>5</minScore>
+			<minss>0.3</minss>
+			<delta>0.25</delta>
+		</parameters>
+		<graph>
+			<entry res1="F29" res2="F273" value="23" />
+			<entry res1="F29" res2="L273" value="-11" />
+			<entry res1="L29" res2="A269" value="-8" />
+			<entry res1="L29" res2="F273" value="-12" />
+			<entry res1="M32" res2="G83" value="6" />
+			<entry res1="C35" res2="L125" value="-13" />
+			<entry res1="C35" res2="C178" value="37" />
+			<entry res1="T37" res2="A125" value="-9" />
+			<entry res1="G83" res2="G90" value="11" />
+			<entry res1="G83" res2="C113" value="15" />
+			<entry res1="G83" res2="H117" value="12" />
+			<entry res1="G83" res2="D118" value="19" />
+			<entry res1="G83" res2="Y122" value="5" />
+			<entry res1="G83" res2="C272" value="15" />
+			<entry res1="G90" res2="C113" value="6" />
+			<entry res1="G90" res2="H117" value="7" />
+			<entry res1="G90" res2="D118" value="17" />
+			<entry res1="G90" res2="Y122" value="10" />
+			<entry res1="G90" res2="C272" value="7" />
+			<entry res1="V102" res2="C119" value="-10" />
+			<entry res1="C113" res2="H117" value="21" />
+			<entry res1="C113" res2="D118" value="18" />
+			<entry res1="C113" res2="Y122" value="7" />
+			<entry res1="C113" res2="C272" value="24" />
+			<entry res1="H117" res2="D118" value="16" />
+			<entry res1="H117" res2="Y122" value="6" />
+			<entry res1="H117" res2="C272" value="15" />
+			<entry res1="D118" res2="Y122" value="13" />
+			<entry res1="D118" res2="C272" value="15" />
+			<entry res1="C119" res2="Y164" value="-11" />
+			<entry res1="Y122" res2="C272" value="7" />
+			<entry res1="L125" res2="C178" value="-13" />
+			<entry res1="G145" res2="Y164" value="-7" />
+			<entry res1="P163" res2="L262" value="-8" />
+			<entry res1="A269" res2="L273" value="-10" />
+		</graph>
+	</correlation>
+</PFStats>

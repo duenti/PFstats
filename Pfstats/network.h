@@ -38,6 +38,7 @@ private:
     int refseq;
     string commPDBPath;
     vector<tuple<string,string,int> > corrGraph;
+    vector<int> subalignmentseqs;
     vector<vector<string> > comunidades;
     vector<vector<string> > residuesComm;
     vector<vector<string> > residuesCommPs;
@@ -105,7 +106,7 @@ public:
     int Singlepvalue(char aa1,int pos1, char aa2, int pos2);
     void SympvalueCalculation (int minlogp, float minssfraction, float mindeltafreq);
     void henikoffpvalueCalculation(int minlogp, float minssfraction, float mindeltafreq, vector<float> weights);
-    vector<int> SubAlignmentIndices(char aa,int pos);
+    void SubAlignmentIndices(char aa,int pos);
     vector<int> subalignmentIndicesW(char aa, int pos);
     void CalculateFrequencies();
     void clearCommunity();

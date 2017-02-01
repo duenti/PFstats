@@ -80,6 +80,8 @@ void Network::clear(){
     commPDBPath.shrink_to_fit();
     corrGraph.clear();
     corrGraph.shrink_to_fit();
+    subalignmentseqs.clear();
+    subalignmentseqs.shrink_to_fit();
     comunidades.clear();
     comunidades.shrink_to_fit();
     residuesComm.clear();
@@ -486,7 +488,7 @@ void Network::CalculateFrequencies(){
     frequencies.clear();
 
     // FREQUENCE MATRIX INITIALIZATION
-    for(c1=0;c1<=sequences[0].size();c1++){ // total positions: sequencesize + 1 (positions + totals)
+    for(c1=0;c1<=sequences->at(0).size();c1++){ // total positions: sequencesize + 1 (positions + totals)
         frequencies.push_back( vector<int>(21) );
         for(c2=0; c2<=20; c2++)
             frequencies[c1].push_back(0);
@@ -494,29 +496,29 @@ void Network::CalculateFrequencies(){
 
     // INSERT AMINO ACID FREQUENCES ON EACH POSITION OF THE ALIGNMENT
     for(c1=0;c1<=sequences->size()-1;c1++){
-        for(c2=0;c2<=sequences[0].size()-1;c2++){
+        for(c2=0;c2<=sequences->at(0).size()-1;c2++){
             frequencies[c2][freqmatrixposition(sequences->at(c1)[c2])]++;
-            frequencies[sequences[0].size()][freqmatrixposition(sequences->at(c1)[c2])]++;
+            frequencies[sequences->at(0).size()][freqmatrixposition(sequences->at(c1)[c2])]++;
         }
     }
 
     for (c1=1;c1<=20;c1++){
-        partialresult=(long double)(frequencies[sequences[0].size()][c1]);
-        partialresult=partialresult/((long double)((sequences->size()*sequences[0].size())-frequencies[sequences[0].size()][0]));
+        partialresult=(long double)(frequencies[sequences->at(0).size()][c1]);
+        partialresult=partialresult/((long double)((sequences->size()*sequences->at(0).size())-frequencies[sequences->at(0).size()][0]));
         //meanf[c1]=partialresult;
     }
 }
 
 
 
-vector<int> Network::SubAlignmentIndices(char aa, int pos){
-    vector<int> subalignmentseqs;
+void Network::SubAlignmentIndices(char aa, int pos){
+    unsigned int c1;
 
-    for (unsigned int c1=0;c1<sequences->size();c1++)
+    if(subalignmentseqs.size()>0) subalignmentseqs.clear();
+
+    for (c1=0;c1<sequences->size();c1++)
         if(sequences->at(c1)[pos]==aa)
             subalignmentseqs.push_back(c1);
-
-    return subalignmentseqs;
 }
 
 vector<int> Network::subalignmentIndicesW(char aa, int pos){
@@ -534,7 +536,7 @@ int Network::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
     unsigned int c2;
     if(pos1==pos2) return 0;
     //this->CalculateFrequencies();
-    vector<int> subalignmentseqs = SubAlignmentIndices(aa1,pos1);
+    SubAlignmentIndices(aa1,pos1);
 
     if (subalignmentseqs.size()>0){
         for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
@@ -549,6 +551,7 @@ int Network::Singlepvalue(char aa1, int pos1, char aa2, int pos2){
     }else return 0;
 }
 
+/*
 void Network::SympvalueCalculation(int minlogp, float minssfraction, float mindeltafreq){
     int aa1,aa2,aa2pos2count,aa1pos1count;
     unsigned int c2,pos1,pos2;
@@ -582,7 +585,7 @@ void Network::SympvalueCalculation(int minlogp, float minssfraction, float minde
                                 corrGraph.clear();
                                 return;
                             }
-                            vector<int> subalignmentseqs = SubAlignmentIndices(num2aa(aa1),pos1);
+                            SubAlignmentIndices(num2aa(aa1),pos1);
                             aa2pos2count=0;
 
                             for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
@@ -590,7 +593,7 @@ void Network::SympvalueCalculation(int minlogp, float minssfraction, float minde
 
                             if(((float)aa2pos2count)/((float)subalignmentseqs.size())>((float)frequencies[pos2][aa2])/(float(sequences->size()))){
                                 if(((float)aa2pos2count)/((float)subalignmentseqs.size())>(1.0-mindeltafreq)){
-                                    subalignmentseqs = SubAlignmentIndices(num2aa(aa2),pos2);
+                                    SubAlignmentIndices(num2aa(aa2),pos2);
                                     aa1pos1count=0;
 
                                     for(c2=0;c2<=subalignmentseqs.size()-1;c2++){
@@ -603,7 +606,97 @@ void Network::SympvalueCalculation(int minlogp, float minssfraction, float minde
                                 }else mindeltafreqok=false;
                             }else{
                                 if(((float)aa2pos2count)/((float)subalignmentseqs.size())<(mindeltafreq)){
-                                    subalignmentseqs = SubAlignmentIndices(num2aa(aa2),pos2);
+                                    SubAlignmentIndices(num2aa(aa2),pos2);
+                                    aa1pos1count=0;
+
+                                    for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
+                                        if (sequences->at(subalignmentseqs[c2])[pos1]==num2aa(aa1)) aa1pos1count++;
+
+                                    if(((float)aa1pos1count)/((float)subalignmentseqs.size())<(mindeltafreq))
+                                        mindeltafreqok=true;
+                                    else mindeltafreqok=false;
+                                }else mindeltafreqok=false;
+                            }
+                            if(mindeltafreqok){
+                                pvalue1=Singlepvalue(num2aa(aa1),pos1,num2aa(aa2),pos2);
+                                pvalue2=Singlepvalue(num2aa(aa2),pos2,num2aa(aa1),pos1);
+                                //fprintf(temp,"%c%d %c%d \n",num2aa(aa1),pos1,num2aa(aa2),pos2);
+                                if((abs((pvalue1+pvalue2)/2)>=minlogp)&&(abs(pvalue2)>=minlogp)&&(abs(pvalue2)>=minlogp)){
+                                    //printf ("%c%d %c%d %i\n",num2aa(aa1),pos1+1,num2aa(aa2),pos2+1,(pvalue1+pvalue2)/2);
+                                    string residue1 = num2aa(aa1) + QString::number(pos1+1).toStdString();
+                                    string residue2 = num2aa(aa2) + QString::number(pos2+1).toStdString();
+                                    int edgeValue = (pvalue1+pvalue2)/2;
+                                    tuple<string,string,int> node(residue1,residue2,edgeValue);
+                                    //printf("%s %s %d\n",residue1.c_str(),residue2.c_str(),edgeValue);
+                                    this->corrGraph.push_back(node);
+                                    //out << num2aa(aa1) << pos1+1 << " " << num2aa(aa2) << pos2+1 << " " << (pvalue1+pvalue2)/2 << "\n";
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    progress.close();
+}
+*/
+
+void Network::SympvalueCalculation(int minlogp, float minssfraction, float mindeltafreq){
+    int aa1,aa2,aa2pos2count,aa1pos1count;
+    unsigned int c2,pos1,pos2;
+    short int pvalue1,pvalue2;
+    bool mindeltafreqok;
+    this->corrGraph.clear();
+    //FILE *temp;
+    //temp = fopen("temppvalues.txt","w");
+
+    QProgressDialog progress("Calculating correlations...(1/6)", "Abort", 0,sequences->at(0).size()-1);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for (pos1=0;pos1<=sequences->at(0).size()-2;pos1++){
+        progress.setValue(pos1);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            corrGraph.clear();
+            return;
+        }
+
+        for (aa1=1;aa1<=20;aa1++){
+            if(frequencies[pos1][aa1]>minssfraction*((float)sequences->size()))
+                for(pos2=pos1+1;pos2<=sequences->at(0).size()-1;pos2++){
+                    for(aa2=1;aa2<=20;aa2++){
+                        if(frequencies[pos2][aa2]>minssfraction*((float)sequences->size())){
+                            QApplication::processEvents();
+
+                            if(progress.wasCanceled()){
+                                corrGraph.clear();
+                                return;
+                            }
+                            SubAlignmentIndices(num2aa(aa1),pos1);
+                            aa2pos2count=0;
+
+                            for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
+                                if (sequences->at(subalignmentseqs[c2])[pos2]==num2aa(aa2)) aa2pos2count++;
+
+                            if(((float)aa2pos2count)/((float)subalignmentseqs.size())>((float)frequencies[pos2][aa2])/(float(sequences->size()))){
+                                if(((float)aa2pos2count)/((float)subalignmentseqs.size())>(1.0-mindeltafreq)){
+                                    SubAlignmentIndices(num2aa(aa2),pos2);
+                                    aa1pos1count=0;
+
+                                    for(c2=0;c2<=subalignmentseqs.size()-1;c2++){
+                                        if (sequences->at(subalignmentseqs[c2])[pos1]==num2aa(aa1)) aa1pos1count++;
+                                    }
+
+                                    if(((float)aa1pos1count)/((float)subalignmentseqs.size())>(1.0-mindeltafreq))
+                                        mindeltafreqok=true;
+                                    else mindeltafreqok=false;
+                                }else mindeltafreqok=false;
+                            }else{
+                                if(((float)aa2pos2count)/((float)subalignmentseqs.size())<(mindeltafreq)){
+                                    SubAlignmentIndices(num2aa(aa2),pos2);
                                     aa1pos1count=0;
 
                                     for(c2=0;c2<=subalignmentseqs.size()-1;c2++)
@@ -638,6 +731,7 @@ void Network::SympvalueCalculation(int minlogp, float minssfraction, float minde
     progress.close();
 }
 
+
 void Network::henikoffpvalueCalculation(int minlogp, float minssfraction, float mindeltafreq, vector<float> weights){
     int aa1,aa2;
     unsigned int c2,pos1,pos2;
@@ -645,11 +739,11 @@ void Network::henikoffpvalueCalculation(int minlogp, float minssfraction, float 
     bool mindeltafreqok;
     this->corrGraph.clear();
 
-    QProgressDialog progress("Calculating correlations...(1/6)", "Abort", 0,sequences[0].size()-1);
+    QProgressDialog progress("Calculating correlations...(1/6)", "Abort", 0,sequences->at(0).size()-1);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
-    for (pos1=0;pos1<=sequences[0].size()-2;pos1++){
+    for (pos1=0;pos1<=sequences->at(0).size()-2;pos1++){
         progress.setValue(pos1);
         QApplication::processEvents();
 
@@ -667,7 +761,7 @@ void Network::henikoffpvalueCalculation(int minlogp, float minssfraction, float 
             }
 
             if(f0a1>minssfraction)
-                for(pos2=pos1+1;pos2<=sequences[0].size()-1;pos2++){
+                for(pos2=pos1+1;pos2<=sequences->at(0).size()-1;pos2++){
                     for(aa2=1;aa2<=20;aa2++){
                         QApplication::processEvents();
 
@@ -925,6 +1019,10 @@ void Network::getCommunitiesFromRAM(){
 }
 
 void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
+    QProgressDialog progress("Calculating tables...(4/6)", "Abort", 0,comunidades.size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     int nclusters = comunidades.size();
     vector<char> aalist;
     vector<int> poslist;
@@ -932,14 +1030,10 @@ void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
     this->communityXAll.clear();
     this->residuesComm.clear();
 
-    QProgressDialog progress("Calculating tables...(4/6)", "Abort", 0,nclusters);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.show();
-
     for(int i = 0; i < nclusters; i++){
         progress.setValue(i);
         if(progress.wasCanceled()) return;
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents();
         aalist.clear();
         poslist.clear();
         vector<float> clusterXAll;
@@ -995,7 +1089,7 @@ int Network::getEdge(string v1, string v2){
 }
 
 void Network::DeltaCommunitiesCalculation(){
-    QProgressDialog progress("Calculating Deltas...(5/6)", "Abort", 0,this->getNumOfUtilComms()-1);
+    QProgressDialog progress("Calculating Deltas...(5/6)", "Abort", 0,comunidades.size());
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
@@ -1036,6 +1130,7 @@ void Network::DeltaCommunitiesCalculation(){
             }
         }
     }
+    progress.close();
 
     printf("OK\n");
 }
@@ -1161,7 +1256,7 @@ void Network::SelfCorrelationMatrixCalculation(const std::vector<char> &aalist, 
     }
 
     for (j=0;j<=aalist.size()-1;j++){
-        vector<int> subalignmentseqs = SubAlignmentIndices(aalist[j],poslist[j]);
+        SubAlignmentIndices(aalist[j],poslist[j]);
 
         for (i=0;i<=aalist.size()-1;i++){
             if(i==j) selfcorrelationmatrix[i][j]=-1;
@@ -1372,7 +1467,7 @@ vector<int> Network::CalculateReferenceVector(int seqnumber){
     vector<int> referencevector;
     //referencesequence=seqnumber;
 
-    for(unsigned int c1=0;c1<sequences[0].size();c1++)
+    for(unsigned int c1=0;c1<sequences->at(0).size();c1++)
         if(isaax(sequences->at(seqnumber-1)[c1])) referencevector.push_back(c1);
 }
 

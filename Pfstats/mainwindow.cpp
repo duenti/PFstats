@@ -2432,22 +2432,45 @@ void MainWindow::showConservedResidues(){
     vector<string> conservedaa = currentFilter->getConsRes();
     vector<float> dgs = currentFilter->getConservedDGs();
 
+    QProgressDialog progress("Parsing sequences...(1/2)","Abort",0,currentFilter->getRefSeqsSize());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     //Parâmetros
     ui->lblMinCons->setText("Minimum Conservation: " + QString::fromStdString(to_string(currentFilter->getConsMin())));
 
     for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            return;
+        }
+
         string ref1 = currentFilter->getRefSeq(i);
         refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
     }
 
     if(conservedaa.size() == 0){
         QMessageBox::warning(this,"Warning","No residues match the conservation minimum.");
+        progress.close();
         return;
     }
+
+    progress.setLabelText("Drawing table...(2/2)");
+    progress.setValue(0);
+    progress.setMaximum(conservedaa.size() + refSeqs.size());
 
     //Cabeçalho
     ui->tableConsRes->setColumnCount(conservedaa.size());
     for(unsigned int i = 0; i < conservedaa.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            return;
+        }
+
         string textCab = conservedaa[i] + " (" + QString::number(dgs[i],'f',2).toStdString() + ")";
         ui->tableConsRes->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
@@ -2456,6 +2479,13 @@ void MainWindow::showConservedResidues(){
     vector<string> fullAlignment = currentAlign->getFullAlignment();
     vector<string> fullSequences = currentAlign->getFullSequences();
     for(unsigned int i = 0; i < refSeqs.size(); i++){
+        progress.setValue(i+conservedaa.size());
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            return;
+        }
+
         ui->tableConsRes->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
         for(unsigned int j = 0; j < conservedaa.size(); j++){
@@ -2485,19 +2515,35 @@ void MainWindow::showConservedResidues(){
     }
     //Ajusta tamanho das colunas
     ui->tableConsRes->resizeColumnsToContents();
+    progress.close();
 }
 
 void MainWindow::showResiduesComm(){
     vector<int> refSeqs;
 
+    QProgressDialog progress("Parsing sequences...(1/2)","Abort",0,currentFilter->getRefSeqsSize());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
     if(currentFilter->frequencies.size() == 0)
         currentFilter->CalculateFrequencies();
 
     for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            return;
+        }
+
         string ref1 = currentFilter->getRefSeq(i);
 
         refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
     }
+
+    progress.setLabelText("Drawing table...(2/2)");
+    progress.setValue(0);
+    progress.setMaximum(currentNetwork->Communities[0].pos.size() + refSeqs.size());
 
     //Parâmetros
     ui->lblComunidade_3->setText("Community: 1");
@@ -2505,6 +2551,13 @@ void MainWindow::showResiduesComm(){
     //Cabeçalho
     ui->tableResiduesComm->setColumnCount(currentNetwork->Communities[0].pos.size());
     for(unsigned int i = 0; i < currentNetwork->Communities[0].pos.size(); i++){
+        progress.setValue(i);
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            return;
+        }
+
         string textCab = currentNetwork->Communities[0].aa[i] + QString::number(currentNetwork->Communities[0].pos[i]+1).toStdString();
         ui->tableResiduesComm->setHorizontalHeaderItem(i,new QTableWidgetItem(textCab.c_str()));
     }
@@ -2513,6 +2566,13 @@ void MainWindow::showResiduesComm(){
     vector<string> fullSequences = currentAlign->getFullSequences();
     ui->tableResiduesComm->setRowCount(refSeqs.size());
     for(unsigned int i = 0; i < refSeqs.size(); i++){
+        progress.setValue(i+currentNetwork->Communities[0].pos.size());
+        QApplication::processEvents();
+
+        if(progress.wasCanceled()){
+            return;
+        }
+
         ui->tableResiduesComm->setVerticalHeaderItem(i,new QTableWidgetItem(fullAlignment[refSeqs[i]].c_str()));
 
         for(unsigned int j = 0; j < currentNetwork->Communities[0].pos.size(); j++){
@@ -2539,6 +2599,7 @@ void MainWindow::showResiduesComm(){
 
     //Ajusta tamanho das colunas
     ui->tableResiduesComm->resizeColumnsToContents();
+    progress.close();
 }
 
 void MainWindow::showUniprotGroupByProteins(){
@@ -3633,6 +3694,7 @@ void MainWindow::on_cmdBack_clicked()
     {
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
+        updateRefSeqsCompleters();
         ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
         break;
     }
@@ -3709,6 +3771,8 @@ void MainWindow::on_cmdAdvance_clicked()
                 return;
             }
         }
+
+        updateRefSeqsCompleters();
 
         ui->cmdBack->setEnabled(true);
         ui->cmdAdvance->setEnabled(true);
@@ -3942,6 +4006,7 @@ void MainWindow::on_cmdFetch_clicked()
 
     if(progress.wasCanceled()){
         ui->cmdFetch->setEnabled(true);
+        return;
     }
     //Salvar arquivo
     if(pfam.contains("302 Found") || pfam.contains("500 Internal Server Error") || pfam == ""){
@@ -5843,7 +5908,7 @@ void MainWindow::exportConsResTXT(){
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    currentFilter->exportConsRes(filename,0,0.8,refSeqs,fullAlignment,fullSequences);
+    currentFilter->exportConsRes(filename,0,currentFilter->getConsMin(),refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportConsResXML(){
@@ -5881,7 +5946,7 @@ void MainWindow::exportConsResXML(){
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    currentFilter->exportConsRes(filename,1,0.8,refSeqs,fullAlignment,fullSequences);
+    currentFilter->exportConsRes(filename,1,currentFilter->getConsMin(),refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportConsResHTML(){
@@ -5919,7 +5984,7 @@ void MainWindow::exportConsResHTML(){
         refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
     }
 
-    currentFilter->exportConsRes(filename,2,0.8,refSeqs,fullAlignment,fullSequences);
+    currentFilter->exportConsRes(filename,2,currentFilter->getConsMin(),refSeqs,fullAlignment,fullSequences);
 }
 
 void MainWindow::exportCorrListTXT(){
@@ -6417,6 +6482,8 @@ void MainWindow::changeToRefSeqs(){
     }
     wizard = false;
 
+    updateRefSeqsCompleters();
+
     this->changeWizardCmds(false);
 
     ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
@@ -6504,7 +6571,7 @@ void MainWindow::changeToUniprotLookingTool(){
 
 
     //if(currentNetwork->getCommListSize() > 0){
-    if(!currentNetwork){
+    if(currentNetwork){
         ui->chkComm->setCheckable(true);
         ui->chkComm->setChecked(true);
     }else ui->chkComm->setCheckable(false);
@@ -7894,6 +7961,13 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
         QMessageBox::warning(this,"Warning","You must select an alignment");
         ui->cmdSaveRefSeqs->setEnabled(true);
         return;
+    }
+
+    if(ui->lstRefSeqSelected->count() > 100){
+        QMessageBox::StandardButton confirm;
+        confirm = QMessageBox::warning(this,"Confirm","It's not recommended to select a large number of reference sequences, as it can cause memory crash or slowly. Do you really want to proceed?",QMessageBox::Yes|QMessageBox::No);
+        if(confirm == QMessageBox::No)
+            return;
     }
 
     currentFilter->clearRefSeq();

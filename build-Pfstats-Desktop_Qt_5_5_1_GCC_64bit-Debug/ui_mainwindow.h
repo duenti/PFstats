@@ -4713,7 +4713,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(7);
+        stackedWidget->setCurrentIndex(3);
         cmbAlignmentType->setCurrentIndex(1);
         stackedWidget2->setCurrentIndex(11);
         cmbViewColumns->setCurrentIndex(2);

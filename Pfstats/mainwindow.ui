@@ -128,7 +128,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -3111,7 +3111,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label_38">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Correlation and Anti-Correlation list&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Pair-wise Correlation List&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -4260,7 +4260,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label_77">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Structure file colored by correlation communities:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Structure file colored by correlated communities:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -6415,7 +6415,7 @@
   </action>
   <action name="actionCorrelation_List">
    <property name="text">
-    <string>Correlation List</string>
+    <string>Pair-wise Correlation List</string>
    </property>
   </action>
   <action name="actionCommunities_List">
@@ -6485,7 +6485,7 @@
   </action>
   <action name="actionStrutucture_Conserved_Residues_Visualization">
    <property name="text">
-    <string>Strutucture Conserved Residues Visualization</string>
+    <string>Structure-mapped Conservation Visualization</string>
    </property>
   </action>
   <action name="actionSet_Libraries_Path">
@@ -6505,7 +6505,7 @@
   </action>
   <action name="actionStructure_Communities_Visualization">
    <property name="text">
-    <string>Structure Communities Visualization</string>
+    <string>Structure-mapped  Communities Visualization</string>
    </property>
   </action>
   <action name="actionFull_Alignment">
@@ -6612,7 +6612,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

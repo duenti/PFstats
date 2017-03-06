@@ -1028,6 +1028,7 @@ public:
         actionTaxonomic_View->setObjectName(QStringLiteral("actionTaxonomic_View"));
         actionMutation_Analysis = new QAction(MainWindow);
         actionMutation_Analysis->setObjectName(QStringLiteral("actionMutation_Analysis"));
+        actionMutation_Analysis->setVisible(false);
         actionCommunitiesNetwork = new QAction(MainWindow);
         actionCommunitiesNetwork->setObjectName(QStringLiteral("actionCommunitiesNetwork"));
         actionDuplicateFilter = new QAction(MainWindow);
@@ -1665,7 +1666,7 @@ public:
 
         gridLayout_5->addLayout(horizontalLayout_89, 1, 0, 1, 1);
 
-        verticalSpacer_7 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_7 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
         gridLayout_5->addItem(verticalSpacer_7, 2, 0, 1, 1);
 
@@ -4542,7 +4543,7 @@ public:
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1120, 21));
+        menuBar->setGeometry(QRect(0, 0, 1120, 25));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuMethod = new QMenu(menuBar);
@@ -4712,7 +4713,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(6);
+        stackedWidget->setCurrentIndex(3);
         cmbAlignmentType->setCurrentIndex(1);
         stackedWidget2->setCurrentIndex(11);
         cmbViewColumns->setCurrentIndex(2);
@@ -4776,12 +4777,12 @@ public:
         actionCorrRefsTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
         actionCorrRefsXML->setText(QApplication::translate("MainWindow", "XML", 0));
         actionConservation->setText(QApplication::translate("MainWindow", "Conservation", 0));
-        actionMinss->setText(QApplication::translate("MainWindow", "Minss", 0));
+        actionMinss->setText(QApplication::translate("MainWindow", "Minimum Representative Sub-Alignment", 0));
         actionCorrelation->setText(QApplication::translate("MainWindow", "Correlation", 0));
         actionShow_Results->setText(QApplication::translate("MainWindow", "Show Results", 0));
         actionSave_Results->setText(QApplication::translate("MainWindow", "Save Results", 0));
         actionStart_Wizard->setText(QApplication::translate("MainWindow", "Start Wizard", 0));
-        actionUniprotLooking->setText(QApplication::translate("MainWindow", "Uniprot Looking Tool", 0));
+        actionUniprotLooking->setText(QApplication::translate("MainWindow", "Uniprot Look-up", 0));
         actionLookProtTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
         actionLookProtCSV->setText(QApplication::translate("MainWindow", "CSV", 0));
         actionLookProtXML->setText(QApplication::translate("MainWindow", "XML", 0));
@@ -4853,7 +4854,7 @@ public:
         ___qtreewidgetitem->setText(0, QApplication::translate("MainWindow", "Sub-Alignments", 0));
         label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PFstats</span></p><p align=\"justify\">PFstats contains a set of functions to extract useful information from protein families (represented by a multiple sequence alignment) using conservation and correlation methods.<br/><br/>These functions can be acessed from the menu bar or a complete analysis can be accomplished using the Wizard option.</p></body></html>", 0));
         cmdStartWizard->setText(QApplication::translate("MainWindow", "Start Wizard", 0));
-        label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Obtaining An Alignment</span></p><p align=\"justify\">PFSTATS uses multiple sequence alignments in the PFAM format (identifier, spacer, complete sequence) as input. Use &quot;get from desktop&quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
+        label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Obtaining An Alignment</span></p><p align=\"justify\">PFstats use as inputss multiple sequence alignments in one of the readable formats (Stockholm, Selex or fasta). Use &quot;get from desktop&quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
         groupBox->setTitle(QApplication::translate("MainWindow", "Get from desktop", 0));
         cmdOpen->setText(QApplication::translate("MainWindow", "Open", 0));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Get from PFAM", 0));
@@ -4882,14 +4883,14 @@ public:
         chkDownloadAlignment->setText(QApplication::translate("MainWindow", "Download alignment", 0));
         label_8->setText(QApplication::translate("MainWindow", "<html><head/><body><p>*These alignments use a different nomenclature for the sequences and<br/>therefore can not be used in methods to queries databases</p></body></html>", 0));
         cmdFetch->setText(QApplication::translate("MainWindow", "Fetch", 0));
-        label_9->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Alignment Filtering</span></p><p align=\"justify\">In this phase, the alignment is filtered in order to reduce artifacts and biases. The first two filters need a reference sequence (usually, a protein with the usual size for the domain represented by the alignment). &quot;Minimum coverage&quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &quot;Minimum identity&quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &quot;Maximum identity&quot; filter is highly recommended in order to reduce the phylogenetic effect bias. It will compare each sequence to all others, removing those above the specified identity.</p></body></html>", 0));
+        label_9->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Alignment Filtering</span></p><p align=\"justify\">In this phase, the alignment is filtered in order to reduce artifacts and biases. Actually, it is possible to filter using a reference sequence to compare or by analyzing the HMM profile of the alignment itself (if it contains). &quot;Minimum coverage&quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &quot;Minimum identity&quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &quot;Maximum identity&quot; filter is highly recommended in order to reduce the phylogenetic effect bias. It will compare each sequence to all others, removing those above the specified identity. There is also an option to utilize only sequences of a specific taxonomical cla"
+                        "de.</p></body></html>", 0));
         label_83->setText(QApplication::translate("MainWindow", "Filter Name:", 0));
         label_82->setText(QApplication::translate("MainWindow", "Method:", 0));
         cmbFilterMethod->clear();
         cmbFilterMethod->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "HMM Filter", 0)
          << QApplication::translate("MainWindow", "Refseq Filter", 0)
-         << QApplication::translate("MainWindow", "Henikoff Weights", 0)
         );
         label_10->setText(QApplication::translate("MainWindow", "Reference Sequence:", 0));
         chkApplyTaxonFilter->setText(QString());
@@ -4918,8 +4919,8 @@ public:
          << QApplication::translate("MainWindow", "Taxon", 0)
         );
         cmdFilterRefSeqs->setText(QApplication::translate("MainWindow", "Select", 0));
-        label_55->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Reference Sequences (Optional)</span></p><p>Select those proteins of the actually family that is going to be used in the both analysis of amino acid conservation and correlation.</p></body></html>", 0));
-        label_69->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PDB Fetching (Optional)</span></p><p>You can set a PDB file for next analysis. Note that if you uses a stockholm alignment, you may have recommended PDBs. Otherwise, you need to inform the PDBs intervals.</p></body></html>", 0));
+        label_55->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Reference Sequences (Optional)</span></p><p>Select proteins from the family that are going to be used to report amino acid conservation and correlation.</p></body></html>", 0));
+        label_69->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PDB Fetching (Optional)</span></p><p>You can set a PDB file for further analysis. Note that when using a Stockholm format alignment, you may have recommended PDBs. Otherwise, you need to inform them manually.</p></body></html>", 0));
         cmdPDBFile->setText(QApplication::translate("MainWindow", "Choose from File", 0));
         label_75->setText(QApplication::translate("MainWindow", "File Path:", 0));
         cmdLoadPDB->setText(QApplication::translate("MainWindow", "Load", 0));
@@ -4930,7 +4931,7 @@ public:
         label_71->setText(QApplication::translate("MainWindow", "Recommended PDBs:", 0));
         chkDownloadPDB->setText(QApplication::translate("MainWindow", "Download File", 0));
         label_76->setText(QApplication::translate("MainWindow", "Current Structures:", 0));
-        label_14->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Conservation</span></p><p align=\"justify\">This step calculates simple frequency-based statistics. Optionally, a PDB file can be supplied in order to map positional conservation as B-factors.</p></body></html>", 0));
+        label_14->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Conservation</span></p><p align=\"justify\">This step calculates simple frequency-based statistics. Optionally, a PDB loaded file can be supplied in order to map positional conservation as B-factors.</p></body></html>", 0));
         groupBox_4->setTitle(QApplication::translate("MainWindow", "Conservation", 0));
         label_28->setText(QApplication::translate("MainWindow", "Alpha (entropy weight):", 0));
         label_31->setText(QApplication::translate("MainWindow", "Beta (sthereochemistry weight):", 0));
@@ -4942,7 +4943,7 @@ public:
         txtChain->setText(QApplication::translate("MainWindow", "A", 0));
         label_64->setText(QApplication::translate("MainWindow", "Structures Loaded:", 0));
         cmdConservation->setText(QApplication::translate("MainWindow", "Calculate", 0));
-        label_21->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Minss</span></p><p>This module implements the procedure described in (Dima and Thirumalai 2006). It calculates the average conservation for the full alignment and then for multiple sub-alignments with decreasing sizes. </p></body></html>", 0));
+        label_21->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Minimum Representative Sub-Alignment (MRsA)</span></p><p>This module implements the procedure described in (Dima and Thirumalai 2006). It calculates the average conservation for the full alignment and then for multiple sub-alignments with decreasing sizes. </p></body></html>", 0));
         lblNseq->setText(QApplication::translate("MainWindow", "Number of sequences in the alignment: ", 0));
         label_29->setText(QApplication::translate("MainWindow", "Number of processors:", 0));
         label_22->setText(QApplication::translate("MainWindow", "Number of sub-alignments:", 0));
@@ -4950,7 +4951,7 @@ public:
         label_23->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Correlation</span></p><p>This will calculate a set of correlation scores for the full alignment, using the cutoffs provided by the user. </p></body></html>", 0));
         groupBox_7->setTitle(QApplication::translate("MainWindow", "Correlation Method", 0));
         label_24->setText(QApplication::translate("MainWindow", "Minimum Score:", 0));
-        label_25->setText(QApplication::translate("MainWindow", "Minss Fraction:", 0));
+        label_25->setText(QApplication::translate("MainWindow", "MRsA Fraction:", 0));
         label_26->setText(QApplication::translate("MainWindow", "Minumum Delta:", 0));
         chkComm2Align->setText(QApplication::translate("MainWindow", "Generate communities subalignments", 0));
         groupBox_8->setTitle(QApplication::translate("MainWindow", "PDB File (Optional)", 0));
@@ -5207,7 +5208,7 @@ public:
         cmdApplyViewAlignment->setText(QApplication::translate("MainWindow", "Apply", 0));
         label_91->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Taxonomic View</span></p></body></html>", 0));
         cmdExpandTaxonomy->setText(QApplication::translate("MainWindow", "Expand", 0));
-        label_47->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Uniprot Looking Tool</span></p></body></html>", 0));
+        label_47->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Uniprot Look-up</span></p></body></html>", 0));
         label_48->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600; color:#ff0000;\">This method requires internet connection.</span></p></body></html>", 0));
         groupBox_6->setTitle(QApplication::translate("MainWindow", "Target Residues", 0));
         chkConserveds->setText(QApplication::translate("MainWindow", "Conserved Residues", 0));

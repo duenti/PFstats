@@ -4253,6 +4253,12 @@ void MainWindow::on_cmdMinss_clicked()
     vector<float> minssData;
     minssData = this->minss(repetitions,cores);
 
+    if(minssData.size() < 100){
+        ui->graficMinss->setVisible(false);
+        ui->cmdMinss->setEnabled(true);
+        return;
+    }
+
     QVector<double> x(100), y(100);
     for (int j=0; j<100; ++j)
     {
@@ -7593,7 +7599,7 @@ void MainWindow::changeToGenSubAlignments(){
     ui->txtResiduesSubAlign->clear();
 
     //if(currentNetwork->getCommListSize() > 0){
-    if(!currentNetwork){
+    if(currentNetwork){
         ui->cmbSubAlignComms->addItem(" ");
         for(unsigned int i = 0; i < currentNetwork->getCommListSize(); i++){
             QString txt = "Community " + QString::number(i+1);
@@ -8822,7 +8828,7 @@ void MainWindow::on_cmdLoadPDB_clicked()
     string refseq = ui->cmbRefSeq_4->currentText().toStdString();
 
     //Validação
-    if(refseq == " "){
+    if(refseq == " " || refseq == ""){
         QMessageBox::warning(this,"Warning","You must set a reference sequence for this structure.");
         ui->cmbRefSeq_4->setFocus();
         ui->cmdLoadPDB->setEnabled(true);

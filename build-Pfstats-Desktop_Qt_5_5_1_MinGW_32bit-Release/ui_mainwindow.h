@@ -814,8 +814,8 @@ public:
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
-    QButtonGroup *buttonGroup;
     QButtonGroup *buttonGroup_2;
+    QButtonGroup *buttonGroup;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -4713,7 +4713,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(3);
+        stackedWidget->setCurrentIndex(4);
         cmbAlignmentType->setCurrentIndex(1);
         stackedWidget2->setCurrentIndex(11);
         cmbViewColumns->setCurrentIndex(2);
@@ -4796,7 +4796,7 @@ public:
         actionIn_Frequence->setText(QApplication::translate("MainWindow", "In Frequence", 0));
         actionIn_Percentage->setText(QApplication::translate("MainWindow", "In Percentage", 0));
         actionConserved_Residues->setText(QApplication::translate("MainWindow", "Conserved Residues", 0));
-        actionCorrelation_List->setText(QApplication::translate("MainWindow", "Correlation List", 0));
+        actionCorrelation_List->setText(QApplication::translate("MainWindow", "Pair-wise Correlation List", 0));
         actionCommunities_List->setText(QApplication::translate("MainWindow", "Communities List", 0));
         actionIn_Percentage_2->setText(QApplication::translate("MainWindow", "In Percentage", 0));
         actionIn_Log_P->setText(QApplication::translate("MainWindow", "In Log P", 0));
@@ -4810,11 +4810,11 @@ public:
         actionCorrelation_Graph->setText(QApplication::translate("MainWindow", "Correlation Network", 0));
         actionCommunities_Graphs->setText(QApplication::translate("MainWindow", "Communities Graphs", 0));
         actionCorrelationBetweenCommunities->setText(QApplication::translate("MainWindow", "Correlation Between Communities", 0));
-        actionStrutucture_Conserved_Residues_Visualization->setText(QApplication::translate("MainWindow", "Strutucture Conserved Residues Visualization", 0));
+        actionStrutucture_Conserved_Residues_Visualization->setText(QApplication::translate("MainWindow", "Structure-mapped Conservation Visualization", 0));
         actionSet_Libraries_Path->setText(QApplication::translate("MainWindow", "Set Libraries Path", 0));
         actionAlphabet_Reduction->setText(QApplication::translate("MainWindow", "Alphabet Reduction", 0));
         actionLoadPDB->setText(QApplication::translate("MainWindow", "Load PDB Structure", 0));
-        actionStructure_Communities_Visualization->setText(QApplication::translate("MainWindow", "Structure Communities Visualization", 0));
+        actionStructure_Communities_Visualization->setText(QApplication::translate("MainWindow", "Structure-mapped  Communities Visualization", 0));
         actionFull_Alignment->setText(QApplication::translate("MainWindow", "View Alignment", 0));
         actionNewAlignment->setText(QApplication::translate("MainWindow", "New Alignment", 0));
 #ifndef QT_NO_TOOLTIP
@@ -5078,7 +5078,7 @@ public:
         ___qtablewidgetitem42->setText(QApplication::translate("MainWindow", "TYR", 0));
         label_37->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Conserved Residues</span></p></body></html>", 0));
         lblMinCons->setText(QApplication::translate("MainWindow", "Minimum Conservation: ", 0));
-        label_38->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Correlation and Anti-Correlation list</span></p></body></html>", 0));
+        label_38->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Pair-wise Correlation List</span></p></body></html>", 0));
         QTreeWidgetItem *___qtreewidgetitem1 = treeCorrelation->headerItem();
         ___qtreewidgetitem1->setText(2, QApplication::translate("MainWindow", "Score", 0));
         ___qtreewidgetitem1->setText(1, QApplication::translate("MainWindow", "Residue 2", 0));
@@ -5171,7 +5171,7 @@ public:
         cmdNexCommGraph->setText(QApplication::translate("MainWindow", ">", 0));
         label_59->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Correlation Between Communities</span></p></body></html>", 0));
         label_60->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Structure file colored by conservation:</span></p></body></html>", 0));
-        label_77->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Structure file colored by correlation communities:</span></p></body></html>", 0));
+        label_77->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Structure file colored by correlated communities:</span></p></body></html>", 0));
         label_27->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">View Alignment</span></p></body></html>", 0));
         label_80->setText(QApplication::translate("MainWindow", "Color by alphabet:", 0));
         cmbAlphabetColor->clear();

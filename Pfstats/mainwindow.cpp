@@ -2494,7 +2494,7 @@ void MainWindow::showConservedResidues(){
             int pos = stoi(res.substr(1))-1;
             if(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) == 0){
                 QTableWidgetItem *item = new QTableWidgetItem();
-                item->setTextColor(QColor(255,0,0,255));
+                //item->setTextColor(QColor(0,255,0,255));
                 item->setText("-");
                 ui->tableConsRes->setItem(i,j,item);
             }else{
@@ -2502,6 +2502,7 @@ void MainWindow::showConservedResidues(){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     string textItem = aa + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
                     item->setText(textItem.c_str());
+                    item->setTextColor(QColor(0,255,0,255));
                     ui->tableConsRes->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
@@ -5518,6 +5519,7 @@ void MainWindow::Open_XML_triggered(){
 
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
 
+    ui->listWidget2->setCurrentIndex(ui->listWidget2->model()->index(ui->listWidget2->topLevelItemCount()-1,0));
     if(ui->stackedWidget->currentIndex() == STACK_MAIN){
         //Desativa botões do Wizard
         changeWizardCmds(false);
@@ -7429,6 +7431,11 @@ void MainWindow::changeToConservedResidues(){
     if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must select some reference sequences.");
         ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
+        return;
+    }
+    if(currentFilter->getConsFreqPercSize() == 0){
+        QMessageBox::warning(this,"Warning","You must run conservation method.");
+        ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
         return;
     }
 

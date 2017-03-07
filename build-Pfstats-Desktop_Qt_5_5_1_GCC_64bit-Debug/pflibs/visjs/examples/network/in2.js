@@ -20,14 +20,20 @@ edges:{smooth: false}
 };
 
 var nodes = [
-{id: 1, label: 'Comm2', color:{background:'#7fffa1'}},
-{id: 2, label: 'Comm3', color:{background:'#7fffa1'}},
-{id: 3, label: 'L125', color:{background:'#ffffff'}},
-{id: 4, label: 'L273', color:{background:'#ffffff'}},
-{id: 5, label: 'L29', color:{background:'#ffffff'}}];
+{id: 1, label: 'A1805', color:{background:'#ffffff'}},
+{id: 2, label: 'A2799', color:{background:'#ffffff'}},
+{id: 3, label: 'A2944', color:{background:'#ffffff'}},
+{id: 4, label: 'Comm2', color:{background:'#7fffa1'}},
+{id: 5, label: 'Comm3', color:{background:'#7fffa1'}},
+{id: 6, label: 'I1195', color:{background:'#ffffff'}},
+{id: 7, label: 'L1379', color:{background:'#ffffff'}},
+{id: 8, label: 'L384', color:{background:'#ffffff'}}];
 
 var edges = [
-{from: 1, to: 3, color:{color:'red'}, title: -13},
-{from: 2, to: 4, color:{color:'red'}, title: -5},
-{from: 2, to: 5, color:{color:'red'}, title: -6},
+{from: 4, to: 8, color:{color:'red'}, title: -34},
+{from: 4, to: 7, color:{color:'red'}, title: -179},
+{from: 4, to: 6, color:{color:'red'}, title: -38},
+{from: 4, to: 2, color:{color:'red'}, title: -34},
+{from: 4, to: 1, color:{color:'red'}, title: -148},
+{from: 5, to: 3, color:{color:'red'}, title: -168},
 ];

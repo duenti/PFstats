@@ -145,6 +145,7 @@ public:
     unsigned int getRefSeqOffset();
     void applyAlphabetReduction(vector<string> oldChars, vector<char> newChars);
     void exportFilteredAlignment(QString filename, int type); //TYPE: 0-PFAM, 1-TXT, 2-XML
+    void exportSequences(QString filename);
     void exportRefs(QString filename, int type); //TYPE: 0-TXT, 1-XML
     void exportFreq(QString filename, int type, bool perc=false); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML //PERC: TRUE = In %
     void exportConsRes(QString filename, int type, float mincons, vector<int> refSeqs,vector<string> fullAlignment, vector<string> fullSequences); //TYPE: 0-TXT, 1-XML, 2-HTML

@@ -56,6 +56,7 @@ public:
     void convertLowerDots();//ok
     vector<string> getFullAlignment();//ok
     vector<string> getFullSequences();//ok
+    string getFullSequence(string seqname);
     void generateXML(string outputXML);//ok
     Filter* getFullFilter();
     bool GetFromFile(); //[OK]

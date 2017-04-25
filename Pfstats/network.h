@@ -154,9 +154,10 @@ public:
     vector<tuple<string,string,float> > getDeltasEdges(float cutoff);
     void removeItemOfCommunity(int comm, int item);
     void addItemToCommunity(string res, int commindex);
+    void setCommunityItems(int comm, vector<string> residues);
     void sortCommunitiesVector();
     void alignment2UpperCase();
-    bool uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, vector<string> conserved, vector<string> fullAlignment, vector<string> fullSequences);
+    bool uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, vector<string> conserved, vector<string> fullAlignment, vector<string> fullSequences, bool hasproxy, QNetworkProxy proxy);
     unsigned int getUniprotMinedSize();
     string getUniprotEntryName(int i);
     unsigned int getUniprotEntryNofFeatures(int i);

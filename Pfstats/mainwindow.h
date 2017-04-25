@@ -43,6 +43,10 @@ private slots:
     void exportAlignment_PFAM();
     void exportAlignment_TXT();
     void exportAlignment_XML();
+    void exportAlignment_TSF();
+    void exportAlignment_STO();
+    void exportAlignment_FAS();
+    void exportSequences_TXT();
     void exportRefSeqTXT();
     void exportRefSeqXML();
     void exportFreqTXT();
@@ -118,11 +122,13 @@ private slots:
     void setLibPath();
     void changeToAlphabetReduction();
     void changeToGenSubAlignments();
+    void changeToGenSubAlignments2();
     void changeToMutationAnalysis();
     void graphClicked(QCPAbstractPlottable* plot,QMouseEvent* mouse);
     void renameFilter();
     void removeFilter();
     void duplicateFilter();
+    void changeToConfigureProxy();
 
     void on_cmdStartWizard_clicked();
     void on_cmdMain_clicked();
@@ -171,10 +177,6 @@ private slots:
     void on_treeMinerComms_clicked(const QModelIndex &index);
 
     void on_cmbComm_currentIndexChanged(int index);
-
-    void on_cmdAddResComm_clicked();
-
-    void on_cmdDelResComm_clicked();
 
     void on_cmdNewComm_clicked();
 
@@ -244,8 +246,6 @@ private slots:
 
     void on_cmdLookingFilter_clicked();
 
-    void on_cmdApplyViewAlignment_clicked();
-
     void on_cmbFilterMethod_activated(int index);
 
     void on_txtSecRefSeqs_editingFinished();
@@ -290,6 +290,10 @@ private slots:
 
     void on_lstProteinsMined_itemClicked(QListWidgetItem *item);
 
+    void on_cmdGenSubALign2_clicked();
+
+    void on_cmdProxyConnect_clicked();
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -307,6 +311,8 @@ private:
         STACK_SUBALIGN = 12,
         STACK_ADDSEQ = 13,
         STACK_MUTATION = 14,
+        STACK_SUBALIGN_2 = 15,
+        STACK_PROXY = 16,
         STACK_RESULT_SEQLIST = 1,
         STACK_RESULT_CONSFREQ = 2,
         STACK_RESULT_FREQPERC = 3,
@@ -335,6 +341,8 @@ private:
     string currentPDBContent;
     string exportPath = "";
     QString CONFIG = "PF_CONFIG.conf";
+    bool hasproxy = false;
+    QNetworkProxy proxy;
     void changeWizardCmds(bool bl);
     void resetObjects();
     string libpath;
@@ -359,7 +367,7 @@ private:
     bool applyHenikoffFilter();
     void conservation(char chain, float minCons, string pdbid = "");
     vector<float> minss(int repetitions, int cores); //from 100 to 1;
-    void pcalc(Network *net, int minlogp, float minssfraction, float mindeltafreq);
+    void pcalc(Network *net, int minlogp, float minssfraction, float mindeltafreq, bool weight);
     bool trivcomm(Network *net);
     void output();
     //Show Results
@@ -382,7 +390,6 @@ private:
     void showResiduesComm();
     void showUniprotGroupByProteins();
     void showUniprotGroupByComms();
-    void showFullAlignment(int colorIndex, int columnsIndex);
     bool isaa(char c);
     bool isInt(string v);
     void updateResultsViews();
@@ -396,6 +403,7 @@ private:
     void updateRefSeqsCompleters();
     void freeMem();
     QTreeWidgetItem* getFilterItem();
+    void updateAlignmentVisFile();
 };
 
 #endif // MAINWINDOW_H

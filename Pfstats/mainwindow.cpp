@@ -55,9 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Conecta Slots
     connect(ui->actionOpen_XML,SIGNAL(triggered()),this,SLOT(Open_XML_triggered()));
-    connect(ui->actionAlignmentPFAM,SIGNAL(triggered()),this,SLOT(exportAlignment_PFAM()));
-    connect(ui->actionAlignmentTXT,SIGNAL(triggered()),this,SLOT(exportAlignment_TXT()));
-    connect(ui->actionAlignmentXML,SIGNAL(triggered()),this,SLOT(exportAlignment_XML()));
+    connect(ui->actionTSF,SIGNAL(triggered()),this,SLOT(exportAlignment_TSF()));
+    connect(ui->actionStockholm,SIGNAL(triggered()),this,SLOT(exportAlignment_STO()));
+    connect(ui->actionFasta,SIGNAL(triggered()),this,SLOT(exportAlignment_FAS()));
+    connect(ui->actionExportSequencesTXT,SIGNAL(triggered()),this,SLOT(exportSequences_TXT()));
     connect(ui->actionRefSeqTXT,SIGNAL(triggered()),this,SLOT(exportRefSeqTXT()));
     connect(ui->actionRefSeqXML,SIGNAL(triggered()),this,SLOT(exportRefSeqXML()));
     connect(ui->actionFreqTXT,SIGNAL(triggered()),this,SLOT(exportFreqTXT()));
@@ -131,7 +132,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionFull_Alignment,SIGNAL(triggered()),this,SLOT(changeToFullAlignment()));
     connect(ui->actionSet_Libraries_Path,SIGNAL(triggered()),this,SLOT(setLibPath()));
     connect(ui->actionAlphabet_Reduction,SIGNAL(triggered()),this,SLOT(changeToAlphabetReduction()));
-    connect(ui->actionGenerate_Sub_Alignment,SIGNAL(triggered()),this,SLOT(changeToGenSubAlignments()));
+    connect(ui->actionBy_Residues,SIGNAL(triggered()),this,SLOT(changeToGenSubAlignments()));
+    connect(ui->actionBy_Sequences,SIGNAL(triggered()),this,SLOT(changeToGenSubAlignments2()));
     connect(ui->actionAdd_Sequences,SIGNAL(triggered()),this,SLOT(changeToAddSequence()));
     connect(ui->graficMinss,SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)),this,SLOT(graphClicked(QCPAbstractPlottable*,QMouseEvent*)));
     connect(ui->actionNewAlignment,SIGNAL(triggered()),this,SLOT(changeToOpenAlignment()));
@@ -141,6 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRenameFilter,SIGNAL(triggered()),this,SLOT(renameFilter()));
     connect(ui->actionRemoveFilter,SIGNAL(triggered()),this,SLOT(removeFilter()));
     connect(ui->actionDuplicateFilter,SIGNAL(triggered()),this,SLOT(duplicateFilter()));
+    connect(ui->actionSet_Proxy,SIGNAL(triggered()),this,SLOT(changeToConfigureProxy()));
 
     string filepath = libpath + "taxons.txt";
     printf("%s",filepath.c_str());
@@ -343,7 +346,7 @@ void MainWindow::resetObjects(){
     ui->lstLookingRefs->clear();
     //Manage Communities
     ui->cmbComm->clear();
-    ui->lstManageComms->clear();
+    ui->txtManageComms->clear();
     //Alphabet Reduction
     ui->cmbAlphabetList->setCurrentIndex(0);
     ui->lblAlphabetName->setText("Name: ");
@@ -734,9 +737,12 @@ bool MainWindow::applyHenikoffFilter(){
 void MainWindow::conservation(char chain, float minCons, string pdbid){
     float alpha = ui->txtAlpha->value();
     float beta = ui->txtBeta->value();
+    currentFilter->convertLowerDots();
     currentFilter->CalculateFrequencies();
-    if(currentFilter->getWeightsSize() == 0) currentFilter->dGCalculation();
-    else currentFilter->dGCalculation(alpha,beta);
+    if(!currentFilter->henikoffWeights()) return;
+    //if(currentFilter->getWeightsSize() == 0) currentFilter->dGCalculation();
+    currentFilter->dGCalculation(alpha,beta);
+    currentFilter->setConsMin(minCons);
     currentFilter->dGWrite();
     currentFilter->FreqWrite();
 
@@ -770,7 +776,6 @@ void MainWindow::conservation(char chain, float minCons, string pdbid){
 
     }
 
-    currentFilter->setConsMin(minCons);
     currentFilter->setConsPDB(pdbid);
 
     if(pdbid != "") QMessageBox::information(this,"Conservation","Conservation has been calculated and the structure file has been successfully created at the above path:\n\n" + QString::fromStdString(path));
@@ -786,13 +791,15 @@ vector<float> MainWindow::minss(int repetitions, int cores){
     return outputVec;
 }
 
-void MainWindow::pcalc(Network *net, int minlogp, float minssfraction, float mindeltafreq){
+void MainWindow::pcalc(Network *net, int minlogp, float minssfraction, float mindeltafreq, bool weight){
     net->CalculateFrequencies();
 
-    if(currentFilter->getWeightsSize() == 0)
-        net->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
-    else
+    if(weight){
+        currentFilter->convertLowerDots();
+        if(!currentFilter->henikoffWeights()) return;
         net->henikoffpvalueCalculation(minlogp,minssfraction,mindeltafreq,currentFilter->getWeights());
+    }else
+        net->SympvalueCalculation(minlogp,minssfraction,mindeltafreq);
 }
 
 void MainWindow::dfsUtil(Network *net, string node, int id){
@@ -3086,527 +3093,6 @@ vector<float> MainWindow::generateAMCL(int alfabetIndex){
     return maxValues;
 }
 
-void MainWindow::showFullAlignment(int colorIndex, int columnsIndex){
-    unsigned int nrows = currentFilter->sequences.size();
-
-    if(currentFilter->getAlphabet() == "T20"){
-        ui->cmbAlphabetColor->setEnabled(true);
-    }else{
-        ui->cmbAlphabetColor->setCurrentText(currentFilter->getAlphabet().c_str());
-        colorIndex = ui->cmbAlphabetColor->currentIndex();
-        ui->cmbAlphabetColor->setEnabled(false);
-    }
-
-    ui->tableFullAlignment->clear();
-    ui->tableFullAlignment->setColumnCount(currentFilter->sequences[0].size());
-    ui->tableFullAlignment->setRowCount(nrows);
-
-    QProgressDialog progress("Calculating...", "Abort", 0,nrows+10);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.show();
-
-    vector<float> colorFreq = this->generateAMCL(colorIndex);
-
-    for(unsigned int i = 0; i < currentFilter->sequences[0].size(); i++){
-        QTableWidgetItem *item = new QTableWidgetItem(QString::number(i+1));
-        item->setTextAlignment(Qt::AlignCenter);
-        QFont font;
-
-        if(colorFreq[i] > 0.98){
-            font.setBold(true);
-
-            ui->tableFullAlignment->showColumn(i);
-
-        }else if(colorFreq[i] > 0.8){
-            font.setUnderline(true);
-
-            if(columnsIndex == 1) ui->tableFullAlignment->hideColumn(i);
-            else ui->tableFullAlignment->showColumn(i);
-
-        }else if(colorFreq[i] < 0.20){
-            font.setItalic(true);
-
-            if(columnsIndex == 0) ui->tableFullAlignment->showColumn(i);
-            else ui->tableFullAlignment->hideColumn(i);
-        }else{
-            if(columnsIndex == 1 || columnsIndex == 2) ui->tableFullAlignment->hideColumn(i);
-            else ui->tableFullAlignment->showColumn(i);
-        }
-
-        item->setFont(font);
-
-        ui->tableFullAlignment->setHorizontalHeaderItem(i,item);
-    }
-
-    for(unsigned int i = 0; i < nrows; i++){
-        if(progress.wasCanceled()) break;
-        progress.setValue(i);
-
-        QTableWidgetItem *item = new QTableWidgetItem(currentFilter->sequencenames[i].c_str());
-        ui->tableFullAlignment->setVerticalHeaderItem(i,item);
-
-        switch(colorIndex){
-        case 0:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'A') item2->setBackgroundColor(QColor(102,0,0));
-                else if(c == 'G') item2->setBackgroundColor(QColor(153,0,0));
-                else if(c == 'I') item2->setBackgroundColor(QColor(204,0,0));
-                else if(c == 'L') item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'P') item2->setBackgroundColor(QColor(255,102,102));
-                else if(c == 'V') item2->setBackgroundColor(QColor(255,153,153));
-                else if(c == 'F') item2->setBackgroundColor(QColor(51,102,0));
-                else if(c == 'W') item2->setBackgroundColor(QColor(201,204,0));
-                else if(c == 'Y') item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'D') item2->setBackgroundColor(QColor(255,128,0));
-                else if(c == 'E') item2->setBackgroundColor(QColor(255,178,102));
-                else if(c == 'R') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'H') item2->setBackgroundColor(QColor(153,153,255));
-                else if(c == 'K') item2->setBackgroundColor(QColor(51,153,255));
-                else if(c == 'S') item2->setBackgroundColor(QColor(204,0,204));
-                else if(c == 'T') item2->setBackgroundColor(QColor(255,0,255));
-                else if(c == 'C') item2->setBackgroundColor(QColor(204,204,0));
-                else if(c == 'M') item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'N') item2->setBackgroundColor(QColor(51,0,102));
-                else if(c == 'Q') item2->setBackgroundColor(QColor(0,51,102));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 1:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'A' || c == 'G' || c == 'T' || c == 'S' || c == 'N' || c == 'Q' || c == 'D' || c == 'E' || c == 'H' || c == 'R' || c == 'K' || c == 'P')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'C' || c == 'M' || c == 'F' || c == 'I' || c == 'L' || c == 'V' || c == 'W' || c == 'Y')
-                    item2->setBackgroundColor(QColor(0,0,255));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 2:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'I' || c == 'V' || c == 'L')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'F' || c == 'Y' || c == 'W' || c == 'H')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'K' || c == 'R' || c == 'D' || c == 'E')
-                    item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'G' || c == 'A' || c == 'C' || c == 'S')
-                    item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
-                    item2->setBackgroundColor(QColor(128,128,128));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 3:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'I' || c == 'V' || c == 'L')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'F' || c == 'Y' || c == 'W' || c == 'H')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'K' || c == 'R')
-                    item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'D' || c == 'E')
-                    item2->setBackgroundColor(QColor(255,128,0));
-                else if(c == 'G' || c == 'A' || c == 'C' || c == 'S')
-                    item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'T' || c == 'M' || c == 'Q' || c == 'N' || c == 'P')
-                    item2->setBackgroundColor(QColor(128,128,128));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 4:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'I' || c == 'V' || c == 'L' || c == 'F' || c == 'C' || c == 'M' || c == 'A' || c == 'W')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'G' || c == 'T' || c == 'S' || c == 'Y' || c == 'P' || c == 'M')
-                    item2->setBackgroundColor(QColor(128,128,128));
-                else if(c == 'D' || c == 'N' || c == 'E' || c == 'Q' || c == 'K' || c == 'R')
-                    item2->setBackgroundColor(QColor(0,0,255));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 5:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'G' || c == 'A' || c == 'S')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'C' || c == 'D' || c == 'P' || c == 'N' || c == 'T')
-                    item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'E' || c == 'V' || c == 'Q' || c == 'H')
-                    item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'M' || c == 'I' || c == 'L' || c == 'K' || c == 'R')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'F' || c == 'Y' || c == 'W')
-                    item2->setBackgroundColor(QColor(255,128,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 6:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'A' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'G') item2->setBackgroundColor(QColor(0,255,255));
-                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
-                else if(c == 'F') item2->setBackgroundColor(QColor(255,0,255));
-                else if(c == 'W') item2->setBackgroundColor(QColor(255,0,127));
-                else if(c == 'Y') item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'D' || c == 'E') item2->setBackgroundColor(QColor(255,128,0));
-                else if(c == 'H' || c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'T' || c == 'S') item2->setBackgroundColor(QColor(128,128,128));
-                else if(c == 'C' || c == 'M') item2->setBackgroundColor(QColor(102,51,0));
-                else if(c == 'Q' || c == 'N') item2->setBackgroundColor(QColor(255,255,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 7:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'A') item2->setBackgroundColor(QColor(102,102,0));
-                else if(c == 'G') item2->setBackgroundColor(QColor(255,0,255));
-                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
-                else if(c == 'F' || c == 'Y') item2->setBackgroundColor(QColor(0,255,255));
-                else if(c == 'W') item2->setBackgroundColor(QColor(102,0,51));
-                else if(c == 'E') item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'D') item2->setBackgroundColor(QColor(255,128,0));
-                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'T') item2->setBackgroundColor(QColor(128,128,128));
-                else if(c == 'S') item2->setBackgroundColor(QColor(0,102,0));
-                else if(c == 'C') item2->setBackgroundColor(QColor(102,51,0));
-                else if(c == 'Q') item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'N') item2->setBackgroundColor(QColor(102,0,102));
-                else if(c == 'H') item2->setBackgroundColor(QColor(255,0,127));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 8:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'A') item2->setBackgroundColor(QColor(102,102,0));
-                else if(c == 'G') item2->setBackgroundColor(QColor(255,0,255));
-                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
-                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,255,255));
-                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'T' || c == 'S') item2->setBackgroundColor(QColor(128,128,128));
-                else if(c == 'C') item2->setBackgroundColor(QColor(102,51,0));
-                else if(c == 'H') item2->setBackgroundColor(QColor(255,0,127));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 9:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'A' || c == 'G') item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
-                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,255,255));
-                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'T' || c == 'S') item2->setBackgroundColor(QColor(128,128,128));
-                else if(c == 'H') item2->setBackgroundColor(QColor(255,0,127));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 10:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,255,255));
-                else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(0,255,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 11:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'W' || c == 'Y' || c == 'F' || c == 'P' || c == 'T' || c == 'S' || c == 'G' || c == 'A' || c == 'C' || c == 'M' || c == 'V' || c == 'I' || c == 'L') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'E' || c == 'D' || c == 'N' || c == 'Q' || c == 'K' || c == 'R' || c == 'H') item2->setBackgroundColor(QColor(255,0,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 12:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'A' || c == 'T' || c == 'H')
-                    item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'G' || c == 'P')
-                    item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'D' || c == 'E')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'S' || c == 'N' || c == 'Q' || c == 'R' || c == 'K')
-                    item2->setBackgroundColor(QColor(255,128,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 13:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'I' || c == 'C' || c == 'M' || c == 'F')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'L' || c == 'V' || c == 'W' || c == 'Y')
-                    item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'A' || c == 'T' || c == 'G' || c == 'S')
-                    item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'N' || c == 'Q' || c == 'D' || c == 'E')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'H' || c == 'P' || c == 'R' || c == 'K')
-                    item2->setBackgroundColor(QColor(255,128,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 14:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'G' || c == 'P' || c == 'R' || c == 'A' || c == 'T' || c == 'H')
-                    item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'K' || c == 'Q' || c == 'N' || c == 'S' || c == 'D' || c == 'E')
-                    item2->setBackgroundColor(QColor(0,255,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 15:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'A' || c == 'T' || c == 'H' || c == 'G' || c == 'P' || c == 'R' || c == 'D' || c == 'E' || c == 'N' || c == 'S' || c == 'Q' || c == 'K')
-                    item2->setBackgroundColor(QColor(255,255,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 16:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'M' || c == 'L') item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'C') item2->setBackgroundColor(QColor(255,0,127));
-                else if(c == 'I' || c == 'V') item2->setBackgroundColor(QColor(0,255,255));
-                else if(c == 'P') item2->setBackgroundColor(QColor(0,102,102));
-                else if(c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'E' || c == 'D' || c == 'Q') item2->setBackgroundColor(QColor(255,255,0));
-                else if(c == 'K' || c == 'R') item2->setBackgroundColor(QColor(255,0,255));
-                else if(c == 'A' || c == 'T' || c == 'S') item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'G') item2->setBackgroundColor(QColor(128,128,128));
-                else if(c == 'N' || c == 'H') item2->setBackgroundColor(QColor(255,128,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 17:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'Y' || c == 'C' || c == 'W' || c == 'F')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'L' || c == 'V' || c == 'M' || c == 'I')
-                    item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'G')
-                    item2->setBackgroundColor(QColor(128,128,128));
-                else if(c == 'P' || c == 'A' || c == 'T' || c == 'S')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'H' || c == 'N' || c == 'Q' || c == 'E' || c == 'D' || c == 'R' || c == 'K')
-                    item2->setBackgroundColor(QColor(255,255,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 18:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'C' || c == 'F' || c == 'Y' || c == 'W') item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'P' || c == 'T' || c == 'S' || c == 'A' || c == 'G') item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'M' || c == 'L' || c == 'I' || c == 'V') item2->setBackgroundColor(QColor(0,255,0));
-                else if(c == 'H' || c == 'R' || c == 'K' || c == 'E' || c == 'D' || c == 'N' || c == 'Q') item2->setBackgroundColor(QColor(255,255,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        case 19:
-        {
-            for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
-                char c = toupper(currentFilter->sequences[i][j]);
-                string aa(1,c);
-                QTableWidgetItem *item2 = new QTableWidgetItem(aa.c_str());
-                item2->setTextAlignment(Qt::AlignCenter);
-
-                if(c == 'Y' || c == 'W' || c == 'V' || c == 'L' || c == 'I' || c == 'C' || c == 'M' || c == 'F')
-                    item2->setBackgroundColor(QColor(0,0,255));
-                else if(c == 'G' || c == 'P' || c == 'S' || c == 'A' || c == 'T')
-                    item2->setBackgroundColor(QColor(255,0,0));
-                else if(c == 'K' || c == 'Q' || c == 'N' || c == 'H' || c == 'D' || c == 'E' || c == 'R')
-                    item2->setBackgroundColor(QColor(255,255,0));
-
-                ui->tableFullAlignment->setItem(i,j,item2);
-
-            }
-            break;
-        }
-        }
-    }
-
-    //Ajusta tamanho das colunas
-    ui->tableFullAlignment->resizeColumnsToContents();
-    ui->tableFullAlignment->resizeRowsToContents();
-    progress.close();
-}
-
 void MainWindow::addAlignment(string path){
     Alignment align;
     align.setFilepath(path);
@@ -3867,7 +3353,7 @@ void MainWindow::on_cmdOpen_clicked()
     ui->cmdOpen->setEnabled(false);
 
     //Abre arquivo
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pfam *.sto *.stockholm)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("TEXT Files (*.txt *.pfam *.sto *.stockholm *.tab *.tsf *.fas *.fasta)"));
     QFile file(fileName);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -3997,6 +3483,7 @@ void MainWindow::on_cmdFetch_clicked()
     //Faz a conexão
     QUrl qurl = url;
     QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
     QNetworkRequest request(qurl);
     QNetworkReply *reply(manager.get(request));
     QEventLoop loop;
@@ -4336,7 +3823,7 @@ void MainWindow::on_cmdCorrelation_clicked()
     net->alignment2UpperCase();
 
     //Chama função para calcular correlações e criar a rede
-    this->pcalc(net,minlogp,minssfraction,mindeltafreq);
+    this->pcalc(net,minlogp,minssfraction,mindeltafreq,ui->chkAppyWeight->isChecked());
 
     //Chama funçao para decompor em comunidades
     bool ok = this->trivcomm(net);
@@ -4668,9 +4155,8 @@ void MainWindow::updateResultsViews(){
     }
     case STACK_RESULT_FULLALIGN:
     {
-        ui->tableFullAlignment->clear();
-
-        this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
+        //REIMPLEMENTAR
+        updateAlignmentVisFile();
 
         break;
     }
@@ -4721,7 +4207,7 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
     ui->lstRefSeqSelected->clear();
     ui->lstLookingRefs->clear();
     ui->cmbComm->clear();
-    ui->lstManageComms->clear();
+    ui->txtManageComms->clear();
     ui->graficMinss->setVisible(false);
     ui->cmbRefPdb_2->clear();
     ui->cmbRefPdb_3->clear();
@@ -4767,6 +4253,7 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
 
 void MainWindow::on_cmbRefSeq_activated(int index)
 {
+    /*
     if(index == 0) return;
 
     ui->cmbRefSeq_4->setCurrentIndex(index);
@@ -4775,6 +4262,7 @@ void MainWindow::on_cmbRefSeq_activated(int index)
     //QMessageBox::information(this,"a",currentAlign->sequencenames[index-1].c_str());
     currentFilter->setRefSeqName(currentFilter->sequencenames[index-1]);
     //int offset = currentFilter->getRefSeqOffset();
+    */
 }
 
 void MainWindow::on_cmbRefSeq_2_activated(int index)
@@ -5639,6 +5127,82 @@ void MainWindow::exportAlignment_XML(){
     this->exportPath = this->getDirectory(filename.toStdString());
 
     currentFilter->exportFilteredAlignment(filename,2);
+}
+
+void MainWindow::exportAlignment_TSF(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select a sub-alignment to export");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("alignment.tab"),QObject::tr("TEXT Files (*.tab)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFilteredAlignment(filename,0);
+}
+
+void MainWindow::exportAlignment_STO(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select a sub-alignment to export");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("alignment.sto"),QObject::tr("TEXT Files (*.sto)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFilteredAlignment(filename,1);
+}
+
+void MainWindow::exportAlignment_FAS(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select a sub-alignment to export");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("alignment.fasta"),QObject::tr("TEXT Files (*.fasta)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportFilteredAlignment(filename,2);
+}
+
+void MainWindow::exportSequences_TXT(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("sequences.txt"),QObject::tr("TEXT Files (*.txt)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentFilter->exportSequences(filename);
 }
 
 void MainWindow::exportRefSeqTXT(){
@@ -6749,7 +6313,7 @@ void MainWindow::on_cmdLook_clicked()
     vector<string> fullSequences = currentAlign->getFullSequences();
     printf("%s %s",fullAlignment[0].c_str(),fullSequences[0].c_str());
     vector<string> conserved = currentFilter->getConsRes();
-    currentNetwork->uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins,conserved,fullAlignment,fullSequences);
+    currentNetwork->uniprotLook(ui->chkConserveds->isChecked(),ui->chkComm->isChecked(),proteins,idproteins,conserved,fullAlignment,fullSequences,hasproxy,proxy);
 
     ui->cmdLook->setEnabled(true);
 }
@@ -7142,20 +6706,19 @@ void MainWindow::changeToCreateCommunity(){
         ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
         return;
     }
-    wizard = false;
-    ui->cmbComm->clear();
-    ui->lstManageComms->clear();
-
-    this->changeWizardCmds(false);
-
-    unsigned int nOfComms = currentNetwork->getCommListSize();
-
-    //Validação
-    if(nOfComms == 0){
+    if(!currentNetwork){
         QMessageBox::warning(this,"Warning","You must run correlation");
         ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
         return;
     }
+
+    wizard = false;
+    ui->cmbComm->clear();
+    ui->txtManageComms->clear();
+
+    this->changeWizardCmds(false);
+
+    unsigned int nOfComms = currentNetwork->getCommListSize();
 
     for(unsigned int j = 1; j <= nOfComms; j++)
         ui->cmbComm->addItem(QString::number(j));
@@ -7166,14 +6729,37 @@ void MainWindow::changeToCreateCommunity(){
 
 void MainWindow::on_cmbComm_currentIndexChanged(int index)
 {
+    if(ui->cmbComm->currentText() == ""){
+        ui->txtManageComms->setText("");
+        return;
+    }else{
+            bool validIds = false;
+            unsigned int nOfComms = currentNetwork->getCommListSize();
+            for(unsigned int j = 1; j <= nOfComms; j++){
+                if(ui->cmbComm->currentText() == QString::number(j)){
+                    validIds = true;
+                    break;
+                }
+            }
+
+            if(!validIds){
+                ui->cmbComm->removeItem(ui->cmbComm->count()-1);
+
+                return;
+            }
+        }
+
     if(index >= 0){
         vector<string> comms = currentNetwork->getCommunitie(index);
 
-        ui->lstManageComms->clear();
+        ui->txtManageComms->clear();
 
+        string text = "";
         for(unsigned int j = 0; j < comms.size(); j++){
-            ui->lstManageComms->addItem(comms[j].c_str());
+            text += comms[j] + "\n";
         }
+
+        ui->txtManageComms->setText(text.c_str());
     }
 }
 
@@ -7194,80 +6780,11 @@ bool MainWindow::isInt(string v){
     return true;
 }
 
-void MainWindow::on_cmdAddResComm_clicked()
-{
-    bool ok;
-    QString text = QInputDialog::getText(this, tr("Adding residue to community"),
-                                         tr("Type the new amino acid/position pair (Ex: G124, A32):"), QLineEdit::Normal,
-                                         "", &ok);
-    QChar aa = text.at(0);
-    string pos = text.toStdString().substr(1);
-
-    if (ok && !text.isEmpty()){
-        if(!this->isaa(aa.toLatin1())){
-            QMessageBox::warning(this,"Warning","Invalid pair amino acid/position.");
-            return;
-        }
-
-        if(!this->isInt(pos)){
-            QMessageBox::warning(this,"Warning","Invalid pair amino acid/position.");
-            return;
-        }
-
-    }
-
-    if(stoi(pos) > currentFilter->sequences[0].size()){
-        QMessageBox::warning(this,"Warning","Invalid position");
-        return;
-    }
-
-    int nc = ui->cmbComm->currentIndex();
-
-    currentNetwork->addItemToCommunity(text.toStdString(),nc);
-
-    //Atualizar campo
-    vector<string> comms = currentNetwork->getCommunitie(nc);
-
-    ui->lstManageComms->clear();
-
-    for(unsigned int j = 0; j < comms.size(); j++){
-        ui->lstManageComms->addItem(comms[j].c_str());
-    }
-}
-
-void MainWindow::on_cmdDelResComm_clicked()
-{
-    if(ui->lstManageComms->currentItem() == NULL){
-        QMessageBox::warning(this,"Error","You must selec a residue to remove.");
-        return;
-    }
-
-    int residueIndex = ui->lstManageComms->currentIndex().row();
-    int nc = ui->cmbComm->currentIndex();
-
-    currentNetwork->removeItemOfCommunity(nc,residueIndex);
-
-    //Atualizar campo
-    vector<string> comms = currentNetwork->getCommunitie(nc);
-
-    ui->lstManageComms->clear();
-
-    for(unsigned int j = 0; j < comms.size(); j++){
-        ui->lstManageComms->addItem(comms[j].c_str());
-    }
-}
-
 void MainWindow::on_cmdNewComm_clicked()
 {
-    vector<string> newComm;
-    currentNetwork->addCommunity(newComm);
+    ui->txtManageComms->clear();
+    ui->cmbComm->setCurrentText("");
 
-    //Atualizar campos
-    int nOfComms = currentNetwork->getCommListSize();
-
-    ui->cmbComm->addItem(QString::number(nOfComms));
-
-    ui->cmbComm->setCurrentIndex(nOfComms-1);
 }
 
 void MainWindow::changeToListOfSequences(){
@@ -7317,6 +6834,7 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       QStringLiteral("text/plain; charset=utf-8"));
     QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
     QNetworkReply *response(manager.post(request,data));
     //QNetworkReply* response(manager.get(request));
     QEventLoop event;
@@ -7428,11 +6946,13 @@ void MainWindow::changeToConservedResidues(){
         ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
         return;
     }
+    /*
     if(currentFilter->getRefSeqsSize() == 0){
         QMessageBox::warning(this,"Warning","You must select some reference sequences.");
         ui->stackedWidget->setCurrentIndex(STACK_REFSEQS);
         return;
     }
+    */
     if(currentFilter->getConsFreqPercSize() == 0){
         QMessageBox::warning(this,"Warning","You must run conservation method.");
         ui->stackedWidget->setCurrentIndex(STACK_CONSERVATION);
@@ -7616,6 +7136,21 @@ void MainWindow::changeToGenSubAlignments(){
 
     ui->stackedWidget->setCurrentIndex(STACK_SUBALIGN);
 }
+
+void MainWindow::changeToGenSubAlignments2(){
+    //Validação
+    if(!currentFilter){
+        QMessageBox::warning(this,"Warning","You must load an alignment.");
+        ui->stackedWidget->setCurrentIndex(STACK_ALIGNMENT);
+        return;
+    }
+
+    ui->txtSequencesSubAlign->clear();
+    ui->txtSequenceSubName->clear();
+
+    ui->stackedWidget->setCurrentIndex(STACK_SUBALIGN_2);
+}
+
 
 void MainWindow::changeToAddSequence(){
     //Validação
@@ -7834,6 +7369,56 @@ void MainWindow::changeToULGroupedByComms(){
     ui->stackedWidget2->setCurrentIndex(STACK_RESULT_UNIPROT_COMMS);
 }
 
+void MainWindow::updateAlignmentVisFile(){
+    string path = libpath + "msaviewer/msa.html";
+    QFile file(path.c_str());
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+
+    out << "<meta name=\"description\" content=\"Simple BioJS example\" />\n";
+    out << "<script src=\"msa.min.gz.js\"></script>\n";
+    out << "<div id=\"menuDiv\"></div>\n";
+    out << "<div id=\"yourDiv\"></div>\n";
+
+    out << "<script type=\"text/javascript\">\n";
+    out << "var fasta = \"";
+
+    for(unsigned int i = 0; i < currentFilter->sequencenames.size(); i++){
+        out << ">" + QString::fromStdString(currentFilter->sequencenames[i]) + "\\n";
+        out << QString::fromStdString(currentFilter->sequences[i]) + "\\n";
+    }
+
+    out << "\"\n";
+    out << "var seqs =  msa.io.fasta.parse(fasta);\n";
+    out << "var opts = {\n";
+    out << "  el: yourDiv,\n";
+    out << "  seqs: seqs\n";
+    out << "};\n";
+    out << "opts.vis = {\n";
+    out << "  conserv: true,\n";
+    out << "  overviewbox: false,\n";
+    out << "  seqlogo: true\n";
+    out << "};\n";
+    out << "var m = msa(opts);\n";
+    out << "m.render();\n";
+    out << "m.g.zoomer.set(\"alignmentHeight\", 400)\n";
+    out << "m.g.zoomer.set(\"labelNameLength\", 190)\n";
+    out << "var defMenu = new msa.menu.defaultmenu({\n";
+    out << "  el: menuDiv,\n";
+    out << "  msa: m\n";
+    out << "});\n";
+    out << "defMenu.render();\n";
+    out << "</script>";
+
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    QWebSettings *websettings = QWebSettings::globalSettings();
+    websettings->clearMemoryCaches();
+    ui->webAlignment->load(QUrl(localUrl.c_str()));
+
+}
+
 void MainWindow::changeToFullAlignment(){
     //Validação
     if(!currentFilter){
@@ -7842,12 +7427,12 @@ void MainWindow::changeToFullAlignment(){
         return;
     }
 
-    ui->tableFullAlignment->clear();
+    //ui->tableFullAlignment->clear();
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
     ui->stackedWidget2->setCurrentIndex(STACK_RESULT_FULLALIGN);
 
-    this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
+    updateAlignmentVisFile();
 }
 
 void MainWindow::on_cmdAddFileRefSeq_clicked()
@@ -7985,10 +7570,43 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
 
     currentFilter->clearRefSeq();
 
+    string bestPDB = "";
+    int morePDB = 0;
     for(int j = 0; j < ui->lstRefSeqSelected->count(); j++){
+        string refseq = ui->lstRefSeqSelected->item(j)->text().toStdString();
+
         //printf("5891:Refseq - %s\n",ui->lstRefSeqSelected->item(j)->text().toStdString().c_str());
-        currentFilter->addRefSeq(ui->lstRefSeqSelected->item(j)->text().toStdString());
+        currentFilter->addRefSeq(refseq);
+
+        bool found = false;
+        for(unsigned int k = 0; k < currentFilter->sequences.size(); k++){
+            if(refseq == currentFilter->sequencenames[k]){
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+
+            currentFilter->sequencenames.push_back(refseq);
+            currentFilter->sequences.push_back(currentAlign->getFullSequence(refseq));
+        }
+
+        //Define sequencia com maior numero de estruturas conhecidas para deixar como padrao na tela de PDB
+        vector<string> pdbs = currentAlign->getRecommendsPDBs(refseq);
+        if(pdbs.size() >= morePDB){
+            bestPDB = refseq;
+            morePDB = pdbs.size();
+        }
     }
+
+    currentFilter->convertLowerDots();
+
+    emit ui->listWidget2->currentItemChanged(currentFilter->getQTreeWidgetItem(),currentFilter->getQTreeWidgetItem());
+
+    //Seleciona sequencia com mais pdbs
+    ui->cmbRefSeq_4->setCurrentText(bestPDB.c_str());
+    emit ui->cmbRefSeq_4->activated(bestPDB.c_str());
+
     QMessageBox::information(this,"Reference sequences","The reference sequences are stored.");
 
     ui->cmdSaveRefSeqs->setEnabled(true);
@@ -7996,10 +7614,54 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
 
 void MainWindow::on_cmdUpdateComms_clicked()
 {
+    string content = ui->txtManageComms->toPlainText().toStdString();
+    //Validação
+    if(content == ""){
+        QMessageBox::warning(this,"Warning","You can't add an empty community.");
+        return;
+    }
+    //Validate residues
+    vector<string> residues = split(content,'\n');
+    vector<string> validResidues;
+    vector<string> invalidResidues;
+    for(unsigned int i = 0; i < residues.size(); i++){
+        string res = residues[i];
+        if(res.size() > 1){
+            char aa = res[0];
+            string pos = res.substr(1);
+
+            if(this->isaa(aa)){
+                if(this->isInt(pos)){
+                    if(stoi(pos) <= currentFilter->sequences[0].size()){
+                        validResidues.push_back(res);
+                    }else invalidResidues.push_back(res);
+                }
+            }else invalidResidues.push_back(res);
+        }
+    }
+
+    if(ui->cmbComm->currentText() == ""){ //Add new Comm
+        currentNetwork->addCommunity(validResidues);
+        changeToCreateCommunity();
+        ui->cmbComm->setCurrentIndex(ui->cmbComm->count()-1);
+    }else{//Edit Comm
+        int nc = ui->cmbComm->currentIndex();
+
+        currentNetwork->setCommunityItems(nc,validResidues);
+    }
+
     //Chamar Output
+    currentNetwork->CalculateFrequencies();
     this->output();
 
-    QMessageBox::information(this,"Update Communities","The communtities have been updated.");
+    if(invalidResidues.size() == 0)
+        QMessageBox::information(this,"Update Communities","The communtities have been updated.");
+    else{
+        string text = "The communities have been updated, but the following residues were discard:\n";
+        for(unsigned int i = 0; i < invalidResidues.size(); i++)
+            text += invalidResidues[i] + "\n";
+        QMessageBox::information(this,"Update Communities",text.c_str());
+    }
 }
 
 void MainWindow::on_txtMinssFraction_editingFinished()
@@ -8759,6 +8421,7 @@ void MainWindow::on_cmdPDBFetch_clicked()
     //Faz a conexão
     QUrl qurl = url;
     QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
     QNetworkRequest request(qurl);
     QNetworkReply *reply(manager.get(request));
     QEventLoop loop;
@@ -9046,6 +8709,7 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       QStringLiteral("text/plain; charset=utf-8"));
     QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
     QNetworkReply *response(manager.post(request,data));
     //QNetworkReply* response(manager.get(request));
     QEventLoop event;
@@ -9222,6 +8886,7 @@ void MainWindow::on_cmdLookingFilter_clicked()
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       QStringLiteral("text/plain; charset=utf-8"));
     QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
     QNetworkReply *response(manager.post(request,data));
     //QNetworkReply* response(manager.get(request));
     QEventLoop event;
@@ -9391,11 +9056,6 @@ string MainWindow::findCurrentAlphabet(){
     return "T20";
 }
 
-void MainWindow::on_cmdApplyViewAlignment_clicked()
-{
-    this->showFullAlignment(ui->cmbAlphabetColor->currentIndex(), ui->cmbViewColumns->currentIndex());
-}
-
 void MainWindow::on_cmbFilterMethod_activated(int index)
 {
     if(index == 0){
@@ -9490,7 +9150,7 @@ void MainWindow::on_listWidget2_currentItemChanged(QTreeWidgetItem *current, QTr
     ui->lstProteinsFiltered->clear();
     ui->lstLookingRefs->clear();
     ui->cmbComm->clear();
-    ui->lstManageComms->clear();
+    ui->txtManageComms->clear();
     ui->cmbRefPdb_2->clear();
     ui->cmbRefPdb_3->clear();
     ui->lstRecomendedPDBs->clear();
@@ -9548,19 +9208,6 @@ void MainWindow::on_listWidget2_currentItemChanged(QTreeWidgetItem *current, QTr
         this->updateResultsViews();
     }else if(ui->stackedWidget->currentIndex() == STACK_MUTATION){
         changeToMutationAnalysis();
-    }
-
-    //Prepara tela de conservação para usar pesos ou frequências
-    if(currentFilter->getWeightsSize() == 0){
-        ui->label_28->setEnabled(false);
-        ui->label_31->setEnabled(false);
-        ui->txtAlpha->setEnabled(false);
-        ui->txtBeta->setEnabled(false);
-    }else{
-        ui->label_28->setEnabled(true);
-        ui->label_31->setEnabled(true);
-        ui->txtAlpha->setEnabled(true);
-        ui->txtBeta->setEnabled(true);
     }
 
     ui->cmbRefSeq_2->setCurrentIndex(0);
@@ -9782,6 +9429,13 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
     ui->cmdGenerateSubAlignment->setEnabled(false);
     string name = ui->txtSubAlignName->text().toStdString();
 
+    if(name == ""){
+        QMessageBox::warning(this,"Invalid Filter Name","Invalid filter name.");
+        ui->txtSubAlignName->setFocus();
+        ui->cmdGenerateSubAlignment->setEnabled(true);
+        return;
+    }
+
     if(!currentAlign->verifyValidFilterName(name)){
         QMessageBox::warning(this,"Invalid Filter Name","Invalid filter name.");
         ui->txtSubAlignName->setFocus();
@@ -9869,6 +9523,83 @@ void MainWindow::on_cmdGenerateSubAlignment_clicked()
         ui->txtResiduesSubAlign->clear();
     }
     ui->cmdGenerateSubAlignment->setEnabled(true);
+}
+
+
+void MainWindow::on_cmdGenSubALign2_clicked()
+{
+    ui->cmdGenSubALign2->setEnabled(false);
+    string name = ui->txtSequenceSubName->text().toStdString();
+
+    if(name == ""){
+        QMessageBox::warning(this,"Invalid Filter Name","Invalid filter name.");
+        ui->txtSequenceSubName->setFocus();
+        ui->cmdGenSubALign2->setEnabled(true);
+        return;
+    }
+
+    if(!currentAlign->verifyValidFilterName(name)){
+        QMessageBox::warning(this,"Invalid Filter Name","Invalid filter name.");
+        ui->txtSequenceSubName->setFocus();
+        ui->cmdGenSubALign2->setEnabled(true);
+        return;
+    }
+
+    if(ui->txtSequencesSubAlign->toPlainText() == ""){
+        QMessageBox::warning(this,"Invalid Dataset","The sequences list is blank.");
+        ui->txtSequencesSubAlign->setFocus();
+        ui->cmdGenSubALign2->setEnabled(true);
+    }
+
+    vector<string> seqnames = split(ui->txtSequencesSubAlign->toPlainText().toStdString(),'\n');
+    vector<string> sequences;
+    vector<string> sequencenames;
+    for(unsigned int i = 0; i < seqnames.size(); i++){
+        string tempseqname = seqnames[i];
+        string seqname = split(tempseqname,'/')[0];
+
+        for(unsigned int j = 0; j < currentFilter->sequencenames.size(); j++){
+            string seqname2 = split(currentFilter->sequencenames[j],'/')[0];
+            if(seqname == seqname2){
+                sequences.push_back(currentFilter->sequences[j]);
+                sequencenames.push_back(currentFilter->sequencenames[j]);
+            }
+        }
+    }
+
+    if(sequences.size() == 0){
+        QMessageBox::warning(this,"Null Alignment","The query result in a null alignment.");
+        ui->cmdGenerateSubAlignment->setEnabled(true);
+        return;
+    }else{
+        Filter *filter = new Filter();
+        filter->setName(name);
+        filter->setAlphabet(currentFilter->getAlphabet());
+        if(currentFilter->getType() == 9) filter->setType(7);
+        else filter->setType(currentFilter->getType());
+        filter->setMaxId(currentFilter->getMaxId());
+        filter->setMinId(currentFilter->getMinId());
+        filter->setMinOcc(currentFilter->getMinOcc());
+        filter->setRefSeq(currentFilter->getRefSeq());
+        filter->setTaxon(currentFilter->getTaxon());
+        filter->addSequences(sequencenames,sequences);
+        filter->setSubsetFrequencies(currentFilter->getSubsetFrequencies());
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->listWidget2);
+        treeItem->setText(0,name.c_str());
+        filter->setQtreeWidgetItem(treeItem);
+
+        currentAlign->addFilter(filter);
+
+        ui->listWidget2->setCurrentItem(treeItem);
+
+        QString msg = "The sub-alignmente were generated with " + QString::number(sequences.size()) + " sequences.";
+        QMessageBox::information(this,"Sub-alignment generated",msg);
+
+        ui->txtSequenceSubName->clear();
+        ui->txtSequencesSubAlign->clear();
+    }
+
+    ui->cmdGenSubALign2->setEnabled(true);
 }
 
 void MainWindow::on_cmbAddSeq1_activated(const QString &arg1)
@@ -10189,4 +9920,38 @@ QTreeWidgetItem* MainWindow::getFilterItem(){
     }
 
     return item;
+}
+
+void MainWindow::changeToConfigureProxy(){
+    ui->stackedWidget->setCurrentIndex(16);
+}
+
+void MainWindow::on_cmdProxyConnect_clicked()
+{
+    if(ui->cmdProxyConnect->text() == "Connect"){
+        int type = ui->proxyType->currentIndex();
+        QString hostname = ui->proxyHost->text();
+        qint16 port = ui->proxyPort->text().toInt();
+        QString user = ui->proxyUser->text();
+        QString pass = ui->proxyPassword->text();
+
+        QNetworkProxy prox((QNetworkProxy::ProxyType)type,hostname,port,user,pass);
+        hasproxy = true;
+        proxy = prox;
+
+        QMessageBox::information(this,"Proxy","The proxy has been configured and turned on.");
+
+        ui->cmdProxyConnect->setText("Disconnect");
+    }else{
+        QNetworkProxy prox(QNetworkProxy::NoProxy,"",80,"","");
+        hasproxy = false;
+        proxy = prox;
+
+        QMessageBox::information(this,"Proxy","The proxy has been turned off.");
+
+        ui->cmdProxyConnect->setText("Connect");
+    }
+
+
+
 }

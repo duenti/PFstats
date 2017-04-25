@@ -1456,6 +1456,10 @@ void Network::addItemToCommunity(string res, int commindex){
     comunidades[commindex].push_back(res);
 }
 
+void Network::setCommunityItems(int comm, vector<string> residues){
+    comunidades[comm] = residues;
+}
+
 void Network::sortCommunitiesVector(){
     sort(comunidades.begin(),comunidades.end(),
          [](const std::vector<string>& a, const std::vector<string>& b) {
@@ -1500,7 +1504,7 @@ void Network::alignment2UpperCase(){
     }
 }
 
-bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, vector<string> conserved, vector<string> fullAlignment, vector<string> fullSequences){
+bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, vector<string> conserved, vector<string> fullAlignment, vector<string> fullSequences, bool hasproxy, QNetworkProxy proxy){
     QProgressDialog progress("Reading data from webservice (1/3)","Abort",0,0);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
@@ -1519,6 +1523,7 @@ bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       QStringLiteral("text/plain; charset=utf-8"));
     QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
     QNetworkReply *response(manager.post(request,data));
     //QNetworkReply* response(manager.get(request));
     QEventLoop event;

@@ -119,6 +119,71 @@
       </item>
      </layout>
     </item>
+    <item row="1" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QPushButton" name="cmdMain">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Main</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdBack">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Back</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdAdvance">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Next</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cmdSaveResults">
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Save Results</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
     <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
@@ -650,7 +715,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Alignment Filtering&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In this phase, the alignment is filtered in order to reduce artifacts and biases. Actually, it is possible to filter using a reference sequence to compare or by analyzing the HMM profile of the alignment itself (if it contains). &amp;quot;Minimum coverage&amp;quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &amp;quot;Minimum identity&amp;quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &amp;quot;Maximum identity&amp;quot; filter is highly recommended in order to reduce the phylogenetic effect bias. It will compare each sequence to all others, removing those above the specified identity. There is also an option to utilize only sequences of a specific taxonomical clade.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Alignment Filtering&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In this step, the alignment is filtered in order to reduce artifacts and biases. Actually, it is possible to filter using a reference sequence to compare or by analyzing the HMM profile of the alignment itself (if it's available). &amp;quot;Minimum coverage&amp;quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &amp;quot;Minimum identity&amp;quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &amp;quot;Maximum identity&amp;quot; filter is highly recommended in order to reduce the sequences redundance bias. It will compare each sequence to all others, removing those above the specified identity. There is also an option to utilize only sequences of a specific taxonomical clade.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -1697,7 +1762,7 @@
                  <item>
                   <widget class="QLabel" name="label_28">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="text">
                     <string>Alpha (entropy weight):</string>
@@ -1707,7 +1772,7 @@
                  <item>
                   <widget class="QDoubleSpinBox" name="txtAlpha">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="maximumSize">
                     <size>
@@ -1735,7 +1800,7 @@
                    <item>
                     <widget class="QLabel" name="label_31">
                      <property name="enabled">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </property>
                      <property name="text">
                       <string>Beta (sthereochemistry weight):</string>
@@ -1745,7 +1810,7 @@
                    <item>
                     <widget class="QDoubleSpinBox" name="txtBeta">
                      <property name="enabled">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </property>
                      <property name="maximumSize">
                       <size>
@@ -1773,7 +1838,7 @@
                  <item>
                   <widget class="QLabel" name="label_30">
                    <property name="text">
-                    <string>Minimum Conservation:</string>
+                    <string>Minimum Conservation Score:</string>
                    </property>
                   </widget>
                  </item>
@@ -2267,6 +2332,13 @@
                 </layout>
                </item>
                <item>
+                <widget class="QCheckBox" name="chkAppyWeight">
+                 <property name="text">
+                  <string>Calculate with Henikoff Weights (Alternative to filtering)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QCheckBox" name="chkComm2Align">
                  <property name="text">
                   <string>Generate communities subalignments</string>
@@ -2493,7 +2565,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>11</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -2823,7 +2895,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label_35">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Table of frequence conservation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Table of residues frequences&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -2954,7 +3026,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label_36">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Table of percentage conservation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Table of residues frequence percentage&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -4285,198 +4357,14 @@
                </widget>
               </item>
               <item row="1" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout_72">
-                <item>
-                 <widget class="QLabel" name="label_80">
-                  <property name="text">
-                   <string>Color by alphabet:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="cmbAlphabetColor">
-                  <item>
-                   <property name="text">
-                    <string>T20</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>T2</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>T5</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>T6</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>3IMG</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>5IMG</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>11IMG</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Murphy15</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Murphy10</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Murphy8</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Murphy4</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Murphy2</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Wang5</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Wang5v</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Wang3</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Wang2</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Li10</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Li5</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Li4</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Li3</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_81">
-                  <property name="text">
-                   <string>Show columns: </string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="cmbViewColumns">
-                  <property name="minimumSize">
-                   <size>
-                    <width>150</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="currentIndex">
-                   <number>2</number>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>All Columns</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Only Perfect Conservation</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Strong Conservation</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Hide Weak Conservation</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="cmdApplyViewAlignment">
-                  <property name="text">
-                   <string>Apply</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_48">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item row="2" column="0">
                <layout class="QHBoxLayout" name="horizontalLayout_96">
                 <item>
-                 <widget class="QTableWidget" name="tableFullAlignment">
-                  <property name="font">
-                   <font>
-                    <pointsize>8</pointsize>
-                   </font>
+                 <widget class="QWebView" name="webAlignment">
+                  <property name="url">
+                   <url>
+                    <string>about:blank</string>
+                   </url>
                   </property>
-                  <property name="editTriggers">
-                   <set>QAbstractItemView::NoEditTriggers</set>
-                  </property>
-                  <attribute name="horizontalHeaderMinimumSectionSize">
-                   <number>20</number>
-                  </attribute>
-                  <attribute name="verticalHeaderMinimumSectionSize">
-                   <number>18</number>
-                  </attribute>
                  </widget>
                 </item>
                </layout>
@@ -4768,7 +4656,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmbComm"/>
+             <widget class="QComboBox" name="cmbComm">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -4806,7 +4698,7 @@
             <item>
              <widget class="QPushButton" name="cmdUpdateComms">
               <property name="text">
-               <string>Update</string>
+               <string>Update Results</string>
               </property>
              </widget>
             </item>
@@ -4870,48 +4762,17 @@
               </property>
              </spacer>
             </item>
-            <item>
-             <widget class="QPushButton" name="cmdDelResComm">
-              <property name="minimumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="cmdAddResComm">
-              <property name="minimumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
           <item>
-           <widget class="QListWidget" name="lstManageComms"/>
+           <widget class="QLabel" name="label_99">
+            <property name="text">
+             <string>Type one residue per line in the format as G124: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTextEdit" name="txtManageComms"/>
           </item>
          </layout>
         </item>
@@ -5337,7 +5198,7 @@
                 <item>
                  <widget class="QLabel" name="label_86">
                   <property name="text">
-                   <string>New Filter Name:</string>
+                   <string>Sub-alignment Name:</string>
                   </property>
                  </widget>
                 </item>
@@ -5367,7 +5228,7 @@
                    <double>0.100000000000000</double>
                   </property>
                   <property name="value">
-                   <double>0.800000000000000</double>
+                   <double>1.000000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -5734,72 +5595,397 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page_36">
+       <layout class="QGridLayout" name="gridLayout_36">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_100">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Generate Sub-Alignment&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_56">
+          <item>
+           <widget class="QLabel" name="label_101">
+            <property name="text">
+             <string>Place sequence names (one per line:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_91">
+            <item>
+             <widget class="QTextEdit" name="txtSequencesSubAlign"/>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_85">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_65">
+            <item>
+             <widget class="QLabel" name="label_102">
+              <property name="text">
+               <string>Sub-Alignment name:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="txtSequenceSubName"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_69">
+            <item>
+             <spacer name="horizontalSpacer_83">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cmdGenSubALign2">
+              <property name="text">
+               <string>Generate</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_84">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_37">
+       <layout class="QGridLayout" name="gridLayout_37">
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="label_103">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Configure Proxy&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_58">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_57">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_72">
+              <item>
+               <widget class="QLabel" name="label_80">
+                <property name="text">
+                 <string>Proxy Type:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_48">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QComboBox" name="proxyType">
+                <item>
+                 <property name="text">
+                  <string>Default</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Socks5</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>NoProxy</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>HttpProxy</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>HttpCachingProxy</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>FtpCachingProxy</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_92">
+              <item>
+               <widget class="QLabel" name="label_81">
+                <property name="text">
+                 <string>Hostname:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_86">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="proxyHost">
+                <property name="maximumSize">
+                 <size>
+                  <width>155</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_99">
+              <item>
+               <widget class="QLabel" name="label_104">
+                <property name="text">
+                 <string>Port:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_87">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="proxyPort">
+                <property name="maximumSize">
+                 <size>
+                  <width>155</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_100">
+              <item>
+               <widget class="QLabel" name="label_105">
+                <property name="text">
+                 <string>User:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_88">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="proxyUser">
+                <property name="maximumSize">
+                 <size>
+                  <width>155</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_101">
+              <item>
+               <widget class="QLabel" name="label_106">
+                <property name="text">
+                 <string>Password:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_89">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="proxyPassword">
+                <property name="maximumSize">
+                 <size>
+                  <width>155</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="echoMode">
+                 <enum>QLineEdit::Password</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_102">
+            <item>
+             <spacer name="horizontalSpacer_90">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cmdProxyConnect">
+              <property name="text">
+               <string>Connect</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_91">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="1">
+         <spacer name="horizontalSpacer_92">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>404</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="0">
+         <spacer name="verticalSpacer_15">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>333</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
      </widget>
-    </item>
-    <item row="1" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_9">
-      <item>
-       <widget class="QPushButton" name="cmdMain">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Main</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdBack">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Back</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdAdvance">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Advance</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cmdSaveResults">
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Save Results</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
@@ -5827,6 +6013,13 @@
     <property name="title">
      <string>Methods</string>
     </property>
+    <widget class="QMenu" name="menuGenerate_Sub_Alignment">
+     <property name="title">
+      <string>Generate Sub-Alignment</string>
+     </property>
+     <addaction name="actionBy_Residues"/>
+     <addaction name="actionBy_Sequences"/>
+    </widget>
     <addaction name="actionStart_Wizard"/>
     <addaction name="separator"/>
     <addaction name="actionFilter_Alignment"/>
@@ -5839,7 +6032,7 @@
     <addaction name="actionAdd_Sequences"/>
     <addaction name="actionCreate_Communitie"/>
     <addaction name="actionAlphabet_Reduction"/>
-    <addaction name="actionGenerate_Sub_Alignment"/>
+    <addaction name="menuGenerate_Sub_Alignment"/>
     <addaction name="actionUniprotLooking"/>
     <addaction name="separator"/>
     <addaction name="actionMutation_Analysis"/>
@@ -5856,7 +6049,7 @@
     </property>
     <widget class="QMenu" name="menuConservation_Table">
      <property name="title">
-      <string>Conservation Table</string>
+      <string>Frequence Table</string>
      </property>
      <addaction name="actionIn_Frequence"/>
      <addaction name="actionIn_Percentage"/>
@@ -5903,9 +6096,9 @@
      <property name="title">
       <string>Alignment</string>
      </property>
-     <addaction name="actionAlignmentPFAM"/>
-     <addaction name="actionAlignmentTXT"/>
-     <addaction name="actionAlignmentXML"/>
+     <addaction name="actionTSF"/>
+     <addaction name="actionStockholm"/>
+     <addaction name="actionFasta"/>
     </widget>
     <widget class="QMenu" name="menuFrequence_Conservation">
      <property name="title">
@@ -5936,7 +6129,7 @@
     </widget>
     <widget class="QMenu" name="menuCorrelation_List">
      <property name="title">
-      <string>Correlation List</string>
+      <string>Correlation List (Network)</string>
      </property>
      <addaction name="actionCorrListTXT"/>
      <addaction name="actionCorrListCSV"/>
@@ -6007,7 +6200,14 @@
      <addaction name="actionRefSeqTXT"/>
      <addaction name="actionRefSeqXML"/>
     </widget>
+    <widget class="QMenu" name="menuSequences_names">
+     <property name="title">
+      <string>Sequences names</string>
+     </property>
+     <addaction name="actionExportSequencesTXT"/>
+    </widget>
     <addaction name="menuAlignment"/>
+    <addaction name="menuSequences_names"/>
     <addaction name="menuReference_Sequences"/>
     <addaction name="separator"/>
     <addaction name="menuFrequence_Conservation"/>
@@ -6029,6 +6229,7 @@
      <string>Options</string>
     </property>
     <addaction name="actionSet_Libraries_Path"/>
+    <addaction name="actionSet_Proxy"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMethod"/>
@@ -6400,12 +6601,12 @@
   </action>
   <action name="actionIn_Frequence">
    <property name="text">
-    <string>In Frequence</string>
+    <string>Absolute</string>
    </property>
   </action>
   <action name="actionIn_Percentage">
    <property name="text">
-    <string>In Percentage</string>
+    <string>Percentage</string>
    </property>
   </action>
   <action name="actionConserved_Residues">
@@ -6558,11 +6759,6 @@
     <string>Open Alignment</string>
    </property>
   </action>
-  <action name="actionGenerate_Sub_Alignment">
-   <property name="text">
-    <string>Generate Sub-Alignment</string>
-   </property>
-  </action>
   <action name="actionAdd_Sequences">
    <property name="text">
     <string>Add Sequences</string>
@@ -6592,6 +6788,41 @@
    </property>
    <property name="toolTip">
     <string>Duplicate Filter</string>
+   </property>
+  </action>
+  <action name="actionExportSequencesTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionBy_Residues">
+   <property name="text">
+    <string>By Residues</string>
+   </property>
+  </action>
+  <action name="actionBy_Sequences">
+   <property name="text">
+    <string>By Sequences</string>
+   </property>
+  </action>
+  <action name="actionSet_Proxy">
+   <property name="text">
+    <string>Configure Proxy</string>
+   </property>
+  </action>
+  <action name="actionTSF">
+   <property name="text">
+    <string>TSF</string>
+   </property>
+  </action>
+  <action name="actionStockholm">
+   <property name="text">
+    <string>Stockholm</string>
+   </property>
+  </action>
+  <action name="actionFasta">
+   <property name="text">
+    <string>Fasta</string>
    </property>
   </action>
  </widget>

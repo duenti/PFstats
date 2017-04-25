@@ -1265,11 +1265,11 @@ void Filter::applyAlphabetReduction(vector<string> oldChars, vector<char> newCha
 
 void Filter::exportFilteredAlignment(QString filename, int type){
     switch(type){
-        case 0://PFAM
+        case 0://TSF
         {
             vector<string> tempFN = split(filename.toStdString(),'.');
-            if(tempFN[tempFN.size()-1] != "pfam" && tempFN[tempFN.size()-1] != "PFAM")
-                filename += ".pfam";
+            if(tempFN[tempFN.size()-1] != "tab" && tempFN[tempFN.size()-1] != "TAB")
+                filename += ".tab";
 
             //Salva em arquivo
             QFile f(filename);
@@ -1279,17 +1279,17 @@ void Filter::exportFilteredAlignment(QString filename, int type){
 
             QTextStream out(&f);
             for(unsigned int i = 0; i < sequences.size(); i++){
-                out << sequencenames[i].c_str() << " " << sequences[i].c_str() << "\n";
+                out << sequencenames[i].c_str() << "\t" << sequences[i].c_str() << "\n";
             }
 
             f.close();
             break;
         }
-        case 1://TXT
+        case 1://STO
         {
             vector<string> tempFN = split(filename.toStdString(),'.');
-            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
-                filename += ".txt";
+            if(tempFN[tempFN.size()-1] != "sto" && tempFN[tempFN.size()-1] != "STO")
+                filename += ".sto";
 
             //Salva em arquivo
             QFile f(filename);
@@ -1298,18 +1298,40 @@ void Filter::exportFilteredAlignment(QString filename, int type){
             }
 
             QTextStream out(&f);
+            out << "# STOCKHOLM 1.0\n";
+            out << "#=GF ID " << name.c_str() << "\n";
+            out << "#=GF CC Alphabet: " << alphabet.c_str() << "\n";
+            if(taxon != "") out << "#=CC Taxon: " << taxon.c_str() << "\n";
+            out << "#=GF CC MinOcc: " << to_string(minOcc).c_str() << " MinId: " << to_string(minId).c_str() << " MaxId: " << to_string(maxId).c_str() << "\n";
+
             for(unsigned int i = 0; i < sequences.size(); i++){
-                out << sequencenames[i].c_str() << " " << sequences[i].c_str() << "\n";
+                string seqname = sequencenames[i];
+                int spaces = 0;
+
+                if(seqname.size() > 38){
+                    seqname = seqname.substr(0,38);
+                    spaces = 1;
+                }
+                else{
+                    spaces = 39 - seqname.size();
+                }
+
+                out << seqname.c_str();
+                for(unsigned int i = 0; i < spaces; i++)
+                    out << " ";
+
+
+                out << sequences[i].c_str() << "\n";
             }
 
             f.close();
             break;
         }
-        case 2://XML
+        case 2://Fasta
         {
             vector<string> tempFN = split(filename.toStdString(),'.');
-            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
-                filename += ".xml";
+            if(tempFN[tempFN.size()-1] != "fas" && tempFN[tempFN.size()-1] != "fasta")
+                filename += ".fas";
 
             //Salva em arquivo
             QFile f(filename);
@@ -1318,24 +1340,13 @@ void Filter::exportFilteredAlignment(QString filename, int type){
             }
 
             QTextStream out(&f);
-            out << "<?xml version=\"1.0\"?>\n\n";
-            out << "<PFStats>\n";
-            out << "   <filters>\n";
-
-            string occ = to_string(this->minOcc);
-            string minid = to_string(this->minId);
-            string maxid = to_string(this->maxId);
-            string refseq = this->refSeq;
-            if(refseq == "") refseq = "NULL";
-
-            out << "      <filter occ='" << occ.c_str() << "' minid='" << minid.c_str() << "' maxid='" << maxid.c_str() << "' refseq='" << refseq.c_str() << "' >\n";
             for(unsigned int i = 0; i < sequences.size(); i++){
-                out << "         <entry id='" << i-1 << "' name='" << sequencenames[i].c_str() << "'>" << sequences[i].c_str() << "</entry>\n";
-            }
+                out << ">" << sequencenames[i].c_str() << "\n";
 
-            out << "      </filter>\n";
-            out << "   </filters>\n";
-            out << "</PFStats>\n";
+                for(unsigned int j = 0; j < (sequences[i].size()/60)+1; j++){
+                    out << sequences[i].substr(j*60,60).c_str() << "\n";
+                }
+            }
 
             f.close();
             break;
@@ -1347,6 +1358,28 @@ void Filter::exportFilteredAlignment(QString filename, int type){
         }
     }
     QMessageBox::information(NULL,"Exporting Alignment","Alignment saved succesfully.");
+}
+
+void Filter::exportSequences(QString filename){
+    vector<string> tempFN = split(filename.toStdString(),'.');
+    if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+        filename += ".txt";
+
+    //Salva em arquivo
+    QFile f(filename);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+        return;
+    }
+
+    QTextStream out(&f);
+
+    for(unsigned int i = 0; i < sequencenames.size(); i++){
+        out << sequencenames[i].c_str() << "\n";
+    }
+
+    f.close();
+
+    QMessageBox::information(NULL,"Exporting Sequences","Sequences saved succesfully.");
 }
 
 void Filter::exportRefs(QString filename, int type){

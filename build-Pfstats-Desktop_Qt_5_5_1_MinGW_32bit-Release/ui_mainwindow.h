@@ -143,12 +143,14 @@ public:
     QAction *actionRenameFilter;
     QAction *actionRemoveFilter;
     QAction *actionOpenAlignment;
-    QAction *actionGenerate_Sub_Alignment;
     QAction *actionAdd_Sequences;
     QAction *actionTaxonomic_View;
     QAction *actionMutation_Analysis;
     QAction *actionCommunitiesNetwork;
     QAction *actionDuplicateFilter;
+    QAction *actionExportSequencesTXT;
+    QAction *actionBy_Residues;
+    QAction *actionBy_Sequences;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout_11;
@@ -687,9 +689,8 @@ public:
     QHBoxLayout *horizontalLayout_32;
     QPushButton *cmdNewComm;
     QSpacerItem *horizontalSpacer_9;
-    QPushButton *cmdDelResComm;
-    QPushButton *cmdAddResComm;
-    QListWidget *lstManageComms;
+    QLabel *label_99;
+    QTextEdit *txtManageComms;
     QWidget *page_28;
     QGridLayout *gridLayout_32;
     QLabel *label_62;
@@ -784,6 +785,21 @@ public:
     QVBoxLayout *verticalLayout_47;
     QLabel *label_95;
     QTextEdit *txtMutationResult;
+    QWidget *page_36;
+    QGridLayout *gridLayout_36;
+    QLabel *label_100;
+    QVBoxLayout *verticalLayout_56;
+    QLabel *label_101;
+    QHBoxLayout *horizontalLayout_91;
+    QTextEdit *txtSequencesSubAlign;
+    QSpacerItem *horizontalSpacer_85;
+    QHBoxLayout *horizontalLayout_65;
+    QLabel *label_102;
+    QLineEdit *txtSequenceSubName;
+    QHBoxLayout *horizontalLayout_69;
+    QSpacerItem *horizontalSpacer_83;
+    QPushButton *cmdGenSubALign2;
+    QSpacerItem *horizontalSpacer_84;
     QHBoxLayout *horizontalLayout_9;
     QPushButton *cmdMain;
     QPushButton *cmdBack;
@@ -792,6 +808,7 @@ public:
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuMethod;
+    QMenu *menuGenerate_Sub_Alignment;
     QMenu *menuHelp;
     QMenu *menuShow;
     QMenu *menuConservation_Table;
@@ -811,6 +828,7 @@ public:
     QMenu *menuUniprot_Look_Grouped_By_Proteins;
     QMenu *menuUniprot_Look_Grouped_By_Communities;
     QMenu *menuReference_Sequences;
+    QMenu *menuSequences_names;
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -1020,8 +1038,6 @@ public:
         actionRemoveFilter->setObjectName(QStringLiteral("actionRemoveFilter"));
         actionOpenAlignment = new QAction(MainWindow);
         actionOpenAlignment->setObjectName(QStringLiteral("actionOpenAlignment"));
-        actionGenerate_Sub_Alignment = new QAction(MainWindow);
-        actionGenerate_Sub_Alignment->setObjectName(QStringLiteral("actionGenerate_Sub_Alignment"));
         actionAdd_Sequences = new QAction(MainWindow);
         actionAdd_Sequences->setObjectName(QStringLiteral("actionAdd_Sequences"));
         actionTaxonomic_View = new QAction(MainWindow);
@@ -1033,6 +1049,12 @@ public:
         actionCommunitiesNetwork->setObjectName(QStringLiteral("actionCommunitiesNetwork"));
         actionDuplicateFilter = new QAction(MainWindow);
         actionDuplicateFilter->setObjectName(QStringLiteral("actionDuplicateFilter"));
+        actionExportSequencesTXT = new QAction(MainWindow);
+        actionExportSequencesTXT->setObjectName(QStringLiteral("actionExportSequencesTXT"));
+        actionBy_Residues = new QAction(MainWindow);
+        actionBy_Residues->setObjectName(QStringLiteral("actionBy_Residues"));
+        actionBy_Sequences = new QAction(MainWindow);
+        actionBy_Sequences->setObjectName(QStringLiteral("actionBy_Sequences"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -3941,6 +3963,7 @@ public:
 
         cmbComm = new QComboBox(page_22);
         cmbComm->setObjectName(QStringLiteral("cmbComm"));
+        cmbComm->setEditable(true);
 
         horizontalLayout_30->addWidget(cmbComm);
 
@@ -3995,27 +4018,18 @@ public:
 
         horizontalLayout_32->addItem(horizontalSpacer_9);
 
-        cmdDelResComm = new QPushButton(page_22);
-        cmdDelResComm->setObjectName(QStringLiteral("cmdDelResComm"));
-        cmdDelResComm->setMinimumSize(QSize(20, 20));
-        cmdDelResComm->setMaximumSize(QSize(20, 20));
-
-        horizontalLayout_32->addWidget(cmdDelResComm);
-
-        cmdAddResComm = new QPushButton(page_22);
-        cmdAddResComm->setObjectName(QStringLiteral("cmdAddResComm"));
-        cmdAddResComm->setMinimumSize(QSize(20, 20));
-        cmdAddResComm->setMaximumSize(QSize(20, 20));
-
-        horizontalLayout_32->addWidget(cmdAddResComm);
-
 
         verticalLayout_21->addLayout(horizontalLayout_32);
 
-        lstManageComms = new QListWidget(page_22);
-        lstManageComms->setObjectName(QStringLiteral("lstManageComms"));
+        label_99 = new QLabel(page_22);
+        label_99->setObjectName(QStringLiteral("label_99"));
 
-        verticalLayout_21->addWidget(lstManageComms);
+        verticalLayout_21->addWidget(label_99);
+
+        txtManageComms = new QTextEdit(page_22);
+        txtManageComms->setObjectName(QStringLiteral("txtManageComms"));
+
+        verticalLayout_21->addWidget(txtManageComms);
 
 
         gridLayout_31->addLayout(verticalLayout_21, 1, 1, 1, 1);
@@ -4244,7 +4258,7 @@ public:
         txtSubAlignHitRate->setMinimum(0.1);
         txtSubAlignHitRate->setMaximum(1);
         txtSubAlignHitRate->setSingleStep(0.1);
-        txtSubAlignHitRate->setValue(0.8);
+        txtSubAlignHitRate->setValue(1);
 
         horizontalLayout_94->addWidget(txtSubAlignHitRate);
 
@@ -4504,6 +4518,81 @@ public:
         gridLayout_35->addLayout(verticalLayout_47, 2, 2, 1, 1);
 
         stackedWidget->addWidget(page_35);
+        page_36 = new QWidget();
+        page_36->setObjectName(QStringLiteral("page_36"));
+        gridLayout_36 = new QGridLayout(page_36);
+        gridLayout_36->setSpacing(6);
+        gridLayout_36->setContentsMargins(11, 11, 11, 11);
+        gridLayout_36->setObjectName(QStringLiteral("gridLayout_36"));
+        label_100 = new QLabel(page_36);
+        label_100->setObjectName(QStringLiteral("label_100"));
+        label_100->setMinimumSize(QSize(0, 100));
+        label_100->setWordWrap(true);
+
+        gridLayout_36->addWidget(label_100, 0, 0, 1, 1);
+
+        verticalLayout_56 = new QVBoxLayout();
+        verticalLayout_56->setSpacing(6);
+        verticalLayout_56->setObjectName(QStringLiteral("verticalLayout_56"));
+        label_101 = new QLabel(page_36);
+        label_101->setObjectName(QStringLiteral("label_101"));
+
+        verticalLayout_56->addWidget(label_101);
+
+        horizontalLayout_91 = new QHBoxLayout();
+        horizontalLayout_91->setSpacing(6);
+        horizontalLayout_91->setObjectName(QStringLiteral("horizontalLayout_91"));
+        txtSequencesSubAlign = new QTextEdit(page_36);
+        txtSequencesSubAlign->setObjectName(QStringLiteral("txtSequencesSubAlign"));
+
+        horizontalLayout_91->addWidget(txtSequencesSubAlign);
+
+        horizontalSpacer_85 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_91->addItem(horizontalSpacer_85);
+
+
+        verticalLayout_56->addLayout(horizontalLayout_91);
+
+        horizontalLayout_65 = new QHBoxLayout();
+        horizontalLayout_65->setSpacing(6);
+        horizontalLayout_65->setObjectName(QStringLiteral("horizontalLayout_65"));
+        label_102 = new QLabel(page_36);
+        label_102->setObjectName(QStringLiteral("label_102"));
+
+        horizontalLayout_65->addWidget(label_102);
+
+        txtSequenceSubName = new QLineEdit(page_36);
+        txtSequenceSubName->setObjectName(QStringLiteral("txtSequenceSubName"));
+
+        horizontalLayout_65->addWidget(txtSequenceSubName);
+
+
+        verticalLayout_56->addLayout(horizontalLayout_65);
+
+        horizontalLayout_69 = new QHBoxLayout();
+        horizontalLayout_69->setSpacing(6);
+        horizontalLayout_69->setObjectName(QStringLiteral("horizontalLayout_69"));
+        horizontalSpacer_83 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_69->addItem(horizontalSpacer_83);
+
+        cmdGenSubALign2 = new QPushButton(page_36);
+        cmdGenSubALign2->setObjectName(QStringLiteral("cmdGenSubALign2"));
+
+        horizontalLayout_69->addWidget(cmdGenSubALign2);
+
+        horizontalSpacer_84 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_69->addItem(horizontalSpacer_84);
+
+
+        verticalLayout_56->addLayout(horizontalLayout_69);
+
+
+        gridLayout_36->addLayout(verticalLayout_56, 1, 0, 1, 1);
+
+        stackedWidget->addWidget(page_36);
 
         gridLayout->addWidget(stackedWidget, 0, 1, 1, 1);
 
@@ -4548,6 +4637,8 @@ public:
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuMethod = new QMenu(menuBar);
         menuMethod->setObjectName(QStringLiteral("menuMethod"));
+        menuGenerate_Sub_Alignment = new QMenu(menuMethod);
+        menuGenerate_Sub_Alignment->setObjectName(QStringLiteral("menuGenerate_Sub_Alignment"));
         menuHelp = new QMenu(menuBar);
         menuHelp->setObjectName(QStringLiteral("menuHelp"));
         menuShow = new QMenu(menuBar);
@@ -4586,6 +4677,8 @@ public:
         menuUniprot_Look_Grouped_By_Communities->setObjectName(QStringLiteral("menuUniprot_Look_Grouped_By_Communities"));
         menuReference_Sequences = new QMenu(menuExport);
         menuReference_Sequences->setObjectName(QStringLiteral("menuReference_Sequences"));
+        menuSequences_names = new QMenu(menuExport);
+        menuSequences_names->setObjectName(QStringLiteral("menuSequences_names"));
         menuOptions = new QMenu(menuBar);
         menuOptions->setObjectName(QStringLiteral("menuOptions"));
         MainWindow->setMenuBar(menuBar);
@@ -4620,10 +4713,12 @@ public:
         menuMethod->addAction(actionAdd_Sequences);
         menuMethod->addAction(actionCreate_Communitie);
         menuMethod->addAction(actionAlphabet_Reduction);
-        menuMethod->addAction(actionGenerate_Sub_Alignment);
+        menuMethod->addAction(menuGenerate_Sub_Alignment->menuAction());
         menuMethod->addAction(actionUniprotLooking);
         menuMethod->addSeparator();
         menuMethod->addAction(actionMutation_Analysis);
+        menuGenerate_Sub_Alignment->addAction(actionBy_Residues);
+        menuGenerate_Sub_Alignment->addAction(actionBy_Sequences);
         menuHelp->addAction(actionAbout);
         menuShow->addAction(actionFull_Alignment);
         menuShow->addSeparator();
@@ -4651,6 +4746,7 @@ public:
         menuUniprot_Look_Results->addAction(actionGrouped_By_Proteins);
         menuUniprot_Look_Results->addAction(actionGrouped_By_Communities);
         menuExport->addAction(menuAlignment->menuAction());
+        menuExport->addAction(menuSequences_names->menuAction());
         menuExport->addAction(menuReference_Sequences->menuAction());
         menuExport->addSeparator();
         menuExport->addAction(menuFrequence_Conservation->menuAction());
@@ -4709,11 +4805,12 @@ public:
         menuUniprot_Look_Grouped_By_Communities->addAction(actionLookCommHTML);
         menuReference_Sequences->addAction(actionRefSeqTXT);
         menuReference_Sequences->addAction(actionRefSeqXML);
+        menuSequences_names->addAction(actionExportSequencesTXT);
         menuOptions->addAction(actionSet_Libraries_Path);
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(4);
+        stackedWidget->setCurrentIndex(15);
         cmbAlignmentType->setCurrentIndex(1);
         stackedWidget2->setCurrentIndex(11);
         cmbViewColumns->setCurrentIndex(2);
@@ -4837,7 +4934,6 @@ public:
         actionRemoveFilter->setToolTip(QApplication::translate("MainWindow", "Remove Filter", 0));
 #endif // QT_NO_TOOLTIP
         actionOpenAlignment->setText(QApplication::translate("MainWindow", "Open Alignment", 0));
-        actionGenerate_Sub_Alignment->setText(QApplication::translate("MainWindow", "Generate Sub-Alignment", 0));
         actionAdd_Sequences->setText(QApplication::translate("MainWindow", "Add Sequences", 0));
         actionTaxonomic_View->setText(QApplication::translate("MainWindow", "Taxonomic View", 0));
         actionMutation_Analysis->setText(QApplication::translate("MainWindow", "Mutation Analysis", 0));
@@ -4846,6 +4942,9 @@ public:
 #ifndef QT_NO_TOOLTIP
         actionDuplicateFilter->setToolTip(QApplication::translate("MainWindow", "Duplicate Filter", 0));
 #endif // QT_NO_TOOLTIP
+        actionExportSequencesTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionBy_Residues->setText(QApplication::translate("MainWindow", "By Residues", 0));
+        actionBy_Sequences->setText(QApplication::translate("MainWindow", "By Sequences", 0));
         label_45->setText(QApplication::translate("MainWindow", "Alignment:", 0));
         cmdRemoveAlignment->setText(QApplication::translate("MainWindow", "-", 0));
         label_46->setText(QApplication::translate("MainWindow", "Sub-Alignments:", 0));
@@ -5227,11 +5326,10 @@ public:
         cmdLook->setText(QApplication::translate("MainWindow", "Search", 0));
         label_52->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Manage Communities</span></p></body></html>", 0));
         label_53->setText(QApplication::translate("MainWindow", "Select community:", 0));
-        cmdUpdateComms->setText(QApplication::translate("MainWindow", "Update", 0));
+        cmdUpdateComms->setText(QApplication::translate("MainWindow", "Update Results", 0));
         label_54->setText(QApplication::translate("MainWindow", "Residues of the community:", 0));
         cmdNewComm->setText(QApplication::translate("MainWindow", "New Community", 0));
-        cmdDelResComm->setText(QApplication::translate("MainWindow", "-", 0));
-        cmdAddResComm->setText(QApplication::translate("MainWindow", "+", 0));
+        label_99->setText(QApplication::translate("MainWindow", "Type one residue per line in the format as G124: ", 0));
         label_62->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Alphabet Reduction</span></p></body></html>", 0));
         label_63->setText(QApplication::translate("MainWindow", "Alphabet:", 0));
         cmbAlphabetList->clear();
@@ -5268,7 +5366,7 @@ public:
         cmdSubAlignAddRes->setText(QApplication::translate("MainWindow", "Add", 0));
         label_98->setText(QApplication::translate("MainWindow", "Residues List (E.g. A142; one per line):", 0));
         groupBox_11->setTitle(QApplication::translate("MainWindow", "Generate Sub-Alignment", 0));
-        label_86->setText(QApplication::translate("MainWindow", "New Filter Name:", 0));
+        label_86->setText(QApplication::translate("MainWindow", "Sub-alignment Name:", 0));
         label_87->setText(QApplication::translate("MainWindow", "Minimum hit rate:", 0));
         cmdGenerateSubAlignment->setText(QApplication::translate("MainWindow", "Generate", 0));
         label_88->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Add Sequences to Filtered Alignment</span></p></body></html>", 0));
@@ -5286,12 +5384,17 @@ public:
         label_93->setText(QApplication::translate("MainWindow", "Select a structure", 0));
         cmdCalculateMutations->setText(QApplication::translate("MainWindow", "Calculate", 0));
         label_95->setText(QApplication::translate("MainWindow", "Result:", 0));
+        label_100->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Generate Sub-Alignment</span></p></body></html>", 0));
+        label_101->setText(QApplication::translate("MainWindow", "Place sequence names (one per line:", 0));
+        label_102->setText(QApplication::translate("MainWindow", "Sub-Alignment name:", 0));
+        cmdGenSubALign2->setText(QApplication::translate("MainWindow", "Generate", 0));
         cmdMain->setText(QApplication::translate("MainWindow", "Main", 0));
         cmdBack->setText(QApplication::translate("MainWindow", "Back", 0));
         cmdAdvance->setText(QApplication::translate("MainWindow", "Advance", 0));
         cmdSaveResults->setText(QApplication::translate("MainWindow", "Save Results", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuMethod->setTitle(QApplication::translate("MainWindow", "Methods", 0));
+        menuGenerate_Sub_Alignment->setTitle(QApplication::translate("MainWindow", "Generate Sub-Alignment", 0));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0));
         menuShow->setTitle(QApplication::translate("MainWindow", "Results", 0));
         menuConservation_Table->setTitle(QApplication::translate("MainWindow", "Conservation Table", 0));
@@ -5311,6 +5414,7 @@ public:
         menuUniprot_Look_Grouped_By_Proteins->setTitle(QApplication::translate("MainWindow", "Uniprot Look Grouped By Proteins", 0));
         menuUniprot_Look_Grouped_By_Communities->setTitle(QApplication::translate("MainWindow", "Uniprot Look Grouped By Communities", 0));
         menuReference_Sequences->setTitle(QApplication::translate("MainWindow", "Reference Sequences", 0));
+        menuSequences_names->setTitle(QApplication::translate("MainWindow", "Sequences names", 0));
         menuOptions->setTitle(QApplication::translate("MainWindow", "Options", 0));
     } // retranslateUi
 

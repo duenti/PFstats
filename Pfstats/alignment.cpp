@@ -91,6 +91,21 @@ vector<string> Alignment::getFullSequences(){
     return blank;
 }
 
+string Alignment::getFullSequence(string seqname){
+    for(unsigned int i = 0; i < filters.size(); i++){
+        Filter *filter = filters[i];
+        if(filter->getType() == 9){
+            vector<string> fullSeqNames = filter->getSequenceNames();
+            for(unsigned int j = 0; j < fullSeqNames.size(); j++){
+                if(fullSeqNames[j] == seqname)
+                    return filter->getSequence(j);
+            }
+        }
+    }
+
+    return "";
+}
+
 Filter* Alignment::getFullFilter(){
     for(unsigned int i = 0; i < filters.size(); i++){
         Filter *filter = filters[i];
@@ -388,6 +403,10 @@ void Alignment::readFASTA(){
         }
     }
 
+    seqname = this->verifyOffset(seqname);
+    sequencenames.push_back(seqname);
+    sequences.push_back(seq);
+
     alignmentfile.close();
 }
 
@@ -412,6 +431,10 @@ void Alignment::readFASTA(vector<string> fasta){
             seq += line;
         }
     }
+
+    seqname = this->verifyOffset(seqname);
+    sequencenames.push_back(seqname);
+    sequences.push_back(seq);
 }
 
 void Alignment::readPFAM(){

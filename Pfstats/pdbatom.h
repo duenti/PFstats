@@ -14,6 +14,7 @@ using namespace std;
 class PdbAtom
 {
 private:
+    bool windows;
     int atomNumber;
     string atomName;
     char alternateLocation;
@@ -35,9 +36,9 @@ private:
 
 
 public:
-    PdbAtom();
-    PdbAtom(string line);
-    PdbAtom(int atomNb, string atomNm, string residue, char chain, int resNum, float x, float y, float z, float occ, float b, string element, string charge);
+    PdbAtom(bool win);
+    PdbAtom(string line, bool win);
+    PdbAtom(int atomNb, string atomNm, string residue, char chain, int resNum, float x, float y, float z, float occ, float b, string element, string charge, bool win);
     ~PdbAtom();
     int getAtomNumber();
     void setAtomNumber(int n);

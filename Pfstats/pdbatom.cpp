@@ -1,11 +1,12 @@
 #include "pdbatom.h"
 
-PdbAtom::PdbAtom()
+PdbAtom::PdbAtom(bool win)
 {
-
+    windows = win;
 }
 
-PdbAtom::PdbAtom(string line){
+PdbAtom::PdbAtom(string line, bool win){
+    windows = win;
     char c = ' ';
     string temp = "";
 
@@ -56,7 +57,8 @@ PdbAtom::PdbAtom(string line){
         if(c != ' ') temp += c;
     }
 
-    replace(temp.begin(),temp.end(),'.',',');
+    if(!windows)
+        replace(temp.begin(),temp.end(),'.',',');
     this->x = atof(temp.c_str());
 
     //Position Y
@@ -66,7 +68,8 @@ PdbAtom::PdbAtom(string line){
         if(c != ' ') temp += c;
     }
 
-    replace(temp.begin(),temp.end(),'.',',');
+    if(!windows)
+        replace(temp.begin(),temp.end(),'.',',');
     this->y = atof(temp.c_str());
 
     //Position Z
@@ -76,7 +79,8 @@ PdbAtom::PdbAtom(string line){
         if(c != ' ') temp += c;
     }
 
-    replace(temp.begin(),temp.end(),'.',',');
+    if(!windows)
+        replace(temp.begin(),temp.end(),'.',',');
     this->z = atof(temp.c_str());
 
     //Occupancy
@@ -86,7 +90,8 @@ PdbAtom::PdbAtom(string line){
         if(c != ' ') temp += c;
     }
 
-    replace(temp.begin(),temp.end(),'.',',');
+    if(!windows)
+        replace(temp.begin(),temp.end(),'.',',');
     this->occ = atof(temp.c_str());
 
     //B-factor
@@ -96,7 +101,8 @@ PdbAtom::PdbAtom(string line){
         if(c != ' ') temp += c;
     }
 
-    replace(temp.begin(),temp.end(),'.',',');
+    if(!windows)
+        replace(temp.begin(),temp.end(),'.',',');
     this->bfactor = atof(temp.c_str());
 
     //Segment Identifier
@@ -130,7 +136,8 @@ PdbAtom::PdbAtom(string line){
     //printf("%d %s %c %s %c %d %c %f %f %f %f %f %s %s %s\n",atomNumber,atomName.c_str(),alternateLocation,residue.c_str(),chain,residueNumber,insertionResiduesCode,x,y,z,occ,bfactor,segmentIdentifier.c_str(),element.c_str(),charge.c_str());
 }
 
-PdbAtom::PdbAtom(int atomNb, string atomNm, string residue, char chain, int resNum, float x, float y, float z, float occ, float b, string element, string charge){
+PdbAtom::PdbAtom(int atomNb, string atomNm, string residue, char chain, int resNum, float x, float y, float z, float occ, float b, string element, string charge, bool win){
+    windows = win;
     this->atomNumber = atomNb;
     this->atomName = atomNm;
     this->residue = residue;

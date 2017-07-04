@@ -75,6 +75,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCorrListTXT,SIGNAL(triggered()),this,SLOT(exportCorrListTXT()));
     connect(ui->actionCorrListCSV,SIGNAL(triggered()),this,SLOT(exportCorrListCSV()));
     connect(ui->actionCorrListXML,SIGNAL(triggered()),this,SLOT(exportCorrListXML()));
+    connect(ui->actionCommNetTXT,SIGNAL(triggered(bool)),this,SLOT(exportCommNetTXT()));
+    connect(ui->actionCommNetCSV,SIGNAL(triggered(bool)),this,SLOT(exportCommNetCSV()));
+    connect(ui->actionCommNetXML,SIGNAL(triggered(bool)),this,SLOT(exportCommNetXML()));
     connect(ui->actionCommTXT,SIGNAL(triggered()),this,SLOT(exportCommsTXT()));
     connect(ui->actionCommXML,SIGNAL(triggered()),this,SLOT(exportCommsXML()));
     connect(ui->actionCorrTablePercTXT,SIGNAL(triggered()),this,SLOT(exportCorrTablePercTXT()));
@@ -1303,27 +1306,48 @@ void MainWindow::on_cmdUpdateGraphNumbering_clicked()
         int pos2 = atoi(res2.substr(1).c_str());
         QString newAA1;
         QString newAA2;
+        bool match1 = false;
+        bool match2 = false;
 
         if(ui->cmbRefSeq_2->currentIndex() == 0){
             newAA1 = aa1 + QString::number(pos1);
             newAA2 = aa2 + QString::number(pos2);
+            match1 = true;
+            match2 = true;
         }else{
             int newPos1 = currentFilter->AlignNumbering2Sequence2(ui->cmbRefSeq_2->currentIndex(),pos1-1,currentAlign->getFullSequences());
             int newPos2 = currentFilter->AlignNumbering2Sequence2(ui->cmbRefSeq_2->currentIndex(),pos2-1,currentAlign->getFullSequences());
             if(newPos1 == 0) newAA1 = "-";
             else{
+                char aafound = currentAlign->getFullSequences()[ui->cmbRefSeq_2->currentIndex()-1][pos1-1];
                 newPos1 += GetOffsetFromSeqName(ui->cmbRefSeq_2->currentText().toStdString());
-                newAA1 = aa1 + QString::number(newPos1);
+
+                if(aa1 == aafound){
+                    newAA1 = aa1 + QString::number(newPos1);
+                    match1 = true;
+                }else{
+                    newAA1 = aa1 + QString::number(newPos1) + "(" + aafound + ")";
+                }
             }
             if(newPos2 == 0) newAA2 = "-";
             else{
+                char aafound = currentAlign->getFullSequences()[ui->cmbRefSeq_2->currentIndex()-1][pos2-1];
                 newPos2 += GetOffsetFromSeqName(ui->cmbRefSeq_2->currentText().toStdString());
-                newAA2 = aa2 + QString::number(newPos2);
+
+                if(aa2 == aafound){
+                    newAA2 = aa2 + QString::number(newPos2);
+                    match2 = true;
+                }else{
+                    newAA2 = aa2 + QString::number(newPos2) + "(" + aafound + ")";
+                }
             }
         }
 
         item->setText(0,newAA1);
         item->setText(1,newAA2);
+        if(!match1) item->setTextColor(0,QColor(255,0,0,127));
+        if(!match2) item->setTextColor(1,QColor(255,0,0,127));
+
         item->setText(2,QString::number(std::get<2>(tupCorr)));
     }
 
@@ -1381,22 +1405,39 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_clicked()
         char aa2 = res2[0];
         int pos1 = atoi(res1.substr(1).c_str());
         int pos2 = atoi(res2.substr(1).c_str());
-        string newAA1 = "";
-        string newAA2 = "";
+        string newAA1 = "-";
+        string newAA2 = "-";
+        bool match1 = false;
+        bool match2 = false;
 
         for(unsigned int j = 0; j < pdb->countResidues(); j++){
             PdbResidues* residue = pdb->getResidue(j);
-            if(residue->getAlignPos() == pos1)
-                newAA1 = aa1 + to_string(residue->getResidueNumber());
-            else if(residue->getAlignPos() == pos2)
-                newAA2 = aa2 + to_string(residue->getResidueNumber());
+            char aafound = residue->getResidueCode();
 
-            if(newAA1 != "" && newAA2 != "")
+            if(residue->getAlignPos() == pos1){
+                if(aa1 == aafound){
+                    newAA1 = aa1 + to_string(residue->getResidueNumber());
+                    match1 = true;
+                 }else{
+                    newAA1 = aa1 + to_string(residue->getResidueNumber()) + "(" + aafound + ")";
+                 }
+            }else if(residue->getAlignPos() == pos2){
+                if(aa2 == aafound){
+                    newAA2 = aa2 + to_string(residue->getResidueNumber());
+                    match2 = true;
+                }else{
+                    newAA2 = aa2 + to_string(residue->getResidueNumber()) + "(" + aafound + ")";
+                }
+            }
+
+            if(newAA1 != "-" && newAA2 != "-")
                 break;
         }
 
         item->setText(0,newAA1.c_str());
         item->setText(1,newAA2.c_str());
+        if(!match1) item->setTextColor(0,QColor(255,0,0,127));
+        if(!match2) item->setTextColor(1,QColor(255,0,0,127));
         item->setText(2,QString::number(std::get<2>(tupCorr)));
 
         ui->cmdUpdateGraphPdbNumbering->setEnabled(true);
@@ -1829,11 +1870,16 @@ void MainWindow::consVisualization(){
             string strbfactor = "";
 
             for(unsigned int i = 0; i < temp.size(); i++){
-                if(temp[i] == '.') strbfactor += ',';
-                else if(temp[i] != ' ') strbfactor += temp[i];
+                if(windows){
+                    if(temp[i] != ' ') strbfactor += temp[i];
+                }else{
+                    if(temp[i] == '.') strbfactor += ',';
+                    else if(temp[i] != ' ') strbfactor += temp[i];
+                }
             }
 
             float bfactor = 100 - atof(strbfactor.c_str());
+            //printf("%s %f\n",strbfactor.c_str(),bfactor);
             if(bfactor < 0) bfactor = bfactor * -1;
 
             stringstream stream;
@@ -1861,16 +1907,19 @@ void MainWindow::consVisualization(){
             }
 
             newline += line.substr(66);
-
-            pdb += newline.substr(0,newline.length()-1) + "\\n";
-        }else
-            pdb += line.substr(0,line.length()-1) + "\\n";
+            newline.erase(std::remove(newline.begin(), newline.end(), '\r'), newline.end());
+            newline.erase(std::remove(newline.begin(), newline.end(), '\n'), newline.end());
+            pdb += newline + "\\n";
+        }else{
+            line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+            line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+            pdb += line + "\\n";
+        }
     }
 
     string html = this->makeVisPDBHTML(pdb);
 
     //printf("PDB:\n%s",pdb.c_str());
-
 
     out << html.c_str();
 
@@ -1905,8 +1954,12 @@ void MainWindow::commVisualization(){
             string strbfactor = "";
 
             for(unsigned int i = 0; i < temp.size(); i++){
-                if(temp[i] == '.') strbfactor += ',';
-                else if(temp[i] != ' ') strbfactor += temp[i];
+                if(windows){
+                    if(temp[i] != ' ') strbfactor += temp[i];
+                }else{
+                    if(temp[i] == '.') strbfactor += ',';
+                    else if(temp[i] != ' ') strbfactor += temp[i];
+                }
             }
 
             float bfactor = 100 - atof(strbfactor.c_str());
@@ -1938,9 +1991,15 @@ void MainWindow::commVisualization(){
 
             newline += line.substr(66);
 
-            pdb += newline.substr(0,newline.length()-1) + "\\n";
-        }else
-            pdb += line.substr(0,line.length()-1) + "\\n";
+            newline.erase(std::remove(newline.begin(), newline.end(), '\r'), newline.end());
+            newline.erase(std::remove(newline.begin(), newline.end(), '\n'), newline.end());
+            pdb += newline + "\\n";
+            //printf("%s",newline.c_str());
+        }else{
+            line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+            line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+            pdb += line + "\\n";
+        }
     }
 
     string html = this->makeVisPDBHTML(pdb);
@@ -2178,19 +2237,31 @@ void MainWindow::on_cmdUpdateGraphNumbering2_clicked()
             char aa = res[0];
             int pos = atoi(res.substr(1).c_str());
             QString newAA;
+            bool match = false;
 
-            if(ui->cmbRefSeq_3->currentIndex() == 0)
+            if(ui->cmbRefSeq_3->currentIndex() == 0){
                 newAA = res.c_str();
-            else{
+                match = true;
+            }else{
                 int newPos = currentFilter->AlignNumbering2Sequence2(ui->cmbRefSeq_3->currentIndex(),pos-1,currentAlign->getFullSequences());
+
                 if(newPos == 0) newAA = "-";
                 else{
+                    char aafound = currentAlign->getFullSequences()[ui->cmbRefSeq_3->currentIndex()-1][pos-1];
                     newPos += GetOffsetFromSeqName(ui->cmbRefSeq_3->currentText().toStdString());
-                    newAA = aa + QString::number(newPos);
+
+                    if(aa == aafound){
+                        newAA = aa + QString::number(newPos);
+                        match = true;
+                    }else{
+                        newAA = aa + QString::number(newPos) + "(" + aafound + ")";
+                    }
                 }
             }
 
-            item->addChild(new QTreeWidgetItem(QStringList(newAA)));
+            QTreeWidgetItem* newitem = new QTreeWidgetItem(QStringList(newAA));
+            if(!match) newitem->setTextColor(0,QColor(255,0,0,127));
+            item->addChild(newitem);
         }
     }
 
@@ -2263,17 +2334,28 @@ void MainWindow::on_cmdUpdateGraphPdbNumbering_2_clicked()
             char aa = res[0];
             int pos = atoi(res.substr(1).c_str());
             string newAA;
+            bool match = false;
 
             for(unsigned int j = 0; j < pdb->countResidues(); j++){
                 PdbResidues* residue = pdb->getResidue(j);
+                char aafound = residue->getResidueCode();
+
                 if(residue->getAlignPos() == pos){
-                    newAA = aa + to_string(residue->getResidueNumber());
+                    if(aa == aafound){
+                        newAA = aa + to_string(residue->getResidueNumber());
+                        match = true;
+                    }else{
+                        newAA = aa + to_string(residue->getResidueNumber()) + "(" + aafound + ")";
+                    }
+
                     break;
                 }
 
             }
 
-            item->addChild(new QTreeWidgetItem(QStringList(newAA.c_str())));
+            QTreeWidgetItem* newitem = new QTreeWidgetItem(QStringList(newAA.c_str()));
+            if(!match) newitem->setTextColor(0,QColor(255,0,0,127));
+            item->addChild(newitem);
         }
     }
 
@@ -3271,7 +3353,7 @@ void MainWindow::on_cmdAdvance_clicked()
         if(currentFilter->getRefSeqsSize() == 0){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Warning",
-                                            "You are leaving this page without setting any reference sequence. Is that correct?",
+                                            "You are leaving this page without saving any reference sequence. Is that correct?",
                                             QMessageBox::Yes|QMessageBox::No);
             if (reply == QMessageBox::Yes){
                 ui->cmdBack->setEnabled(true);
@@ -3407,7 +3489,7 @@ void MainWindow::on_cmdOpen_clicked()
 
 void MainWindow::on_cmdFetch_clicked()
 {
-    ui->cmdFetch->setEnabled(false);
+    //ui->cmdFetch->setEnabled(false);
     QString filename;
     Alignment align;
     string pfamid = ui->txtAccession->text().toStdString();
@@ -3574,7 +3656,7 @@ void MainWindow::on_cmdFetch_clicked()
     }
 
     ui->cmdFetch->setText("Fetch");
-    ui->cmdFetch->setEnabled(true);
+    //ui->cmdFetch->setEnabled(true);
 }
 
 void MainWindow::on_cmdApplyFilter_clicked()
@@ -4193,8 +4275,6 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
         }
     }
 
-    ui->cmbRefSeq->clear();
-    ui->cmbRefSeq->addItem("");
     ui->cmbRefSeq_2->clear();
     ui->cmbRefSeq_2->addItem("Alignment");
     ui->cmbRefSeq_3->clear();
@@ -4218,7 +4298,7 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
     for(unsigned int i1 = 0; i1 < fullAlign.size(); i1++){
         QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
         vector<string> splitVec = this->split(fullAlign[i1],'/');
-        ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
+        //ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));
 
         ui->lstRefSeqs->addItem(fullAlign[i1].c_str());
@@ -4619,7 +4699,7 @@ void MainWindow::on_cmdBackResComm_clicked()
 
     //Verificar se comunidade existe ou resetar
     int nComm = currentNetwork->Communities.size();
-    if(currComm == 0 ) currComm = nComm;
+    if(currComm <= 0 ) currComm = nComm;
 
     //Limpar tabela
     ui->tableResiduesComm->clear();
@@ -4958,7 +5038,7 @@ void MainWindow::Open_XML_triggered(){
                                                         if(reader.isStartElement() && reader.name() == "row"){
                                                             vector<float> deltaLines;
 
-                                                            for(unsigned int i = 0; i < reader.attributes().size(); i++)
+                                                            for(unsigned int i = 1; i < reader.attributes().size(); i++)
                                                                 deltaLines.push_back(reader.attributes().at(i).value().toFloat());
 
                                                             net->addDeltaLine(deltaLines);
@@ -5477,7 +5557,7 @@ void MainWindow::exportConsResTXT(){
     for(unsigned int i2 = 0; i2 < currentFilter->getRefSeqsSize(); i2++){
         string ref1 = currentFilter->getRefSeq(i2);
         //printf("%s\n",ref1.c_str());
-        refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
+        refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
     }
 
     currentFilter->exportConsRes(filename,0,currentFilter->getConsMin(),refSeqs,fullAlignment,fullSequences);
@@ -5515,7 +5595,7 @@ void MainWindow::exportConsResXML(){
     for(unsigned int i2 = 0; i2 < currentFilter->getRefSeqsSize(); i2++){
         string ref1 = currentFilter->getRefSeq(i2);
         //printf("%s\n",ref1.c_str());
-        refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
+        refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
     }
 
     currentFilter->exportConsRes(filename,1,currentFilter->getConsMin(),refSeqs,fullAlignment,fullSequences);
@@ -5553,7 +5633,7 @@ void MainWindow::exportConsResHTML(){
     for(unsigned int i2 = 0; i2 < currentFilter->getRefSeqsSize(); i2++){
         string ref1 = currentFilter->getRefSeq(i2);
         //printf("%s\n",ref1.c_str());
-        refSeqs.push_back(currentAlign->seqname2seqint2(ref1));
+        refSeqs.push_back(currentAlign->seqname2seqint3(ref1));
     }
 
     currentFilter->exportConsRes(filename,2,currentFilter->getConsMin(),refSeqs,fullAlignment,fullSequences);
@@ -5629,6 +5709,78 @@ void MainWindow::exportCorrListXML(){
     this->exportPath = this->getDirectory(filename.toStdString());
 
     currentNetwork->exportCorrGraph(filename,2);
+}
+
+void MainWindow::exportCommNetTXT(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Warning","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Warning","You must select an alignment to export.");
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("communities_list.txt"),QObject::tr("TEXT Files (*.txt)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentNetwork->exportCommNet(filename,0);
+}
+
+void MainWindow::exportCommNetCSV(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Warning","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Warning","You must select an alignment to export.");
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("communities_list.txt"),QObject::tr("TEXT Files (*.csv)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentNetwork->exportCommNet(filename,1);
+}
+
+void MainWindow::exportCommNetXML(){
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Warning","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Warning","You must select an alignment to export.");
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("communities_list.txt"),QObject::tr("TEXT Files (*.xml)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    currentNetwork->exportCommNet(filename,2);
 }
 
 void MainWindow::exportCommsTXT(){
@@ -5943,7 +6095,13 @@ void MainWindow::exportResCommTXT(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    vector<string> refseqs = currentFilter->getRefSeqs();
+    vector<int> refseqs;
+    for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
+        string ref1 = currentFilter->getRefSeq(i);
+
+        refseqs.push_back(currentAlign->seqname2seqint3(ref1));
+    }
+
     currentNetwork->exportResComm(filename,0,fullAlignment,fullSequences,refseqs);
 }
 
@@ -5972,7 +6130,13 @@ void MainWindow::exportResCommXML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    vector<string> refseqs = currentFilter->getRefSeqs();
+    vector<int> refseqs;
+    for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
+        string ref1 = currentFilter->getRefSeq(i);
+
+        refseqs.push_back(currentAlign->seqname2seqint3(ref1));
+    }
+
     currentNetwork->exportResComm(filename,1,fullAlignment,fullSequences,refseqs);
 }
 
@@ -6001,7 +6165,13 @@ void MainWindow::exportResCommHTML(){
     if(filename == "") return;
     this->exportPath = this->getDirectory(filename.toStdString());
 
-    vector<string> refseqs = currentFilter->getRefSeqs();
+    vector<int> refseqs;
+    for(unsigned int i = 0; i < currentFilter->getRefSeqsSize(); i++){
+        string ref1 = currentFilter->getRefSeq(i);
+
+        refseqs.push_back(currentAlign->seqname2seqint3(ref1));
+    }
+
     currentNetwork->exportResComm(filename,2,fullAlignment,fullSequences,refseqs);
 }
 
@@ -7586,7 +7756,6 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
             }
         }
         if(!found){
-
             currentFilter->sequencenames.push_back(refseq);
             currentFilter->sequences.push_back(currentAlign->getFullSequence(refseq));
         }
@@ -7604,8 +7773,16 @@ void MainWindow::on_cmdSaveRefSeqs_clicked()
     emit ui->listWidget2->currentItemChanged(currentFilter->getQTreeWidgetItem(),currentFilter->getQTreeWidgetItem());
 
     //Seleciona sequencia com mais pdbs
-    ui->cmbRefSeq_4->setCurrentText(bestPDB.c_str());
-    emit ui->cmbRefSeq_4->activated(bestPDB.c_str());
+    int bestIndex = 0;
+    for(unsigned int i = 0; i < ui->cmbRefSeq_4->count(); i++){
+        string seqname = ui->cmbRefSeq_4->itemText(i).toStdString();
+        if(bestPDB == seqname){
+            bestIndex = i;
+            break;
+        }
+    }
+    ui->cmbRefSeq_4->setCurrentIndex(bestIndex);
+    emit ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
 
     QMessageBox::information(this,"Reference sequences","The reference sequences are stored.");
 
@@ -8485,15 +8662,13 @@ void MainWindow::on_cmdPDBFetch_clicked()
     mbox = QMessageBox::question(this, "Load 3D Structure", "Your PDB file has been found on the rcsb.org. Do you want to load it now?",
                                 QMessageBox::Yes|QMessageBox::No);
     if (mbox == QMessageBox::Yes) {
-        ui->cmdLoadPDB->clicked();
+        loadPDB();
     }
 
     ui->cmdPDBFetch->setEnabled(true);
 }
 
-void MainWindow::on_cmdLoadPDB_clicked()
-{
-    ui->cmdLoadPDB->setEnabled(false);
+void MainWindow::loadPDB(){
     Pdb* pdb = NULL;
     string refseq = ui->cmbRefSeq_4->currentText().toStdString();
 
@@ -8529,10 +8704,10 @@ void MainWindow::on_cmdLoadPDB_clicked()
             ui->cmdLoadPDB->setEnabled(true);
             return;
         }
-        pdb = new Pdb(currentPDBContent);
+        pdb = new Pdb(currentPDBContent,windows);
     }else if(ui->txtFilePathPDB->text() != ""){
         QString filepath = ui->txtFilePathPDB->text();
-        pdb = new Pdb(filepath);
+        pdb = new Pdb(filepath,windows);
     }
 
     if(pdb != NULL){
@@ -8543,7 +8718,6 @@ void MainWindow::on_cmdLoadPDB_clicked()
         pdb->setRefseq_chain(chain);
         pdb->setRefSeqId(ui->cmbRefSeq_4->currentIndex());
         //pdb->setResiduesSeqNumber(chain);
-
 
         //Verify if pdb and sequence align
         currentFilter->convertLowerDots();
@@ -8578,6 +8752,13 @@ void MainWindow::on_cmdLoadPDB_clicked()
 
         QMessageBox::information(this,"Structure loaded",msg.c_str());
     }
+}
+
+void MainWindow::on_cmdLoadPDB_clicked()
+{
+    ui->cmdLoadPDB->setEnabled(false);
+
+    loadPDB();
 
     ui->cmdLoadPDB->setEnabled(true);
 }
@@ -9141,6 +9322,8 @@ void MainWindow::on_listWidget2_currentItemChanged(QTreeWidgetItem *current, QTr
     else currentNetwork = currentFilter->getNetworkByName(networkname);
 
     //Limpa campos de resultados
+    ui->cmbRefSeq->clear();
+    ui->cmbRefSeq->addItem("");
     ui->cmbRefSeq_2->clear();
     ui->cmbRefSeq_2->addItem("Alignment");
     ui->cmbRefSeq_3->clear();
@@ -9163,6 +9346,7 @@ void MainWindow::on_listWidget2_currentItemChanged(QTreeWidgetItem *current, QTr
     //Add filtered sequences
     for(unsigned int i = 0; i < filter->getSequencesCount(); i++){
         string proteinName = filter->getSequenceName(i);
+        ui->cmbRefSeq->addItem(proteinName.c_str());
         ui->cmbRefSeq_4->addItem(proteinName.c_str());
         ui->lstProteinsFiltered->addItem(proteinName.c_str());
     }
@@ -9954,4 +10138,109 @@ void MainWindow::on_cmdProxyConnect_clicked()
 
 
 
+}
+
+void MainWindow::on_cmdExportGraphNumbering_clicked()
+{
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Warning","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Warning","You must select an alignment to export.");
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("correlation_list.txt"),QObject::tr("TEXT Files (*.txt)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+
+    //Exporting data
+    vector<string> tempFN = split(filename.toStdString(),'.');
+    if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+        filename += ".txt";
+
+    //Salva em arquivo
+    QFile f(filename);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+        return;
+    }
+
+    QTextStream out(&f);
+
+    for(unsigned int i = 0; i < ui->treeCorrelation->topLevelItemCount(); i++){
+        QTreeWidgetItem* item = ui->treeCorrelation->topLevelItem(i);
+        out << item->text(0) << " " << item->text(1) << " " << item->text(2) << "\n";
+    }
+
+    f.close();
+
+    QMessageBox::information(NULL,"Exporting Data","Correlation list data was exported.");
+}
+
+void MainWindow::on_cmdExportGraphNumbering2_clicked()
+{
+    if(ui->listWidget->currentItem() == NULL){
+        QMessageBox::warning(this,"Error","You must select a alignment to export.");
+        return;
+    }
+
+    if(currentFilter == NULL){
+        QMessageBox::warning(this,"Error","You must select an filter to export");
+        return;
+    }
+    if(!currentNetwork){
+        QMessageBox::warning(this,"Warning","You must run correlation analysis.");
+        ui->stackedWidget->setCurrentIndex(STACK_CORRELATION);
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this,QObject::tr("Export File"),exportPath.c_str() + QString("communities.txt"),QObject::tr("TEXT Files (*.txt)"));
+
+    if(filename == "") return;
+    this->exportPath = this->getDirectory(filename.toStdString());
+
+    //EXPORT
+    vector<string> tempFN = split(filename.toStdString(),'.');
+    if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+        filename += ".txt";
+
+    //Salva em arquivo
+    QFile f(filename);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+        return;
+    }
+
+    QTextStream out(&f);
+    QTreeWidgetItemIterator it(ui->treeCorrelationComm);
+    int i = 0;
+
+    out << currentNetwork->countCommunities() << " communities\n";
+
+    while(*it){
+        string text = (*it)->text(0).toStdString();
+
+        if(text.size() >= 10){//Community header
+            i ++;
+            vector<string> temp = split(text,'[');
+            vector<string> temp2 = split(temp[1],']');
+            out << temp2[0].c_str() << " nodes in community " << i << "\n";
+        }else{//Residue
+            out << text.c_str() << "\n";
+        }
+
+        ++it;
+    }
+
+    f.close();
+
+    QMessageBox::information(NULL,"Exporting Data","Correlation list data was exported.");
 }

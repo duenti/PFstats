@@ -1831,6 +1831,105 @@ void Network::exportCorrGraph(QString filename, int type){
     QMessageBox::information(NULL,"Exporting Data","Correlation list data was exported.");
 }
 
+void Network::exportCommNet(QString filename, int type){
+    vector<tuple<string,string,float> > graph = this->getDeltasEdges(0);
+
+    switch(type){
+        case 0:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "txt" && tempFN[tempFN.size()-1] != "TXT")
+                filename += ".txt";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            for(unsigned int i = 0; i < graph.size(); i++){
+                tuple<string,string,int> tupCorr = graph[i];
+
+                out << std::get<0>(tupCorr).c_str() << " " << std::get<1>(tupCorr).c_str() << " " << std::get<2>(tupCorr) << "\n";
+            }
+
+            f.close();
+            break;
+        }
+        case 1:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "csv" && tempFN[tempFN.size()-1] != "CSV")
+                filename += ".csv";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            for(unsigned int i = 0; i < graph.size(); i++){
+                tuple<string,string,int> tupCorr = graph[i];
+
+                out << std::get<0>(tupCorr).c_str() << "," << std::get<1>(tupCorr).c_str() << "," << std::get<2>(tupCorr) << "\n";
+            }
+            f.close();
+            break;
+        }
+        case 2:
+        {
+            vector<string> tempFN = split(filename.toStdString(),'.');
+            if(tempFN[tempFN.size()-1] != "xml" && tempFN[tempFN.size()-1] != "XML")
+                filename += ".xml";
+
+            //Salva em arquivo
+            QFile f(filename);
+            if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                return;
+            }
+
+            QTextStream out(&f);
+
+            out << "<?xml version=\"1.0\"?>\n";
+            out << "<PFStats>\n";
+
+            out << "\t<correlation>\n";
+            out << "\t\t<parameters>\n";
+
+            out << "\t\t\t<refseq>" << sequencenames->at(refseq-1).c_str() << "</refseq>\n";
+            out << "\t\t\t<minScore>" << QString::number(min_score) << "</minScore>\n";
+            out << "\t\t\t<minss>" << QString::number(minss) << "</minss>\n";
+            out << "\t\t\t<delta>" << QString::number(minDelta) << "</delta>\n";
+
+            out << "\t\t</parameters>\n";
+
+            out << "\t\t<graph>\n";
+
+            for(unsigned int i = 0; i < graph.size(); i++){
+                tuple<string,string,int> tupCorr = graph[i];
+
+                out << "\t\t\t<entry res1=\"" << std::get<0>(tupCorr).c_str() << "\" res2=\"" << std::get<1>(tupCorr).c_str() << "\" value=\"" << std::get<2>(tupCorr) << "\" />\n";
+            }
+
+            out << "\t\t</graph>\n";
+            out << "\t</correlation>\n";
+            out << "</PFStats>\n";
+            f.close();
+            break;
+        }
+        default:
+        {
+            QMessageBox::critical(NULL,"Error","An error ocurred while trying to export this result.");
+            return;
+        }
+    }
+    QMessageBox::information(NULL,"Exporting Data","Correlation list data was exported.");
+}
+
 void Network::exportCommList(QString filename, int type){
     switch(type){
         case 0:
@@ -1982,7 +2081,7 @@ void Network::exportCorrTable(QString filename, int type, bool perc){
                         out << "\t\t\t<row id=\"" << j << "\" c0=\"" << QString::number(communityXAll[i][j],'f',2) << "\" ";
 
                         for(unsigned int k = 0; k < communityX[i][j].size(); k++){
-                            if (communityX[i][j][k] == 0)
+                            if (communityX[i][j][k] == -1)
                                 out << "c" << k+1 << "=\"X\" ";
                             else
                                 out << "c" << k+1 << "=\"" << QString::number(communityX[i][j][k]*100,'f',4) << "\" ";
@@ -2041,7 +2140,7 @@ void Network::exportCorrTable(QString filename, int type, bool perc){
                         out << "<td>" << QString::number(communityXAll[i][j],'f',1) << "</td>\n";
 
                         for(unsigned int k = 0; k < communityX[i][j].size(); k++){
-                            if (communityX[i][j][k] == 0)
+                            if (communityX[i][j][k] == -1)
                                 out << "<td>X</td>\n";
                             else
                                 if(communityX[i][j][k]*100 - communityXAll[i][j] > 15)
@@ -2141,7 +2240,7 @@ void Network::exportCorrTable(QString filename, int type, bool perc){
                         out << "\t\t\t<row id=\"" << j << "\" ";
 
                         for(unsigned int k = 0; k < communityXps[i][j].size(); k++){
-                            if (communityXps[i][j][k] == 0)
+                            if (communityXps[i][j][k] == -1)
                                 out << "c" << k << "=\"X\" ";
                             else
                                 out << "c" << k << "=\"" << QString::number(communityXps[i][j][k]) << "\" ";
@@ -2199,7 +2298,7 @@ void Network::exportCorrTable(QString filename, int type, bool perc){
                         out << "<tr>\n<td><b>" << residuesCommPs[i][j].c_str() << "</b></td>\n";
 
                         for(unsigned int k = 0; k < communityXps[i][j].size(); k++){
-                            if (communityXps[i][j][k] == 0)
+                            if (communityXps[i][j][k] == -1)
                                 out << "<td>X</td>\n";
                             else
                                 out << "<td>" << QString::number(communityXps[i][j][k]) << "</td>\n";
@@ -2387,9 +2486,7 @@ void Network::exportAdh(QString filename, int type){
     QMessageBox::information(NULL,"Exporting Data","Adherence data was exported.");
 }
 
-void Network::exportResComm(QString filename, int type, vector<string> fullAlignment, vector<string> fullSequences, vector<string> refseqs){
-    vector<int> refCodes = getRefSeqCodes(fullAlignment,refseqs);
-
+void Network::exportResComm(QString filename, int type, vector<string> fullAlignment, vector<string> fullSequences, vector<int> refCodes){
     switch(type){
         case 0:
         {
@@ -2421,7 +2518,7 @@ void Network::exportResComm(QString filename, int type, vector<string> fullAlign
                 }
                 out << "\n";
 
-                for(unsigned int j = 0; j < refseqs.size(); j++){
+                for(unsigned int j = 0; j < refCodes.size(); j++){
                     out << fullAlignment[refCodes[j]].c_str();
 
                     for(unsigned int k = 0; k < Communities[i].pos.size(); k++){
@@ -2472,7 +2569,7 @@ void Network::exportResComm(QString filename, int type, vector<string> fullAlign
                     out << "\t\t<residue alignNumber=\"" << textCab.c_str() << "\">\n";
 
 
-                    for(unsigned int k = 0; k < refseqs.size(); k++){
+                    for(unsigned int k = 0; k < refCodes.size(); k++){
                         if(fullSequences[refCodes[k]][Communities[i].pos[j]] == Communities[i].aa[j]){
                             string textItem = Communities[i].aa[j] + QString::number(AlignNumbering2Sequence2(refCodes[k]+1,Communities[i].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refCodes[k]])).toStdString();
 
@@ -2532,7 +2629,7 @@ void Network::exportResComm(QString filename, int type, vector<string> fullAlign
                 }
                 out << "</tr>\n";
 
-                for(unsigned int j = 0; j < refseqs.size(); j++){
+                for(unsigned int j = 0; j < refCodes.size(); j++){
                     out << "<tr>\n<td><b>" << fullAlignment[refCodes[j]].c_str() << "</b></td>\n";
 
                     for(unsigned int k = 0; k < Communities[i].pos.size(); k++){
@@ -3367,4 +3464,9 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
     }
 
     QMessageBox::information(NULL,"Exporting Data","Uniprot Mined data was exported succesfully.");
+}
+
+
+int Network::countCommunities(){
+    return comunidades.size();
 }

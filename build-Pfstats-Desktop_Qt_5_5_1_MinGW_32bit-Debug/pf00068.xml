@@ -1273,6 +1273,215 @@
 		<sequence id='365' name='W5PIA3_SHEEP/24-134'>-------------------------LWDFAAMIKHTT---GK--------GAVSNY-GAYGCYC------------------GL-----GGR-G----TP-KDAT--D--W-CCWEHDCC-YKKL--------KY--------HGC---------------GTK-F-L-GYNV---SI---------------RRGQ------IICVSE-----------------NQ---------------------------GVCRRIVCECDKKAAICFAKTQNTYNRKL-Q---------------------------</sequence>
 		<sequence id='366' name='W5PR24_SHEEP/24-138'>-------------------------LWQFNGMIKCKI--PSS--------EPLLDF-NNYGCYC------------------GL-----GGS-G----TP-VDDL--D--R-CCQTHDNC-YKQA--------KK-------LDSCKV----------LVDNPY-T-N-SYSY---SC---------------SNKQ------ITCSSE------------------N---------------------------NACEAFICNCDRNAAICFSE--VPYNNEH-K---------------------------</sequence>
 		</seqlist>
+	<correlation>
+	<network>
+		<parameters>
+			<name>5_0.30_0.25</name>
+			<min_score>5</min_score>
+			<minss>0.3</minss>
+			<min_delta>0.25</min_delta>
+		</parameters>
+		<graph>
+			<edge v1='F29' v2='F273'>23</edge>
+			<edge v1='F29' v2='L273'>-11</edge>
+			<edge v1='L29' v2='A269'>-8</edge>
+			<edge v1='L29' v2='F273'>-12</edge>
+			<edge v1='M32' v2='G83'>6</edge>
+			<edge v1='C35' v2='L125'>-13</edge>
+			<edge v1='C35' v2='C178'>37</edge>
+			<edge v1='T37' v2='A125'>-9</edge>
+			<edge v1='G83' v2='G90'>11</edge>
+			<edge v1='G83' v2='C113'>15</edge>
+			<edge v1='G83' v2='H117'>12</edge>
+			<edge v1='G83' v2='D118'>19</edge>
+			<edge v1='G83' v2='Y122'>5</edge>
+			<edge v1='G83' v2='C272'>15</edge>
+			<edge v1='G90' v2='C113'>6</edge>
+			<edge v1='G90' v2='H117'>7</edge>
+			<edge v1='G90' v2='D118'>17</edge>
+			<edge v1='G90' v2='Y122'>10</edge>
+			<edge v1='G90' v2='C272'>7</edge>
+			<edge v1='V102' v2='C119'>-10</edge>
+			<edge v1='C113' v2='H117'>21</edge>
+			<edge v1='C113' v2='D118'>18</edge>
+			<edge v1='C113' v2='Y122'>7</edge>
+			<edge v1='C113' v2='C272'>24</edge>
+			<edge v1='H117' v2='D118'>16</edge>
+			<edge v1='H117' v2='Y122'>6</edge>
+			<edge v1='H117' v2='C272'>15</edge>
+			<edge v1='D118' v2='Y122'>13</edge>
+			<edge v1='D118' v2='C272'>15</edge>
+			<edge v1='C119' v2='Y164'>-11</edge>
+			<edge v1='Y122' v2='C272'>7</edge>
+			<edge v1='L125' v2='C178'>-13</edge>
+			<edge v1='G145' v2='Y164'>-7</edge>
+			<edge v1='P163' v2='L262'>-8</edge>
+			<edge v1='A269' v2='L273'>-10</edge>
+		</graph>
+		<communities>
+			<community id='1'>
+				<node>C113</node>
+				<node>C272</node>
+				<node>D118</node>
+				<node>G83</node>
+				<node>G90</node>
+				<node>H117</node>
+				<node>Y122</node>
+				<node>M32</node>
+			</community>
+			<community id='2'>
+				<node>C178</node>
+				<node>C35</node>
+			</community>
+			<community id='3'>
+				<node>F273</node>
+				<node>F29</node>
+			</community>
+			<community id='4'>
+				<node>A125</node>
+			</community>
+			<community id='5'>
+				<node>A269</node>
+			</community>
+			<community id='6'>
+				<node>C119</node>
+			</community>
+			<community id='7'>
+				<node>G145</node>
+			</community>
+			<community id='8'>
+				<node>L125</node>
+			</community>
+			<community id='9'>
+				<node>L262</node>
+			</community>
+			<community id='10'>
+				<node>L273</node>
+			</community>
+			<community id='11'>
+				<node>L29</node>
+			</community>
+			<community id='12'>
+				<node>P163</node>
+			</community>
+			<community id='13'>
+				<node>T37</node>
+			</community>
+			<community id='14'>
+				<node>V102</node>
+			</community>
+			<community id='15'>
+				<node>Y164</node>
+			</community>
+		</communities>
+		<output>
+			<community id='1'>
+				<table>
+					<column>ALL</column>
+					<column>C113</column>
+					<column>C272</column>
+					<column>D118</column>
+					<column>G83</column>
+					<column>G90</column>
+					<column>H117</column>
+					<column>Y122</column>
+					<column>M32</column>
+				</table>
+				<table_data>
+					<row id='0' c0='76.2295' c1='X' c2='97.5265' c3='99.5690' c4='95.8802' c5='91.2863' c6='96.7742' c7='89.1228' c8='87.0130' />
+					<row id='1' c0='77.3224' c1='98.9247' c2='X' c3='98.7069' c4='96.6292' c5='92.5311' c6='95.6989' c7='89.4737' c8='88.3117' />
+					<row id='2' c0='63.3880' c1='82.7957' c2='80.9187' c3='X' c4='85.3933' c5='87.5519' c6='82.0789' c7='79.6491' c8='73.5931' />
+					<row id='3' c0='72.9508' c1='91.7563' c2='91.1661' c3='98.2759' c4='X' c5='92.1162' c6='89.6057' c7='84.2105' c8='87.8788' />
+					<row id='4' c0='65.8470' c1='78.8530' c2='78.7986' c3='90.9483' c4='83.1461' c5='X' c6='79.2115' c7='80.7018' c8='74.8918' />
+					<row id='5' c0='76.2295' c1='96.7742' c2='94.3463' c3='98.7069' c4='93.6330' c5='91.7012' c6='X' c7='88.0702' c8='87.0130' />
+					<row id='6' c0='77.8689' c1='91.0394' c2='90.1060' c3='97.8448' c4='89.8876' c5='95.4357' c6='89.9642' c7='X' c8='83.5498' />
+					<row id='7' c0='63.1148' c1='72.0430' c2='72.0848' c3='73.2759' c4='76.0300' c5='71.7842' c6='72.0430' c7='67.7193' c8='X' />
+				</table_data>
+			</community>
+			<community id='2'>
+				<table>
+					<column>ALL</column>
+					<column>C178</column>
+					<column>C35</column>
+				</table>
+				<table_data>
+					<row id='0' c0='43.1694' c1='X' c2='89.8204' />
+					<row id='1' c0='45.6284' c1='94.9367' c2='X' />
+				</table_data>
+			</community>
+			<community id='3'>
+				<table>
+					<column>ALL</column>
+					<column>F273</column>
+					<column>F29</column>
+				</table>
+				<table_data>
+					<row id='0' c0='33.6066' c1='X' c2='79.3388' />
+					<row id='1' c0='33.0601' c1='78.0488' c2='X' />
+				</table_data>
+			</community>
+			<logP c='1'>
+				<table>
+					<column>C113</column>
+					<column>C272</column>
+					<column>D118</column>
+					<column>G83</column>
+					<column>G90</column>
+					<column>H117</column>
+					<column>Y122</column>
+					<column>M32</column>
+				</table>
+				<table_data>
+					<row id='0' c0='X' c1='26' c2='12' c3='14' c4='5' c5='21' c6='8' c7='2' />
+					<row id='1' c0='23' c1='X' c2='9' c3='13' c4='5' c5='15' c6='7' c7='3' />
+					<row id='2' c0='25' c1='21' c2='X' c3='25' c4='18' c5='22' c6='18' c7='3' />
+					<row id='3' c0='17' c1='18' c2='14' c3='X' c4='9' c5='13' c6='6' c7='5' />
+					<row id='4' c0='8' c1='9' c2='16' c3='13' c4='X' c5='9' c6='13' c7='2' />
+					<row id='5' c0='21' c1='16' c2='11' c3='11' c4='6' c5='X' c6='7' c7='2' />
+					<row id='6' c0='7' c1='7' c2='8' c3='5' c4='7' c5='6' c6='X' c7='1' />
+					<row id='7' c0='4' c1='4' c2='3' c3='7' c4='2' c5='4' c6='1' c7='X' />
+				</table_data>
+			</logP>
+			<logP c='2'>
+				<table>
+					<column>C178</column>
+					<column>C35</column>
+				</table>
+				<table_data>
+					<row id='0' c0='X' c1='40' />
+					<row id='1' c0='35' c1='X' />
+				</table_data>
+			</logP>
+			<logP c='3'>
+				<table>
+					<column>F273</column>
+					<column>F29</column>
+				</table>
+				<table_data>
+					<row id='0' c0='X' c1='23' />
+					<row id='1' c0='24' c1='X' />
+				</table_data>
+			</logP>
+		</output>
+		<deltas>
+			<row comm='1' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='2' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='-13.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='3' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='-5.5000' val11='-6.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='4' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='-9.0000' val14='0.0000' val15='0.0000' />
+			<row comm='5' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='-10.0000' val11='-8.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='6' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='-10.0000' val15='-11.0000' />
+			<row comm='7' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='-7.0000' />
+			<row comm='8' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='9' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='-8.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='10' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='11' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='12' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='13' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='14' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+			<row comm='15' val1='0.0000' val2='0.0000' val3='0.0000' val4='0.0000' val5='0.0000' val6='0.0000' val7='0.0000' val8='0.0000' val9='0.0000' val10='0.0000' val11='0.0000' val12='0.0000' val13='0.0000' val14='0.0000' val15='0.0000' />
+		</deltas>
+	</network>
+	</correlation>
 	</filter>
 
 </filters></PFStats>

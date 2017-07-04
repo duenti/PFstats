@@ -4,7 +4,8 @@ Pdb::Pdb(){
     id = "nothing";
 }
 
-Pdb::Pdb(string pdb){
+Pdb::Pdb(string pdb, bool win){
+    windows = win;
     vector<string> lines = split(pdb,'\n');
     resolution = 0;
     this->refseq = "";
@@ -25,7 +26,8 @@ Pdb::Pdb(string pdb){
             if(c != ' ') temp += c;
             //temp += lines[i][26] + lines[i][27] + lines[i][28] + lines[i][29];
             temp += lines[i].substr(26,4);
-            replace(temp.begin(),temp.end(),'.',',');
+            if(!windows)
+                replace(temp.begin(),temp.end(),'.',',');
             this->resolution = atof(temp.c_str());
             //printf("%s - %f",temp.c_str(),resolution);
         }else if(lines[i].substr(0,4) == "ATOM")
@@ -34,12 +36,12 @@ Pdb::Pdb(string pdb){
     }
 
     bool NTerminal = true;
-    PdbAtom *firstatom = new PdbAtom(lines[i]);
+    PdbAtom *firstatom = new PdbAtom(lines[i],windows);
     int currentPos = firstatom->getResidueNumber();
     PdbResidues *residue = new PdbResidues();
     for(i; i < lines.size(); i++){
         if(lines[i].substr(0,4) == "ATOM"){
-            PdbAtom *atom = new PdbAtom(lines[i]);
+            PdbAtom *atom = new PdbAtom(lines[i],windows);
             if(NTerminal && atom->getAtomName() == "N"){
                 atom->setAtomName("NmH2");
                 NTerminal = false;
@@ -60,7 +62,8 @@ Pdb::Pdb(string pdb){
 
 }
 
-Pdb::Pdb(QString filepath){
+Pdb::Pdb(QString filepath, bool win){
+    windows = win;
     string line;
     this->resolution = 0;
     this->refseq = "";
@@ -89,15 +92,16 @@ Pdb::Pdb(QString filepath){
 
             if(c != ' ') temp += c;
             temp += line.substr(26,4);
-            replace(temp.begin(),temp.end(),'.',',');
+            if(!windows)
+                replace(temp.begin(),temp.end(),'.',',');
             this->resolution = atof(temp.c_str());
         }else if(line.substr(0,4) == "ATOM"){
             if(isfirstatom){
-                PdbAtom *atom = new PdbAtom(line);
+                PdbAtom *atom = new PdbAtom(line,windows);
                 currentPos = atom->getResidueNumber();
                         isfirstatom = false;
             }
-            PdbAtom *atom = new PdbAtom(line);
+            PdbAtom *atom = new PdbAtom(line,windows);
             atoms.push_back(atom);
             isatom = true;
             if(currentPos != atom->getResidueNumber()){
@@ -222,11 +226,11 @@ PdbResidues* Pdb::getResidue(int i){
     return residues[i];
 }
 
-
 //Não requer intervalos
 int Pdb::setResiduesSeqNumber(string pfamsequence, char chain, string fullSeq){
     string pdbsequence = this->getPDBSequence(chain);
-    tuple<string,string,int> tup = this->needleman_wunsch(pfamsequence,pdbsequence);
+    //printf("%s %s",pfamsequence.c_str(),pdbsequence.c_str());
+    tuple<string,string,int> tup = needleman_wunsch(pfamsequence,pdbsequence);
     string alignedPFAM = get<0>(tup);
     string alignedPDB = get<1>(tup);
     int score = get<2>(tup);
@@ -383,17 +387,22 @@ bool Pdb::exportStructure(QString filepath, vector<tuple<int,float> > bfactors, 
 }
 
 tuple<string,string,int> Pdb::needleman_wunsch(string a, string b){
-    int dp[1001][1001];
-    int n = a.length();
-    int m = b.length();
+    tuple<string,string,int> tup(a,b,0);
+    //int dp[1001][1001];
+    int n = a.size();
+    int m = b.size();
+    vector<vector<int> > dp(n+1,vector<int>(m+1));
     int match_score = 2;
     int mismatch_score = 1;
     int gap_score = 1;
-    tuple<string,string,int> tup;
 
-    if(n > 1000 || m > 1000) return tup;
 
-    for (unsigned int i = 0; i <= n; i++) dp[i][0] = dp[0][i] = -i * gap_score;
+    //if(n > 1000 || m > 1000) return tup;
+
+    for (int i = 0; i <= n; i++){
+        dp[0][i] = i * -1 * gap_score;
+        dp[i][0] = i * -1 * gap_score;
+    }
 
     for (unsigned int i = 1; i <= n; i++){
         for (unsigned int j = 1; j <= m; j++){
@@ -411,7 +420,7 @@ tuple<string,string,int> Pdb::needleman_wunsch(string a, string b){
 
     while (ii != 0 || jj != 0){
         if (ii == 0){
-            SA.push('-');//Mudei pra diferenciar
+            SA.push('-');
             SB.push(b[jj-1]);
             jj--;
         }else if (jj == 0){
@@ -446,10 +455,7 @@ tuple<string,string,int> Pdb::needleman_wunsch(string a, string b){
     get<0>(tup) = retA;
     get<1>(tup) = retB;
 
-    //printf("%d\n%s\n%s\n\n",dp[n][m],retA.c_str(),retB.c_str());
-
     return tup;
-
 }
 
 float Pdb::distance2atoms(PdbAtom *a1, PdbAtom *a2){

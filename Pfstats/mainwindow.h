@@ -63,6 +63,9 @@ private slots:
     void exportCorrListTXT();
     void exportCorrListCSV();
     void exportCorrListXML();
+    void exportCommNetTXT();
+    void exportCommNetCSV();
+    void exportCommNetXML();
     void exportCommsTXT();
     void exportCommsXML();
     void exportCorrTablePercTXT();
@@ -294,6 +297,10 @@ private slots:
 
     void on_cmdProxyConnect_clicked();
 
+    void on_cmdExportGraphNumbering_clicked();
+
+    void on_cmdExportGraphNumbering2_clicked();
+
 private:
     enum Constants{
         STACK_MAIN = 0,
@@ -335,6 +342,7 @@ private:
     };
 
     Ui::MainWindow *ui;
+    bool windows = false;
     Alignment *currentAlign;
     Filter *currentFilter;
     Network *currentNetwork;
@@ -404,6 +412,7 @@ private:
     void freeMem();
     QTreeWidgetItem* getFilterItem();
     void updateAlignmentVisFile();
+    void loadPDB();
 };
 
 #endif // MAINWINDOW_H

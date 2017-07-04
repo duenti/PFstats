@@ -3,9 +3,9 @@
 # Project created by QtCreator 2015-03-30T14:31:47
 #
 #-------------------------------------------------
-#
-#COLOCAR O DIRETORIO ABOR NA PASTA RAIZ INSTALADA
-##NO WINDOWS libpath DEVE COMEÇAR COM VALOR DO DIR RAIZ
+################################################################
+##SEMPRE CONFIGURAR VAR WINDOWS(MAINWINDOW) ANTES DE COMPILAR##
+################################################################
 
 QT       += core gui webkitwidgets
 QT += network

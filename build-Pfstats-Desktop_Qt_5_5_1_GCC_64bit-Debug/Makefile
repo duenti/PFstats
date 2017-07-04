@@ -3928,6 +3928,35 @@ mainwindow.o: ../Pfstats/mainwindow.cpp ../Pfstats/mainwindow.h \
 		../Pfstats/taxonomicvisualization.h \
 		../../../Qt/5.5/gcc_64/include/QtWidgets/QListWidgetItem \
 		ui_mainwindow.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/QWebView \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/qwebview.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/qwebpage.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKit/qwebsettings.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QAction \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QButtonGroup \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QCheckBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QComboBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QDoubleSpinBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QGridLayout \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QGroupBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QHBoxLayout \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QHeaderView \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QLineEdit \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QListWidget \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QMenu \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QMenuBar \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QRadioButton \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QSpacerItem \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QSpinBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QStackedWidget \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QStatusBar \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QTableWidget \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QTextEdit \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QToolBar \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QTreeWidget \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QVBoxLayout \
 		../Pfstats/about.h \
 		../../../Qt/5.5/gcc_64/include/QtCore/QFile \
 		../../../Qt/5.5/gcc_64/include/QtCore/QTextStream \
@@ -4814,7 +4843,41 @@ about.o: ../Pfstats/about.cpp ../Pfstats/about.h \
 		../../../Qt/5.5/gcc_64/include/QtCore/qfiledevice.h \
 		../../../Qt/5.5/gcc_64/include/QtGui/qvector2d.h \
 		../../../Qt/5.5/gcc_64/include/QtGui/qtouchdevice.h \
-		ui_about.h
+		ui_about.h \
+		../../../Qt/5.5/gcc_64/include/QtCore/QVariant \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QAction \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qaction.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qicon.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qactiongroup.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QApplication \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qapplication.h \
+		../../../Qt/5.5/gcc_64/include/QtCore/qcoreapplication.h \
+		../../../Qt/5.5/gcc_64/include/QtCore/qeventloop.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qguiapplication.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qinputmethod.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QButtonGroup \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qbuttongroup.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QHeaderView \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qheaderview.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractitemview.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qframe.h \
+		../../../Qt/5.5/gcc_64/include/QtCore/qabstractitemmodel.h \
+		../../../Qt/5.5/gcc_64/include/QtCore/qitemselectionmodel.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qstyleoption.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qvalidator.h \
+		../../../Qt/5.5/gcc_64/include/QtCore/qregularexpression.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qslider.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractslider.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qstyle.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qtabbar.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qtabwidget.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qrubberband.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qlabel.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o about.o ../Pfstats/about.cpp
 
 uniprot.o: ../Pfstats/uniprot.cpp ../Pfstats/uniprot.h \
@@ -5529,7 +5592,55 @@ networkvisualization.o: ../Pfstats/networkvisualization.cpp ../Pfstats/networkvi
 		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/qwebframe.h \
 		../../../Qt/5.5/gcc_64/include/QtGui/qicon.h \
 		../../../Qt/5.5/gcc_64/include/QtWebKit/qwebkitglobal.h \
-		ui_networkvisualization.h
+		ui_networkvisualization.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/QWebView \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/qwebview.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/qwebpage.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKit/qwebsettings.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qpainter.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qtextoption.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qpen.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QAction \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qaction.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qactiongroup.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QButtonGroup \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qbuttongroup.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QCheckBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qcheckbox.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QComboBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qcombobox.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qstyleoption.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qvalidator.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qslider.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractslider.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qstyle.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qtabbar.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qtabwidget.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qrubberband.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qframe.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QGridLayout \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qgridlayout.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qlayout.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qlayoutitem.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qboxlayout.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QGroupBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qgroupbox.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QHBoxLayout \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QHeaderView \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qheaderview.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractitemview.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QLabel \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qlabel.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QSpinBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qspinbox.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QVBoxLayout \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o networkvisualization.o ../Pfstats/networkvisualization.cpp
 
 colors.o: ../Pfstats/colors.cpp ../Pfstats/colors.h
@@ -5839,7 +5950,41 @@ taxonomicvisualization.o: ../Pfstats/taxonomicvisualization.cpp ../Pfstats/taxon
 		../../../Qt/5.5/gcc_64/include/QtWidgets/QListWidgetItem \
 		../../../Qt/5.5/gcc_64/include/QtWidgets/qlistwidget.h \
 		../../../Qt/5.5/gcc_64/include/QtWidgets/qlistview.h \
-		ui_taxonomicvisualization.h
+		ui_taxonomicvisualization.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/QWebView \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/qwebview.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKitWidgets/qwebpage.h \
+		../../../Qt/5.5/gcc_64/include/QtWebKit/qwebsettings.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qpainter.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qtextoption.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qpen.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QAction \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qaction.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qactiongroup.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QButtonGroup \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qbuttongroup.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QComboBox \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qcombobox.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QGridLayout \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qgridlayout.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qlayout.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qlayoutitem.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qboxlayout.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QHBoxLayout \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QHeaderView \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qheaderview.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QLineEdit \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qlineedit.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qtextcursor.h \
+		../../../Qt/5.5/gcc_64/include/QtGui/qtextformat.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QListWidget \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QPushButton \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QRadioButton \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/qradiobutton.h \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QSpacerItem \
+		../../../Qt/5.5/gcc_64/include/QtWidgets/QVBoxLayout
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o taxonomicvisualization.o ../Pfstats/taxonomicvisualization.cpp
 
 pdbresidues.o: ../Pfstats/pdbresidues.cpp ../Pfstats/pdbresidues.h \

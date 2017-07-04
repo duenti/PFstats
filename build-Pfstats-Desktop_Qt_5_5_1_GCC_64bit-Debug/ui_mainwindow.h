@@ -155,6 +155,9 @@ public:
     QAction *actionTSF;
     QAction *actionStockholm;
     QAction *actionFasta;
+    QAction *actionCommNetTXT;
+    QAction *actionCommNetCSV;
+    QAction *actionCommNetXML;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout_11;
@@ -502,7 +505,6 @@ public:
     QLabel *label_38;
     QTreeWidget *treeCorrelation;
     QVBoxLayout *verticalLayout_28;
-    QSpacerItem *verticalSpacer_18;
     QLabel *lblMinLogP;
     QLabel *lblMinss;
     QLabel *lblDeltaFreq;
@@ -518,13 +520,15 @@ public:
     QComboBox *cmbRefPdb_2;
     QPushButton *cmdUpdateGraphPdbNumbering;
     QSpacerItem *horizontalSpacer_81;
+    QHBoxLayout *horizontalLayout_103;
+    QSpacerItem *horizontalSpacer_93;
+    QPushButton *cmdExportGraphNumbering;
     QSpacerItem *verticalSpacer_19;
     QWidget *page_14;
     QGridLayout *gridLayout_17;
     QLabel *label_39;
     QTreeWidget *treeCorrelationComm;
     QVBoxLayout *verticalLayout_30;
-    QSpacerItem *verticalSpacer_20;
     QLabel *lblMinLogP_2;
     QLabel *lblMinss_2;
     QLabel *lblDeltaFreq_2;
@@ -540,6 +544,9 @@ public:
     QComboBox *cmbRefPdb_3;
     QPushButton *cmdUpdateGraphPdbNumbering_2;
     QSpacerItem *horizontalSpacer_82;
+    QHBoxLayout *horizontalLayout_104;
+    QSpacerItem *horizontalSpacer_94;
+    QPushButton *cmdExportGraphNumbering2;
     QSpacerItem *verticalSpacer_21;
     QWidget *page_15;
     QGridLayout *gridLayout_18;
@@ -858,11 +865,12 @@ public:
     QMenu *menuUniprot_Look_Grouped_By_Communities;
     QMenu *menuReference_Sequences;
     QMenu *menuSequences_names;
+    QMenu *menuCommunities_Network;
     QMenu *menuOptions;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
-    QButtonGroup *buttonGroup_2;
     QButtonGroup *buttonGroup;
+    QButtonGroup *buttonGroup_2;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -1092,6 +1100,12 @@ public:
         actionStockholm->setObjectName(QStringLiteral("actionStockholm"));
         actionFasta = new QAction(MainWindow);
         actionFasta->setObjectName(QStringLiteral("actionFasta"));
+        actionCommNetTXT = new QAction(MainWindow);
+        actionCommNetTXT->setObjectName(QStringLiteral("actionCommNetTXT"));
+        actionCommNetCSV = new QAction(MainWindow);
+        actionCommNetCSV->setObjectName(QStringLiteral("actionCommNetCSV"));
+        actionCommNetXML = new QAction(MainWindow);
+        actionCommNetXML->setObjectName(QStringLiteral("actionCommNetXML"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -1527,7 +1541,7 @@ public:
         horizontalLayout_90->setObjectName(QStringLiteral("horizontalLayout_90"));
         label_83 = new QLabel(page_3);
         label_83->setObjectName(QStringLiteral("label_83"));
-        label_83->setMinimumSize(QSize(155, 0));
+        label_83->setMinimumSize(QSize(136, 0));
 
         horizontalLayout_90->addWidget(label_83);
 
@@ -1548,7 +1562,7 @@ public:
         horizontalLayout_68->setObjectName(QStringLiteral("horizontalLayout_68"));
         label_82 = new QLabel(page_3);
         label_82->setObjectName(QStringLiteral("label_82"));
-        label_82->setMinimumSize(QSize(155, 0));
+        label_82->setMinimumSize(QSize(136, 0));
 
         horizontalLayout_68->addWidget(label_82);
 
@@ -1574,7 +1588,7 @@ public:
         label_10 = new QLabel(page_3);
         label_10->setObjectName(QStringLiteral("label_10"));
         label_10->setEnabled(false);
-        label_10->setMinimumSize(QSize(155, 0));
+        label_10->setMinimumSize(QSize(136, 0));
 
         horizontalLayout_10->addWidget(label_10);
 
@@ -1605,6 +1619,7 @@ public:
         label_78 = new QLabel(page_3);
         label_78->setObjectName(QStringLiteral("label_78"));
         label_78->setEnabled(false);
+        label_78->setMinimumSize(QSize(136, 0));
 
         horizontalLayout_14->addWidget(label_78);
 
@@ -1636,6 +1651,7 @@ public:
         label_11 = new QLabel(page_3);
         label_11->setObjectName(QStringLiteral("label_11"));
         label_11->setEnabled(true);
+        label_11->setMinimumSize(QSize(136, 0));
 
         horizontalLayout_11->addWidget(label_11);
 
@@ -3034,15 +3050,11 @@ public:
         treeCorrelation->setMinimumSize(QSize(0, 0));
         treeCorrelation->setMaximumSize(QSize(290, 16777215));
 
-        gridLayout_16->addWidget(treeCorrelation, 1, 0, 1, 1);
+        gridLayout_16->addWidget(treeCorrelation, 1, 0, 2, 1);
 
         verticalLayout_28 = new QVBoxLayout();
         verticalLayout_28->setSpacing(6);
         verticalLayout_28->setObjectName(QStringLiteral("verticalLayout_28"));
-        verticalSpacer_18 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Minimum);
-
-        verticalLayout_28->addItem(verticalSpacer_18);
-
         lblMinLogP = new QLabel(page_13);
         lblMinLogP->setObjectName(QStringLiteral("lblMinLogP"));
         lblMinLogP->setMinimumSize(QSize(300, 0));
@@ -3123,19 +3135,35 @@ public:
 
         verticalLayout_52->addLayout(verticalLayout_17);
 
+        horizontalLayout_103 = new QHBoxLayout();
+        horizontalLayout_103->setSpacing(6);
+        horizontalLayout_103->setObjectName(QStringLiteral("horizontalLayout_103"));
+        horizontalSpacer_93 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_103->addItem(horizontalSpacer_93);
+
+        cmdExportGraphNumbering = new QPushButton(page_13);
+        cmdExportGraphNumbering->setObjectName(QStringLiteral("cmdExportGraphNumbering"));
+
+        horizontalLayout_103->addWidget(cmdExportGraphNumbering);
+
+
+        verticalLayout_52->addLayout(horizontalLayout_103);
+
 
         verticalLayout_28->addLayout(verticalLayout_52);
 
-        verticalSpacer_19 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_19 = new QSpacerItem(20, 297, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_28->addItem(verticalSpacer_19);
 
 
-        gridLayout_16->addLayout(verticalLayout_28, 1, 1, 1, 1);
+        gridLayout_16->addLayout(verticalLayout_28, 2, 1, 1, 1);
 
         stackedWidget2->addWidget(page_13);
         label_38->raise();
         treeCorrelation->raise();
+        cmdExportGraphNumbering->raise();
         page_14 = new QWidget();
         page_14->setObjectName(QStringLiteral("page_14"));
         gridLayout_17 = new QGridLayout(page_14);
@@ -3156,10 +3184,6 @@ public:
         verticalLayout_30 = new QVBoxLayout();
         verticalLayout_30->setSpacing(6);
         verticalLayout_30->setObjectName(QStringLiteral("verticalLayout_30"));
-        verticalSpacer_20 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Minimum);
-
-        verticalLayout_30->addItem(verticalSpacer_20);
-
         lblMinLogP_2 = new QLabel(page_14);
         lblMinLogP_2->setObjectName(QStringLiteral("lblMinLogP_2"));
         lblMinLogP_2->setMinimumSize(QSize(300, 0));
@@ -3236,6 +3260,21 @@ public:
 
 
         verticalLayout_29->addLayout(horizontalLayout_64);
+
+        horizontalLayout_104 = new QHBoxLayout();
+        horizontalLayout_104->setSpacing(6);
+        horizontalLayout_104->setObjectName(QStringLiteral("horizontalLayout_104"));
+        horizontalSpacer_94 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_104->addItem(horizontalSpacer_94);
+
+        cmdExportGraphNumbering2 = new QPushButton(page_14);
+        cmdExportGraphNumbering2->setObjectName(QStringLiteral("cmdExportGraphNumbering2"));
+
+        horizontalLayout_104->addWidget(cmdExportGraphNumbering2);
+
+
+        verticalLayout_29->addLayout(horizontalLayout_104);
 
 
         verticalLayout_53->addLayout(verticalLayout_29);
@@ -4838,6 +4877,8 @@ public:
         menuReference_Sequences->setObjectName(QStringLiteral("menuReference_Sequences"));
         menuSequences_names = new QMenu(menuExport);
         menuSequences_names->setObjectName(QStringLiteral("menuSequences_names"));
+        menuCommunities_Network = new QMenu(menuExport);
+        menuCommunities_Network->setObjectName(QStringLiteral("menuCommunities_Network"));
         menuOptions = new QMenu(menuBar);
         menuOptions->setObjectName(QStringLiteral("menuOptions"));
         MainWindow->setMenuBar(menuBar);
@@ -4913,6 +4954,7 @@ public:
         menuExport->addAction(menuConserved_Residues->menuAction());
         menuExport->addSeparator();
         menuExport->addAction(menuCorrelation_List->menuAction());
+        menuExport->addAction(menuCommunities_Network->menuAction());
         menuExport->addAction(menuCommunities->menuAction());
         menuExport->addAction(menuCorrelation_Tables->menuAction());
         menuExport->addAction(menuCorrelation_Tables_Log_P->menuAction());
@@ -4965,14 +5007,17 @@ public:
         menuReference_Sequences->addAction(actionRefSeqTXT);
         menuReference_Sequences->addAction(actionRefSeqXML);
         menuSequences_names->addAction(actionExportSequencesTXT);
+        menuCommunities_Network->addAction(actionCommNetTXT);
+        menuCommunities_Network->addAction(actionCommNetCSV);
+        menuCommunities_Network->addAction(actionCommNetXML);
         menuOptions->addAction(actionSet_Libraries_Path);
         menuOptions->addAction(actionSet_Proxy);
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(4);
+        stackedWidget->setCurrentIndex(8);
         cmbAlignmentType->setCurrentIndex(1);
-        stackedWidget2->setCurrentIndex(3);
+        stackedWidget2->setCurrentIndex(6);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -5108,6 +5153,9 @@ public:
         actionTSF->setText(QApplication::translate("MainWindow", "TSF", 0));
         actionStockholm->setText(QApplication::translate("MainWindow", "Stockholm", 0));
         actionFasta->setText(QApplication::translate("MainWindow", "Fasta", 0));
+        actionCommNetTXT->setText(QApplication::translate("MainWindow", "TXT", 0));
+        actionCommNetCSV->setText(QApplication::translate("MainWindow", "CSV", 0));
+        actionCommNetXML->setText(QApplication::translate("MainWindow", "XML", 0));
         label_45->setText(QApplication::translate("MainWindow", "Alignment:", 0));
         cmdRemoveAlignment->setText(QApplication::translate("MainWindow", "-", 0));
         label_46->setText(QApplication::translate("MainWindow", "Sub-Alignments:", 0));
@@ -5118,9 +5166,9 @@ public:
         cmdBack->setText(QApplication::translate("MainWindow", "Back", 0));
         cmdAdvance->setText(QApplication::translate("MainWindow", "Next", 0));
         cmdSaveResults->setText(QApplication::translate("MainWindow", "Save Results", 0));
-        label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PFstats</span></p><p align=\"justify\">PFstats contains a set of functions to extract useful information from protein families (represented by a multiple sequence alignment) using conservation and correlation methods.<br/><br/>These functions can be acessed from the menu bar or a complete analysis can be accomplished using the Wizard option.</p></body></html>", 0));
+        label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PFstats</span></p><p align=\"justify\">PFstats contains a set of methods <a name=\"result_box\"/>with the purpose of extract useful information from protein families (represented by a multiple sequence alignment) through amino acids conservation and correlation analysis.<br/><br/>These functions can be acessed through the menu bar or a sequential analysis can be accomplished using the Wizard option.</p></body></html>", 0));
         cmdStartWizard->setText(QApplication::translate("MainWindow", "Start Wizard", 0));
-        label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Obtaining An Alignment</span></p><p align=\"justify\">PFstats use as inputss multiple sequence alignments in one of the readable formats (Stockholm, Selex or fasta). Use &quot;get from desktop&quot; to use a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
+        label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Obtaining An Alignment</span></p><p align=\"justify\">PFstats use multiple sequence alignments files as input. They must be in one of the readable formats: Stockholm, Selex (Tab Separated) or fasta. Use &quot;get from desktop&quot; to load a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.</p></body></html>", 0));
         groupBox->setTitle(QApplication::translate("MainWindow", "Get from desktop", 0));
         cmdOpen->setText(QApplication::translate("MainWindow", "Open", 0));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Get from PFAM", 0));
@@ -5150,7 +5198,7 @@ public:
         label_8->setText(QApplication::translate("MainWindow", "<html><head/><body><p>*These alignments use a different nomenclature for the sequences and<br/>therefore can not be used in methods to queries databases</p></body></html>", 0));
         cmdFetch->setText(QApplication::translate("MainWindow", "Fetch", 0));
         label_9->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Alignment Filtering</span></p><p align=\"justify\">In this step, the alignment is filtered in order to reduce artifacts and biases. Actually, it is possible to filter using a reference sequence to compare or by analyzing the HMM profile of the alignment itself (if it's available). &quot;Minimum coverage&quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &quot;Minimum identity&quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &quot;Maximum identity&quot; filter is highly recommended in order to reduce the sequences redundance bias. It will compare each sequence to all others, removing those above the specified identity. There is also an option to utilize only sequences of a specific taxonomical "
-                        "clade.</p></body></html>", 0));
+                        "clade. This is an optional step, an alternative weightening approach is also avaiable to calculate conservation and correlations.</p></body></html>", 0));
         label_83->setText(QApplication::translate("MainWindow", "Filter Name:", 0));
         label_82->setText(QApplication::translate("MainWindow", "Method:", 0));
         cmbFilterMethod->clear();
@@ -5180,24 +5228,24 @@ public:
         label_79->setText(QApplication::translate("MainWindow", "Select by filtering:", 0));
         cmbFilterRefseq->clear();
         cmbFilterRefseq->insertItems(0, QStringList()
-         << QApplication::translate("MainWindow", "Has PDB", 0)
+         << QApplication::translate("MainWindow", "Has structure on PDB", 0)
          << QApplication::translate("MainWindow", "Annotation Score (1 to 5)", 0)
          << QApplication::translate("MainWindow", "Taxon", 0)
         );
         cmdFilterRefSeqs->setText(QApplication::translate("MainWindow", "Select", 0));
-        label_55->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Reference Sequences (Optional)</span></p><p>Select proteins from the family that are going to be used to report amino acid conservation and correlation.</p></body></html>", 0));
-        label_69->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PDB Fetching (Optional)</span></p><p>You can set a PDB file for further analysis. Note that when using a Stockholm format alignment, you may have recommended PDBs. Otherwise, you need to inform them manually.</p></body></html>", 0));
+        label_55->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Reference Sequences</span></p><p>Select proteins from the family that are going to be used to report amino acid conservation and correlation. If a filter has been previously applied,<a name=\"result_box\"/>the selected sequences that were removed will be added again to the current alignment. Thus, in these cases, it is not recommended to select a large number of sequences in order to avoid an increase of bias.</p></body></html>", 0));
+        label_69->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">PDB Fetching</span></p><p>At this point, PDB files can be load in order to generate futher visualizations. Make sure that theselected sequence and the selected PDB matches, because they are going to be aligned.</p></body></html>", 0));
         cmdPDBFile->setText(QApplication::translate("MainWindow", "Choose from File", 0));
         label_75->setText(QApplication::translate("MainWindow", "File Path:", 0));
         cmdLoadPDB->setText(QApplication::translate("MainWindow", "Load", 0));
-        label_70->setText(QApplication::translate("MainWindow", "PDB Name:", 0));
+        label_70->setText(QApplication::translate("MainWindow", "PDB ID:", 0));
         label_68->setText(QApplication::translate("MainWindow", "Chain:", 0));
         label_74->setText(QApplication::translate("MainWindow", "Sequence:", 0));
         cmdPDBFetch->setText(QApplication::translate("MainWindow", "Fetch From Internet", 0));
         label_71->setText(QApplication::translate("MainWindow", "Recommended PDBs:", 0));
         chkDownloadPDB->setText(QApplication::translate("MainWindow", "Download File", 0));
-        label_76->setText(QApplication::translate("MainWindow", "Current Structures:", 0));
-        label_14->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Conservation</span></p><p align=\"justify\">This step calculates simple frequency-based statistics. Optionally, a PDB loaded file can be supplied in order to map positional conservation as B-factors.</p></body></html>", 0));
+        label_76->setText(QApplication::translate("MainWindow", "Loaded Structures:", 0));
+        label_14->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Conservation</span></p><p align=\"justify\"><a name=\"result_box\"/>The conservation metric used in this step consists of a hybrid approach that takes into account the entropy and stereochemical variability of the positions. Optionally, a preloaded PDB file can be supplied in order to map positional conservation as B-factors.</p></body></html>", 0));
         groupBox_4->setTitle(QApplication::translate("MainWindow", "Conservation", 0));
         label_28->setText(QApplication::translate("MainWindow", "Alpha (entropy weight):", 0));
         label_31->setText(QApplication::translate("MainWindow", "Beta (sthereochemistry weight):", 0));
@@ -5209,12 +5257,12 @@ public:
         txtChain->setText(QApplication::translate("MainWindow", "A", 0));
         label_64->setText(QApplication::translate("MainWindow", "Structures Loaded:", 0));
         cmdConservation->setText(QApplication::translate("MainWindow", "Calculate", 0));
-        label_21->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Minimum Representative Sub-Alignment (MRsA)</span></p><p>This module implements the procedure described in (Dima and Thirumalai 2006). It calculates the average conservation for the full alignment and then for multiple sub-alignments with decreasing sizes. </p></body></html>", 0));
+        label_21->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Minimum Representative Sub-Alignment (MRsA)</span></p><p>This module implements a modified version of the procedure described in Dima and Thirumalai, 2006 (PubMed: 16434743). It calculates the average position entropy for the full alignment and then for multiple sub-alignments with decreasing sizes. This method is used to find the minimum sub-alignment that maintains its representativeness. The cut choosen in this step are going to be used in the correlation calculus, choose a value before the very steep fall in the graph.</p></body></html>", 0));
         lblNseq->setText(QApplication::translate("MainWindow", "Number of sequences in the alignment: ", 0));
-        label_29->setText(QApplication::translate("MainWindow", "Number of processors:", 0));
+        label_29->setText(QApplication::translate("MainWindow", "Number of threads:", 0));
         label_22->setText(QApplication::translate("MainWindow", "Number of sub-alignments:", 0));
         cmdMinss->setText(QApplication::translate("MainWindow", "Calculate", 0));
-        label_23->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Correlation</span></p><p>This will calculate a set of correlation scores for the full alignment, using the cutoffs provided by the user. </p></body></html>", 0));
+        label_23->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">Correlation</span></p><p>This will calculate a set of correlation scores for the full alignment, using the cutoffs provided by the user.</p></body></html>", 0));
         groupBox_7->setTitle(QApplication::translate("MainWindow", "Correlation Method", 0));
         label_24->setText(QApplication::translate("MainWindow", "Minimum Score:", 0));
         label_25->setText(QApplication::translate("MainWindow", "MRsA Fraction:", 0));
@@ -5361,6 +5409,7 @@ public:
         cmdUpdateGraphNumbering->setText(QApplication::translate("MainWindow", "Update", 0));
         label_65->setText(QApplication::translate("MainWindow", "Structure Numbering:", 0));
         cmdUpdateGraphPdbNumbering->setText(QApplication::translate("MainWindow", "Update", 0));
+        cmdExportGraphNumbering->setText(QApplication::translate("MainWindow", "Export Data", 0));
         label_39->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">List of Communities</span></p></body></html>", 0));
         QTreeWidgetItem *___qtreewidgetitem2 = treeCorrelationComm->headerItem();
         ___qtreewidgetitem2->setText(0, QApplication::translate("MainWindow", "Communities", 0));
@@ -5375,6 +5424,7 @@ public:
         cmdUpdateGraphNumbering2->setText(QApplication::translate("MainWindow", "Update", 0));
         label_72->setText(QApplication::translate("MainWindow", "Structure Numbering:", 0));
         cmdUpdateGraphPdbNumbering_2->setText(QApplication::translate("MainWindow", "Update", 0));
+        cmdExportGraphNumbering2->setText(QApplication::translate("MainWindow", "ExportData", 0));
         label_40->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Correlation Tables (Percentage)</span></p></body></html>", 0));
         lblComunidade->setText(QApplication::translate("MainWindow", "Community: ", 0));
         lblMinLogP_3->setText(QApplication::translate("MainWindow", "Minimum Score: ", 0));
@@ -5562,6 +5612,7 @@ public:
         menuUniprot_Look_Grouped_By_Communities->setTitle(QApplication::translate("MainWindow", "Uniprot Look Grouped By Communities", 0));
         menuReference_Sequences->setTitle(QApplication::translate("MainWindow", "Reference Sequences", 0));
         menuSequences_names->setTitle(QApplication::translate("MainWindow", "Sequences names", 0));
+        menuCommunities_Network->setTitle(QApplication::translate("MainWindow", "Communities Network", 0));
         menuOptions->setTitle(QApplication::translate("MainWindow", "Options", 0));
     } // retranslateUi
 

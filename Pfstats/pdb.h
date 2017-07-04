@@ -25,6 +25,7 @@ using namespace std;
 class Pdb
 {
 private:
+    bool windows;
     string id;
     float resolution;
     string refseq;
@@ -50,8 +51,8 @@ private:
     bool isHydrophobic(PdbAtom* atom);
 
 public:
-    Pdb(string pdb);
-    Pdb(QString filepath);
+    Pdb(string pdb, bool win);
+    Pdb(QString filepath, bool win);
     Pdb();
     ~Pdb();
     int getRefSeqId();

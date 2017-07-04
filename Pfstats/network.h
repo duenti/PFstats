@@ -166,13 +166,14 @@ public:
     string getUniprotFunction(int i);
     Feature* getUniprotFeature(int i, int j);
     void exportCorrGraph(QString filename, int type); //TYPE: 0-TXT 1-CSV 2-XML
+    void exportCommNet(QString filename, int type); //TYPE: 0-TXT 1-CSV 2-XML
     void exportCommList(QString filename, int type); //TYPE: 0-TXT 1-XML
     void exportCorrTable(QString filename, int type, bool perc=true); //TYPE: 0-TXT, 1-XML, 2-HTML
     void exportAdh(QString filename, int type); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML
-    void exportResComm(QString filename, int type, vector<string> fullAlignment, vector<string> fullSequences,vector<string> refseqs); //TYPE: 0-TXT, 1-XML, 2-HTML
+    void exportResComm(QString filename, int type, vector<string> fullAlignment, vector<string> fullSequences,vector<int> refCodes); //TYPE: 0-TXT, 1-XML, 2-HTML
     void exportLookProt(QString filename, int type); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML
     void exportLookComm(QString filename, int type, vector<string> conserved); //TYPE: 0-TXT, 1-CSV, 2-XML, 3-HTML
-
+    int countCommunities();
 };
 
 #endif // NETWORK_H

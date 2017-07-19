@@ -682,14 +682,21 @@ int Alignment::seqname2seqint2(string refseqcode){
 }
 
 bool Alignment::taxonTrimming(string taxon, string refseqName, string refSeq){
-    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxon-filter/" + taxon;
+
     string text = "";
+    string url = "";
 
     QProgressDialog progress("Filtering by taxon...", "Abort", 0, 0);
 
     for(unsigned int i = 0; i < sequencenames.size(); i++){
-        text += split(sequencenames[i],'/')[0] + "\n";
+        string seqname = split(sequencenames[i],'/')[0];
+        text += split(seqname,'.')[0] + "\n";
     }
+
+    if(sequencenames[0].find("_") != std::string::npos)
+        url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxon-filter/" + taxon;
+    else
+        url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxon-filter2/" + taxon;
 
     //printf("%s\n",text.c_str());
 
@@ -1054,4 +1061,60 @@ bool Alignment::verifyValidFilterName(string name){
     }
 
     return true;
+}
+
+bool Alignment::requestTaxonomy(bool hasproxy, QNetworkProxy proxy){
+    string url = "";
+    string text = "";
+
+    if(sequencenames.size() > 0){
+        for(unsigned int i = 0; i < sequencenames.size(); i++){
+            string seqname = split(sequencenames[i],'/')[0];
+            text += split(seqname,'.')[0] + "\n";
+        }
+    }else
+        return false;
+
+    if(sequencenames[0].find('_') != std::string::npos)
+        url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxondata2";
+    else
+        url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxondata22";
+
+    QProgressDialog progress("Accessing webservice...", "Abort", 0,0);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+    if(progress.wasCanceled()){
+        return false;
+    }
+
+    QByteArray const data = QString::fromStdString(text).toUtf8();
+
+    QNetworkRequest request(QUrl(QString::fromStdString(url)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      QStringLiteral("text/plain; charset=utf-8"));
+    QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
+    QNetworkReply *response(manager.post(request,data));
+    //QNetworkReply* response(manager.get(request));
+    QEventLoop event;
+    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
+    event.exec();
+
+    if(progress.wasCanceled()){
+        return false;
+    }
+    QString html = response->readAll();
+
+    if(html.contains("302 Found") || html.contains("error") || html == ""){
+        printf("\n%s",html.toStdString().c_str());
+        return false;
+    }else{
+        vector<string> lines = split(html.toStdString(),'\n');
+        for(unsigned int i = 0; i < lines.size(); i++){
+            if(lines[i] != ""){
+                vector<string> temp = split(lines[i],'\t');
+                taxonomy[temp[0]] = temp[1];
+            }
+        }
+    }
 }

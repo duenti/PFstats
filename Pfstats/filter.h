@@ -182,6 +182,7 @@ public:
     void setQtreeWidgetItem(QTreeWidgetItem *item);
     QTreeWidgetItem* getQTreeWidgetItem(); //IF NULL => FULL ALIGNMENT
     vector<string> getRefSeqs();
+    bool getSeqNameType();
 };
 
 #endif // FILTER_H

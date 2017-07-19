@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "filter.h"
+#include "alignment.h"
 #include <QWebFrame>
 #include <QListWidgetItem>
 
@@ -25,7 +26,7 @@ class TaxonomicVisualization : public QDialog
     };
 
 public:
-    explicit TaxonomicVisualization(QWidget *parent = 0, Filter* filter=NULL, Network* network=NULL, string lib="");
+    explicit TaxonomicVisualization(QWidget *parent = 0, Filter* filter=NULL, Network* network=NULL, string lib="", Alignment* align=NULL);
     ~TaxonomicVisualization();
 
 private slots:
@@ -49,6 +50,7 @@ private:
     Network* currentNetwork;
     string libpath;
     map<string,string> mapPreTaxons;
+    map<string,string> taxonomy;
 
     vector<string> split(string text, char sep);
     bool generateSunburst(vector<string> sequencenames);

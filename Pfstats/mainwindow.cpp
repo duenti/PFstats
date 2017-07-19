@@ -4666,6 +4666,10 @@ void MainWindow::on_cmdNextResComm_clicked()
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
                     ui->tableResiduesComm->setItem(i,j,item);
+                }else if(fullSequences[refSeqs[i]][currentNetwork->Communities[currComm].pos[j]]=='.'){
+                    QTableWidgetItem *item = new QTableWidgetItem();
+                    item->setText(".");
+                    ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
                     string textItem = fullSequences[refSeqs[i]][currentNetwork->Communities[currComm].pos[j]] + QString::number(currentFilter->AlignNumbering2Sequence2(refSeqs[i]+1,currentNetwork->Communities[currComm].pos[j],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[i]])).toStdString();
@@ -4739,6 +4743,10 @@ void MainWindow::on_cmdBackResComm_clicked()
                 if(fullSequences[refSeqs[i]][currentNetwork->Communities[currComm-1].pos[j]]=='-'){
                     QTableWidgetItem *item = new QTableWidgetItem();
                     item->setText("-");
+                    ui->tableResiduesComm->setItem(i,j,item);
+                }else if(fullSequences[refSeqs[i]][currentNetwork->Communities[currComm-1].pos[j]]=='.'){
+                    QTableWidgetItem *item = new QTableWidgetItem();
+                    item->setText(".");
                     ui->tableResiduesComm->setItem(i,j,item);
                 }else{
                     QTableWidgetItem *item = new QTableWidgetItem();
@@ -4908,6 +4916,7 @@ void MainWindow::Open_XML_triggered(){
                                     reader.readNext();
 
                                     if(reader.isStartElement() && reader.name() == "network"){
+                                        vector<Uniprot*> mined;
                                         Network *net = new Network(&filter->sequences,&filter->sequencenames);
                                         while(!reader.atEnd()){
                                             reader.readNext();
@@ -5046,8 +5055,85 @@ void MainWindow::Open_XML_triggered(){
                                                             break;
                                                         }
                                                     }
+                                                }else if(reader.name() == "uniprotmined"){
+                                                    while(!reader.atEnd()){
+                                                        reader.readNext();
+
+                                                        if(reader.isStartElement() && reader.name() == "uniprot"){
+                                                            Uniprot* uniprot = new Uniprot();
+                                                            while(!reader.atEnd()){
+                                                                reader.readNext();
+
+                                                                if(reader.isStartElement()){
+                                                                    if(reader.name() == "name") uniprot->setName(reader.readElementText().toStdString());
+                                                                    else if(reader.name() == "dataset") uniprot->setDataset(reader.readElementText().toInt());
+                                                                    else if(reader.name() == "accessions"){
+                                                                        while(!reader.atEnd()){
+                                                                            reader.readNext();
+
+                                                                            if(reader.isStartElement() && reader.name() == "accession")
+                                                                                uniprot->addAccession(reader.readElementText().toStdString());
+                                                                            else if(reader.isEndElement() && reader.name() == "accessions"){
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                    }else if(reader.name() == "features"){
+                                                                        while(!reader.atEnd()){
+                                                                            reader.readNext();
+
+                                                                            if(reader.isStartElement() && reader.name() == "entry"){
+                                                                                Feature* f = new Feature();
+                                                                                while(!reader.atEnd()){
+                                                                                    reader.readNext();
+
+                                                                                    if(reader.isStartElement()){
+                                                                                        if(reader.name() == "type") f->setType(reader.readElementText().toStdString());
+                                                                                        else if(reader.name() == "description") f->setDescription(reader.readElementText().toStdString());
+                                                                                        else if(reader.name() == "position") f->setPosition(reader.readElementText().toInt());
+                                                                                        else if(reader.name() == "begin") f->setBegin(reader.readElementText().toInt());
+                                                                                        else if(reader.name() == "end") f->setEnd(reader.readElementText().toInt());
+                                                                                        else if(reader.name() == "id") f->setId(reader.readElementText().toStdString());
+                                                                                        else if(reader.name() == "seqres") f->setResidueColigated(reader.readElementText().toStdString());
+                                                                                        else if(reader.name() == "alignres") f->setAlignResidue(reader.readElementText().toStdString());
+                                                                                        else if(reader.name() == "agg") f->setAggregation(reader.readElementText().toInt());
+
+                                                                                    }else if(reader.isEndElement() && reader.name() == "entry"){
+                                                                                        uniprot->addFeature(f);
+                                                                                        break;
+                                                                                    }
+                                                                                }
+                                                                            }else if(reader.isEndElement() && reader.name() == "features"){
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }else if(reader.isEndElement() && reader.name() == "uniprot"){
+                                                                    mined.push_back(uniprot);
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }else if(reader.isEndElement() && reader.name() == "uniprotmined"){
+                                                            break;
+                                                        }
+                                                    }
                                                 }
                                             }else if(reader.isEndElement() && reader.name() == "network"){
+                                                for(unsigned int i = 0; i < net->sequencenames->size(); i++){
+                                                    string netseq = split(net->sequencenames->at(i),'/')[0];
+                                                    bool found = false;
+                                                    for(unsigned int j = 0; j < mined.size(); j++){
+                                                        Uniprot* u = mined[j];
+                                                        if(netseq == u->getName()){
+                                                            net->addUniprotEntry(u);
+                                                            found = true;
+                                                        }
+                                                    }
+
+                                                    if(!found){
+                                                        Uniprot* u = new Uniprot(netseq,-1);
+                                                        net->addUniprotEntry(u);
+                                                    }
+                                                }
                                                 stringstream ss;
                                                 ss << fixed << setprecision(2) << net->getMinssFraction();
                                                 string strMinss = ss.str();
@@ -6977,79 +7063,52 @@ void MainWindow::changeToListOfSequences(){
 }
 
 bool MainWindow::generateSunburst(vector<string> sequencenames){
-    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxondata";
+    map<string,int> taxData;
+
+    for(unsigned int i = 0; i < sequencenames.size(); i++){
+        string seqname = split(sequencenames[i],'/')[0];
+        string taxons = currentAlign->taxonomy[seqname];
+        if(taxons != ""){
+            if(taxData.count(taxons)){
+                taxData[taxons] += 1;
+            }else
+                taxData[taxons] = 1;
+        }
+    }
+
+    string pathcsv = libpath + "sunburst/clades.csv";
+    string pathhtml = libpath + "sunburst/sunburst.html";
+    QFile indexHTML(pathcsv.c_str());
+    indexHTML.open(QIODevice::WriteOnly);
+    QTextStream out(&indexHTML);
+
     string text = "";
-
-    if(sequencenames.size() == 0){
-        for(unsigned int i = 0; i < currentFilter->sequencenames.size(); i++){
-            text += split(currentFilter->sequencenames[i],'/')[0] + "\n";
-        }
-    }else{
-        for(unsigned int i = 0; i < sequencenames.size(); i++){
-            text += split(sequencenames[i],'/')[0] + "\n";
-        }
+    for (auto const& x : taxData){
+        string taxonomy = x.first;
+        int count = x.second;
+        text += taxonomy + "," + to_string(count) + "\n";
     }
 
-    QProgressDialog progress("Accessing webservice...", "Abort", 0,0);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.show();
-    if(progress.wasCanceled()){
-        ui->cmdPDBFetch->setEnabled(true);
-        return false;
-    }
+    out << text.c_str();
 
-    QByteArray const data = QString::fromStdString(text).toUtf8();
-
-    QNetworkRequest request(QUrl(QString::fromStdString(url)));
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      QStringLiteral("text/plain; charset=utf-8"));
-    QNetworkAccessManager manager;
-    if(hasproxy) manager.setProxy(proxy);
-    QNetworkReply *response(manager.post(request,data));
-    //QNetworkReply* response(manager.get(request));
-    QEventLoop event;
-    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
-    event.exec();
-    if(progress.wasCanceled()){
-        return false;
-    }
-    QString html = response->readAll();
-
-    if(html.contains("302 Found") || html.contains("error") || html == ""){
-        printf("\n%s",html.toStdString().c_str());
-        QMessageBox::warning(this,"Fetching Failed","Error while trying to connect the webservice");
-        return false;
-    }else{
-        string pathcsv = libpath + "sunburst/clades.csv";
-        string pathhtml = libpath + "sunburst/sunburst.html";
-        QFile indexHTML(pathcsv.c_str());
-        indexHTML.open(QIODevice::WriteOnly);
-        QTextStream out(&indexHTML);
-
-        out << html;
-
-        //ATUALIZA ARQUIVO
-        indexHTML.close();
-        QFile file(pathhtml.c_str());
-        file.open(QIODevice::ReadOnly);
-        QFileInfo info(file);
-        string absPath = info.absoluteFilePath().toStdString();
-        string localUrl = "file:///" + absPath;
-        ui->webTaxons->setUpdatesEnabled(true);
-        ui->webTaxons->load(QUrl(localUrl.c_str()));
-        QWebSettings *websettings = QWebSettings::globalSettings();
-        //websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-        websettings->setAttribute(QWebSettings::JavascriptEnabled,true);
-        websettings->clearMemoryCaches();
-        QWebFrame *frame = ui->webTaxons->page()->mainFrame();
-        frame->evaluateJavaScript("displaymessage()");
-    }
-
-    progress.close();
+    //ATUALIZA ARQUIVO
+    indexHTML.close();
+    QFile file(pathhtml.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webTaxons->setUpdatesEnabled(true);
+    ui->webTaxons->load(QUrl(localUrl.c_str()));
+    QWebSettings *websettings = QWebSettings::globalSettings();
+    //websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    websettings->setAttribute(QWebSettings::JavascriptEnabled,true);
+    websettings->clearMemoryCaches();
+    QWebFrame *frame = ui->webTaxons->page()->mainFrame();
+    frame->evaluateJavaScript("displaymessage()");
 
     return true;
 }
-
 void MainWindow::changeToTaxonomicView(){
     //Validação
     if(!currentFilter){
@@ -7058,7 +7117,14 @@ void MainWindow::changeToTaxonomicView(){
         return;
     }
 
-    if(!this->generateSunburst(vector<string>())) return;
+    if(currentAlign->taxonomy.size() == 0){
+        if(!currentAlign->requestTaxonomy(hasproxy,proxy)){
+            QMessageBox::warning(this,"Warning","Failed to connect to the webservice.");
+            return;
+        }
+    }
+
+    if(!this->generateSunburst(currentFilter->getSequenceNames())) return;
     //printf("%s",csv.c_str());
 
     ui->stackedWidget->setCurrentIndex(STACK_RESULTS);
@@ -7547,6 +7613,7 @@ void MainWindow::updateAlignmentVisFile(){
 
     out << "<meta name=\"description\" content=\"Simple BioJS example\" />\n";
     out << "<script src=\"msa.min.gz.js\"></script>\n";
+    out << "<script src=\"d3.v3.min.js\"></script>\n";
     out << "<div id=\"menuDiv\"></div>\n";
     out << "<div id=\"yourDiv\"></div>\n";
 
@@ -7584,6 +7651,7 @@ void MainWindow::updateAlignmentVisFile(){
     string absPath = info.absoluteFilePath().toStdString();
     string localUrl = "file:///" + absPath;
     QWebSettings *websettings = QWebSettings::globalSettings();
+    websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled,true);
     websettings->clearMemoryCaches();
     ui->webAlignment->load(QUrl(localUrl.c_str()));
 
@@ -8819,13 +8887,18 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
 {
     ui->cmdFilterRefSeqs->setEnabled(false);
 
+    bool seqtype = currentFilter->getSeqNameType();
+
     string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/";
     string post_content = "";
 
     switch(ui->cmbFilterRefseq->currentIndex()){
     case 0:
     {
-        url += "haspdb/";
+        if(seqtype)
+            url += "haspdb/";
+        else
+            url += "haspdb2/";
 
         break;
     }
@@ -8850,7 +8923,10 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
             }
         }
 
-        url += "annotation-filter/" + strScore.toStdString();
+        if(seqtype)
+            url += "annotation-filter/" + strScore.toStdString();
+        else
+            url += "annotation-filter2/" + strScore.toStdString();
 
         break;
     }
@@ -8864,7 +8940,10 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
             return;
         }
 
-        url += "taxon-filter/" + ui->txtFilterRefSeq->text().toStdString();
+        if(seqtype)
+            url += "taxon-filter/" + ui->txtFilterRefSeq->text().toStdString();
+        else
+            url += "taxon-filter2/" + ui->txtFilterRefSeq->text().toStdString();
 
         break;
     }
@@ -8881,7 +8960,8 @@ void MainWindow::on_cmdFilterRefSeqs_clicked()
         }
         string seqname = ui->lstRefSeqs->item(i)->text().toStdString();
         vector<string> temp = split(seqname,'/');
-        post_content += temp[0] + "\n";
+
+        post_content += split(temp[0],'.')[0] + "\n";
     }
 
     QByteArray const data = QString::fromStdString(post_content).toUtf8();
@@ -9004,10 +9084,15 @@ void MainWindow::on_cmdLookingFilter_clicked()
     string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/";
     string post_content = "";
 
+    bool seqtype = currentFilter->getSeqNameType();
+
     switch(ui->cmbLookingFilter->currentIndex()){
     case 0:
     {
-        url += "haspdb";
+        if(seqtype)
+            url += "haspdb/";
+        else
+            url += "haspdb2/";
 
         break;
     }
@@ -9030,7 +9115,10 @@ void MainWindow::on_cmdLookingFilter_clicked()
             }
         }
 
-        url += "annotation-filter/" + strScore.toStdString();
+        if(seqtype)
+            url += "annotation-filter/" + strScore.toStdString();
+        else
+            url += "annotation-filter2/" + strScore.toStdString();
 
         break;
     }
@@ -9043,7 +9131,10 @@ void MainWindow::on_cmdLookingFilter_clicked()
             return;
         }
 
-        url += "taxon-filter/" + ui->txtLookingFilter->text().toStdString();
+        if(seqtype)
+            url += "taxon-filter/" + ui->txtLookingFilter->text().toStdString();
+        else
+            url += "taxon-filter2/" + ui->txtLookingFilter->text().toStdString();
 
         break;
     }
@@ -9059,7 +9150,7 @@ void MainWindow::on_cmdLookingFilter_clicked()
             return;
         }
         string seqname = ui->lstLookingRefs->item(i)->text().toStdString();
-        post_content += seqname + "\n";
+        post_content += split(seqname,'.')[0] + "\n";
     }
 
     QByteArray const data = QString::fromStdString(post_content).toUtf8();
@@ -9884,7 +9975,7 @@ void MainWindow::on_cmdExpandNetworkVisualization_clicked()
 
 void MainWindow::on_cmdExpandTaxonomy_clicked()
 {
-    TaxonomicVisualization* tv = new TaxonomicVisualization(this,currentFilter,currentNetwork,libpath);
+    TaxonomicVisualization* tv = new TaxonomicVisualization(this,currentFilter,currentNetwork,libpath,currentAlign);
     tv->setWindowFlags(Qt::Window);
     tv->show();
 }

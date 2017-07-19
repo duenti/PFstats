@@ -47,6 +47,7 @@ public:
     Alignment();
     Alignment(string path);
     ~Alignment();
+    map<string,string> taxonomy;
     int getType();
     void setType(int t);
     void clear();
@@ -86,6 +87,7 @@ public:
     void defineHMMpositions();
     void updateFiltersData();
     bool verifyValidFilterName(string name);
+    bool requestTaxonomy(bool hasproxy, QNetworkProxy proxy);
 };
 
 #endif // ALIGNMENT_H

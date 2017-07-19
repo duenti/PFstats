@@ -43,6 +43,10 @@ int Uniprot::countAccession(){
     return this->accession.size();
 }
 
+vector<string> Uniprot::getAccessions(){
+    return this->accession;
+}
+
 string Uniprot::getAccession(int i){
     return accession[i];
 }

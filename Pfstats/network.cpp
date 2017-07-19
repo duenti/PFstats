@@ -1505,17 +1505,21 @@ void Network::alignment2UpperCase(){
 }
 
 bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector<int> idproteins, vector<string> conserved, vector<string> fullAlignment, vector<string> fullSequences, bool hasproxy, QNetworkProxy proxy){
+    string url = "";
     QProgressDialog progress("Reading data from webservice (1/3)","Abort",0,0);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
     vector<Uniprot*> dataprot;
-    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/uniprot/look/";
+    if(proteins[0].find("_") != std::string::npos)
+        url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/uniprot/look/";
+    else
+        url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/uniprot/look2/";
     string post_content = "";
 
     //Monta a string POST
     for(unsigned int i = 0; i < proteins.size(); i++){
-        post_content += proteins[i] + "\n";
+        post_content += split(proteins[i],'.')[0] + "\n";
     }
 
     QByteArray const data = QString::fromStdString(post_content).toUtf8();
@@ -1689,6 +1693,14 @@ string Network::getUniprotEntryName(int i){
 
 unsigned int Network::getUniprotEntryNofFeatures(int i){
     return uniprotMined[i]->countFeatures();
+}
+
+Uniprot* Network::getUniprotEntry(int i){
+    return uniprotMined[i];
+}
+
+void Network::addUniprotEntry(Uniprot *u){
+    uniprotMined.push_back(u);
 }
 
 int Network::getResidueFeaturesByCommCount(string res){

@@ -23,6 +23,7 @@ public:
     ~Uniprot();
     void addAccession(string access);
     string getAcesssionAt(int i);
+    vector<string> getAccessions();
     int countAccession();
     string getAccession(int i);
     int getAccessionSize();

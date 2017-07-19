@@ -193,7 +193,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>8</number>
+       <number>10</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -209,7 +209,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;PFstats&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;PFstats contains a set of methods &lt;a name=&quot;result_box&quot;/&gt;with the purpose of extract useful information from protein families (represented by a multiple sequence alignment) through amino acids conservation and correlation analysis.&lt;br/&gt;&lt;br/&gt;These functions can be acessed through the menu bar or a sequential analysis can be accomplished using the Wizard option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;PFstats&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;PFstats contains a set of methods &lt;a name=&quot;result_box&quot;/&gt;with the purpose of extract useful information from protein families (represented by a multiple sequence alignment) through amino acids conservation and coevolution analysis.&lt;br/&gt;&lt;br/&gt;These functions can be acessed through the menu bar or a sequential analysis can be accomplished using the Wizard option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -271,6 +271,19 @@
       </widget>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="2" column="0">
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_2">
           <property name="sizePolicy">
@@ -280,7 +293,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Obtaining An Alignment&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;PFstats use multiple sequence alignments files as input. They must be in one of the readable formats: Stockholm, Selex (Tab Separated) or fasta. Use &amp;quot;get from desktop&amp;quot; to load a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00105). The latter option requires an active internet connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Obtaining An Alignment&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;PFstats requires multiple sequence alignments files as input. They must be in one of the readable formats: Stockholm, Selex (Tab Separated) or fasta. Click on &amp;quot;get from desktop&amp;quot; to load a previously saved (or custom built) alignment, or directly download it from PFAM by providing an accession code (e.g., PF00062 or 62). The latter option requires an active internet connection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -421,7 +434,7 @@
                    <item>
                     <widget class="QRadioButton" name="radioButton_11">
                      <property name="text">
-                      <string>Uniprot*</string>
+                      <string>Uniprot</string>
                      </property>
                      <attribute name="buttonGroup">
                       <string notr="true">buttonGroup</string>
@@ -618,23 +631,19 @@
                 <layout class="QHBoxLayout" name="horizontalLayout_7">
                  <item>
                   <widget class="QLabel" name="label_8">
-                   <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;*These alignments use a different nomenclature for the sequences and&lt;br/&gt;therefore can not be used in methods to queries databases&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_40">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
+                   <property name="maximumSize">
                     <size>
-                     <width>40</width>
-                     <height>20</height>
+                     <width>16777215</width>
+                     <height>16777215</height>
                     </size>
                    </property>
-                  </spacer>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;*In NCBI alignments, the sequences are named by their GI number. This key is incompatible with our database, therefore, can not be used in online searches. To use our webservice methods, the sequences must be represented by its Uniprot entry or entry name (E.g. P00698 or LYSC_CHICK)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </item>
@@ -695,27 +704,16 @@
           </item>
          </layout>
         </item>
-        <item row="2" column="0">
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
        </layout>
+       <zorder>label_2</zorder>
+       <zorder></zorder>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Alignment Filtering&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In this step, the alignment is filtered in order to reduce artifacts and biases. Actually, it is possible to filter using a reference sequence to compare or by analyzing the HMM profile of the alignment itself (if it's available). &amp;quot;Minimum coverage&amp;quot; is useful to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &amp;quot;Minimum identity&amp;quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &amp;quot;Maximum identity&amp;quot; filter is highly recommended in order to reduce the sequences redundance bias. It will compare each sequence to all others, removing those above the specified identity. There is also an option to utilize only sequences of a specific taxonomical clade. This is an optional step, an alternative weightening approach is also avaiable to calculate conservation and correlations.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Alignment Filtering&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In this step, the alignment is filtered in order to reduce artifacts and biases. There are two possible filter approaches: Compare with a reference sequence or with the HMM profile of the alignment itself (if it is available). &amp;quot;Minimum coverage&amp;quot; is used to remove fragments (e.g., choosing 0.8 will remove proteins with fewer than 80% positions with an aligned equivalent in the reference sequence). &amp;quot;Minimum identity&amp;quot; (usually not necessary from alignments directly obtained from PFAM) will remove sequences whose identity is below a certain threshold when compared to the reference sequence. The &amp;quot;Maximum identity&amp;quot; filter is highly recommended in order to reduce the sequences redundance bias. It will compare each sequence to all others, removing those above the specified identity. There is also an option to utilize only sequences of a specific taxonomical clade. &lt;span style=&quot; font-weight:600;&quot;&gt;This is an optional step, an alternative weightening approach is also avaiable to calculate conservation and correlations.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -1449,7 +1447,7 @@
         <item row="0" column="0" colspan="3">
          <widget class="QLabel" name="label_55">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Reference Sequences&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Select proteins from the family that are going to be used to report amino acid conservation and correlation. If a filter has been previously applied,&lt;a name=&quot;result_box&quot;/&gt;the selected sequences that were removed will be added again to the current alignment. Thus, in these cases, it is not recommended to select a large number of sequences in order to avoid an increase of bias.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Reference Sequences&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Select proteins from the family that are going to be used to report amino acid conservation and correlation. If a filter has been previously applied,&lt;a name=&quot;result_box&quot;/&gt;the selected sequences that were removed will be added again to the current alignment. Thus, in these cases, it is not recommended to select a large number of sequences in order to avoid an increase of bias.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -1463,7 +1461,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label_69">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;PDB Fetching&lt;/span&gt;&lt;/p&gt;&lt;p&gt;At this point, PDB files can be load in order to generate futher visualizations. Make sure that theselected sequence and the selected PDB matches, because they are going to be aligned.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;PDB Fetching&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;PDB files can be load in order to generate futher visualizations. Make sure that the &lt;span style=&quot; font-weight:600;&quot;&gt;selected sequence and the selected PDB matches&lt;/span&gt;, because they are going to be aligned.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -2085,7 +2083,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label_21">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Minimum Representative Sub-Alignment (MRsA)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This module implements a modified version of the procedure described in Dima and Thirumalai, 2006 (PubMed: 16434743). It calculates the average position entropy for the full alignment and then for multiple sub-alignments with decreasing sizes. This method is used to find the minimum sub-alignment that maintains its representativeness. The cut choosen in this step are going to be used in the correlation calculus, choose a value before the very steep fall in the graph.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Minimum Representative Sub-Alignment (MRsA)&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;This module implements a modified version of the procedure described in Dima and Thirumalai, 2006 (PubMed: 16434743). It calculates the average position entropy for the full alignment and then for multiple sub-alignments with decreasing sizes. This method is used to find the minimum sub-alignment that maintains its representativeness. The cut choosen in this step are going to be used in the correlation calculus, choose a value before the very steep fall in the graph.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -2245,7 +2243,7 @@
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="label_23">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Correlation&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will calculate a set of correlation scores for the full alignment, using the cutoffs provided by the user.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;Correlation&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;This method calculates a set of correlation scores that are modelled as a network and finally decomposed in communities. Minimum score indicates the minimum p-value to be considered a valid correlation. MRsA is the fraction of the subalignment to be used in the calculus, this value is observed in the previously step (Minimum Representative Sub-Alignment). Minium delta represents the minimum frequency variation of the residues to be considered a valid correlation. The complete information about these parameters and equation can be accessed in our website and in the DRCN paper (PMID: 22205928).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -2577,7 +2575,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>6</number>
+             <number>18</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -3412,8 +3410,6 @@
              <zorder>label_38</zorder>
              <zorder>treeCorrelation</zorder>
              <zorder></zorder>
-             <zorder>horizontalSpacer_93</zorder>
-             <zorder>cmdExportGraphNumbering</zorder>
             </widget>
             <widget class="QWidget" name="page_14">
              <layout class="QGridLayout" name="gridLayout_17">
@@ -4394,6 +4390,9 @@
                    <url>
                     <string>about:blank</string>
                    </url>
+                  </property>
+                  <property name="renderHints">
+                   <set>QPainter::TextAntialiasing</set>
                   </property>
                  </widget>
                 </item>
@@ -6846,7 +6845,7 @@
   </action>
   <action name="actionSet_Proxy">
    <property name="text">
-    <string>Configure Proxy</string>
+    <string>Set Proxy</string>
    </property>
   </action>
   <action name="actionTSF">

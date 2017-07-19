@@ -161,6 +161,8 @@ public:
     unsigned int getUniprotMinedSize();
     string getUniprotEntryName(int i);
     unsigned int getUniprotEntryNofFeatures(int i);
+    Uniprot* getUniprotEntry(int i);
+    void addUniprotEntry(Uniprot* u);
     int getResidueFeaturesByCommCount(string res);
     vector<Uniprot*> getAllResidueFeatures(string res);
     string getUniprotFunction(int i);

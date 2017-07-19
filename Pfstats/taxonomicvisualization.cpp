@@ -1,13 +1,14 @@
 #include "taxonomicvisualization.h"
 #include "ui_taxonomicvisualization.h"
 
-TaxonomicVisualization::TaxonomicVisualization(QWidget *parent, Filter *filter, Network *network, string lib) :
+TaxonomicVisualization::TaxonomicVisualization(QWidget *parent, Filter *filter, Network *network, string lib, Alignment *align) :
     QDialog(parent),
     ui(new Ui::TaxonomicVisualization)
 {
     currentFilter = filter;
     currentNetwork = network;
     libpath = lib;
+    taxonomy = align->taxonomy;
 
     ui->setupUi(this);
 
@@ -32,7 +33,7 @@ TaxonomicVisualization::TaxonomicVisualization(QWidget *parent, Filter *filter, 
         for(unsigned int i = 0; i < currentNetwork->getNumOfUtilComms(); i++)
             ui->cmbSunburstCommunity->addItem(QString::number(i+1));
     }
-    this->generateSunburst(vector<string>());
+    this->generateSunburst(filter->getSequenceNames());
 }
 
 TaxonomicVisualization::~TaxonomicVisualization()
@@ -54,107 +55,87 @@ vector<string> TaxonomicVisualization::split(string text, char sep){
 }
 
 bool TaxonomicVisualization::generateSunburst(vector<string> sequencenames){
-    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/taxondata";
+    map<string,int> taxData;
+
+    for(unsigned int i = 0; i < sequencenames.size(); i++){
+        string seqname = split(sequencenames[i],'/')[0];
+        string taxons = taxonomy[seqname];
+        if(taxons != ""){
+            if(taxData.count(taxons)){
+                taxData[taxons] += 1;
+            }else
+                taxData[taxons] = 1;
+        }
+    }
+
+
+    string pathcsv = libpath + "sunburst/clades.csv";
+    string pathhtml = libpath + "sunburst/sunburst.html";
+    QFile indexHTML(pathcsv.c_str());
+    indexHTML.open(QIODevice::WriteOnly);
+    QTextStream out(&indexHTML);
+
     string text = "";
-
-    if(sequencenames.size() == 0){
-        for(unsigned int i = 0; i < currentFilter->sequencenames.size(); i++){
-            text += split(currentFilter->sequencenames[i],'/')[0] + "\n";
-        }
-    }else{
-        for(unsigned int i = 0; i < sequencenames.size(); i++){
-            text += split(sequencenames[i],'/')[0] + "\n";
-        }
+    for (auto const& x : taxData){
+        string taxonomy = x.first;
+        int count = x.second;
+        text += taxonomy + "," + to_string(count) + "\n";
     }
 
-    QProgressDialog progress("Accessing webservice...", "Abort", 0,0);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.show();
-    if(progress.wasCanceled()){
-        return false;
-    }
+    out << text.c_str();
 
-    QByteArray const data = QString::fromStdString(text).toUtf8();
+    //LISTWIDGET
+    mapPreTaxons.clear();
+    map<string,int> mapSpecie;
+    ui->lstSunburstTaxon->clear();
+    vector<string> lines = this->split(text,'\n');
+    int index = ui->cmbSunburstTaxon->currentIndex();
+    for(unsigned int i = 0; i < lines.size(); i++){
+        if(lines[i] != ""){
+            vector<string> taxVec = this->split(lines[i],'-');
+            string currentTaxon = taxVec[index];
+            string specie = this->split(currentTaxon,',')[0];
+            int count = atoi(split(lines[i],',')[1].c_str());
+            if(mapSpecie.find(specie) == mapSpecie.end()){
+                mapSpecie[specie] = count;
 
-    QNetworkRequest request(QUrl(QString::fromStdString(url)));
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      QStringLiteral("text/plain; charset=utf-8"));
-    QNetworkAccessManager manager;
-    QNetworkReply *response(manager.post(request,data));
-    //QNetworkReply* response(manager.get(request));
-    QEventLoop event;
-    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
-    event.exec();
-    if(progress.wasCanceled()){
-        return false;
-    }
-    QString html = response->readAll();
+                string taxline = "";
+                for(int j = 0; j < index; j++){
+                    taxline += taxVec[j] + "-";
 
-    if(html.contains("302 Found") || html.contains("error") || html == ""){
-        //printf("\n%s",html.toStdString().c_str());
-        QMessageBox::warning(this,"Fetching Failed","Error while trying to connect the webservice");
-        return false;
-    }else{
-        string pathcsv = libpath + "sunburst/clades.csv";
-        string pathhtml = libpath + "sunburst/sunburst.html";
-        QFile indexHTML(pathcsv.c_str());
-        indexHTML.open(QIODevice::WriteOnly);
-        QTextStream out(&indexHTML);
-
-        out << html;
-
-        //LISTWIDGET
-        mapPreTaxons.clear();
-        map<string,int> mapSpecie;
-        ui->lstSunburstTaxon->clear();
-        vector<string> lines = this->split(html.toStdString(),'\n');
-        int index = ui->cmbSunburstTaxon->currentIndex();
-        for(unsigned int i = 0; i < lines.size(); i++){
-            if(lines[i] != ""){
-                vector<string> taxVec = this->split(lines[i],'-');
-                string currentTaxon = taxVec[index];
-                string specie = this->split(currentTaxon,',')[0];
-                int count = atoi(split(lines[i],',')[1].c_str());
-                if(mapSpecie.find(specie) == mapSpecie.end()){
-                    mapSpecie[specie] = count;
-
-                    string taxline = "";
-                    for(int j = 0; j < index; j++){
-                        taxline += taxVec[j] + "-";
-
-                    }
-                    taxline += taxVec[index];
-                    mapPreTaxons[specie] = split(taxline,',')[0];
-                }else
-                    mapSpecie[specie] = mapSpecie[specie] + count;
-            }
-        }
-        vector<pair<string,int> > species(mapSpecie.begin(), mapSpecie.end());
-        sort(species.begin(),species.end(),less_second<string,int>());
-        for(unsigned int i = 0; i < species.size(); i++){
-            pair<string,int> p = species[i];
-            string text = p.first + " (" + to_string(p.second) + ")";
-            ui->lstSunburstTaxon->addItem(text.c_str());
+                }
+                taxline += taxVec[index];
+                mapPreTaxons[specie] = split(taxline,',')[0];
+            }else
+                mapSpecie[specie] = mapSpecie[specie] + count;
         }
 
-        //ATUALIZA ARQUIVO
-        indexHTML.close();
-        QFile file(pathhtml.c_str());
-        file.open(QIODevice::ReadOnly);
-        QFileInfo info(file);
-        string absPath = info.absoluteFilePath().toStdString();
-        string localUrl = "file:///" + absPath;
-        ui->webTaxons->setUpdatesEnabled(true);
-        ui->webTaxons->load(QUrl(localUrl.c_str()));
-        QWebSettings *websettings = QWebSettings::globalSettings();
-        //websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-        websettings->setAttribute(QWebSettings::JavascriptEnabled,true);
-        websettings->clearMemoryCaches();
-        QWebFrame *frame = ui->webTaxons->page()->mainFrame();
-        frame->evaluateJavaScript("displaymessage()");
     }
 
-    progress.close();
+
+    vector<pair<string,int> > species(mapSpecie.begin(), mapSpecie.end());
+    sort(species.begin(),species.end(),less_second<string,int>());
+    for(unsigned int i = 0; i < species.size(); i++){
+        pair<string,int> p = species[i];
+        string text2 = p.first + " (" + to_string(p.second) + ")";
+        ui->lstSunburstTaxon->addItem(text2.c_str());
+    }
+
+    //ATUALIZA ARQUIVO
+    indexHTML.close();
+    QFile file(pathhtml.c_str());
+    file.open(QIODevice::ReadOnly);
+    QFileInfo info(file);
+    string absPath = info.absoluteFilePath().toStdString();
+    string localUrl = "file:///" + absPath;
+    ui->webTaxons->setUpdatesEnabled(true);
+    ui->webTaxons->load(QUrl(localUrl.c_str()));
+    QWebSettings *websettings = QWebSettings::globalSettings();
+    //websettings->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    websettings->setAttribute(QWebSettings::JavascriptEnabled,true);
+    websettings->clearMemoryCaches();
+    QWebFrame *frame = ui->webTaxons->page()->mainFrame();
+    frame->evaluateJavaScript("displaymessage()");
 
     return true;
 }

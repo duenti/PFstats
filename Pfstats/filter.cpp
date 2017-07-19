@@ -582,7 +582,8 @@ void Filter::dGCalculation(float alpha, float beta){
         set<char> set_aa_types;
         for(unsigned int j = 0; j < newsequences.size(); j++){
             set_aa_types.insert(newsequences[j][i]);
-            types.insert(newsequences[j][i]);
+            if(newsequences[j][i] != '-' && newsequences[j][i] != '.' )
+                types.insert(newsequences[j][i]);
         }
         //printf("%s\n",newsequences[i].c_str());
         vector<char> vec_aa_types(set_aa_types.begin(),set_aa_types.end());
@@ -704,7 +705,7 @@ void Filter::dGCalculation(float alpha, float beta){
         vector<vector<int> > X;
         for(unsigned int j = 0; j < column.size(); j++){
             char aa = column[j];
-            if(aa != '-' && aa != 'X'){
+            if(aa != '-' && aa != 'X' && aa != '.' && aa != 'B'){
                 vector<int> x = matrix[aa];
                 X.push_back(x);
                 std::transform (sum_x.begin(), sum_x.end(), x.begin(), sum_x.begin(), std::plus<int>());
@@ -2170,6 +2171,56 @@ string Filter::generateXML(){
                     xml += "\t\t</deltas>\n";
                 }
 
+                if(net->getUniprotMinedSize() > 0){
+                    xml += "\t\t<uniprotmined>\n";
+
+                    for(unsigned int i = 0; i < net->getUniprotMinedSize(); i++){
+                        Uniprot* uniprot = net->getUniprotEntry(i);
+                        vector<string> accessions = uniprot->getAccessions();
+                        string name = uniprot->getName();
+                        int dataset = uniprot->getDataset();
+
+                        if(uniprot->countFeatures() > 0){
+                            xml += "\t\t\t<uniprot>\n";
+
+                            xml += "\t\t\t\t<name>" + name + "</name>\n";
+                            xml += "\t\t\t\t<dataset>" + to_string(dataset) + "</dataset>\n";
+
+                            if(accessions.size() > 0){
+                                xml += "\t\t\t\t<accessions>\n";
+                                for(unsigned int j = 0; j < accessions.size(); j++){
+                                    string accession = accessions[j];
+                                    xml += "\t\t\t\t\t<accession>" + accession + "</accession>\n";
+                                }
+                                xml += "\t\t\t\t</accessions>\n";
+                            }
+
+                            xml += "\t\t\t\t<features>\n";
+
+                            for(unsigned int j = 0; j < uniprot->countFeatures(); j++){
+                                Feature* f = uniprot->getFeature(j);
+                                xml += "\t\t\t\t\t<entry>\n";
+
+                                xml += "\t\t\t\t\t\t<type>" + f->getType() + "</type>\n";
+                                xml += "\t\t\t\t\t\t<description>" + f->getDescription() + "</description>\n";
+                                xml += "\t\t\t\t\t\t<position>" + to_string(f->getPosition()) + "</position>\n";
+                                xml += "\t\t\t\t\t\t<begin>" + to_string(f->getBegin()) + "</begin>\n";
+                                xml += "\t\t\t\t\t\t<end>" + to_string(f->getEnd()) + "</end>\n";
+                                xml += "\t\t\t\t\t\t<id>" + f->getId() + "</id>\n";
+                                xml += "\t\t\t\t\t\t<seqres>" + f->getResidueColigated() + "</seqres>\n";
+                                xml += "\t\t\t\t\t\t<alignres>" + f->getAlignResidue() + "</alignres>\n";
+                                xml += "\t\t\t\t\t\t<agg>" + to_string(f->getAgregate()) + "</agg>\n";
+
+                                xml += "\t\t\t\t\t</entry>\n";
+                            }
+                            xml += "\t\t\t\t</features>\n";
+                            xml += "\t\t\t</uniprot>\n";
+                        }
+                    }
+
+                    xml += "\t\t</uniprotmined>\n";
+                }
+
                 xml += "\t</network>\n";
             }
         }
@@ -2950,4 +3001,10 @@ QTreeWidgetItem* Filter::getQTreeWidgetItem(){
 
 vector<string> Filter::getRefSeqs(){
     return refseqs;
+}
+
+bool Filter::getSeqNameType(){
+    if(sequencenames[0].find('_') != std::string::npos)
+        return true;
+    return false;
 }

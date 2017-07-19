@@ -391,17 +391,20 @@ tuple<string,string,int> Pdb::needleman_wunsch(string a, string b){
     //int dp[1001][1001];
     int n = a.size();
     int m = b.size();
-    vector<vector<int> > dp(n+1,vector<int>(m+1));
+    //vector<vector<int> > dp(1001,vector<int>(1001,0));
+    vector<vector<int> > dp((n+1),vector<int>((m+1),0));
     int match_score = 2;
     int mismatch_score = 1;
     int gap_score = 1;
 
-
     //if(n > 1000 || m > 1000) return tup;
 
-    for (int i = 0; i <= n; i++){
-        dp[0][i] = i * -1 * gap_score;
+    for(unsigned int i = 0; i <= n; i++){
         dp[i][0] = i * -1 * gap_score;
+    }
+
+    for(unsigned int i = 0; i <= m; i++){
+        dp[0][i] = i * -1 * gap_score;
     }
 
     for (unsigned int i = 1; i <= n; i++){
@@ -446,8 +449,10 @@ tuple<string,string,int> Pdb::needleman_wunsch(string a, string b){
     }
 
     while (!SA.empty()){
-        retA += SA.top();
-        retB += SB.top();
+        char tempA = SA.top();
+        char tempB = SB.top();
+        retA += tempA;
+        retB += tempB;
         SA.pop();
         SB.pop();
     }

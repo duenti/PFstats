@@ -820,16 +820,33 @@ bool MainWindow::trivcomm(Network *net){
     adjMap.clear();
     visited.clear();
     net->clearCommunity();
+    set<string> nodes = net->getCorrelationNodes();
+    int steps = 2*nodes.size() + net->getCorrelationGraphSize() + 1;
+    int step = 0;
+
+    QProgressDialog progress("Decomposing the network...(2/6)", "Abort", 0,steps);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
     //create adjMap
-    set<string> nodes = net->getCorrelationNodes();
     for(string no : nodes){
+        step++;
+        progress.setValue(step);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return false;
+
         set<string> blank;
         adjMap[no] = blank;
         visited[no] = false;
     }
 
     for(unsigned int i = 0; i < net->getCorrelationGraphSize(); i++){
+        step++;
+        progress.setValue(step);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return false;
+
         tuple<string,string,int> edge = net->getCorrelationEdge(i);
         int score = std::get<2>(edge);
 
@@ -845,6 +862,11 @@ bool MainWindow::trivcomm(Network *net){
     //Percorre cada no e seu vetor de adjacencias
     int count = 0;
     for(string no : nodes){
+        step++;
+        progress.setValue(step);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        if(progress.wasCanceled()) return false;
+
         if(visited[no] == false){
             vector<string> comm;
             net->addCommunity(comm);
@@ -863,8 +885,8 @@ bool MainWindow::trivcomm(Network *net){
     //Ordena comunidades
     net->sortCommunitiesVector();
 
+    progress.close();
     if(net->getCommListSize() == 0) return false;
-
     return true;
 }
 
@@ -2463,6 +2485,7 @@ void MainWindow::adh(){
     QProgressDialog progress("Calculating adherence for each community", "Abort", 0,currentFilter->sequences.size()+currentNetwork->getNumOfUtilComms());
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
+    currentNetwork->CalculateFrequencies();
 
     unsigned int nComm = currentNetwork->getNumOfUtilComms();
     unsigned int nSequences = currentFilter->sequences.size()-1;
@@ -2487,7 +2510,7 @@ void MainWindow::adh(){
     }
 
     //------ADHERENCE-----
-    for(unsigned int i = 0; i < currentFilter->sequences.size()-1; i++){
+    for(unsigned int i = 0; i <= currentFilter->sequences.size()-1; i++){
         QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
         progress.setValue(i+nComm);
         if(progress.wasCanceled()){
@@ -8556,14 +8579,17 @@ void MainWindow::on_cmdApplyAlphabetReduction_clicked()
 
 void MainWindow::on_lstRecomendedPDBs_itemActivated(QListWidgetItem *item)
 {
-    string strpdb = item->text().toStdString();
-    ui->txtPDBName->setText(strpdb.c_str());
+    string strpdbchain = item->text().toStdString();
+    vector<string> temp = split(strpdbchain,' ');
+    string strpdb = temp[0];
+    char chain = temp[1][0];
 
     for(unsigned int i = 0; i < pdbs.size(); i++){
         Pdb* pdb = pdbs[i];
-        if(pdb->getId() == strpdb){
-            string chain = std::string(1,pdb->getRefseq_chain());
-            ui->txtChain->setText(QString::fromStdString(chain));
+        if(pdb->getId() == strpdb && pdb->getRefseq_chain() == chain){
+            string strchain = std::string(1,pdb->getRefseq_chain());
+            ui->txtPDBName->setText(strpdb.c_str());
+            ui->txtChain->setText(QString::fromStdString(strchain));
             break;
         }
     }
@@ -8591,14 +8617,17 @@ void MainWindow::on_chkRemoveContactResidues_clicked(bool checked)
 
 void MainWindow::on_lstPDBsLoaded_2_itemActivated(QListWidgetItem *item)
 {
-    string strpdb = item->text().toStdString();
-    ui->txtPDBName_2->setText(strpdb.c_str());
+    string strpdbchain = item->text().toStdString();
+    vector<string> temp = split(strpdbchain,' ');
+    string strpdb = temp[0];
+    char chain = temp[1][0];
 
     for(unsigned int i = 0; i < pdbs.size(); i++){
         Pdb* pdb = pdbs[i];
-        if(pdb->getId() == strpdb){
-            string chain = std::string(1,pdb->getRefseq_chain());
-            ui->txtChain_2->setText(QString::fromStdString(chain));
+        if(pdb->getId() == strpdb && pdb->getRefseq_chain() == chain){
+            string strchain = std::string(1,pdb->getRefseq_chain());
+            ui->txtPDBName_2->setText(strpdb.c_str());
+            ui->txtChain_2->setText(QString::fromStdString(strchain));
             break;
         }
     }
@@ -8802,8 +8831,8 @@ void MainWindow::loadPDB(){
                 return;
             }
         }
-
-        ui->lstPDBsInMemory->addItem(pdbname.c_str());
+        string pdbtext = pdbname + " " + string(1,chain);
+        ui->lstPDBsInMemory->addItem(pdbtext.c_str());
 
         pdbs.push_back(pdb);
 
@@ -8812,8 +8841,9 @@ void MainWindow::loadPDB(){
 
         for(unsigned int i = 0; i < pdbs.size(); i++){
             Pdb* structure = pdbs[i];
-            ui->lstRecomendedPDBs->addItem(structure->getId().c_str());
-            ui->lstPDBsLoaded_2->addItem(structure->getId().c_str());
+            string newpdbtext = structure->getId() + " " + string(1,structure->getRefseq_chain());
+            ui->lstRecomendedPDBs->addItem(newpdbtext.c_str());
+            ui->lstPDBsLoaded_2->addItem(newpdbtext.c_str());
         }
 
         string msg = "The structure file has been load and aligned with the reference sequence scoring " + to_string(score) + "/" + to_string(currseq.length() + pdbseq.length()) + ".";

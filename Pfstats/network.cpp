@@ -999,6 +999,7 @@ void Network::getCommunitiesFromRAM(){
         progress.setValue(i);
         if(progress.wasCanceled()) return;
         for(unsigned int j = 0; j < comunidades[i].size(); j++){
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
             string node = comunidades[i][j];
 
             tempcommunity.aa.push_back(node[0]);
@@ -1033,12 +1034,14 @@ void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
     for(int i = 0; i < nclusters; i++){
         progress.setValue(i);
         if(progress.wasCanceled()) return;
-        QApplication::processEvents();
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
         aalist.clear();
         poslist.clear();
         vector<float> clusterXAll;
 
         for(unsigned int j = 0; j < comunidades[i].size(); j++){
+            if(progress.wasCanceled()) return;
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
             string temp = comunidades[i][j];
             aalist.push_back(temp[0]);
             poslist.push_back(atoi(temp.substr(1).c_str())-1);
@@ -1050,6 +1053,8 @@ void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
             //ESCRITA SCM2HTML*RAM
             vector<string> clustersResidues;
             for(unsigned int j = 0; j < aalist.size(); j++){
+                if(progress.wasCanceled()) return;
+                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                 string residue;
                 if(!renumber){
                     residue = aalist[j] + QString::number(poslist[j]+1).toStdString();
@@ -1066,6 +1071,8 @@ void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
             residuesComm.push_back(clustersResidues);
 
             for(unsigned int j = 0; j < aalist.size(); j++){
+                if(progress.wasCanceled()) return;
+                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                 clusterXAll.push_back((float)100*frequencies[poslist[j]][freqmatrixposition(aalist[j])]/((float)sequences->size()));
             }
 
@@ -1109,6 +1116,8 @@ void Network::DeltaCommunitiesCalculation(){
             if(progress.wasCanceled()) return;
             QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
             for(unsigned int j = i+1; j < this->comunidades.size(); j++){
+                if(progress.wasCanceled()) return;
+                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                 vector<string> commA = comunidades[i];
                 vector<string> commB = comunidades[j];
                 float N = commA.size();
@@ -1117,6 +1126,8 @@ void Network::DeltaCommunitiesCalculation(){
 
                 for(unsigned int k = 0; k < commA.size(); k++){
                     for(unsigned int l = 0; l < commB.size(); l++){
+                        if(progress.wasCanceled()) return;
+                        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
                         string an = commA[k];
                         string bm = commB[l];
                         int pvalue = getEdge(an,bm);
@@ -1131,8 +1142,6 @@ void Network::DeltaCommunitiesCalculation(){
         }
     }
     progress.close();
-
-    printf("OK\n");
 }
 
 /*
@@ -2338,6 +2347,7 @@ void Network::exportCorrTable(QString filename, int type, bool perc){
 }
 
 void Network::exportAdh(QString filename, int type){
+    this->CalculateFrequencies();
     switch(type){
         case 0:
         {

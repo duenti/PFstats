@@ -193,7 +193,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>10</number>
+       <number>9</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -706,7 +706,7 @@
         </item>
        </layout>
        <zorder>label_2</zorder>
-       <zorder></zorder>
+       <zorder>verticalSpacer_4</zorder>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout_5">
@@ -1957,7 +1957,7 @@
                     </size>
                    </property>
                    <property name="text">
-                    <string>A</string>
+                    <string/>
                    </property>
                    <property name="readOnly">
                     <bool>true</bool>
@@ -2426,7 +2426,7 @@
                     </size>
                    </property>
                    <property name="text">
-                    <string>A</string>
+                    <string/>
                    </property>
                    <property name="readOnly">
                     <bool>true</bool>

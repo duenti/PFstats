@@ -995,11 +995,11 @@ void Network::getCommunitiesFromRAM(){
     this->resetCommunities();
 
     for(unsigned int i = 0; i < comunidades.size(); i++){
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         progress.setValue(i);
         if(progress.wasCanceled()) return;
         for(unsigned int j = 0; j < comunidades[i].size(); j++){
-            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            QApplication::processEvents(  );
             string node = comunidades[i][j];
 
             tempcommunity.aa.push_back(node[0]);
@@ -1034,14 +1034,14 @@ void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
     for(int i = 0; i < nclusters; i++){
         progress.setValue(i);
         if(progress.wasCanceled()) return;
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         aalist.clear();
         poslist.clear();
         vector<float> clusterXAll;
 
         for(unsigned int j = 0; j < comunidades[i].size(); j++){
             if(progress.wasCanceled()) return;
-            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            QApplication::processEvents(  );
             string temp = comunidades[i][j];
             aalist.push_back(temp[0]);
             poslist.push_back(atoi(temp.substr(1).c_str())-1);
@@ -1054,7 +1054,7 @@ void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
             vector<string> clustersResidues;
             for(unsigned int j = 0; j < aalist.size(); j++){
                 if(progress.wasCanceled()) return;
-                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                QApplication::processEvents(  );
                 string residue;
                 if(!renumber){
                     residue = aalist[j] + QString::number(poslist[j]+1).toStdString();
@@ -1072,7 +1072,7 @@ void Network::Cluster2SCMFromRAM(bool renumber, int seqnumber, int offset){
 
             for(unsigned int j = 0; j < aalist.size(); j++){
                 if(progress.wasCanceled()) return;
-                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                QApplication::processEvents(  );
                 clusterXAll.push_back((float)100*frequencies[poslist[j]][freqmatrixposition(aalist[j])]/((float)sequences->size()));
             }
 
@@ -1114,10 +1114,10 @@ void Network::DeltaCommunitiesCalculation(){
         for(unsigned int i = 0; i < this->comunidades.size()-1; i++){
             progress.setValue(i);
             if(progress.wasCanceled()) return;
-            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            QApplication::processEvents();
             for(unsigned int j = i+1; j < this->comunidades.size(); j++){
                 if(progress.wasCanceled()) return;
-                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                QApplication::processEvents();
                 vector<string> commA = comunidades[i];
                 vector<string> commB = comunidades[j];
                 float N = commA.size();
@@ -1127,7 +1127,7 @@ void Network::DeltaCommunitiesCalculation(){
                 for(unsigned int k = 0; k < commA.size(); k++){
                     for(unsigned int l = 0; l < commB.size(); l++){
                         if(progress.wasCanceled()) return;
-                        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                        QApplication::processEvents(  );
                         string an = commA[k];
                         string bm = commB[l];
                         int pvalue = getEdge(an,bm);
@@ -1169,11 +1169,11 @@ void Network::DeltaCommunitiesCalculation(){
         for(c1=0;c1<=Communities.size()-1;c1++){
             progress.setValue(c1);
             if(progress.wasCanceled()) return;
-            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            QApplication::processEvents(  );
             for(c2=0;c2<=Communities.size()-1;c2++){
                 Delta=0;
                 for(c3=0;c3<=Communities[c1].aa.size()-1;c3++){
-                    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                    QApplication::processEvents(  );
                     for(c4=0;c4<=Communities[c2].aa.size()-1;c4++){
                         Delta+=(float)Singlepvalue(Communities[c1].aa[c3],Communities[c1].pos[c3],Communities[c2].aa[c4],Communities[c2].pos[c4]);
                     }
@@ -1196,13 +1196,13 @@ void Network::pMatrix2HTMLRAM(bool renumber, int seqnumber){
     for(unsigned int c1 = 0; c1 < Communities.size(); c1++){
         progress.setValue(c1);
         if(progress.wasCanceled()) return;
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(Communities[c1].aa.size() > 1){
 
             vector<vector<int> > matrix = this->createBlankIntMatrix(Communities[c1].aa.size(),Communities[c1].aa.size(),-1);
             vector<string> clustersResidues;
             for(unsigned int j = 0; j < Communities[c1].aa.size(); j++){
-                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                QApplication::processEvents(  );
                 string residue;
                 if(!renumber) residue = Communities[c1].aa[j] + QString::number(Communities[c1].pos[j]+1).toStdString();
                 else if(AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j]) != 0) residue = Communities[c1].aa[j] + QString::number(AlignNumbering2Sequence(seqnumber,Communities[c1].pos[j])).toStdString();
@@ -1212,7 +1212,7 @@ void Network::pMatrix2HTMLRAM(bool renumber, int seqnumber){
             residuesCommPs.push_back(clustersResidues);
 
             for(unsigned int i = 0; i < Communities[c1].aa.size(); i++){
-                QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                QApplication::processEvents(  );
                 for(unsigned int j = 0; j < Communities[c1].aa.size(); j++){
                     if(i != j){
                         matrix[i][j] = Singlepvalue(Communities[c1].aa[i],Communities[c1].pos[i],Communities[c1].aa[j],Communities[c1].pos[j]);

@@ -827,13 +827,13 @@ bool MainWindow::trivcomm(Network *net){
     QProgressDialog progress("Decomposing the network...(2/6)", "Abort", 0,steps);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
-    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    QApplication::processEvents(  );
 
     //create adjMap
     for(string no : nodes){
         step++;
         progress.setValue(step);
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(progress.wasCanceled()) return false;
 
         set<string> blank;
@@ -844,7 +844,7 @@ bool MainWindow::trivcomm(Network *net){
     for(unsigned int i = 0; i < net->getCorrelationGraphSize(); i++){
         step++;
         progress.setValue(step);
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(progress.wasCanceled()) return false;
 
         tuple<string,string,int> edge = net->getCorrelationEdge(i);
@@ -864,7 +864,7 @@ bool MainWindow::trivcomm(Network *net){
     for(string no : nodes){
         step++;
         progress.setValue(step);
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(progress.wasCanceled()) return false;
 
         if(visited[no] == false){
@@ -921,13 +921,13 @@ bool MainWindow::trivcomm(){
     QProgressDialog progress("Decomposing the network...(2/6)", "Abort", 0,steps);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
-    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    QApplication::processEvents(  );
 
     string temp = "";
     for(unsigned int i = 1; i < v1.length(); i++){
         step++;
         progress.setValue(step);
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(progress.wasCanceled()) return false;
         temp += v1[i];
     }
@@ -937,7 +937,7 @@ bool MainWindow::trivcomm(){
     for(unsigned int i = 1; i < v2.length(); i++){
         step++;
         progress.setValue(step);
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(progress.wasCanceled()) return false;
         temp += v2[i];
     }
@@ -961,7 +961,7 @@ bool MainWindow::trivcomm(){
     for(unsigned int i = 1; i < currentFilter->getCorrelationGraphSize(); i++){
         step++;
         progress.setValue(step);
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(progress.wasCanceled()) return false;
 
         edge = currentFilter->getCorrelationEdge(i);
@@ -989,7 +989,7 @@ bool MainWindow::trivcomm(){
         member2found = false;
 
         for(c1=0;c1<=posCommunities.size()-1;c1++){
-            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            QApplication::processEvents(  );
             for (c2=0;c2<=posCommunities[c1].size()-1;c2++){
                 if((pos1==posCommunities[c1][c2])&&(aa1==aaCommunities[c1][c2])){
                     member1found=true;
@@ -1001,7 +1001,7 @@ bool MainWindow::trivcomm(){
         }
 
         for(c1=0;c1<=posCommunities.size()-1;c1++){
-            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+            QApplication::processEvents(  );
             for (c2=0;c2<=posCommunities[c1].size()-1;c2++){
                 if((pos2==posCommunities[c1][c2])&&(aa2==aaCommunities[c1][c2])){
                     member2found=true;
@@ -1067,7 +1067,7 @@ bool MainWindow::trivcomm(){
             if (found2comm!=found1comm){
                 if(score>0){
                     for(c1=0;c1<=aaCommunities[found2comm].size()-1;c1++){
-                        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+                        QApplication::processEvents(  );
                         aaCommunities[found1comm].push_back(aaCommunities[found2comm][c1]);
                         posCommunities[found1comm].push_back(posCommunities[found2comm][c1]);
                     }
@@ -1085,7 +1085,7 @@ bool MainWindow::trivcomm(){
     c2=1;
 
     while(aaCommunities.size()>0){
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         if(progress.wasCanceled()) return false;
         maxsize=0;
 
@@ -2498,7 +2498,7 @@ void MainWindow::adh(){
     ui->tableAdherence->setHorizontalHeaderItem(0,new QTableWidgetItem("PROTEIN SEQUENCE"));
 
     for(unsigned int i = 0; i < nComm; i++){
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         progress.setValue(i);
         if(progress.wasCanceled()){
             ui->tableAdherence->clear();
@@ -2511,7 +2511,7 @@ void MainWindow::adh(){
 
     //------ADHERENCE-----
     for(unsigned int i = 0; i <= currentFilter->sequences.size()-1; i++){
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         progress.setValue(i+nComm);
         if(progress.wasCanceled()){
             ui->tableAdherence->clear();
@@ -3818,7 +3818,10 @@ void MainWindow::on_cmdConservation_clicked()
         pdbfilename = ui->txtPDBName->text().toStdString();
 
     alignfilename = ui->listWidget->currentItem()->text().toStdString();
-    chain = ui->txtChain->text().at(0).toLatin1();
+    if(ui->txtChain->text().toStdString() == "")
+        chain = 'A';
+    else
+        chain = ui->txtChain->text().at(0).toLatin1();
     minCons = ui->floatMinCons->value();
 
     this->conservation(chain,minCons,pdbfilename);
@@ -4284,7 +4287,7 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
     QProgressDialog progress("Loading the alignment...","Cancel",0,0);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
-    QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+    QApplication::processEvents(  );
 
     string path = ui->listWidget->item(currentRow)->text().toStdString();
     vector<string> sequences;
@@ -4319,7 +4322,7 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
     currentFilter = currentAlign->getFullFilter();
     //printf("\n%d\n",fullAlign.size());
     for(unsigned int i1 = 0; i1 < fullAlign.size(); i1++){
-        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        QApplication::processEvents(  );
         vector<string> splitVec = this->split(fullAlign[i1],'/');
         //ui->cmbRefSeq->addItem(QString::fromStdString(splitVec[0]));
         ui->lstLookingRefs->addItem(QString::fromStdString(splitVec[0]));

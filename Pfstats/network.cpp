@@ -1628,21 +1628,40 @@ bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector
                         string newResPos = fullSequences[idproteins[i]][alignPos-1] + to_string(pos);
                         string newAlignPos = aa + to_string(alignPos);
 
-                        if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
-                            Feature *f1 = new Feature();
-                            f1->setAggregation(0);
-                            f1->setBegin(f->getBegin());
-                            f1->setDescription(f->getDescription());
-                            f1->setEnd(f->getEnd());
-                            f1->setId(f->getId());
-                            f1->setOriginal(f->getOriginal());
-                            f1->setPosition(f->getPosition());
-                            f1->setResidueColigated(newResPos);
-                            f1->setAlignResidue(newAlignPos);
-                            f1->setType(f->getType());
-                            f1->setVariation(f->getVariation());
-                            //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
-                            out->addFeature(f1);
+                        if(f->getType() == "Disulfide Bond"){
+                            if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
+                                Feature *f1 = new Feature();
+                                f1->setAggregation(0);
+                                f1->setBegin(f->getBegin());
+                                f1->setDescription(f->getDescription());
+                                f1->setEnd(f->getEnd());
+                                f1->setId(f->getId());
+                                f1->setOriginal(f->getOriginal());
+                                f1->setPosition(f->getPosition());
+                                f1->setResidueColigated(newResPos);
+                                f1->setAlignResidue(newAlignPos);
+                                f1->setType(f->getType());
+                                f1->setVariation(f->getVariation());
+                                //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                                out->addFeature(f1);
+                            }
+                        }else{
+                            if(pos == f->getPosition() || (pos >= f->getBegin() && pos <= f->getEnd())){
+                                Feature *f1 = new Feature();
+                                f1->setAggregation(0);
+                                f1->setBegin(f->getBegin());
+                                f1->setDescription(f->getDescription());
+                                f1->setEnd(f->getEnd());
+                                f1->setId(f->getId());
+                                f1->setOriginal(f->getOriginal());
+                                f1->setPosition(f->getPosition());
+                                f1->setResidueColigated(newResPos);
+                                f1->setAlignResidue(newAlignPos);
+                                f1->setType(f->getType());
+                                f1->setVariation(f->getVariation());
+                                //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                                out->addFeature(f1);
+                            }
                         }
                     }
                 }
@@ -1661,21 +1680,40 @@ bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector
                             printf("SEQUENCE: %s - ALIGNN: %s - SEQN: %s\n",fullAlignment[idproteins[i]].c_str(),newAlignPos.c_str(),newResPos.c_str());
 
                             //printf("POS: %d   -   %d  %d-%d\n",pos,f->getPosition(),f->getBegin(),f->getEnd());
-                            if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
-                                Feature *f1 = new Feature();
-                                f1->setAggregation(k+1);
-                                f1->setBegin(f->getBegin());
-                                f1->setDescription(f->getDescription());
-                                f1->setEnd(f->getEnd());
-                                f1->setId(f->getId());
-                                f1->setOriginal(f->getOriginal());
-                                f1->setPosition(f->getPosition());
-                                f1->setResidueColigated(newResPos);
-                                f1->setAlignResidue(newAlignPos);
-                                f1->setType(f->getType());
-                                f1->setVariation(f->getVariation());
-                                //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
-                                out->addFeature(f1);
+                            if(f->getType() == "Disulfide Bond"){
+                                if(pos == f->getPosition() || pos == f->getBegin() || pos == f->getEnd()){
+                                    Feature *f1 = new Feature();
+                                    f1->setAggregation(k+1);
+                                    f1->setBegin(f->getBegin());
+                                    f1->setDescription(f->getDescription());
+                                    f1->setEnd(f->getEnd());
+                                    f1->setId(f->getId());
+                                    f1->setOriginal(f->getOriginal());
+                                    f1->setPosition(f->getPosition());
+                                    f1->setResidueColigated(newResPos);
+                                    f1->setAlignResidue(newAlignPos);
+                                    f1->setType(f->getType());
+                                    f1->setVariation(f->getVariation());
+                                    //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                                    out->addFeature(f1);
+                                }
+                            }else{
+                                if(pos == f->getPosition() || (pos >= f->getBegin() && pos <= f->getEnd())){
+                                    Feature *f1 = new Feature();
+                                    f1->setAggregation(k+1);
+                                    f1->setBegin(f->getBegin());
+                                    f1->setDescription(f->getDescription());
+                                    f1->setEnd(f->getEnd());
+                                    f1->setId(f->getId());
+                                    f1->setOriginal(f->getOriginal());
+                                    f1->setPosition(f->getPosition());
+                                    f1->setResidueColigated(newResPos);
+                                    f1->setAlignResidue(newAlignPos);
+                                    f1->setType(f->getType());
+                                    f1->setVariation(f->getVariation());
+                                    //DEPOIS TROCAR ISSO PRO SOBRECARGA DE OPERADOR COPY
+                                    out->addFeature(f1);
+                                }
                             }
                         }
                     }

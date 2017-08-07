@@ -99,10 +99,19 @@ void NetworkVisualization::createVisualization(bool hideanticorr, bool commcolor
 
         if(weight > 0) color = "green";
 
-        if(!scaleEdges)
-            out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + "},\n";
-        else
-            out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + ", value: " + QString::number(abs(weight)) + "},\n";
+        if(hideanticorr){
+            if(weight > 0){
+                if(!scaleEdges)
+                    out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + "},\n";
+                else
+                    out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + ", value: " + QString::number(abs(weight)) + "},\n";
+            }
+        }else{
+            if(!scaleEdges)
+                out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + "},\n";
+            else
+                out << "{from: " + QString::number(id1) + ", to: " + QString::number(id2) + ", color:{color:'" + color.c_str() + "'}, title: " + QString::number(weight) + ", value: " + QString::number(abs(weight)) + "},\n";
+        }
     }
     out << "];\n";
 

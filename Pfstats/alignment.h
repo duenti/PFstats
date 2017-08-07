@@ -75,6 +75,8 @@ public:
     vector<string> getSequencesName();//ok
     vector<string> getSequences();//ok
     vector<string> getRecommendsPDBs(string protein);//ok
+    void setRecommendedPDBs(tuple<string,string,char,string> tup);
+    void clearRecommendedPDBs();
     string getPDBInterval(string pdbid);//ok
     int getKindOfAlignment();//ok
     void dots2dashs();//ok

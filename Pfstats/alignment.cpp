@@ -953,6 +953,14 @@ vector<string> Alignment::getRecommendsPDBs(string protein){
     return recommended;
 }
 
+void Alignment::setRecommendedPDBs(tuple<string, string, char, string> tup){
+    recommendPdbs.push_back(tup);
+}
+
+void Alignment::clearRecommendedPDBs(){
+    recommendPdbs.clear();
+}
+
 string Alignment::getPDBInterval(string pdbid){
     string interval = "";
 

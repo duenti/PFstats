@@ -5177,6 +5177,7 @@ void MainWindow::Open_XML_triggered(){
                                 }
                             }//ELSE PRA CONTINUAR UNIPROT LOOK
                         }else if(reader.isEndElement() && reader.name() == "filter"){
+                            align.addSequences(filter->sequences,filter->sequencenames);
                             align.addFilter(filter);
 
                             break;
@@ -5192,7 +5193,6 @@ void MainWindow::Open_XML_triggered(){
         QMessageBox::warning(this,"Warning","Invalid input file. The data may be corrupted");
         return;
     }
-
     align.updateFiltersData();
     ui->listWidget->addItem(fileName);
     alinhamentos.push_back(align);
@@ -8656,6 +8656,7 @@ void MainWindow::on_lstRecommendedPDBs_itemActivated(QListWidgetItem *item)
     string pdb = split(pdbchain,' ')[0];
     char chain = pdbchain[pdbchain.size()-2];
     string strchain = std::string(1,chain);
+    if(strchain == "-") strchain = "A";
 
     ui->txtChainPDB->setText(strchain.c_str());
     ui->txtPdbId->setText(pdb.c_str());
@@ -10367,4 +10368,101 @@ void MainWindow::on_cmdExportGraphNumbering2_clicked()
     f.close();
 
     QMessageBox::information(NULL,"Exporting Data","Correlation list data was exported.");
+}
+
+void MainWindow::on_cmdSearchPDBs_clicked()
+{
+    ui->cmdSearchPDBs->setEnabled(false);
+    map<string,vector<string> > fullSeqnames;
+
+    bool seqtype = currentFilter->getSeqNameType();
+    string url = "http://www.biocomp.icb.ufmg.br:8080/pfstats/webapi/pfam/";
+    string post_content = "";
+
+    if(seqtype)
+        url += "haspdb/";
+    else
+        url += "haspdb2/";
+
+    QProgressDialog progress("Accessing webservice...", "Abort", 0,0);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for(int i = 0; i < currentAlign->sequencenames.size(); i++){
+        QApplication::processEvents(  );
+        if(progress.wasCanceled()){
+            ui->cmdSearchPDBs->setEnabled(true);
+            return;
+        }
+        string seqname = currentAlign->sequencenames[i];
+        vector<string> temp = split(seqname,'/');
+
+        fullSeqnames[temp[0]].push_back(seqname);
+
+        post_content += split(temp[0],'.')[0] + "\n";
+    }
+
+    QByteArray const data = QString::fromStdString(post_content).toUtf8();
+
+    QNetworkRequest request(QUrl(QString::fromStdString(url)));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      QStringLiteral("text/plain; charset=utf-8"));
+    QNetworkAccessManager manager;
+    if(hasproxy) manager.setProxy(proxy);
+    QNetworkReply *response(manager.post(request,data));
+    //QNetworkReply* response(manager.get(request));
+    QEventLoop event;
+    QObject::connect(response,SIGNAL(finished()),&event,SLOT(quit()));
+    event.exec();
+    QString result = response->readAll();
+
+    if(result == ""){
+            string msg = "The query returned a null content. It may be caused by one of the following cases:\n";
+            msg += "-None sequence match with the search.\n";
+            msg += "-You are having problems with your internet connection.\n";
+            msg += "-Our servers are down. You can check it by accessing www.biocomp.icb.ufmg.br";
+            progress.close();
+            QMessageBox::information(this,"Null result",msg.c_str());
+            ui->cmdSearchPDBs->setEnabled(true);
+            return;
+        }
+
+    vector<string> strdataFound = this->split(result.toStdString(),'\n');
+    int pdbsFound = 0;
+
+    if(strdataFound.size() > 0){
+        currentAlign->clearRecommendedPDBs();
+        for(unsigned int i = 0; i < strdataFound.size(); i++){
+            vector<string> dataFound = split(strdataFound[i],'\t');
+
+            if(dataFound.size() > 1){
+                string seqname = dataFound[0];
+                string strpdbs = dataFound[1];
+                vector<string> pdblist = split(strpdbs,';');
+
+                for(unsigned int j = 0; j < pdblist.size(); j++){
+                    pdbsFound++;
+                    QApplication::processEvents(  );
+                    if(progress.wasCanceled()){
+                        ui->cmdSearchPDBs->setEnabled(true);
+                        return;
+                    }
+
+                    vector<string> fullseqs = fullSeqnames[seqname];
+                    for(unsigned int k = 0; k < fullseqs.size(); k++){
+                        tuple<string,string,char,string> entry(fullseqs[k],pdblist[j],'-',"");
+                        currentAlign->setRecommendedPDBs(entry);
+                    }
+                }
+            }
+        }
+    }
+
+    emit ui->cmbRefSeq_4->activated(ui->cmbRefSeq_4->currentText());
+    progress.close();
+
+    string text = to_string(pdbsFound) + " structures were found.";
+    QMessageBox::information(this,"Information",text.c_str());
+
+    ui->cmdSearchPDBs->setEnabled(true);
 }

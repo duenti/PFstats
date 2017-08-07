@@ -705,7 +705,7 @@ void Filter::dGCalculation(float alpha, float beta){
         vector<vector<int> > X;
         for(unsigned int j = 0; j < column.size(); j++){
             char aa = column[j];
-            if(aa != '-' && aa != 'X' && aa != '.' && aa != 'B'){
+            if(aa != '-' && aa != 'X' && aa != '.' && aa != 'B' && aa != 'U'){
                 vector<int> x = matrix[aa];
                 X.push_back(x);
                 std::transform (sum_x.begin(), sum_x.end(), x.begin(), sum_x.begin(), std::plus<int>());

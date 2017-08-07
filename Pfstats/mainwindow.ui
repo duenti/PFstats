@@ -193,7 +193,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>9</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -1644,6 +1644,13 @@
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="cmdSearchPDBs">
+                <property name="text">
+                 <string>Search PDBs</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>

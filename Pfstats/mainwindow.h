@@ -301,6 +301,8 @@ private slots:
 
     void on_cmdExportGraphNumbering2_clicked();
 
+    void on_cmdSearchPDBs_clicked();
+
 private:
     enum Constants{
         STACK_MAIN = 0,

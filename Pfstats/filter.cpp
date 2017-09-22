@@ -232,7 +232,7 @@ string Filter::typeToString(){
         return "Henikof";
     }
 
-    return "Full Alignment";
+    return "HMM";
 }
 
 int Filter::blosum_indexes(char c){

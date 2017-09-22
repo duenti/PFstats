@@ -1125,4 +1125,10 @@ bool Alignment::requestTaxonomy(bool hasproxy, QNetworkProxy proxy){
             }
         }
     }
+
+    return true;
+}
+
+void Alignment::clearTaxonomy(){
+    taxonomy.clear();
 }

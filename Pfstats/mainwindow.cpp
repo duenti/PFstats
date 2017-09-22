@@ -5177,7 +5177,9 @@ void MainWindow::Open_XML_triggered(){
                                 }
                             }//ELSE PRA CONTINUAR UNIPROT LOOK
                         }else if(reader.isEndElement() && reader.name() == "filter"){
-                            align.addSequences(filter->sequences,filter->sequencenames);
+                            if(filter->getType() == 9){
+                                align.addSequences(filter->sequences,filter->sequencenames);
+                            }
                             align.addFilter(filter);
 
                             break;
@@ -7145,6 +7147,7 @@ void MainWindow::changeToTaxonomicView(){
 
     if(currentAlign->taxonomy.size() == 0){
         if(!currentAlign->requestTaxonomy(hasproxy,proxy)){
+            currentAlign->clearTaxonomy();
             QMessageBox::warning(this,"Warning","Failed to connect to the webservice.");
             return;
         }

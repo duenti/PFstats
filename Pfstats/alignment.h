@@ -90,6 +90,7 @@ public:
     void updateFiltersData();
     bool verifyValidFilterName(string name);
     bool requestTaxonomy(bool hasproxy, QNetworkProxy proxy);
+    void clearTaxonomy();
 };
 
 #endif // ALIGNMENT_H

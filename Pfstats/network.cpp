@@ -1623,7 +1623,7 @@ bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector
                     string respos = conserved[k];
                     char aa = respos[0];
                     int alignPos = stoi(respos.substr(1));
-                    int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]);
+                    int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos-1,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]);
                     if(pos > 0){
                         string newResPos = fullSequences[idproteins[i]][alignPos-1] + to_string(pos);
                         string newAlignPos = aa + to_string(alignPos);
@@ -1673,7 +1673,7 @@ bool Network::uniprotLook(bool cons, bool comms, vector<string> proteins, vector
                         string respos = comunidades[k][l];
                         char aa = respos[0];
                         int alignPos = stoi(respos.substr(1));
-                        int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]);
+                        int pos = AlignNumbering2Sequence2(idproteins[i]+1,alignPos-1,fullSequences) + GetOffsetFromSeqName(fullAlignment[idproteins[i]]);
                         if( pos > 0){
                             string newResPos = fullSequences[idproteins[i]][alignPos-1] + QString::number(pos).toStdString();
                             string newAlignPos = aa + to_string(alignPos);

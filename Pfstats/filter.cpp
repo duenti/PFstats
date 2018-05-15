@@ -127,6 +127,31 @@ unsigned int Filter::freqmatrixposition(char c){
     return 0;
 }
 
+unsigned int Filter::aa2Num(char c){
+    if((c=='a')||(c=='A')) return 0;
+    if((c=='c')||(c=='C')) return 1;
+    if((c=='d')||(c=='D')) return 2;
+    if((c=='e')||(c=='E')) return 3;
+    if((c=='f')||(c=='F')) return 4;
+    if((c=='g')||(c=='G')) return 5;
+    if((c=='h')||(c=='H')) return 6;
+    if((c=='i')||(c=='I')) return 7;
+    if((c=='k')||(c=='K')) return 8;
+    if((c=='l')||(c=='L')) return 9;
+    if((c=='m')||(c=='M')) return 10;
+    if((c=='n')||(c=='N')) return 11;
+    if((c=='p')||(c=='P')) return 12;
+    if((c=='q')||(c=='Q')) return 13;
+    if((c=='r')||(c=='R')) return 14;
+    if((c=='s')||(c=='S')) return 15;
+    if((c=='t')||(c=='T')) return 16;
+    if((c=='v')||(c=='V')) return 17;
+    if((c=='w')||(c=='W')) return 18;
+    if((c=='y')||(c=='Y')) return 19;
+    if((c=='.')||(c=='-')) return 20;
+    return 21;
+}
+
 char Filter::num2aa(int n){
     if(n==1) return ('A');
     if(n==2) return ('C');
@@ -550,6 +575,114 @@ string Filter::getAAList(string alphabet){
 //Carrijo
 
 void Filter::dGCalculation(float alpha, float beta){
+    QProgressDialog progress("Calculating conservation...", "Abort", 0,sequences[0].size());
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    for(unsigned int i = 0; i < sequences[0].size(); i++){
+        float corrected_entropy = 0.0;
+        float stereochemistry = 0.0;
+
+        progress.setValue(i);
+        QApplication::processEvents();
+        if(progress.wasCanceled()){
+            dG.clear();
+            return;
+        }
+
+        vector<float> aadist(22, 0.0);
+        set<char> aa_types;
+
+        for(unsigned int j = 0; j < sequences.size(); j++){
+            char aa = sequences[j][i];
+            string invalid = "-.XxJjBbZzUu";
+            if (invalid.find(aa) == std::string::npos)
+                aa_types.insert(aa);
+            aadist[aa2Num(aa)] += 1.0;
+        }
+
+        for(unsigned int j = 0; j < aadist.size(); j++){
+            aadist[j] = aadist[j]/sequences.size();
+        }
+
+        //Maximum Shannon
+        float Lambda_t_MAX = 1.0/log2(20);
+        float pc = (float)(1.0-aadist[20])/(float)20;
+        float max_entropy = 0.0;
+        if(pc == 0.0){
+            dG.push_back(0.0);
+            continue;
+        }else{
+            max_entropy = (pc*log2(pc))*(-20)*Lambda_t_MAX;
+        }
+
+        //Shannon
+        if(aa_types.size() == 0){
+            dG.push_back(0.0);
+            continue;
+        }
+        float lambda_t = 1.0/log2(20);
+        float shaEntropy = 0.0;
+        for(unsigned int j = 0; j < 20; j++){
+            if(aadist[j] != 0.0)
+                shaEntropy += aadist[j]*log2(aadist[j]);
+        }
+        shaEntropy = shaEntropy*lambda_t*-1;
+        corrected_entropy = shaEntropy-max_entropy+1;
+
+        //STEREOCHEMISTRY
+        //int m_max = 11;
+        //int m_min = -4;
+        float lambda_r = 1.0/sqrt(20*pow(15.0,2));
+
+        vector<int> sum_x {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        string aalist = "ACDEFGHIKLMNPQRSTVWY";
+        for(char aa : aa_types) {
+            if(aa != '-' && aa != 'X' && aa != '.' && aa != 'B' && aa != 'U' && aa != 'x' && aa != 'b'&& aa != 'u'){
+                for(unsigned int j = 0; j < aalist.size(); j++){
+                    char aa2 = aalist[j];
+                    sum_x[j] += BLOSUM62(aa,aa2);
+                }
+            }
+        }
+
+        vector<float> mean_x;
+        int sum_dist = 0;
+        for(unsigned int j = 0; j < sum_x.size(); j++){
+            mean_x.push_back((float)sum_x[j]/(float)aa_types.size());
+        }
+
+        //for(unsigned int j = 0; j < aa_types.size(); j++){
+        for(char aa : aa_types){
+            vector<float> dist_vector;
+            for(unsigned int k = 0; k < mean_x.size(); k++){
+                dist_vector.push_back(mean_x[k] - BLOSUM62(aa,aalist[k]));
+            }
+            int sqr_sum = 0;
+            for(unsigned int k = 0; k < dist_vector.size(); k++){
+                float d = dist_vector[k];
+                sqr_sum += d*d;
+            }
+            sum_dist += sqrt(sqr_sum);
+        }
+
+        float mean_dist = (float)sum_dist/(float)aa_types.size();
+        stereochemistry = lambda_r*mean_dist;
+
+
+        printf("%d - %f %f  == %f\n",i+1,corrected_entropy,stereochemistry,(pow(1-corrected_entropy,alpha))*(pow(1-stereochemistry,beta)));
+        dG.push_back((pow(1-corrected_entropy,alpha))*(pow(1-stereochemistry,beta)));
+    }
+
+
+    cons_alpha = alpha;
+    cons_beta = beta;
+
+    progress.close();
+}
+
+/*
+void Filter::dGCalculation(float alpha, float beta){
     vector<vector<char> > aa_types;
     vector<string> newsequences;
 
@@ -596,7 +729,7 @@ void Filter::dGCalculation(float alpha, float beta){
     progress.setValue(0);
 
     //GET P
-    float lambda_t = 1/log2(types.size());
+    float lambda_t = 1/log2(20);
     vector<float> entropies;
     string aalist = this->getAAList(this->alphabet);
     vector<float> max_entropy;
@@ -632,7 +765,6 @@ void Filter::dGCalculation(float alpha, float beta){
         if(gap)
             pgap = pmap['-'];
 
-        //Aqui
         map<char,float> p;
         for(unsigned int i = 0; i < aalist.size(); i++){
             char t = aalist[i];
@@ -744,6 +876,7 @@ void Filter::dGCalculation(float alpha, float beta){
 
     progress.close();
 }
+*/
 
 long double Filter::lnfact(int x){
     long double result=1.0;
@@ -891,7 +1024,7 @@ vector<float> Filter::ShannonEntropy(int repetitions, int cores){
 
     //Cria sortOrder
     vector<int> sortPos;
-    for(unsigned int i = 0; i < sequences.size()-1; i++){
+    for(unsigned int i = 0; i < sequences.size(); i++){
         currentProgress++;
         progress.setValue(currentProgress);
         QApplication::processEvents();
@@ -1822,23 +1955,8 @@ void Filter::exportFreq(QString filename, int type, bool perc){
 }
 
 void Filter::exportConsRes(QString filename, int type, float mincons, vector<int> refSeqs, vector<string> fullAlignment, vector<string> fullSequences){
-    vector<char> conservedaa;
-    vector<int> conservedpos;
-    vector<float> conservedfreq;
-
-    this->CalculateFrequencies();
-
-    for(unsigned int i = 0; i < frequencies.size()-2; i++){
-        for(unsigned int j = 1; j <= 20; j++){
-            float freq = frequencies[i][j]/((float)sequences.size());
-            //printf("freq=%f / minCons=%f\n",freq,minCons);
-            if(freq >= mincons){
-                conservedaa.push_back(num2aa(j));
-                conservedpos.push_back(i);
-                conservedfreq.push_back(100.0*freq);
-            }
-        }
-    }
+    vector<string> conservedaa = this->getConsRes();
+    vector<float> dgs = this->getConservedDGs();
 
     switch(type){
         case 0:
@@ -1857,18 +1975,21 @@ void Filter::exportConsRes(QString filename, int type, float mincons, vector<int
 
             out << "Sequence ";
             for(unsigned int i = 0; i < conservedaa.size(); i++)
-                out <<  conservedaa[i] << conservedpos[i]+1 << " (" << QString::number(conservedfreq[i],'f',1) << ") ";
+                out <<  conservedaa[i].c_str() << " (" << QString::number(dgs[i],'f',2) << ") ";
             out << "\n";
 
             for(unsigned int i = 0; i < refSeqs.size(); i++){
                 out << fullAlignment[refSeqs[i]].c_str() << " ";
                 for(unsigned int j = 0; j < conservedaa.size(); j++){
-                    if(AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) == 0) out << "- ";
+                    string res = conservedaa[j];
+                    char aa = res[0];
+                    int pos = stoi(res.substr(1))-1;
+                    if(AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) == 0) out << "- ";
                     else{
-                        if(fullSequences[refSeqs[i]][conservedpos[j]]==conservedaa[j])
-                            out << conservedaa[j] << AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]]) << " ";
+                        if(fullSequences[refSeqs[i]][pos]==aa)
+                            out << aa << AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]]) << " ";
                         else
-                            out << fullSequences[refSeqs[i]][conservedpos[j]] << AlignNumbering2Sequence2(refSeqs[i]+1,conservedpos[j],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]]) << " ";
+                            out << fullSequences[refSeqs[i]][pos] << AlignNumbering2Sequence2(refSeqs[i]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[i]]) << " ";
                     }
                 }
                 out << "\n";
@@ -1896,18 +2017,21 @@ void Filter::exportConsRes(QString filename, int type, float mincons, vector<int
             out << "\t<conservedResidues>\n";
 
             for(unsigned int i = 0; i < conservedaa.size(); i++){
-                out << "\t\t<residue alignN=\"" << conservedaa[i] << conservedpos[i]+1 << "\" freq=\"" << QString::number(conservedfreq[i],'f',1) << "\">\n";
+                string res = conservedaa[i];
+                char aa = res[0];
+                int pos = stoi(res.substr(1))-1;
+                out << "\t\t<residue alignN=\"" << conservedaa[i].c_str() << "\" dg=\"" << QString::number(dgs[i],'f',4) << "\">\n";
 
                 for(unsigned int j = 0; j < refSeqs.size(); j++){
                     out << "\t\t\t<entry protein=\"" << fullAlignment[refSeqs[j]].c_str() << "\" ";
-                    if(AlignNumbering2Sequence2(refSeqs[j]+1,conservedpos[i],fullSequences) == 0)
+                    if(AlignNumbering2Sequence2(refSeqs[j]+1,pos,fullSequences) == 0)
                         out << "seqN=\"-\" conserv=\"false\"/>\n";
                     else{
-                        if(fullSequences[refSeqs[j]][conservedpos[i]]==conservedaa[i]){
-                            out << "seqN=\"" << conservedaa[i] << AlignNumbering2Sequence2(refSeqs[j]+1,conservedpos[i],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[j]]);
+                        if(fullSequences[refSeqs[j]][pos]==aa){
+                            out << "seqN=\"" << aa << AlignNumbering2Sequence2(refSeqs[j]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[j]]);
                             out << "\" conserv=\"true\"/>\n";
                         }else{
-                            out << "seqN=\"" << fullSequences[refSeqs[j]][conservedpos[i]] << AlignNumbering2Sequence2(refSeqs[j]+1,conservedpos[i],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[j]]);
+                            out << "seqN=\"" << fullSequences[refSeqs[j]][pos] << AlignNumbering2Sequence2(refSeqs[j]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[j]]);
                             out << "\" conserv=\"false\"/>\n";
                         }
                     }
@@ -1941,19 +2065,23 @@ void Filter::exportConsRes(QString filename, int type, float mincons, vector<int
             out << "<html>\n<body>\n<table border=1>\n<center>\n<tr>\n<th><b>Sequence</b></th>";
 
             for (unsigned int c1=0;c1<=conservedaa.size()-1;c1++){
-                out << "<th><b>" << conservedaa[c1] << conservedpos[c1]+1 << " (" << conservedfreq[c1] <<")</b></th>";
+                out << "<th><b>" << conservedaa[c1].c_str() << " (" << QString::number(dgs[c1],'f',2) <<")</b></th>";
             }
             out << "</tr>\n";
             for (unsigned int c1=0;c1<=refSeqs.size()-1;c1++){
                 out << "<tr><th><b>" << fullAlignment[refSeqs[c1]].c_str();
                 for (unsigned int c2=0;c2<=conservedaa.size()-1;c2++){
-                    if(AlignNumbering2Sequence2(refSeqs[c1]+1,conservedpos[c2],fullSequences) ==0){
+                    string res = conservedaa[c2];
+                    char aa = res[0];
+                    int pos = stoi(res.substr(1))-1;
+
+                    if(AlignNumbering2Sequence2(refSeqs[c1]+1,pos,fullSequences) ==0){
                         out << "<th><font color=#FF0000>-</font></th>";
                     }else{
-                        if (fullSequences[refSeqs[c1]][conservedpos[c2]]==conservedaa[c2])
-                            out << "<th>" << conservedaa[c2] << AlignNumbering2Sequence2(refSeqs[c1]+1,conservedpos[c2],fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[c1]]) << "</th>";
+                        if (fullSequences[refSeqs[c1]][pos]==aa)
+                            out << "<th>" << aa << AlignNumbering2Sequence2(refSeqs[c1]+1,pos,fullSequences) + GetOffsetFromSeqName(fullAlignment[refSeqs[c1]]) << "</th>";
                         else
-                            out << "<th><font color=#FF0000>" << fullSequences[refSeqs[c1]][conservedpos[c2]] << AlignNumbering2Sequence2(refSeqs[c1]+1,conservedpos[c2],fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[c1]]) << "</font></th>";
+                            out << "<th><font color=#FF0000>" << fullSequences[refSeqs[c1]][pos] << AlignNumbering2Sequence2(refSeqs[c1]+1,pos,fullSequences)+GetOffsetFromSeqName(fullAlignment[refSeqs[c1]]) << "</font></th>";
                     }
                 }
                 out << "</tr>\n";

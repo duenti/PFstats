@@ -55,6 +55,7 @@ private:
     string refSeqName = ""; //REMOVER DEPOIS - NUNCA USADA
     vector<string> split(string text, char sep);
     unsigned int freqmatrixposition(char c);
+    unsigned int aa2Num(char c);
     char num2aa(int n);
     bool isaa(char c);
     bool isaax(char c);

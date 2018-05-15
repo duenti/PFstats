@@ -7651,7 +7651,14 @@ void MainWindow::updateAlignmentVisFile(){
 
     for(unsigned int i = 0; i < currentFilter->sequencenames.size(); i++){
         out << ">" + QString::fromStdString(currentFilter->sequencenames[i]) + "\\n";
-        out << QString::fromStdString(currentFilter->sequences[i]) + "\\n";
+        for(unsigned int j = 0; j < currentFilter->sequences[i].size(); j++){
+            if(currentFilter->sequences[i][j] == '.')
+                out << "-";
+            else{
+                out << currentFilter->sequences[i][j];
+            }
+        }
+        out << "\\n";
     }
 
     out << "\"\n";

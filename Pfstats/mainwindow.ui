@@ -193,7 +193,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>9</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="layoutWidget">
@@ -1877,7 +1877,7 @@
                     <double>0.050000000000000</double>
                    </property>
                    <property name="value">
-                    <double>0.800000000000000</double>
+                    <double>0.700000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -2582,7 +2582,7 @@
           <item>
            <widget class="QStackedWidget" name="stackedWidget2">
             <property name="currentIndex">
-             <number>18</number>
+             <number>5</number>
             </property>
             <widget class="QWidget" name="page_8">
              <layout class="QGridLayout" name="gridLayout_29">
@@ -6031,7 +6031,7 @@
      <x>0</x>
      <y>0</y>
      <width>1120</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -6903,7 +6903,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

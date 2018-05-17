@@ -288,7 +288,8 @@ int Network::cbd(int N, int n, float freq, bool right){
         return 1;
     }
 
-    minP=(float)eto10(lnbdf(N,n,freq));
+    long double temp = lnbdf(N,n,freq);
+    minP=(float)eto10(temp);
     if(right){
         for (int i=n;i<=N;i++){
             Ps[i-n]=(float)eto10(lnbdf(N,i,freq));
@@ -312,7 +313,17 @@ int Network::cbd(int N, int n, float freq, bool right){
     delete Ps;
     delete lPs;
 
-    printf("P<10^%i\n",int(floor(logl(sum))+floor(minP)));
+
+    int teste = int(floor(logl(sum))+floor(minP));
+    float a = logl(sum);
+    float b = floor(a);
+    float c = floor(minP);
+    float d = b+c;
+    if(teste == 0)
+        printf("%f %f %f\n",sum,logl(sum),minP);
+
+    //printf("%f\n",minP);
+
     return(int(floor(logl(sum))+floor(minP)));
 }
 
@@ -3036,7 +3047,59 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
             //COMMS
             for(unsigned int i = 0; i < comunidades.size(); i++){
                 for(unsigned int j = 0; j < comunidades[i].size(); j++){
-                    string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + ".txt";
+                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+
+                    if(resFeats.size() > 0){
+                        string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + " [" + QString::number(resFeats.size()).toStdString() + "].txt";
+
+                        //Salva em arquivo
+                        QFile f(path.c_str());
+                        if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                            return;
+                        }
+
+                        QTextStream out(&f);
+
+                        out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
+
+                        for(unsigned int k = 0; k < resFeats.size(); k++){
+                            out << resFeats[k]->getName().c_str() << " ";
+
+                            Feature *f = resFeats[k]->getFeature(0);
+
+                            if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << " ";
+                            else out << "UNKNOWN ";
+
+                            if(f->getType() != "") out << f->getType().c_str() << " ";
+                            else out << "NONE ";
+
+                            if(f->getDescription() != "") out << f->getDescription().c_str() << " ";
+                            else out << "NONE ";
+
+                            if(f->getPosition() == -1) out << "NONE ";
+                            else out << f->getPosition() << " ";
+
+                            if(f->getBegin() == -1) out << "NONE ";
+                            else out << f->getBegin() << " ";
+
+                            if(f->getEnd() == -1) out << "NONE ";
+                            else out << f->getEnd() << " ";
+
+                            out << "\n";
+
+                        }
+
+                        f.close();
+                    }
+                }
+            }
+
+            //CONS
+            for(unsigned int i = 0; i < conserved.size(); i++){
+                vector<Uniprot*> resFeats = this->getAllResidueFeatures(conserved[i]);
+
+                if(resFeats.size() > 0){
+                    string path = filename.toStdString() + "/cons_" + conserved[i]+ " [" + QString::number(resFeats.size()).toStdString() + "].txt";
 
                     //Salva em arquivo
                     QFile f(path.c_str());
@@ -3048,7 +3111,6 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
 
                     out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
 
-                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
 
                     for(unsigned int k = 0; k < resFeats.size(); k++){
                         out << resFeats[k]->getName().c_str() << " ";
@@ -3073,70 +3135,12 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
                         if(f->getEnd() == -1) out << "NONE ";
                         else out << f->getEnd() << " ";
 
-                        if(f->getOriginal() == "") out << "NONE ";
-                        else out << f->getOriginal().c_str() << " ";
-
-                        if(f->getVariation() == "") out << "NONE";
-                        else out << f->getVariation().c_str();
-
                         out << "\n";
 
                     }
 
                     f.close();
                 }
-            }
-
-            //CONS
-            for(unsigned int i = 0; i < conserved.size(); i++){
-                string path = filename.toStdString() + "/cons_" + conserved[i] + ".txt";
-
-                //Salva em arquivo
-                QFile f(path.c_str());
-                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-                    return;
-                }
-
-                QTextStream out(&f);
-
-                out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
-
-                vector<Uniprot*> resFeats = this->getAllResidueFeatures(conserved[i]);
-
-                for(unsigned int k = 0; k < resFeats.size(); k++){
-                    out << resFeats[k]->getName().c_str() << " ";
-
-                    Feature *f = resFeats[k]->getFeature(0);
-
-                    if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << " ";
-                    else out << "UNKNOWN ";
-
-                    if(f->getType() != "") out << f->getType().c_str() << " ";
-                    else out << "NONE ";
-
-                    if(f->getDescription() != "") out << f->getDescription().c_str() << " ";
-                    else out << "NONE ";
-
-                    if(f->getPosition() == -1) out << "NONE ";
-                    else out << f->getPosition() << " ";
-
-                    if(f->getBegin() == -1) out << "NONE ";
-                    else out << f->getBegin() << " ";
-
-                    if(f->getEnd() == -1) out << "NONE ";
-                    else out << f->getEnd() << " ";
-
-                    if(f->getOriginal() == "") out << "NONE ";
-                    else out << f->getOriginal().c_str() << " ";
-
-                    if(f->getVariation() == "") out << "NONE";
-                    else out << f->getVariation().c_str();
-
-                    out << "\n";
-
-                }
-
-                f.close();
             }
 
             break;
@@ -3146,7 +3150,60 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
             //COMM
             for(unsigned int i = 0; i < comunidades.size(); i++){
                 for(unsigned int j = 0; j < comunidades[i].size(); j++){
-                    string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + ".csv";
+                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+
+                    if(resFeats.size() > 0){
+
+                        string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + " [" + QString::number(resFeats.size()).toStdString() + "].csv";
+
+                        //Salva em arquivo
+                        QFile f(path.c_str());
+                        if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                            return;
+                        }
+
+                        QTextStream out(&f);
+
+
+                        for(unsigned int k = 0; k < resFeats.size(); k++){
+                            out << resFeats[k]->getName().c_str() << ",";
+
+                            Feature *f = resFeats[k]->getFeature(0);
+
+                            if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << ",";
+                            else out << "UNKNOWN,";
+
+                            if(f->getType() != "") out << f->getType().c_str() << ",";
+                            else out << "NONE,";
+
+                            if(f->getDescription() != "") out << f->getDescription().c_str() << ",";
+                            else out << "NONE,";
+
+                            if(f->getPosition() == -1) out << "NONE,";
+                            else out << f->getPosition() << ",";
+
+                            if(f->getBegin() == -1) out << "NONE,";
+                            else out << f->getBegin() << ",";
+
+                            if(f->getEnd() == -1) out << "NONE,";
+                            else out << f->getEnd() << ",";
+
+                            out << "\n";
+
+                        }
+
+                        f.close();
+                    }
+                }
+            }
+
+            //CONS
+            for(unsigned int i = 0; i < conserved.size(); i++){
+                vector<Uniprot*> resFeats = this->getAllResidueFeatures(conserved[i]);
+
+                if(resFeats.size() > 0){
+
+                    string path = filename.toStdString() + "/cons_" + conserved[i]+ " [" + QString::number(resFeats.size()).toStdString() + "].csv";
 
                     //Salva em arquivo
                     QFile f(path.c_str());
@@ -3156,7 +3213,8 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
 
                     QTextStream out(&f);
 
-                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+                    out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
+
 
                     for(unsigned int k = 0; k < resFeats.size(); k++){
                         out << resFeats[k]->getName().c_str() << ",";
@@ -3181,70 +3239,12 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
                         if(f->getEnd() == -1) out << "NONE,";
                         else out << f->getEnd() << ",";
 
-                        if(f->getOriginal() == "") out << "NONE,";
-                        else out << f->getOriginal().c_str() << ",";
-
-                        if(f->getVariation() == "") out << "NONE";
-                        else out << f->getVariation().c_str();
-
                         out << "\n";
 
                     }
 
                     f.close();
                 }
-            }
-
-            //CONS
-            for(unsigned int i = 0; i < conserved.size(); i++){
-                string path = filename.toStdString() + "/cons_" + conserved[i] + ".csv";
-
-                //Salva em arquivo
-                QFile f(path.c_str());
-                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-                    return;
-                }
-
-                QTextStream out(&f);
-
-                out << "PROTEIN SEQNUMBER TYPE DESCRIPTION POSITION BEGIN END ORIGINAL VARIATION\n";
-
-                vector<Uniprot*> resFeats = this->getAllResidueFeatures(conserved[i]);
-
-                for(unsigned int k = 0; k < resFeats.size(); k++){
-                    out << resFeats[k]->getName().c_str() << ",";
-
-                    Feature *f = resFeats[k]->getFeature(0);
-
-                    if(f->getResidueColigated() != "") out << f->getResidueColigated().c_str() << ",";
-                    else out << "UNKNOWN,";
-
-                    if(f->getType() != "") out << f->getType().c_str() << ",";
-                    else out << "NONE,";
-
-                    if(f->getDescription() != "") out << f->getDescription().c_str() << ",";
-                    else out << "NONE,";
-
-                    if(f->getPosition() == -1) out << "NONE,";
-                    else out << f->getPosition() << ",";
-
-                    if(f->getBegin() == -1) out << "NONE,";
-                    else out << f->getBegin() << ",";
-
-                    if(f->getEnd() == -1) out << "NONE,";
-                    else out << f->getEnd() << ",";
-
-                    if(f->getOriginal() == "") out << "NONE,";
-                    else out << f->getOriginal().c_str() << ",";
-
-                    if(f->getVariation() == "") out << "NONE";
-                    else out << f->getVariation().c_str();
-
-                    out << "\n";
-
-                }
-
-                f.close();
             }
 
 
@@ -3292,11 +3292,6 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
                         if(f->getId() != "")
                             out << "id=\"" << f->getId().c_str() << "\" ";
                         out << ">\n";
-
-                        if(f->getOriginal() != "")
-                            out << "\t\t\t\t<original>" << f->getOriginal().c_str() << "</original>\n";
-                        if(f->getVariation() != "")
-                            out << "\t\t\t\t<variation>" << f->getVariation().c_str() << "</variation>\n";
 
                         if(f->getBegin() != -1 || f->getPosition() != -1){
                             out << "\t\t\t\t<location>\n";
@@ -3346,11 +3341,6 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
                         out << "id=\"" << f->getId().c_str() << "\" ";
                     out << ">\n";
 
-                    if(f->getOriginal() != "")
-                        out << "\t\t\t\t<original>" << f->getOriginal().c_str() << "</original>\n";
-                    if(f->getVariation() != "")
-                        out << "\t\t\t\t<variation>" << f->getVariation().c_str() << "</variation>\n";
-
                     if(f->getBegin() != -1 || f->getPosition() != -1){
                         out << "\t\t\t\t<location>\n";
 
@@ -3382,7 +3372,72 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
             //COMM
             for(unsigned int i = 0; i < comunidades.size(); i++){
                 for(unsigned int j = 0; j < comunidades[i].size(); j++){
-                    string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + ".html";
+                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
+
+                    if(resFeats.size() > 0){
+
+                        string path = filename.toStdString() + "/c" + QString::number(i).toStdString() + "_" + comunidades[i][j] + " [" + QString::number(resFeats.size()).toStdString() + "].html";
+
+                        //Salva em arquivo
+                        QFile f(path.c_str());
+                        if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
+                            return;
+                        }
+
+                        QTextStream out(&f);
+
+                        out << "<html>\n<body>\n<table border=1>\n<center>\n";
+                        out << "<tr>\n";
+                        out << "<th>Protein</th>\n";
+                        out << "<th>Seq. Number</th>\n";
+                        out << "<th>Type</th>\n";
+                        out << "<th>Description</th>\n";
+                        out << "<th>Position</th>\n";
+                        out << "<th>Begin</th>\n";
+                        out << "<th>End</th>\n";
+                        out << "</tr>\n";
+
+                        for(unsigned int k = 0; k < resFeats.size(); k++){
+                            out << "<tr>\n";
+
+                            out << "<td>" << resFeats[k]->getName().c_str() << "</td>\n";
+
+                            Feature *f = resFeats[k]->getFeature(0);
+
+                            if(f->getResidueColigated() != "") out << "<td>" << f->getResidueColigated().c_str() << "</td>\n";
+                            else out << "<td>UNKNOWN</td>";
+
+                            if(f->getType() != "") out << "<td>" << f->getType().c_str() << "</td>\n";
+                            else out << "<td>NONE</td>";
+
+                            if(f->getDescription() != "") out << "<td>" << f->getDescription().c_str() << "</td>\n";
+                            else out << "<td>NONE</td>\n";
+
+                            if(f->getPosition() == -1) out << "<td>NONE</td>\n";
+                            else out << "<td>" << f->getPosition() << "</td>\n";
+
+                            if(f->getBegin() == -1) out << "<td>NONE</td>\n";
+                            else out << "<td>" << f->getBegin() << "</td>\n";
+
+                            if(f->getEnd() == -1) out << "<td>NONE</td>\n";
+                            else out << "<td>" << f->getEnd() << "</td>\n";
+
+                            out << "<tr>\n";
+
+                        }
+
+                        out << "</body>\n</html>";
+                        f.close();
+                    }
+                }
+            }
+
+            //CONS
+            for(unsigned int i = 0; i < conserved.size(); i++){
+                vector<Uniprot*> resFeats = this->getAllResidueFeatures(conserved[i]);
+
+                if(resFeats.size() > 0){
+                    string path = filename.toStdString() + "/cons_" + conserved[i]+ " [" + QString::number(resFeats.size()).toStdString() + "].html";
 
                     //Salva em arquivo
                     QFile f(path.c_str());
@@ -3401,11 +3456,7 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
                     out << "<th>Position</th>\n";
                     out << "<th>Begin</th>\n";
                     out << "<th>End</th>\n";
-                    out << "<th>Original</th>\n";
-                    out << "<th>Variation</th>\n";
                     out << "</tr>\n";
-
-                    vector<Uniprot*> resFeats = this->getAllResidueFeatures(comunidades[i][j]);
 
                     for(unsigned int k = 0; k < resFeats.size(); k++){
                         out << "<tr>\n";
@@ -3432,12 +3483,6 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
                         if(f->getEnd() == -1) out << "<td>NONE</td>\n";
                         else out << "<td>" << f->getEnd() << "</td>\n";
 
-                        if(f->getOriginal() == "") out << "<td>NONE</td>\n";
-                        else out << "<td>" << f->getOriginal().c_str() << "</td>\n";
-
-                        if(f->getVariation() == "") out << "<td>NONE</td>\n";
-                        else out << "<td>" << f->getVariation().c_str() << "</td>\n";
-
                         out << "<tr>\n";
 
                     }
@@ -3445,72 +3490,6 @@ void Network::exportLookComm(QString filename, int type, vector<string> conserve
                     out << "</body>\n</html>";
                     f.close();
                 }
-            }
-
-            //CONS
-            for(unsigned int i = 0; i < conserved.size(); i++){
-                string path = filename.toStdString() + "/cons_" + conserved[i] + ".csv";
-
-                //Salva em arquivo
-                QFile f(path.c_str());
-                if (!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-                    return;
-                }
-
-                QTextStream out(&f);
-
-                out << "<html>\n<body>\n<table border=1>\n<center>\n";
-                out << "<tr>\n";
-                out << "<th>Protein</th>\n";
-                out << "<th>Seq. Number</th>\n";
-                out << "<th>Type</th>\n";
-                out << "<th>Description</th>\n";
-                out << "<th>Position</th>\n";
-                out << "<th>Begin</th>\n";
-                out << "<th>End</th>\n";
-                out << "<th>Original</th>\n";
-                out << "<th>Variation</th>\n";
-                out << "</tr>\n";
-
-                vector<Uniprot*> resFeats = this->getAllResidueFeatures(conserved[i]);
-
-                for(unsigned int k = 0; k < resFeats.size(); k++){
-                    out << "<tr>\n";
-
-                    out << "<td>" << resFeats[k]->getName().c_str() << "</td>\n";
-
-                    Feature *f = resFeats[k]->getFeature(0);
-
-                    if(f->getResidueColigated() != "") out << "<td>" << f->getResidueColigated().c_str() << "</td>\n";
-                    else out << "<td>UNKNOWN</td>";
-
-                    if(f->getType() != "") out << "<td>" << f->getType().c_str() << "</td>\n";
-                    else out << "<td>NONE</td>";
-
-                    if(f->getDescription() != "") out << "<td>" << f->getDescription().c_str() << "</td>\n";
-                    else out << "<td>NONE</td>\n";
-
-                    if(f->getPosition() == -1) out << "<td>NONE</td>\n";
-                    else out << "<td>" << f->getPosition() << "</td>\n";
-
-                    if(f->getBegin() == -1) out << "<td>NONE</td>\n";
-                    else out << "<td>" << f->getBegin() << "</td>\n";
-
-                    if(f->getEnd() == -1) out << "<td>NONE</td>\n";
-                    else out << "<td>" << f->getEnd() << "</td>\n";
-
-                    if(f->getOriginal() == "") out << "<td>NONE</td>\n";
-                    else out << "<td>" << f->getOriginal().c_str() << "</td>\n";
-
-                    if(f->getVariation() == "") out << "<td>NONE</td>\n";
-                    else out << "<td>" << f->getVariation().c_str() << "</td>\n";
-
-                    out << "<tr>\n";
-
-                }
-
-                out << "</body>\n</html>";
-                f.close();
 
             }
 

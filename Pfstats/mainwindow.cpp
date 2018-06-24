@@ -7095,6 +7095,7 @@ bool MainWindow::generateSunburst(vector<string> sequencenames){
 
     for(unsigned int i = 0; i < sequencenames.size(); i++){
         string seqname = split(sequencenames[i],'/')[0];
+        seqname = split(seqname,'.')[0];
         string taxons = currentAlign->taxonomy[seqname];
         if(taxons != ""){
             if(taxData.count(taxons)){
